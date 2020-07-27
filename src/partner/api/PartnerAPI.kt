@@ -15,9 +15,8 @@ import ombruk.backend.shared.error.RequestError
 import ombruk.backend.shared.api.generateResponse
 import ombruk.backend.partner.form.PartnerForm
 import ombruk.backend.partner.service.IPartnerService
+import ombruk.backend.shared.api.catchingCall
 import ombruk.backend.shared.error.ServiceError
-
-fun <T> catchingCall(left: ServiceError, func: () -> T) = runCatching { func() }.fold({ it.right() }, { left.left() })
 
 fun Routing.partners(partnerService: IPartnerService) {
 
