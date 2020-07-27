@@ -55,21 +55,6 @@ fun Routing.report(reportService: IReportService) {
                 is Either.Right -> call.respond(HttpStatusCode.OK, result.b)
             }
         }
-
-        post {
-            val report = kotlin.runCatching { call.receive<Report>() }.onFailure {
-                call.respond(HttpStatusCode.BadRequest)
-            }.getOrThrow()
-
-            when (val result = reportService.saveReport(report)) {
-                is Either.Left -> {
-                    call.respond(HttpStatusCode.InternalServerError, result.a)
-                }
-                is Either.Right -> {
-                    call.respond(HttpStatusCode.OK, result.b)
-                }
-            }
-        }
     }
 
 

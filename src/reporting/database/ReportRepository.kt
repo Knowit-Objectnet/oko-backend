@@ -4,6 +4,8 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import ombruk.backend.calendar.database.Events
+import ombruk.backend.calendar.database.Stations
+import ombruk.backend.calendar.model.Event
 import ombruk.backend.shared.error.RepositoryError
 import ombruk.backend.partner.model.Partner
 import ombruk.backend.reporting.model.Report
@@ -21,27 +23,30 @@ private val logger = LoggerFactory.getLogger("ombruk.reporting.database.ReportRe
 object Reports : IntIdTable("reports") {
     val eventID = integer("event_id").references(Events.id)
     val partnerID = integer("partner_id").references(Partners.id)
-    val weight = integer("weight")
+    val stationID = integer("station_id").references(Stations.id)
+    val startDateTime = datetime("start_date_time")
+    val endDateTime = datetime("end_date_time")
+    val weight = integer("weight").nullable()
     val createdDateTime = datetime("created_date_time")
 }
 
 object ReportRepository : IReportRepository {
-    override fun insertReport(report: Report) = runCatching {
+
+    override fun insertReport(event: Event) = runCatching {
         transaction {
             Reports.insertAndGetId {
-                it[weight] = report.weight
-                it[eventID] = report.eventId
-                it[partnerID] = report.partner.id
+                it[weight] = null
+                it[eventID] = event.id
+                it[partnerID] = event.partner.id
+                it[stationID] = event.station.id
+                it[startDateTime] = event.startDateTime
+                it[endDateTime] = event.endDateTime
                 it[createdDateTime] = LocalDateTime.now()
             }.value
         }
     }
-        .onFailure { logger.error("Failed to insert station to db") }
-        .fold({ report.copy(reportID = it).right() }, {
-            RepositoryError.InsertError(
-                it.message
-            ).left()
-        })
+        .onFailure { logger.error("Failed to insert station to db: ${it.message}") }
+        .fold({ getReportByID(it) }, { RepositoryError.InsertError("SQL error").left() })
 
     override fun updateReport(report: Report): Either<RepositoryError, Unit> {
         TODO("Not yet implemented")
@@ -79,7 +84,10 @@ object ReportRepository : IReportRepository {
         return Report(
             resultRow[Reports.id].value,
             resultRow[Reports.eventID],
-            Partner(resultRow[Reports.partnerID], ""),
+            resultRow[Reports.partnerID],
+            resultRow[Reports.stationID],
+            resultRow[Reports.startDateTime],
+            resultRow[Reports.endDateTime],
             resultRow[Reports.weight],
             resultRow[Reports.createdDateTime]
         )
