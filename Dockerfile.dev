@@ -1,0 +1,7 @@
+FROM gradle:6.5.0-jdk8
+
+WORKDIR /srv/ombruk-backend
+
+EXPOSE 8080
+
+CMD gradle run -t & ./wait-for-it.sh 0.0.0.0:8080 -t 0 -- gradle -t installDist --watch-fs

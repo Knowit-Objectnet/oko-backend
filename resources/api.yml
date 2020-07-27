@@ -1,0 +1,293 @@
+openapi: 3.0.0
+# Added by API Auto Mocking Plugin
+servers:
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/oko8/Events/1.0.0
+  - description: Actual API
+    url: https://tcuk58u5ge.execute-api.eu-central-1.amazonaws.com/staging/calendar/
+info:
+  description: API documentation for the OKO events endpoint
+  version: "1.0.0"
+  title: OKO Calendar
+  contact:
+    email: jonas.carlsen@knowit.no
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+tags:
+  - name: everyone
+    description: Calls available for unauthorized users
+paths:
+  /health_check/:
+    get:
+      tags:
+        - everyone
+      summary: Check if API is up
+      operationId: healthCheck
+      description: "Returns a 200 if the service is up"
+      responses:
+        '200':
+          description: Service is up
+  /events/{event_id}:
+    get:
+      tags:
+        - everyone
+      summary: Get an event by ID
+      parameters:
+        - in: path
+          name: event_id
+          schema:
+            type: integer
+          required: true
+          description: "Numeric ID of the event to get"
+      responses:
+        '200':
+          description: "Event matching ID"
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/GetEvent'
+        '400':
+          description: bad input parameter
+        '404':
+          description: not found
+
+  /events/:
+    get:
+      tags:
+        - everyone
+      summary: fetches events
+      operationId: getEvents
+      description: |
+        Calls without parameters returns all events. Use parameters to narrow
+        down search results
+      parameters:
+        - in: query
+          name: station-id
+          description: pass an optional station id for events
+          required: false
+          schema:
+            type: integer
+        - in: query
+          name: partner-id
+          description: pass an optional partner id for events
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Search results matching criteria
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GetEvent'
+        '400':
+          description: bad input parameter
+    post:
+      tags:
+        - everyone
+      summary: Adds a new event
+      operationId: addEvent
+      description: Adds a new event. Can be both recurring or single events.
+      responses:
+        '201':
+          description: Event created
+        '400':
+          description: Bad request
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostEvent'
+        description: Event to add. Omit recurrenceRule if singular event. The recurrence rule has to specifiy EITHER until or count. The first day of the days array in the recurrence rule has to match the start date of the event.
+    patch:
+      tags:
+        - everyone
+      summary: Updates a singular event in the database
+      operationId: updateEvent
+      description: |
+        Updates a single event in the database. The only required property is the event ID, which cannot be updated.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEvent'
+      responses:
+        '200':
+          description: Event updated successfully
+        '404':
+          description: Event with specified ID does not exist
+        '500':
+          description: Failed to update event
+    delete:
+      tags:
+        - everyone
+      summary: Wipes events from database
+      operationId: deleteEvents
+      description: |
+        Deletes all inserted events and their corresponding recurrence rules
+        (if any). Must pass in either event-id or recurrence-rule-id.
+      parameters:
+        - in: query
+          name: event-id
+          description: ID of event to delete
+          schema:
+            type: integer
+            format: int64
+            example: 10
+        - in: query
+          name: recurrence-rule-id
+          description: |
+            Deletes all events that references the specified recurrence
+            rule
+          schema:
+            type: integer
+            format: int64
+            example: 1
+        - in: query
+          name: from-date
+          description: Delete events from specified date
+          schema:
+            type: string
+            format: date-time
+            example: "2020-07-10T12:17:39"
+        - in: query
+          name: to-date
+          description: Delete events up to and including specified date
+          schema:
+            type: string
+            format: date-time
+            example: "2020-07-27T12:17:39"
+      responses:
+        '200':
+          description: Deleted successfully
+        '404':
+          description: No events found
+        '500':
+          description: Failed to delete events
+
+components:
+  schemas:
+    PostEvent:
+      type: object
+      properties:
+        startDateTime:
+          type: string
+          format: date-time
+          example: "2020-07-10T12:17:39"
+        endDateTime:
+          type: string
+          format: date-time
+          example: "2020-07-10T13:17:39"
+        station:
+          type: object
+          properties:
+            id:
+              type: integer
+              format: int64
+              example: 1
+        partner:
+          type: object
+          properties:
+            id:
+              type: integer
+              format: int64
+              example: 2
+        recurrenceRule:
+          $ref: '#/components/schemas/PostRecurrenceRule'
+
+    GetEvent:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        startDateTime:
+          type: string
+          format: date-time
+          example: "2020-07-10T12:17:39"
+        endDateTime:
+          type: string
+          format: date-time
+          example: "2020-07-10T13:17:39"
+        station:
+          $ref: '#/components/schemas/Station'
+        partner:
+          $ref: '#/components/schemas/Partner'
+        recurrenceRule:
+          $ref: '#/components/schemas/RecurrenceRule'
+
+    UpdateEvent:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        startDateTime:
+          type: string
+          format: date-time
+          example: "2020-07-10T13:17:39"
+        endDateTime:
+          type: string
+          format: date-time
+          example: "2020-07-10T14:17:39"
+
+    Station:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        name:
+          type: string
+          example: "Haraldrud"
+
+    Partner:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 2
+        name:
+          type: string
+          example: "Maritastiftelsen"
+
+    PostRecurrenceRule:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+          readOnly: true
+      additionalProperties:
+        $ref: '#/components/schemas/RecurrenceRule'
+
+    RecurrenceRule:
+      type: object
+      properties:
+        until:
+          type: string
+          format: date-time
+          example: "2020-07-13T15:00:00"
+        count:
+          type: integer
+          format: int64
+          example: 5
+        interval:
+          type: integer
+          format: int64
+          example: 2
+        days:
+          $ref: '#/components/schemas/DaysArray'
+
+    DaysArray:
+      type: array
+      items:
+        type: string
+      example: ["MONDAY", "TUESDAY", "FRIDAY"]

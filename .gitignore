@@ -1,0 +1,18 @@
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.vscode
+.vs/
+
+# intellij
+.idea/
+.idea/
+.gradle
+/out
+/build
+*.iml
+*.ipr
+*.iws
