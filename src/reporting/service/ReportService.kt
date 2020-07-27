@@ -1,12 +1,11 @@
 package ombruk.backend.reporting.service
 
-import arrow.core.Either
 import arrow.core.Left
 import arrow.core.Right
 import arrow.core.leftIfNull
+import ombruk.backend.calendar.model.Event
 import ombruk.backend.reporting.database.ReportRepository
 import ombruk.backend.reporting.database.Reports
-import ombruk.backend.reporting.model.Report
 import ombruk.backend.shared.error.ServiceError
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -15,7 +14,7 @@ import org.slf4j.LoggerFactory
 object ReportService : IReportService {
     private val logger = LoggerFactory.getLogger("ombruk.reporting.service.PartnerService")
 
-    override fun saveReport(report: Report): Either<ServiceError, Report> = ReportRepository.insertReport(report)
+    override fun saveReport(event: Event) = ReportRepository.insertReport(event)
 
     override fun getReportById(id: Int) = transaction {
         ReportRepository.getReportByID(id).leftIfNull {

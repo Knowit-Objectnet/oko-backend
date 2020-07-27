@@ -39,6 +39,7 @@ fun Routing.stations() {
             val station = runCatching { call.receive<StationForm>() }
                 .map { Station(0, it.name) }
                 .getOrElse {
+                    it.printStackTrace()
                     logger.warn("Failed to parse Station: ${it.message}")
                     call.respond(HttpStatusCode.BadRequest,
                         parseErrorDecoder(it)
