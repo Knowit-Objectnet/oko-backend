@@ -1,27 +1,4 @@
-
-import ombruk.backend.partner.database.Partners
-import ombruk.backend.pickup.database.Requests
-import ombruk.backend.calendar.database.Stations
-import ombruk.backend.shared.database.initDB
-import ombruk.backend.partner.model.Partner
-import ombruk.backend.pickup.model.Pickup
-import ombruk.backend.pickup.model.Request
-import ombruk.backend.calendar.model.Station
-import ombruk.backend.pickup.service.PickupService
-import ombruk.backend.pickup.service.RequestService
-import org.jetbrains.exposed.sql.deleteAll
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.transactions.transaction
-import org.junit.After
-import org.junit.BeforeClass
-import org.junit.Test
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
-
-
+/*
 class RequestServiceTest {
     companion object {
         lateinit var requestService: RequestService
@@ -229,3 +206,5 @@ class RequestServiceTest {
         }
     }
 }
+
+ */

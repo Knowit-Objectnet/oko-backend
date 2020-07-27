@@ -1,20 +1,4 @@
-
-import ombruk.backend.pickup.database.Pickups
-import ombruk.backend.calendar.database.Stations
-import ombruk.backend.shared.database.initDB
-import ombruk.backend.pickup.model.Pickup
-import ombruk.backend.calendar.model.Station
-import ombruk.backend.pickup.service.PickupService
-import org.jetbrains.exposed.sql.deleteAll
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.transactions.transaction
-import org.junit.After
-import org.junit.BeforeClass
-import org.junit.Test
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import kotlin.test.*
-
+/*
 class PickupServiceTest {
     companion object {
         lateinit var pickupService: PickupService
@@ -208,3 +192,4 @@ class PickupServiceTest {
         assertEquals(expectedPickup, actualPickup)
     }
 }
+*/

@@ -10,7 +10,7 @@ enum class EventType { SINGLE, RECURRING }
 
 @Serializable
 data class Event(
-    val id: Int = 0,
+    val id: Int,
     @Serializable(with = LocalDateTimeSerializer::class) var startDateTime: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class) var endDateTime: LocalDateTime,
     val station: Station,

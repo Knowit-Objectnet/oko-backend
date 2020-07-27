@@ -1,17 +1,5 @@
-package ombruk.backend
 
-import ombruk.backend.calendar.model.Event
-import ombruk.backend.partner.model.Partner
-import ombruk.backend.calendar.model.RecurrenceRule
-import ombruk.backend.calendar.model.Station
-import ombruk.backend.utils.assertEventEqual
-import ombruk.backend.utils.everyWeekDay
-import ombruk.backend.utils.everyday
-import org.junit.Test
-import java.time.DayOfWeek
-import java.time.LocalDateTime
-import kotlin.test.assertEquals
-
+/*
 class RecurringEventIteratorTest {
 
     companion object {
@@ -366,3 +354,4 @@ class RecurringEventIteratorTest {
         assertEquals(1, counter)
     }
 }
+ */

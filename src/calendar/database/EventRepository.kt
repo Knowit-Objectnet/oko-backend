@@ -3,13 +3,13 @@ package ombruk.backend.calendar.database
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
-import ombruk.backend.calendar.form.EventUpdateForm
 import ombruk.backend.calendar.form.CreateEventForm
 import ombruk.backend.calendar.form.EventDeleteForm
+import ombruk.backend.calendar.form.EventUpdateForm
 import ombruk.backend.calendar.model.*
 import ombruk.backend.partner.database.Partners
-import ombruk.backend.shared.error.RepositoryError
 import ombruk.backend.partner.model.Partner
+import ombruk.backend.shared.error.RepositoryError
 import ombruk.calendar.form.api.EventGetForm
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.*
@@ -31,8 +31,6 @@ object EventRepository : IEventRepository {
     private val logger = LoggerFactory.getLogger("ombruk.backend.service.EventRepository")
 
     override fun insertEvent(form: CreateEventForm): Either<RepositoryError, Event> {
-
-
         val id = runCatching {
             Events.insertAndGetId {
                 it[startDateTime] = form.startDateTime
@@ -117,7 +115,7 @@ object EventRepository : IEventRepository {
             { RepositoryError.SelectError(it.message).left() })
 
 
-    override fun getEvents(eventGetForm: EventGetForm, eventType: EventType?): Either<RepositoryError, List<Event>> =
+    override fun getEvents(eventGetForm: EventGetForm?, eventType: EventType?): Either<RepositoryError, List<Event>> =
         runCatching {
             transaction {
                 val query = (Events innerJoin Stations innerJoin Partners leftJoin RecurrenceRules).selectAll()
@@ -127,12 +125,14 @@ object EventRepository : IEventRepository {
                         EventType.RECURRING -> query.andWhere { Events.recurrenceRuleID.isNotNull() }
                     }
                 }
-                eventGetForm.eventID?.let { query.andWhere { Events.id eq it } }
-                eventGetForm.stationID?.let { query.andWhere { Events.stationID eq it } }
-                eventGetForm.partnerID?.let { query.andWhere { Events.partnerID eq it } }
-                eventGetForm.recurrenceRuleID?.let { query.andWhere { Events.recurrenceRuleID eq it } }
-                eventGetForm.fromDate?.let { query.andWhere { Events.startDateTime.greaterEq(it) } }
-                eventGetForm.toDate?.let { query.andWhere { Events.endDateTime.lessEq(it) } }
+                if(eventGetForm != null) {
+                    eventGetForm.eventID?.let { query.andWhere { Events.id eq it } }
+                    eventGetForm.stationID?.let { query.andWhere { Events.stationID eq it } }
+                    eventGetForm.partnerID?.let { query.andWhere { Events.partnerID eq it } }
+                    eventGetForm.recurrenceRuleID?.let { query.andWhere { Events.recurrenceRuleID eq it } }
+                    eventGetForm.fromDate?.let { query.andWhere { Events.startDateTime.greaterEq(it) } }
+                    eventGetForm.toDate?.let { query.andWhere { Events.endDateTime.lessEq(it) } }
+                }
                 query.mapNotNull { toEvent(it) }
             }
         }

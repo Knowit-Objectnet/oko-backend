@@ -10,7 +10,6 @@ import java.time.LocalDateTime
 
 @Serializable
 data class CreateEventForm(
-    val id: Int = 0,
     @Serializable(with = LocalDateTimeSerializer::class) var startDateTime: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class) var endDateTime: LocalDateTime,
     val stationId: Int,

@@ -1,4 +1,4 @@
-package ombruk.backend.calendar.utils
+package ombruk.backend.shared.utils
 
 import java.time.LocalDateTime
 
