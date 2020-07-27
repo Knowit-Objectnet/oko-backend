@@ -1,14 +1,14 @@
 
-import ombruk.backend.database.Partners
-import ombruk.backend.database.Requests
-import ombruk.backend.database.Stations
-import ombruk.backend.database.initDB
-import ombruk.backend.model.Partner
-import ombruk.backend.model.Pickup
-import ombruk.backend.model.Request
-import ombruk.backend.model.Station
-import ombruk.backend.service.PickupService
-import ombruk.backend.service.RequestService
+import ombruk.backend.partner.database.Partners
+import ombruk.backend.pickup.database.Requests
+import ombruk.backend.calendar.database.Stations
+import ombruk.backend.shared.database.initDB
+import ombruk.backend.partner.model.Partner
+import ombruk.backend.pickup.model.Pickup
+import ombruk.backend.pickup.model.Request
+import ombruk.backend.calendar.model.Station
+import ombruk.backend.pickup.service.PickupService
+import ombruk.backend.pickup.service.RequestService
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction

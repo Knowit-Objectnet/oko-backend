@@ -1,7 +1,7 @@
 package ombruk.backend.utils
 
-import ombruk.backend.model.Event
-import ombruk.backend.model.RecurrenceRule
+import ombruk.backend.calendar.model.Event
+import ombruk.backend.calendar.model.RecurrenceRule
 import java.time.DayOfWeek
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

@@ -1,10 +1,10 @@
 
-import ombruk.backend.database.Pickups
-import ombruk.backend.database.Stations
-import ombruk.backend.database.initDB
-import ombruk.backend.model.Pickup
-import ombruk.backend.model.Station
-import ombruk.backend.service.PickupService
+import ombruk.backend.pickup.database.Pickups
+import ombruk.backend.calendar.database.Stations
+import ombruk.backend.shared.database.initDB
+import ombruk.backend.pickup.model.Pickup
+import ombruk.backend.calendar.model.Station
+import ombruk.backend.pickup.service.PickupService
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -113,7 +113,14 @@ class PickupServiceTest {
 
         val expectedPickups = dateRange.map { startDate ->
             transaction { 
-                pickupService.getPickupById(pickupService.savePickup(Pickup(10, startDate, startDate.plusHours(1), testStation))
+                pickupService.getPickupById(pickupService.savePickup(
+                    Pickup(
+                        10,
+                        startDate,
+                        startDate.plusHours(1),
+                        testStation
+                    )
+                )
                 )}
         }
 
@@ -132,7 +139,14 @@ class PickupServiceTest {
     fun testDeletePickupById(){
         val startTime = LocalDateTime.parse("2020-07-20T15:45:00", DateTimeFormatter.ISO_DATE_TIME)
         val endTime = LocalDateTime.parse("2020-07-20T16:45:00", DateTimeFormatter.ISO_DATE_TIME)
-        val id = pickupService.savePickup(Pickup(11, startTime, endTime, testStation2))
+        val id = pickupService.savePickup(
+            Pickup(
+                11,
+                startTime,
+                endTime,
+                testStation2
+            )
+        )
 
         assertTrue(pickupService.deletePickup(id, null))
 
@@ -143,7 +157,14 @@ class PickupServiceTest {
     fun testDeletePickupByStation(){
         val startTime = LocalDateTime.parse("2020-07-20T15:45:00", DateTimeFormatter.ISO_DATE_TIME)
         val endTime = LocalDateTime.parse("2020-07-20T16:45:00", DateTimeFormatter.ISO_DATE_TIME)
-        pickupService.savePickup(Pickup(12, startTime, endTime, testStation2))
+        pickupService.savePickup(
+            Pickup(
+                12,
+                startTime,
+                endTime,
+                testStation2
+            )
+        )
 
         assertTrue(pickupService.deletePickup(null, testStation2.id))
 

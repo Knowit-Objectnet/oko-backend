@@ -18,12 +18,16 @@ import io.ktor.routing.routing
 import io.ktor.serialization.DefaultJsonConfiguration
 import io.ktor.serialization.json
 import kotlinx.serialization.json.Json
-import ombruk.backend.api.*
-import ombruk.backend.database.initDB
-import ombruk.backend.service.EventService
-import ombruk.backend.service.PartnerService
-import ombruk.backend.service.PickupService
-import ombruk.backend.service.ReportService
+import ombruk.backend.calendar.api.events
+import ombruk.backend.calendar.api.stations
+import ombruk.backend.shared.database.initDB
+import ombruk.backend.calendar.service.EventService
+import ombruk.backend.partner.api.partners
+import ombruk.backend.partner.service.PartnerService
+import ombruk.backend.pickup.api.pickup
+import ombruk.backend.reporting.api.report
+import ombruk.backend.pickup.service.PickupService
+import ombruk.backend.reporting.service.ReportService
 import java.net.URL
 import java.util.concurrent.TimeUnit
 

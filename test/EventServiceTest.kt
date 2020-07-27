@@ -2,15 +2,25 @@ import arrow.core.Either
 import arrow.core.getOrHandle
 import io.ktor.http.Parameters
 import io.ktor.http.ParametersBuilder
+import ombruk.backend.calendar.database.EventRepository
+import ombruk.backend.calendar.database.Events
+import ombruk.backend.calendar.database.RecurrenceRules
+import ombruk.backend.calendar.database.Stations
 import ombruk.backend.database.*
-import ombruk.backend.form.EventUpdateForm
-import ombruk.backend.form.api.EventDeleteForm
-import ombruk.backend.form.api.ValidationError
-import ombruk.backend.model.*
-import ombruk.backend.service.EventService
+import ombruk.backend.calendar.form.EventUpdateForm
+import ombruk.backend.calendar.form.EventDeleteForm
+import ombruk.backend.calendar.model.Event
+import ombruk.backend.calendar.model.EventType
+import ombruk.backend.calendar.model.RecurrenceRule
+import ombruk.backend.calendar.model.Station
+import ombruk.backend.shared.error.ValidationError
+import ombruk.backend.calendar.service.EventService
 import ombruk.backend.utils.assertEventEqual
 import ombruk.backend.utils.everyWeekDay
-import ombruk.backend.utils.rangeTo
+import ombruk.backend.calendar.utils.rangeTo
+import ombruk.backend.partner.database.Partners
+import ombruk.backend.partner.model.Partner
+import ombruk.backend.shared.database.initDB
 import ombruk.calendar.form.api.EventGetForm
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -57,7 +67,8 @@ class EventServiceTest {
                 val testStationId2 = Stations.insertAndGetId {
                     it[name] = "Test Station 2"
                 }.value
-                testStation2 = Station(testStationId2, "Test Station 2")
+                testStation2 =
+                    Station(testStationId2, "Test Station 2")
             }
 
             eventService = EventService()
@@ -166,7 +177,10 @@ class EventServiceTest {
             endDateTime = LocalDateTime.parse("2020-07-06T16:48:06", DateTimeFormatter.ISO_DATE_TIME),
             partner = testPartner,
             station = testStation,
-            recurrenceRule = RecurrenceRule(count = expectedCount, days = listOf(DayOfWeek.MONDAY))
+            recurrenceRule = RecurrenceRule(
+                count = expectedCount,
+                days = listOf(DayOfWeek.MONDAY)
+            )
         )
         eventService.saveEvent(event)
 
@@ -305,7 +319,13 @@ class EventServiceTest {
         val expectedEvents = dateRange.map { startDate ->
             transaction {
                 EventRepository.insertEvent(
-                    Event(0, startDate, startDate.plusHours(1), testStation, testPartner)
+                    Event(
+                        0,
+                        startDate,
+                        startDate.plusHours(1),
+                        testStation,
+                        testPartner
+                    )
                 )
             }.getOrHandle { throw IllegalStateException("Result is left") }
         }
@@ -333,7 +353,13 @@ class EventServiceTest {
         val expectedEvents = dateRange.map { startDate ->
             transaction {
                 EventRepository.insertEvent(
-                    Event(0, startDate, startDate.plusHours(1), testStation, testPartner)
+                    Event(
+                        0,
+                        startDate,
+                        startDate.plusHours(1),
+                        testStation,
+                        testPartner
+                    )
                 )
             }.getOrHandle { throw IllegalStateException("Result is left") }
         }
@@ -342,7 +368,13 @@ class EventServiceTest {
         val unexpectedEvents = dateRange.map { startDate ->
             transaction {
                 EventRepository.insertEvent(
-                    Event(0, startDate, startDate.plusHours(1), testStation2, testPartner)
+                    Event(
+                        0,
+                        startDate,
+                        startDate.plusHours(1),
+                        testStation2,
+                        testPartner
+                    )
                 )
             }.getOrHandle { throw IllegalStateException("Result is left") }
         }
@@ -375,7 +407,13 @@ class EventServiceTest {
         val expectedEvents = dateRange.map { startDate ->
             transaction {
                 EventRepository.insertEvent(
-                    Event(0, startDate, startDate.plusHours(1), testStation, testPartner)
+                    Event(
+                        0,
+                        startDate,
+                        startDate.plusHours(1),
+                        testStation,
+                        testPartner
+                    )
                 )
             }.getOrHandle { throw IllegalStateException("Result is left") }
         }
@@ -384,7 +422,13 @@ class EventServiceTest {
         val unexpectedEvents = dateRange.map { startDate ->
             transaction {
                 EventRepository.insertEvent(
-                    Event(0, startDate, startDate.plusHours(1), testStation, testPartner2)
+                    Event(
+                        0,
+                        startDate,
+                        startDate.plusHours(1),
+                        testStation,
+                        testPartner2
+                    )
                 )
             }.getOrHandle { throw IllegalStateException("Result is left") }
         }
@@ -418,7 +462,13 @@ class EventServiceTest {
         val expectedEvents = dateRange.map { startDate ->
             transaction {
                 EventRepository.insertEvent(
-                    Event(0, startDate, startDate.plusHours(1), testStation, testPartner)
+                    Event(
+                        0,
+                        startDate,
+                        startDate.plusHours(1),
+                        testStation,
+                        testPartner
+                    )
                 )
             }.getOrHandle { throw java.lang.IllegalStateException("Result is left") }
         }
@@ -436,7 +486,14 @@ class EventServiceTest {
         val unexpectedEvents = dateRange.map { startDate ->
             transaction {
                 EventRepository.insertEvent(
-                    Event(0, startDate, startDate.plusHours(1), testStation, testPartner2, rRule)
+                    Event(
+                        0,
+                        startDate,
+                        startDate.plusHours(1),
+                        testStation,
+                        testPartner2,
+                        rRule
+                    )
                 )
             }.getOrHandle { throw java.lang.IllegalStateException("Result is left") }
         }
@@ -475,7 +532,14 @@ class EventServiceTest {
         val expectedEvents = dateRange.map { startDate ->
             transaction {
                 EventRepository.insertEvent(
-                    Event(0, startDate, startDate.plusHours(1), testStation, testPartner, rRule)
+                    Event(
+                        0,
+                        startDate,
+                        startDate.plusHours(1),
+                        testStation,
+                        testPartner,
+                        rRule
+                    )
                 )
             }.getOrHandle { throw java.lang.IllegalStateException("Result is left") }
         }
@@ -484,7 +548,13 @@ class EventServiceTest {
         val unexpectedEvents = dateRange.map { startDate ->
             transaction {
                 EventRepository.insertEvent(
-                    Event(0, startDate, startDate.plusHours(1), testStation, testPartner2)
+                    Event(
+                        0,
+                        startDate,
+                        startDate.plusHours(1),
+                        testStation,
+                        testPartner2
+                    )
                 )
             }.getOrHandle { throw java.lang.IllegalStateException("Result is left") }
         }
@@ -518,7 +588,13 @@ class EventServiceTest {
         val expectedEvents = dateRange.map { startDate ->
             transaction {
                 EventRepository.insertEvent(
-                    Event(0, startDate, startDate.plusHours(1), testStation, testPartner)
+                    Event(
+                        0,
+                        startDate,
+                        startDate.plusHours(1),
+                        testStation,
+                        testPartner
+                    )
                 )
             }.getOrHandle { throw java.lang.IllegalStateException("Result is left") }
         }
@@ -527,7 +603,13 @@ class EventServiceTest {
         val unexpectedPartnerEvents = dateRange.map { startDate ->
             transaction {
                 EventRepository.insertEvent(
-                    Event(0, startDate, startDate.plusHours(1), testStation, testPartner2)
+                    Event(
+                        0,
+                        startDate,
+                        startDate.plusHours(1),
+                        testStation,
+                        testPartner2
+                    )
                 )
             }.getOrHandle { throw java.lang.IllegalStateException("Result is left") }
         }
@@ -536,7 +618,13 @@ class EventServiceTest {
         val unexpectedStationEvents = dateRange.map { startDate ->
             transaction {
                 EventRepository.insertEvent(
-                    Event(0, startDate, startDate.plusHours(1), testStation2, testPartner)
+                    Event(
+                        0,
+                        startDate,
+                        startDate.plusHours(1),
+                        testStation2,
+                        testPartner
+                    )
                 )
             }.getOrHandle { throw java.lang.IllegalStateException("Result is left") }
         }
@@ -568,12 +656,24 @@ class EventServiceTest {
         val start = LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME)
         val end = LocalDateTime.parse("2020-08-14T16:30:00", DateTimeFormatter.ISO_DATE_TIME)
 
-        val initialEvent = Event(0, start, start.plusHours(1), testStation, testPartner)
+        val initialEvent = Event(
+            0,
+            start,
+            start.plusHours(1),
+            testStation,
+            testPartner
+        )
         val event = transaction {
             EventRepository.insertEvent(initialEvent)
         }.getOrHandle { throw java.lang.IllegalStateException("Result is left") }
 
-        val expectedEvent = Event(event.id, end, end.plusHours(1), testStation, testPartner)
+        val expectedEvent = Event(
+            event.id,
+            end,
+            end.plusHours(1),
+            testStation,
+            testPartner
+        )
 
         val updateEvent = EventUpdateForm(
             event.id,
@@ -591,7 +691,13 @@ class EventServiceTest {
         val start = LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME)
         val end = LocalDateTime.parse("2020-08-14T16:30:00", DateTimeFormatter.ISO_DATE_TIME)
 
-        val initialEvent = Event(0, start, start.plusHours(1), testStation, testPartner)
+        val initialEvent = Event(
+            0,
+            start,
+            start.plusHours(1),
+            testStation,
+            testPartner
+        )
 
         transaction {
             EventRepository.insertEvent(initialEvent)
@@ -611,13 +717,25 @@ class EventServiceTest {
         val start = LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME)
         val end = LocalDateTime.parse("2020-08-14T16:30:00", DateTimeFormatter.ISO_DATE_TIME)
 
-        val initialEvent = Event(0, start, start.plusHours(1), testStation, testPartner)
+        val initialEvent = Event(
+            0,
+            start,
+            start.plusHours(1),
+            testStation,
+            testPartner
+        )
 
         val event = transaction {
             EventRepository.insertEvent(initialEvent)
         }.getOrHandle { throw java.lang.IllegalStateException("Result is left") }
 
-        val expectedEvent = Event(event.id, start, end.plusHours(1), testStation, testPartner)
+        val expectedEvent = Event(
+            event.id,
+            start,
+            end.plusHours(1),
+            testStation,
+            testPartner
+        )
 
         transaction {
             EventRepository.insertEvent(initialEvent)
@@ -637,13 +755,25 @@ class EventServiceTest {
     fun testUpdateMissingEndDate() {
         val start = LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME)
 
-        val initialEvent = Event(0, start, start.plusHours(1), testStation, testPartner)
+        val initialEvent = Event(
+            0,
+            start,
+            start.plusHours(1),
+            testStation,
+            testPartner
+        )
 
         val event = transaction {
             EventRepository.insertEvent(initialEvent)
         }.getOrHandle { throw java.lang.IllegalStateException("Result is left") }
 
-        val expectedEvent = Event(event.id, start.minusHours(1), start.plusHours(1), testStation, testPartner)
+        val expectedEvent = Event(
+            event.id,
+            start.minusHours(1),
+            start.plusHours(1),
+            testStation,
+            testPartner
+        )
 
         transaction {
             EventRepository.insertEvent(initialEvent)
@@ -663,7 +793,13 @@ class EventServiceTest {
     fun testUpdateStartDateAfterEndDate() {
         val start = LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME)
 
-        val initialEvent = Event(0, start, start.plusHours(1), testStation, testPartner)
+        val initialEvent = Event(
+            0,
+            start,
+            start.plusHours(1),
+            testStation,
+            testPartner
+        )
 
         val event = transaction {
             EventRepository.insertEvent(initialEvent)
@@ -724,7 +860,10 @@ class EventServiceTest {
                 LocalDateTime.parse("2020-07-27T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
                 testStation,
                 testPartner,
-                RecurrenceRule(count = 5, days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY))
+                RecurrenceRule(
+                    count = 5,
+                    days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY)
+                )
             )
         ).getOrHandle { throw java.lang.IllegalStateException("Result is left") }
         assertEquals(
@@ -758,7 +897,10 @@ class EventServiceTest {
                 LocalDateTime.parse("2020-07-27T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
                 testStation,
                 testPartner,
-                RecurrenceRule(count = 5, days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY))
+                RecurrenceRule(
+                    count = 5,
+                    days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY)
+                )
             )
         )
         val params = ParametersBuilder()
@@ -778,7 +920,10 @@ class EventServiceTest {
                 LocalDateTime.parse("2020-07-27T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
                 testStation,
                 testPartner,
-                RecurrenceRule(count = 5, days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY))
+                RecurrenceRule(
+                    count = 5,
+                    days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY)
+                )
             )
         )
         val params = ParametersBuilder()
@@ -798,7 +943,10 @@ class EventServiceTest {
                 LocalDateTime.parse("2020-07-27T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
                 testStation,
                 testPartner,
-                RecurrenceRule(count = 5, days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY))
+                RecurrenceRule(
+                    count = 5,
+                    days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY)
+                )
             )
         ).getOrHandle { throw java.lang.IllegalStateException("Result is left") }
         var params = ParametersBuilder()
@@ -813,7 +961,11 @@ class EventServiceTest {
             LocalDateTime.parse("2020-07-27T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
             testStation,
             testPartner,
-            RecurrenceRule(event.recurrenceRule!!.id, count = 5, days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY))
+            RecurrenceRule(
+                event.recurrenceRule!!.id,
+                count = 5,
+                days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY)
+            )
         )
         val expectedLastEvent = Event(
             events[events.size - 1].id,
@@ -821,7 +973,11 @@ class EventServiceTest {
             LocalDateTime.parse("2020-08-26T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
             testStation,
             testPartner,
-            RecurrenceRule(event.recurrenceRule!!.id, count = 5, days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY))
+            RecurrenceRule(
+                event.recurrenceRule!!.id,
+                count = 5,
+                days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY)
+            )
         )
 
         params = ParametersBuilder()
@@ -850,7 +1006,10 @@ class EventServiceTest {
                 LocalDateTime.parse("2020-07-27T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
                 testStation,
                 testPartner,
-                RecurrenceRule(count = 5, days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY))
+                RecurrenceRule(
+                    count = 5,
+                    days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY)
+                )
             )
         )
         val params = ParametersBuilder()
@@ -879,7 +1038,10 @@ class EventServiceTest {
                 LocalDateTime.parse("2020-07-27T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
                 testStation,
                 testPartner,
-                RecurrenceRule(count = 5, days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY))
+                RecurrenceRule(
+                    count = 5,
+                    days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY)
+                )
             )
         ).getOrHandle { throw java.lang.IllegalStateException("Result is left") }
         val params = ParametersBuilder()
@@ -907,7 +1069,10 @@ class EventServiceTest {
                 LocalDateTime.parse("2020-07-27T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
                 testStation,
                 testPartner,
-                RecurrenceRule(count = 5, days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY))
+                RecurrenceRule(
+                    count = 5,
+                    days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY)
+                )
             )
         ).getOrHandle { throw java.lang.IllegalStateException("Result is left") }
         var params = ParametersBuilder()
@@ -921,7 +1086,11 @@ class EventServiceTest {
             LocalDateTime.parse("2020-08-12T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
             testStation,
             testPartner,
-            RecurrenceRule(event.recurrenceRule!!.id, count = 5, days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY))
+            RecurrenceRule(
+                event.recurrenceRule!!.id,
+                count = 5,
+                days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY)
+            )
         )
 
         params = ParametersBuilder()
@@ -953,7 +1122,10 @@ class EventServiceTest {
                 LocalDateTime.parse("2020-07-27T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
                 testStation,
                 testPartner,
-                RecurrenceRule(count = 5, days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY))
+                RecurrenceRule(
+                    count = 5,
+                    days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY)
+                )
             )
         )
 
@@ -986,7 +1158,10 @@ class EventServiceTest {
                 LocalDateTime.parse("2020-07-27T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
                 testStation,
                 testPartner,
-                RecurrenceRule(count = 5, days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY))
+                RecurrenceRule(
+                    count = 5,
+                    days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY)
+                )
             )
         ).getOrHandle { throw java.lang.IllegalStateException("Result is left") }
 
@@ -1016,7 +1191,10 @@ class EventServiceTest {
                 LocalDateTime.parse("2020-07-27T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
                 testStation,
                 testPartner,
-                RecurrenceRule(count = 5, days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY))
+                RecurrenceRule(
+                    count = 5,
+                    days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY)
+                )
             )
         ).getOrHandle { throw java.lang.IllegalStateException("Result is left") }
 
@@ -1030,7 +1208,11 @@ class EventServiceTest {
             LocalDateTime.parse("2020-08-03T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
             testStation,
             testPartner,
-            RecurrenceRule(event.recurrenceRule!!.id, count = 5, days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY))
+            RecurrenceRule(
+                event.recurrenceRule!!.id,
+                count = 5,
+                days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY)
+            )
         )
         val params = ParametersBuilder()
         params.append("recurrence-rule-id", event.recurrenceRule!!.id.toString())
@@ -1051,7 +1233,10 @@ class EventServiceTest {
                 LocalDateTime.parse("2020-07-27T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
                 testStation,
                 testPartner,
-                RecurrenceRule(count = 5, days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY))
+                RecurrenceRule(
+                    count = 5,
+                    days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY)
+                )
             )
         ).getOrHandle { throw java.lang.IllegalStateException("Result is left") }
 
@@ -1065,7 +1250,11 @@ class EventServiceTest {
             LocalDateTime.parse("2020-08-03T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
             testStation,
             testPartner,
-            RecurrenceRule(event.recurrenceRule!!.id, count = 5, days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY))
+            RecurrenceRule(
+                event.recurrenceRule!!.id,
+                count = 5,
+                days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY)
+            )
         )
         val params = ParametersBuilder()
         params.append("recurrence-rule-id", event.recurrenceRule!!.id.toString())
@@ -1086,7 +1275,10 @@ class EventServiceTest {
                 LocalDateTime.parse("2020-07-27T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
                 testStation,
                 testPartner,
-                RecurrenceRule(count = 5, days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY))
+                RecurrenceRule(
+                    count = 5,
+                    days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY)
+                )
             )
         ).getOrHandle { throw java.lang.IllegalStateException("Result is left") }
 
@@ -1100,7 +1292,11 @@ class EventServiceTest {
             LocalDateTime.parse("2020-08-10T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
             testStation,
             testPartner,
-            RecurrenceRule(event.recurrenceRule!!.id, count = 5, days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY))
+            RecurrenceRule(
+                event.recurrenceRule!!.id,
+                count = 5,
+                days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY)
+            )
         )
         val expectedLastEvent = Event(
             events[7].id,
@@ -1108,7 +1304,11 @@ class EventServiceTest {
             LocalDateTime.parse("2020-08-19T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
             testStation,
             testPartner,
-            RecurrenceRule(event.recurrenceRule!!.id, count = 5, days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY))
+            RecurrenceRule(
+                event.recurrenceRule!!.id,
+                count = 5,
+                days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY)
+            )
         )
         val params = ParametersBuilder()
         params.append("recurrence-rule-id", event.recurrenceRule!!.id.toString())
@@ -1131,7 +1331,10 @@ class EventServiceTest {
                 LocalDateTime.parse("2020-07-27T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
                 testStation,
                 testPartner,
-                RecurrenceRule(count = 5, days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY))
+                RecurrenceRule(
+                    count = 5,
+                    days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY)
+                )
             )
         ).getOrHandle { throw java.lang.IllegalStateException("Result is left") }
 
@@ -1167,7 +1370,10 @@ class EventServiceTest {
                 LocalDateTime.parse("2020-07-27T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
                 testStation,
                 testPartner,
-                RecurrenceRule(count = 5, days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY))
+                RecurrenceRule(
+                    count = 5,
+                    days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY)
+                )
             )
         ).getOrHandle { throw java.lang.IllegalStateException("Result is left") }
         val allEvents = eventService.getEvents(
@@ -1180,7 +1386,11 @@ class EventServiceTest {
             LocalDateTime.parse("2020-07-27T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
             testStation,
             testPartner,
-            RecurrenceRule(event.recurrenceRule!!.id, count = 5, days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY))
+            RecurrenceRule(
+                event.recurrenceRule!!.id,
+                count = 5,
+                days = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY)
+            )
         )
         val params = ParametersBuilder()
         params.append("recurrence-rule-id", event.recurrenceRule!!.id.toString())

@@ -1,9 +1,9 @@
 package ombruk.backend
 
-import ombruk.backend.model.Event
-import ombruk.backend.model.Partner
-import ombruk.backend.model.RecurrenceRule
-import ombruk.backend.model.Station
+import ombruk.backend.calendar.model.Event
+import ombruk.backend.partner.model.Partner
+import ombruk.backend.calendar.model.RecurrenceRule
+import ombruk.backend.calendar.model.Station
 import ombruk.backend.utils.assertEventEqual
 import ombruk.backend.utils.everyWeekDay
 import ombruk.backend.utils.everyday
@@ -11,7 +11,6 @@ import org.junit.Test
 import java.time.DayOfWeek
 import java.time.LocalDateTime
 import kotlin.test.assertEquals
-import kotlin.test.assertFails
 
 class RecurringEventIteratorTest {
 
@@ -22,7 +21,8 @@ class RecurringEventIteratorTest {
 
     @Test
     fun testEverydayStartingSameAsRecurrenceRuleDay() {
-        val recurrenceRule = RecurrenceRule(count = 1, days = everyday())
+        val recurrenceRule =
+            RecurrenceRule(count = 1, days = everyday())
         val recurringEvent = Event(
             0,
             LocalDateTime.parse("2020-07-13T15:00:00"),
@@ -52,7 +52,8 @@ class RecurringEventIteratorTest {
 
     @Test
     fun testSkipWeekendStartingSameAsRecurrenceRuleDay() {
-        val recurrenceRule = RecurrenceRule(count = 1, days = everyWeekDay())
+        val recurrenceRule =
+            RecurrenceRule(count = 1, days = everyWeekDay())
 
         val recurringEvent = Event(
             0,
@@ -116,7 +117,8 @@ class RecurringEventIteratorTest {
 
     @Test
     fun testEventStartingLaterThanDayFromRecurrenceRule() {
-        val recurrenceRule = RecurrenceRule(count = 1, days = everyday())
+        val recurrenceRule =
+            RecurrenceRule(count = 1, days = everyday())
         val recurringEvent = Event(
             0,
             LocalDateTime.parse("2020-07-14T15:00:00"),
@@ -145,7 +147,8 @@ class RecurringEventIteratorTest {
 
     @Test
     fun testEventBeforeLaterThanDayFromRecurrenceRule() {
-        val recurrenceRule = RecurrenceRule(count = 1, days = everyWeekDay())
+        val recurrenceRule =
+            RecurrenceRule(count = 1, days = everyWeekDay())
         val recurringEvent = Event(
             0,
             LocalDateTime.parse("2020-07-12T15:00:00"),
@@ -174,7 +177,8 @@ class RecurringEventIteratorTest {
 
     @Test
     fun testHighCount() {
-        val recurrenceRule = RecurrenceRule(count = 7, days = everyday())
+        val recurrenceRule =
+            RecurrenceRule(count = 7, days = everyday())
         val recurringEvent = Event(
             0,
             LocalDateTime.parse("2020-07-13T15:00:00"),
@@ -234,7 +238,10 @@ class RecurringEventIteratorTest {
 
     @Test
     fun testEventEveryDayWithUntil() {
-        val recurrenceRule = RecurrenceRule(until = LocalDateTime.parse("2020-07-30T15:00:00"), days = everyday())
+        val recurrenceRule = RecurrenceRule(
+            until = LocalDateTime.parse("2020-07-30T15:00:00"),
+            days = everyday()
+        )
         val recurringEvent = Event(
             0,
             LocalDateTime.parse("2020-07-13T15:00:00"),
@@ -264,7 +271,10 @@ class RecurringEventIteratorTest {
 
     @Test
     fun testEventWeekdayWithUntil() {
-        val recurrenceRule = RecurrenceRule(until = LocalDateTime.parse("2020-07-20T15:00:00"), days = everyWeekDay())
+        val recurrenceRule = RecurrenceRule(
+            until = LocalDateTime.parse("2020-07-20T15:00:00"),
+            days = everyWeekDay()
+        )
         val recurringEvent = Event(
             0,
             LocalDateTime.parse("2020-07-13T15:00:00"),
