@@ -1,7 +1,6 @@
 package calendar.service
 
 import arrow.core.Either
-import calendar.utils.eventCreateFormFromEvent
 import ombruk.backend.calendar.database.Events
 import ombruk.backend.calendar.database.Stations
 import ombruk.backend.calendar.form.CreateEventForm
@@ -76,19 +75,19 @@ class EventServiceSaveTest {
 
     @Test
     fun testSaveEvent() {
-        val eventToInsert = Event(
-            0,
-            startDateTime = LocalDateTime.parse("2020-07-06T15:48:06", DateTimeFormatter.ISO_DATE_TIME),
-            endDateTime = LocalDateTime.parse("2020-07-06T16:48:06", DateTimeFormatter.ISO_DATE_TIME),
-            partner = testPartner,
-            station = testStation
+        val expectedEvent = eventService.saveEvent(
+            CreateEventForm(
+                startDateTime = LocalDateTime.parse("2020-07-06T15:48:06", DateTimeFormatter.ISO_DATE_TIME),
+                endDateTime = LocalDateTime.parse("2020-07-06T16:48:06", DateTimeFormatter.ISO_DATE_TIME),
+                partnerId = testPartner.id,
+                stationId = testStation.id
+            )
         )
-        val actualEvent = eventService.saveEvent(eventCreateFormFromEvent(eventToInsert))
-        require(actualEvent is Either.Right)
+        require(expectedEvent is Either.Right)
 
-        val expectedEvent = eventToInsert.copy(id = actualEvent.b.id)
+        val actualEvent = eventService.getEventByID(expectedEvent.b.id)
 
-        assertEquals(expectedEvent, actualEvent.b)
+        assertEquals(expectedEvent, actualEvent)
     }
 
     @Test

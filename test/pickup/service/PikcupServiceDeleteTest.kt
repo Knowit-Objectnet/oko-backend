@@ -82,7 +82,7 @@ class PickupServiceDeleteTest {
         val end = LocalDateTime.parse("2020-08-14T16:30:00", DateTimeFormatter.ISO_DATE_TIME)
         val dateRange = start..end
 
-        val pickupTodelete = pickupService.savePickup(CreatePickupForm(start, start.plusHours(1), testStation.id))
+        pickupService.savePickup(CreatePickupForm(start, start.plusHours(1), testStation.id))
 
         val pickupsNotToDelete = dateRange.map { startDate ->
             pickupService.savePickup(
@@ -90,49 +90,10 @@ class PickupServiceDeleteTest {
             )
         }
 
-        pickupService.deletePickup(pickupTodelete.id, null)
+        pickupService.deletePickup(null, testStation.id)
 
         val pickupsLeftAfterDelete = pickupService.getPickups(null)
         assertEquals(pickupsNotToDelete, pickupsLeftAfterDelete)
     }
-/*
-    @Test
-    fun testUpdatePickup(){
-        val startTime = LocalDateTime.parse("2020-07-20T15:45:00", DateTimeFormatter.ISO_DATE_TIME)
-        val endTime = LocalDateTime.parse("2020-07-20T16:45:00", DateTimeFormatter.ISO_DATE_TIME)
-        val pickup = Pickup(13, startTime, endTime, testStation)
-        val id = pickupService.savePickup(pickup)
 
-        val updatedPickup = Pickup(id, startTime, endTime, testStation2)
-
-        assertTrue(pickupService.updatePickup(updatedPickup))
-        val res = pickupService.getPickupById(id)
-        val result = pickupService.getPickups(null)
-        assertTrue(result.contains(res))
-        assertTrue(result.contains(updatedPickup))
-        assertFalse(result.contains(pickup))
-        assertEquals(updatedPickup, res)
-    }
-
-    @Test
-    fun testUpdatePickupNotValidInput(){
-        val startTime = LocalDateTime.parse("2020-07-20T15:45:00", DateTimeFormatter.ISO_DATE_TIME)
-        val endTime = LocalDateTime.parse("2020-07-20T16:45:00", DateTimeFormatter.ISO_DATE_TIME)
-        val pickup = Pickup(14, startTime, endTime, testStation)
-        val id = pickupService.savePickup(pickup)
-        val expectedPickup = pickup.copy(id=id)
-
-        val updatedPickup = Pickup(78, startTime, endTime, testStation2)
-
-        assertFalse(pickupService.updatePickup(updatedPickup))
-        val actualPickup = pickupService.getPickupById(id)
-        val resultList = pickupService.getPickups(null)
-        assertTrue(resultList.contains(actualPickup))
-        assertFalse(resultList.contains(updatedPickup))
-        assertTrue(resultList.contains(expectedPickup))
-        assertEquals(expectedPickup, actualPickup)
-    }
-
-
-    */
 }
