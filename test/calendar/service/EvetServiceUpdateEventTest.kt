@@ -9,6 +9,7 @@ import ombruk.backend.calendar.model.Station
 import ombruk.backend.calendar.service.EventService
 import ombruk.backend.partner.database.Partners
 import ombruk.backend.partner.model.Partner
+import ombruk.backend.reporting.service.ReportService
 import ombruk.backend.shared.database.initDB
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.insertAndGetId
@@ -59,7 +60,7 @@ class EvetServiceUpdateEventTest {
                 testStation2 = Station(testStationId2, "Test Station 2")
             }
 
-            eventService = EventService()
+            eventService = EventService(ReportService)
         }
 
     }

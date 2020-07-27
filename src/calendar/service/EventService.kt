@@ -13,38 +13,40 @@ import ombruk.backend.calendar.form.EventDeleteForm
 import ombruk.backend.calendar.form.EventUpdateForm
 import ombruk.backend.calendar.model.Event
 import ombruk.backend.calendar.model.EventType
+import ombruk.backend.reporting.service.IReportService
 import ombruk.backend.shared.error.ServiceError
 import ombruk.calendar.form.api.EventGetForm
 import org.jetbrains.exposed.sql.transactions.transaction
 
-class EventService : IEventService {
+class EventService(private val reportingService: IReportService) : IEventService {
 
-    private val json = Json(JsonConfiguration.Stable)
-
-    override fun saveEvent(form: CreateEventForm): Either<ServiceError, Event> = transaction {
-        form.recurrenceRule?.let { recurrenceRule ->
-            RecurrenceRules.insertRecurrenceRule(recurrenceRule)
-                .flatMap {
-                    form.map { newEvent ->
-                        EventRepository.insertEvent(newEvent)
-                    }.first()
-                }
-                .fold({ it.left() }, { it.right() })
-        } ?: run {
+    private fun saveRecurring(eventForm: CreateEventForm) = transaction {
+        eventForm.map { form ->
             EventRepository.insertEvent(form)
-        }
+                .flatMap { event ->
+                    reportingService.saveReport(event).fold({ rollback(); it.left() }, { event.right() })
+                }
+        }.first()
+    }
+
+    override fun saveEvent(eventForm: CreateEventForm): Either<ServiceError, Event> = transaction {
+        let { eventForm.recurrenceRule?.let { RecurrenceRules.insertRecurrenceRule(it) } ?: Unit.right() }
+            .flatMap { saveRecurring(eventForm) }
+            .fold({ rollback(); it.left() }, { it.right() })
     }
 
     override fun getEventByID(id: Int): Either<ServiceError, Event> = transaction {
         EventRepository.getEventByID(id)
     }
+
     override fun getEvents(eventGetForm: EventGetForm?, eventType: EventType?) = transaction {
         EventRepository.getEvents(eventGetForm, eventType)
     }
 
     override fun deleteEvent(eventDeleteForm: EventDeleteForm) = transaction {
-        transaction { EventRepository.deleteEvent(eventDeleteForm) }}
+        transaction { EventRepository.deleteEvent(eventDeleteForm) }
+    }
 
-    override fun updateEvent(eventUpdate: EventUpdateForm) = transaction { EventRepository.updateEvent(eventUpdate)}
+    override fun updateEvent(eventUpdate: EventUpdateForm) = transaction { EventRepository.updateEvent(eventUpdate) }
 
 }
