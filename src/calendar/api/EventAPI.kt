@@ -45,12 +45,11 @@ fun Routing.events(eventService: IEventService) {
     authenticate {
         post("/events/") {
             val form = runCatching { call.receive<CreateEventForm>() }.onFailure {
-                if (it.message == null) return@onFailure
                 when (it) {
                     is JsonDecodingException -> call.respond(HttpStatusCode.BadRequest, it.message!!)
                     is DateTimeParseException -> call.respond(HttpStatusCode.BadRequest, it.message!!)
                 }
-            }.getOrThrow()
+            }.getOrElse { return@post }
 
             Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
                 .flatMap { form.validOrError() }
