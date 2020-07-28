@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 data class Partner(
     val id: Int,
     var name: String,
-    var description: String?,
-    var phone: String?,
-    var email: String?
+    var description: String,
+    var phone: String,
+    var email: String
 )

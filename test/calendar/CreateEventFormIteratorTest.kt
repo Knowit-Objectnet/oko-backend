@@ -14,7 +14,7 @@ import kotlin.test.assertEquals
 class CreateEventFormIteratorTest {
 
     companion object {
-        val testPartner = Partner(10, "TestPartner 1", "Description of TestPartner 1", "+47 2381931", null)
+        val testPartner = Partner(10, "TestPartner 1", "Description of TestPartner 1", "+47 2381931", "example@gmail.com")
         val testStation = Station(10, "TestStation 1")
     }
 

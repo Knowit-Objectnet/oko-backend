@@ -14,9 +14,9 @@ import org.slf4j.LoggerFactory
 
 object Partners : IntIdTable("partners") {
     val name = varchar("name", 100)
-    val description = varchar("description", 100).nullable()
-    val phone = varchar("phone", 20).nullable()
-    val email = varchar("email", 30).nullable()
+    val description = varchar("description", 100)
+    val phone = varchar("phone", 20)
+    val email = varchar("email", 30)
 }
 
 object PartnerRepository : IPartnerRepository {
