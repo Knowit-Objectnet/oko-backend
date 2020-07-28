@@ -3,6 +3,7 @@ package pickup.service
 import ombruk.backend.calendar.database.Stations
 import ombruk.backend.calendar.model.Station
 import ombruk.backend.pickup.database.Pickups
+import ombruk.backend.pickup.database.Requests
 import ombruk.backend.pickup.form.CreatePickupForm
 import ombruk.backend.pickup.service.PickupService
 import ombruk.backend.shared.database.initDB
@@ -52,7 +53,7 @@ class PickupServiceDeleteTest {
     fun cleanEventsFromDB() {
         transaction {
             Pickups.deleteAll()
-
+            Requests.deleteAll()
         }
     }
 
