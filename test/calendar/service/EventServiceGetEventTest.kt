@@ -42,15 +42,21 @@ class EventServiceGetEventTest {
             transaction {
                 val testPartnerId = Partners.insertAndGetId {
                     it[name] = "Test Partner 1"
+                    it[description] = "Description of TestPartner 1"
+                    it[phone] = "+47 2381931"
+                    it[email] = null
                 }.value
 
-                testPartner = Partner(testPartnerId, "Test Partner 1")
+                testPartner = Partner(testPartnerId, "TestPartner 1", "Description of TestPartner 1", "+47 2381931", null)
 
                 val testPartnerId2 = Partners.insertAndGetId {
                     it[name] = "Test Partner 2"
+                    it[description] = "Description of TestPartner 2"
+                    it[phone] = null
+                    it[email] = null
                 }.value
 
-                testPartner2 = Partner(testPartnerId2, "Test Partner 2")
+                testPartner2 = Partner(testPartnerId2, "Test Partner 2", "Description of TestPartner 2", null, null)
 
 
                 val testStationId = Stations.insertAndGetId {

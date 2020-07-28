@@ -13,6 +13,9 @@ import org.slf4j.LoggerFactory
 
 object Partners : IntIdTable("partners") {
     val name = varchar("name", 100)
+    val description = varchar("description", 100).nullable()
+    val phone = varchar("phone", 20).nullable()
+    val email = varchar("email", 30).nullable()
 }
 
 object PartnerRepository : IPartnerRepository {
@@ -21,17 +24,25 @@ object PartnerRepository : IPartnerRepository {
     override fun insertPartner(partner: PartnerForm) = runCatching {
         Partners.insertAndGetId {
             it[name] = partner.name
+            it[description] = partner.description
+            it[phone] = partner.phone
+            it[email] = partner.email
         }
     }
         .onFailure { logger.error("Failed to save partner to DB: ${it.message}") }
-        .fold({ Partner(it.value, partner.name).right() }, { RepositoryError.InsertError(
-            "SQL error"
-        ).left() })
+        .fold({ Partner(it.value, partner.name, partner.description, partner.phone, partner.email).right() }, {
+            RepositoryError.InsertError(
+                "SQL error"
+            ).left()
+        })
 
 
     override fun updatePartner(partner: PartnerForm) = runCatching {
         Partners.update({ Partners.id eq partner.id }) {
             it[name] = partner.name
+            it[description] = partner.description
+            it[phone] = partner.phone
+            it[email] = partner.email
         }
     }
         .onFailure { logger.error("Failed to update partner to DB: ${it.message}") }
@@ -45,39 +56,45 @@ object PartnerRepository : IPartnerRepository {
         runCatching { Partners.deleteWhere { Partners.id eq partnerID } }
             .onFailure { logger.error("Failed to delete partner in DB: ${it.message}") }
             .fold(
-                { Either.cond(it > 0, { Unit }) {
-                    RepositoryError.NoRowsFound(
-                        "$partnerID not found"
-                    )
-                } },
+                {
+                    Either.cond(it > 0, { Unit }) {
+                        RepositoryError.NoRowsFound(
+                            "$partnerID not found"
+                        )
+                    }
+                },
                 { RepositoryError.DeleteError(it.message).left() })
 
 
     override fun getPartnerByID(partnerID: Int): Either<RepositoryError.NoRowsFound, Partner> = runCatching {
-        Partners.select { Partners.id eq partnerID }.map {
-            Partner(
-                it[Partners.id].value,
-                it[Partners.name]
-            )
-        }
+        Partners.select { Partners.id eq partnerID }.map { toPartner(it) }
     }
         .onFailure { logger.error(it.message) }
         .fold(
-            { Either.cond(it.isNotEmpty(), { it.first() }, {
-                RepositoryError.NoRowsFound(
-                    "$partnerID not found"
-                )
-            }) },
+            {
+                Either.cond(it.isNotEmpty(), { it.first() }, {
+                    RepositoryError.NoRowsFound(
+                        "$partnerID not found"
+                    )
+                })
+            },
             { RepositoryError.NoRowsFound(it.message).left() })
 
 
     override fun getPartners(): Either<RepositoryError.SelectError, List<Partner>> =
-        runCatching { Partners.selectAll().map {
-            Partner(
-                it[Partners.id].value,
-                it[Partners.name]
-            )
-        } }
+        runCatching {
+            Partners.selectAll().map { toPartner(it) }
+        }
             .onFailure { logger.error(it.message) }
             .fold({ it.right() }, { RepositoryError.SelectError(it.message).left() })
+
+    private fun toPartner(resultRow: ResultRow): Partner =
+        Partner(
+            resultRow[Partners.id].value,
+            resultRow[Partners.name],
+            resultRow[Partners.description],
+            resultRow[Partners.phone],
+            resultRow[Partners.email]
+        )
+
 }

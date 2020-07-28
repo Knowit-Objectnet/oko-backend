@@ -9,13 +9,13 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 
 object RequestService : IRequestService {
-    override fun addPartnersToPickup(data: Request){
+    override fun addPartnersToPickup(data: Request) {
         val check =
             getRequests(data.pickupID, data.partner.id)
-        if (check.isNotEmpty()){
+        if (check.isNotEmpty()) {
             throw IllegalArgumentException("This request already exists")
         }
-        return transaction{
+        return transaction {
             Requests.insert {
                 it[pickupID] = data.pickupID
                 it[partnerID] = data.partner.id
@@ -24,7 +24,7 @@ object RequestService : IRequestService {
         }
     }
 
-    override fun getRequests(pickupID: Int?, partnerID: Int?): List<Request>{
+    override fun getRequests(pickupID: Int?, partnerID: Int?): List<Request> {
         return transaction {
             val query = (Requests innerJoin Partners).selectAll()
             pickupID?.let { query.andWhere { Requests.pickupID eq it } }
@@ -33,8 +33,8 @@ object RequestService : IRequestService {
         }
     }
 
-    override fun deleteRequests (pickupID: Int?, partnerID: Int?, stationID: Int?):Boolean{
-        if (pickupID == null && partnerID == null && stationID == null){
+    override fun deleteRequests(pickupID: Int?, partnerID: Int?, stationID: Int?): Boolean {
+        if (pickupID == null && partnerID == null && stationID == null) {
             throw IllegalArgumentException("Must set a parameter")
         }
         val query = (Partners innerJoin Requests innerJoin Pickups).selectAll()
@@ -42,14 +42,18 @@ object RequestService : IRequestService {
         stationID?.let { query.andWhere { Pickups.stationID eq stationID } }
         partnerID?.let { query.andWhere { Requests.partnerID eq partnerID } }
         var count = 0
-        return try{
+        return try {
             transaction {
                 // TODO optimize
-                query.forEach { count += Requests.deleteWhere { Requests.pickupID eq it[Pickups.id].value and
-                        (Requests.partnerID eq it[Requests.partnerID]) } }
+                query.forEach {
+                    count += Requests.deleteWhere {
+                        Requests.pickupID eq it[Pickups.id].value and
+                                (Requests.partnerID eq it[Requests.partnerID])
+                    }
+                }
             }
-            count>0
-        } catch(e: Exception){
+            count > 0
+        } catch (e: Exception) {
             false
         }
     }
@@ -57,7 +61,13 @@ object RequestService : IRequestService {
     private fun toRequest(row: ResultRow): Request {
         return Request(
             row[Requests.pickupID],
-            Partner(row[Partners.id].value, row[Partners.name])
+            Partner(
+                row[Partners.id].value,
+                row[Partners.name],
+                row[Partners.description],
+                row[Partners.phone],
+                row[Partners.email]
+            )
         )
     }
 }
