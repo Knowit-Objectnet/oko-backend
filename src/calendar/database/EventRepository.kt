@@ -3,7 +3,7 @@ package ombruk.backend.calendar.database
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
-import ombruk.backend.calendar.form.CreateEventForm
+import ombruk.backend.calendar.form.EventPostForm
 import ombruk.backend.calendar.form.EventDeleteForm
 import ombruk.backend.calendar.form.EventUpdateForm
 import ombruk.backend.calendar.model.*
@@ -30,14 +30,14 @@ object Events : IntIdTable("events") {
 object EventRepository : IEventRepository {
     private val logger = LoggerFactory.getLogger("ombruk.backend.service.EventRepository")
 
-    override fun insertEvent(form: CreateEventForm): Either<RepositoryError, Event> {
+    override fun insertEvent(postForm: EventPostForm): Either<RepositoryError, Event> {
         val id = runCatching {
             Events.insertAndGetId {
-                it[startDateTime] = form.startDateTime
-                it[endDateTime] = form.endDateTime
-                it[recurrenceRuleID] = form.recurrenceRule?.id
-                it[stationID] = form.stationId
-                it[partnerID] = form.partnerId
+                it[startDateTime] = postForm.startDateTime
+                it[endDateTime] = postForm.endDateTime
+                it[recurrenceRuleID] = postForm.recurrenceRule?.id
+                it[stationID] = postForm.stationId
+                it[partnerID] = postForm.partnerId
             }.value
         }.getOrElse {
             logger.error("Failed to save event to DB: ${it.message}")

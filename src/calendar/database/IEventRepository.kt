@@ -1,7 +1,7 @@
 package ombruk.backend.calendar.database
 
 import arrow.core.Either
-import ombruk.backend.calendar.form.CreateEventForm
+import ombruk.backend.calendar.form.EventPostForm
 import ombruk.backend.calendar.form.EventDeleteForm
 import ombruk.backend.calendar.form.EventUpdateForm
 import ombruk.backend.calendar.model.Event
@@ -18,7 +18,7 @@ interface IEventRepository {
      * @return An [Either] object consisting of a [RepositoryError] on failure and the saved [Event] on success.
      * The recurrence rule will be returned instead of an individual ID if the event is recurring.
      */
-    fun insertEvent(from: CreateEventForm): Either<RepositoryError, Event>
+    fun insertEvent(from: EventPostForm): Either<RepositoryError, Event>
 
     /**
      * Updates a stored Event. The id passed in the [Event] must already exist in the database.

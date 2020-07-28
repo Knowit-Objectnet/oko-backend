@@ -2,7 +2,7 @@ package calendar
 
 import calendar.utils.everyWeekDay
 import calendar.utils.everyday
-import ombruk.backend.calendar.form.CreateEventForm
+import ombruk.backend.calendar.form.EventPostForm
 import ombruk.backend.calendar.model.RecurrenceRule
 import ombruk.backend.calendar.model.Station
 import ombruk.backend.partner.model.Partner
@@ -11,7 +11,7 @@ import java.time.DayOfWeek
 import java.time.LocalDateTime
 import kotlin.test.assertEquals
 
-class CreateEventFormIteratorTest {
+class EventPostFormIteratorTest {
 
     companion object {
         val testPartner = Partner(10, "TestPartner 1")
@@ -21,7 +21,7 @@ class CreateEventFormIteratorTest {
     @Test
     fun testEverydayStartingSameAsRecurrenceRuleDay() {
         val recurrenceRule = RecurrenceRule(count = 1, days = everyday())
-        val recurringForm = CreateEventForm(
+        val recurringForm = EventPostForm(
             LocalDateTime.parse("2020-07-13T15:00:00"),
             LocalDateTime.parse("2020-07-13T15:00:00"),
             testStation.id,
@@ -47,7 +47,7 @@ class CreateEventFormIteratorTest {
     fun testSkipWeekendStartingSameAsRecurrenceRuleDay() {
         val recurrenceRule = RecurrenceRule(count = 1, days = everyWeekDay())
 
-        val recurringForm = CreateEventForm(
+        val recurringForm = EventPostForm(
             LocalDateTime.parse("2020-07-13T15:00:00"),
             LocalDateTime.parse("2020-07-13T15:00:00"),
             testStation.id,
@@ -76,7 +76,7 @@ class CreateEventFormIteratorTest {
             days = listOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY)
         )
 
-        val recurringForm = CreateEventForm(
+        val recurringForm = EventPostForm(
             LocalDateTime.parse("2020-07-13T15:00:00"),
             LocalDateTime.parse("2020-07-13T15:00:00"),
             testStation.id,
@@ -106,7 +106,7 @@ class CreateEventFormIteratorTest {
     fun testFormStartingLaterThanDayFromRecurrenceRule() {
         val recurrenceRule = RecurrenceRule(count = 1, days = everyday())
 
-        val recurringForm = CreateEventForm(
+        val recurringForm = EventPostForm(
             LocalDateTime.parse("2020-07-14T15:00:00"),
             LocalDateTime.parse("2020-07-14T15:00:00"),
             testStation.id,
@@ -132,7 +132,7 @@ class CreateEventFormIteratorTest {
     fun testFormBeforeLaterThanDayFromRecurrenceRule() {
         val recurrenceRule = RecurrenceRule(count = 1, days = everyWeekDay())
 
-        val recurringForm = CreateEventForm(
+        val recurringForm = EventPostForm(
             LocalDateTime.parse("2020-07-12T15:00:00"),
             LocalDateTime.parse("2020-07-12T15:00:00"),
             testStation.id,
@@ -158,7 +158,7 @@ class CreateEventFormIteratorTest {
     fun testHighCount() {
         val recurrenceRule = RecurrenceRule(count = 7, days = everyday())
 
-        val recurringForm = CreateEventForm(
+        val recurringForm = EventPostForm(
             LocalDateTime.parse("2020-07-13T15:00:00"),
             LocalDateTime.parse("2020-07-13T15:00:00"),
             testStation.id,
@@ -183,7 +183,7 @@ class CreateEventFormIteratorTest {
     @Test
     fun testFormWithRecurrenceRuleWithoutDays() {
         val recurrenceRule = RecurrenceRule(count = 8)
-        val recurringForm = CreateEventForm(
+        val recurringForm = EventPostForm(
             LocalDateTime.parse("2020-07-13T15:00:00"),
             LocalDateTime.parse("2020-07-13T15:00:00"),
             testStation.id,
@@ -211,7 +211,7 @@ class CreateEventFormIteratorTest {
             until = LocalDateTime.parse("2020-07-30T15:00:00"),
             days = everyday()
         )
-        val recurringForm = CreateEventForm(
+        val recurringForm = EventPostForm(
             LocalDateTime.parse("2020-07-13T15:00:00"),
             LocalDateTime.parse("2020-07-13T15:00:00"),
             testStation.id,
@@ -242,7 +242,7 @@ class CreateEventFormIteratorTest {
         )
 
 
-        val recurringForm = CreateEventForm(
+        val recurringForm = EventPostForm(
             LocalDateTime.parse("2020-07-13T15:00:00"),
             LocalDateTime.parse("2020-07-13T15:00:00"),
             testStation.id,
@@ -273,7 +273,7 @@ class CreateEventFormIteratorTest {
             days = listOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY)
         )
 
-        val recurringForm = CreateEventForm(
+        val recurringForm = EventPostForm(
             LocalDateTime.parse("2020-07-13T15:00:00"),
             LocalDateTime.parse("2020-07-13T15:00:00"),
             testStation.id,
@@ -302,7 +302,7 @@ class CreateEventFormIteratorTest {
     @Test
     fun testFormWithoutRecurrenceRule() {
 
-        val nonRecurringForm = CreateEventForm(
+        val nonRecurringForm = EventPostForm(
             LocalDateTime.parse("2020-07-12T15:00:00"),
             LocalDateTime.parse("2020-07-12T15:00:00"),
             testStation.id,

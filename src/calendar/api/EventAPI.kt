@@ -6,23 +6,19 @@ import arrow.core.right
 import io.ktor.application.ApplicationCall
 import io.ktor.application.call
 import io.ktor.auth.authenticate
-import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.*
-import kotlinx.serialization.json.JsonDecodingException
-import ombruk.backend.calendar.form.CreateEventForm
+import ombruk.backend.calendar.form.EventPostForm
 import ombruk.backend.calendar.form.EventDeleteForm
 import ombruk.backend.calendar.form.EventUpdateForm
-import ombruk.backend.calendar.model.validator.EventUpdateFormValidator
-import ombruk.backend.calendar.model.validator.EventValidatorCode
 import ombruk.backend.calendar.service.IEventService
 import ombruk.backend.shared.api.Authorization
 import ombruk.backend.shared.api.Roles
 import ombruk.backend.shared.api.generateResponse
+import ombruk.backend.shared.api.receiveCatching
 import ombruk.backend.shared.error.RequestError
 import ombruk.calendar.form.api.EventGetForm
-import java.time.format.DateTimeParseException
 
 
 fun Routing.events(eventService: IEventService) {
@@ -44,16 +40,11 @@ fun Routing.events(eventService: IEventService) {
 
     authenticate {
         post("/events/") {
-            val form = runCatching { call.receive<CreateEventForm>() }.onFailure {
-                when (it) {
-                    is JsonDecodingException -> call.respond(HttpStatusCode.BadRequest, it.message!!)
-                    is DateTimeParseException -> call.respond(HttpStatusCode.BadRequest, it.message!!)
-                }
-            }.getOrElse { return@post }
-
-            Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
-                .flatMap { form.validOrError() }
-                .flatMap { eventService.saveEvent(it) }
+            receiveCatching { call.receive<EventPostForm>() }.flatMap { form ->
+                Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
+                    .flatMap { form.validOrError() }
+                    .flatMap { eventService.saveEvent(it) }
+            }
                 .run { generateResponse(this) }
                 .also { (code, response) -> call.respond(code, response) }
         }
@@ -61,16 +52,11 @@ fun Routing.events(eventService: IEventService) {
 
     authenticate {
         patch("/events/") {
-            val event = kotlin.runCatching { call.receive<EventUpdateForm>() }.onFailure {
-                call.respond(HttpStatusCode.BadRequest)
-            }.getOrThrow()
-            val code = EventUpdateFormValidator.validate(event)
-            if (code != EventValidatorCode.OK) {
-                call.respond(HttpStatusCode.BadRequest, code.info!!)
-                return@patch
+            receiveCatching { call.receive<EventUpdateForm>() }.map { form ->
+                Authorization.authorizeRole(listOf(Roles.ReuseStation, Roles.RegEmployee), call)
+                    .map { form.validOrError() }
+                    .map { eventService.updateEvent(form) }
             }
-            Authorization.authorizeRole(listOf(Roles.ReuseStation, Roles.RegEmployee), call)
-                .map { eventService.updateEvent(event) }
                 .run { generateResponse(this) }
                 .also { (code, response) -> call.respond(code, response) }
         }

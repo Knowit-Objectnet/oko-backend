@@ -1,10 +1,10 @@
 package calendar.utils
 
-import ombruk.backend.calendar.form.CreateEventForm
+import ombruk.backend.calendar.form.EventPostForm
 import ombruk.backend.calendar.model.Event
 import java.time.DayOfWeek
 
-fun eventCreateFormFromEvent(event: Event) = CreateEventForm(
+fun eventCreateFormFromEvent(event: Event) = EventPostForm(
     event.startDateTime,
     event.endDateTime,
     event.partner.id,

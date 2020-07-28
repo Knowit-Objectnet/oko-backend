@@ -4,7 +4,7 @@ import arrow.core.Either
 import io.ktor.http.ParametersBuilder
 import ombruk.backend.calendar.database.Events
 import ombruk.backend.calendar.database.Stations
-import ombruk.backend.calendar.form.CreateEventForm
+import ombruk.backend.calendar.form.EventPostForm
 import ombruk.backend.calendar.form.EventDeleteForm
 import ombruk.backend.calendar.model.RecurrenceRule
 import ombruk.backend.calendar.model.Station
@@ -79,7 +79,7 @@ class EventServiceDeleteTest {
     fun testDeleteEventByid() {
 
         val eventToDelete = eventService.saveEvent(
-            CreateEventForm(
+            EventPostForm(
                 LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-07-27T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
                 testStation.id,
@@ -88,7 +88,7 @@ class EventServiceDeleteTest {
         )
 
         val eventNotToDelete = eventService.saveEvent(
-            CreateEventForm(
+            EventPostForm(
                 LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-07-27T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
                 testStation.id,
@@ -118,7 +118,7 @@ class EventServiceDeleteTest {
     fun testDeleteEventByRecurrenceRuleId() {
 
         val eventToDelete = eventService.saveEvent(
-            CreateEventForm(
+            EventPostForm(
                 LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-07-27T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
                 testStation.id,
@@ -128,7 +128,7 @@ class EventServiceDeleteTest {
         )
 
         val eventNotToDelete = eventService.saveEvent(
-            CreateEventForm(
+            EventPostForm(
                 LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-07-27T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
                 testStation.id,
@@ -160,7 +160,7 @@ class EventServiceDeleteTest {
         val dateRange = start..end
 
         // Save expected Events
-        val createForm = CreateEventForm(
+        val createForm = EventPostForm(
             LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME),
             LocalDateTime.parse("2020-07-27T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
            testStation.id,
@@ -173,7 +173,7 @@ class EventServiceDeleteTest {
 
         val eventNotToDelete = dateRange.map {
                 eventService.saveEvent(
-                    CreateEventForm(it, it.plusHours(1), testStation.id,testPartner.id)
+                    EventPostForm(it, it.plusHours(1), testStation.id,testPartner.id)
                 )
             }.map{ require(it is Either.Right); it.b}
 

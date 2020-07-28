@@ -5,7 +5,7 @@ import io.ktor.http.ParametersBuilder
 import ombruk.backend.calendar.database.EventRepository
 import ombruk.backend.calendar.database.Events
 import ombruk.backend.calendar.database.Stations
-import ombruk.backend.calendar.form.CreateEventForm
+import ombruk.backend.calendar.form.EventPostForm
 import ombruk.backend.calendar.model.Event
 import ombruk.backend.calendar.model.EventType
 import ombruk.backend.calendar.model.RecurrenceRule
@@ -81,7 +81,7 @@ class EventServiceGetEventTest {
     fun testGetEventById() {
         val expectedEvent = transaction {
             EventRepository.insertEvent(
-                CreateEventForm(
+                EventPostForm(
                     startDateTime = LocalDateTime.parse("2020-07-06T15:48:06", DateTimeFormatter.ISO_DATE_TIME),
                     endDateTime = LocalDateTime.parse("2020-07-06T16:48:06", DateTimeFormatter.ISO_DATE_TIME),
                     partnerId = testPartner.id,
@@ -106,7 +106,7 @@ class EventServiceGetEventTest {
         //Create and save expected events
         val expectedEvents = dateRange.map {
             eventService.saveEvent(
-                CreateEventForm(it, it.plusHours(1), testStation.id, testPartner.id)
+                EventPostForm(it, it.plusHours(1), testStation.id, testPartner.id)
             )
         }.map {
             require(it is Either.Right)
@@ -128,7 +128,7 @@ class EventServiceGetEventTest {
         //Create and save expected events
         val expectedEvents = dateRange.map {
             eventService.saveEvent(
-                CreateEventForm(it, it.plusHours(1), testStation.id, testPartner.id)
+                EventPostForm(it, it.plusHours(1), testStation.id, testPartner.id)
             )
         }.map {
             require(it is Either.Right)
@@ -138,7 +138,7 @@ class EventServiceGetEventTest {
         //Save unexpected events
         dateRange.forEach {
             eventService.saveEvent(
-                CreateEventForm(it, it.plusHours(1), testStation2.id, testPartner.id)
+                EventPostForm(it, it.plusHours(1), testStation2.id, testPartner.id)
             )
         }
 
@@ -162,7 +162,7 @@ class EventServiceGetEventTest {
         //Create and save expected events
         val expectedEvents = dateRange.map {
             eventService.saveEvent(
-                CreateEventForm(it, it.plusHours(1), testStation.id, testPartner.id)
+                EventPostForm(it, it.plusHours(1), testStation.id, testPartner.id)
             )
         }.map {
             require(it is Either.Right)
@@ -172,7 +172,7 @@ class EventServiceGetEventTest {
         //Save unexpected events
         dateRange.forEach {
             eventService.saveEvent(
-                CreateEventForm(it, it.plusHours(1), testStation.id, testPartner2.id)
+                EventPostForm(it, it.plusHours(1), testStation.id, testPartner2.id)
             )
         }
 
@@ -197,7 +197,7 @@ class EventServiceGetEventTest {
         //Create and save expected events
         val expectedEvents = dateRange.map {
             eventService.saveEvent(
-                CreateEventForm(it, it.plusHours(1), testStation.id, testPartner.id)
+                EventPostForm(it, it.plusHours(1), testStation.id, testPartner.id)
             )
         }.map {
             require(it is Either.Right)
@@ -207,13 +207,13 @@ class EventServiceGetEventTest {
         //Save unexpected events
         dateRange.forEach {
             eventService.saveEvent(
-                CreateEventForm(it, it.plusHours(1), testStation.id, testPartner2.id)
+                EventPostForm(it, it.plusHours(1), testStation.id, testPartner2.id)
             )
         }
 
         dateRange.forEach {
             eventService.saveEvent(
-                CreateEventForm(it, it.plusHours(1), testStation2.id, testPartner.id)
+                EventPostForm(it, it.plusHours(1), testStation2.id, testPartner.id)
             )
         }
 
@@ -238,7 +238,7 @@ class EventServiceGetEventTest {
         //Create and save expected events
         val expectedEvents = dateRange.map {
             eventService.saveEvent(
-                CreateEventForm(it, it.plusHours(5), testStation.id, testPartner.id)
+                EventPostForm(it, it.plusHours(5), testStation.id, testPartner.id)
             )
         }.map {
             require(it is Either.Right)
@@ -248,13 +248,13 @@ class EventServiceGetEventTest {
         //Save unexpected events
         dateRange.forEach {
             eventService.saveEvent(
-                CreateEventForm(it.plusYears(5), it.plusYears(5).plusHours(1), testStation.id, testPartner2.id)
+                EventPostForm(it.plusYears(5), it.plusYears(5).plusHours(1), testStation.id, testPartner2.id)
             )
         }
 
         dateRange.forEach {
             eventService.saveEvent(
-                CreateEventForm(it.minusYears(5), it.minusYears(5).plusHours(1), testStation2.id, testPartner.id)
+                EventPostForm(it.minusYears(5), it.minusYears(5).plusHours(1), testStation2.id, testPartner.id)
             )
         }
 
@@ -277,7 +277,7 @@ class EventServiceGetEventTest {
         val dateRange = start..end
 
         // Save expected Events
-        val createForm = CreateEventForm(
+        val createForm = EventPostForm(
             LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME),
             LocalDateTime.parse("2020-07-27T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
             testStation.id,
@@ -291,7 +291,7 @@ class EventServiceGetEventTest {
         //Save unexpected events
         dateRange.forEach {
             eventService.saveEvent(
-                CreateEventForm(it, it.plusHours(1), testStation.id, testPartner.id, RecurrenceRule(count = 7))
+                EventPostForm(it, it.plusHours(1), testStation.id, testPartner.id, RecurrenceRule(count = 7))
             )
         }
 
@@ -305,14 +305,14 @@ class EventServiceGetEventTest {
         require(actualEvents is Either.Right)
 
         val firstId = actualEvents.b.first().id
-        val expectedEvents = createForm.mapIndexed { index: Int, form: CreateEventForm ->
+        val expectedEvents = createForm.mapIndexed { index: Int, postForm: EventPostForm ->
             Event(
                 firstId + index,
-                form.startDateTime,
-                form.endDateTime,
+                postForm.startDateTime,
+                postForm.endDateTime,
                 testStation,
                 testPartner,
-                form.recurrenceRule
+                postForm.recurrenceRule
             )
         }
 
@@ -329,7 +329,7 @@ class EventServiceGetEventTest {
         //Create and save expected events
         val expectedEvents = dateRange.map {
             eventService.saveEvent(
-                CreateEventForm(it, it.plusHours(1), testStation.id, testPartner.id)
+                EventPostForm(it, it.plusHours(1), testStation.id, testPartner.id)
             )
         }.map {
             require(it is Either.Right)
@@ -339,7 +339,7 @@ class EventServiceGetEventTest {
         //Save unexpected events
         dateRange.forEach {
             eventService.saveEvent(
-                CreateEventForm(it, it.plusHours(1), testStation.id, testPartner.id, RecurrenceRule(count = 7))
+                EventPostForm(it, it.plusHours(1), testStation.id, testPartner.id, RecurrenceRule(count = 7))
             )
         }
 
@@ -356,7 +356,7 @@ class EventServiceGetEventTest {
         val dateRange = start..end
 
         // Save expected Events
-        val createForm = CreateEventForm(
+        val createForm = EventPostForm(
             LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME),
             LocalDateTime.parse("2020-07-27T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
             testStation.id,
@@ -370,7 +370,7 @@ class EventServiceGetEventTest {
         //Save unexpected events
         dateRange.forEach {
             eventService.saveEvent(
-                CreateEventForm(it, it.plusHours(1), testStation.id, testPartner.id)
+                EventPostForm(it, it.plusHours(1), testStation.id, testPartner.id)
             )
         }
 
@@ -379,14 +379,14 @@ class EventServiceGetEventTest {
 
         val firstId = actualEvents.b.first().id
 
-        val expectedEvents = createForm.mapIndexed { index: Int, form: CreateEventForm ->
+        val expectedEvents = createForm.mapIndexed { index: Int, postForm: EventPostForm ->
             Event(
                 firstId + index,
-                form.startDateTime,
-                form.endDateTime,
+                postForm.startDateTime,
+                postForm.endDateTime,
                 testStation,
                 testPartner,
-                form.recurrenceRule
+                postForm.recurrenceRule
             )
         }
 

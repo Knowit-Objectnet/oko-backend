@@ -4,11 +4,9 @@ import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
 import ombruk.backend.calendar.database.EventRepository
 import ombruk.backend.calendar.database.RecurrenceRules
-import ombruk.backend.calendar.form.CreateEventForm
+import ombruk.backend.calendar.form.EventPostForm
 import ombruk.backend.calendar.form.EventDeleteForm
 import ombruk.backend.calendar.form.EventUpdateForm
 import ombruk.backend.calendar.model.Event
@@ -20,8 +18,8 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 class EventService(private val reportingService: IReportService) : IEventService {
 
-    private fun saveRecurring(eventForm: CreateEventForm) = transaction {
-        eventForm.map { form ->
+    private fun saveRecurring(eventPostForm: EventPostForm) = transaction {
+        eventPostForm.map { form ->
             EventRepository.insertEvent(form)
                 .flatMap { event ->
                     reportingService.saveReport(event).fold({ rollback(); it.left() }, { event.right() })
@@ -29,9 +27,9 @@ class EventService(private val reportingService: IReportService) : IEventService
         }.first()
     }
 
-    override fun saveEvent(eventForm: CreateEventForm): Either<ServiceError, Event> = transaction {
-        let { eventForm.recurrenceRule?.let { RecurrenceRules.insertRecurrenceRule(it) } ?: Unit.right() }
-            .flatMap { saveRecurring(eventForm) }
+    override fun saveEvent(eventPostForm: EventPostForm): Either<ServiceError, Event> = transaction {
+        let { eventPostForm.recurrenceRule?.let { RecurrenceRules.insertRecurrenceRule(it) } ?: Unit.right() }
+            .flatMap { saveRecurring(eventPostForm) }
             .fold({ rollback(); it.left() }, { it.right() })
     }
 
