@@ -6,14 +6,15 @@ import arrow.core.left
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 import ombruk.backend.partner.database.PartnerRepository
-import ombruk.backend.partner.form.PartnerForm
+import ombruk.backend.partner.form.PartnerPostForm
+import ombruk.backend.partner.form.PartnerUpdateForm
 import ombruk.backend.shared.error.ServiceError
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class PartnerService : IPartnerService {
     private val json = Json(JsonConfiguration.Stable)
 
-    override fun savePartner(partnerForm: PartnerForm) = transaction {
+    override fun savePartner(partnerForm: PartnerPostForm) = transaction {
         when (val partner = PartnerRepository.insertPartner(partnerForm)) {
             is Either.Left -> partner.a.left()
             is Either.Right -> {
@@ -41,12 +42,12 @@ class PartnerService : IPartnerService {
     }
 
 
-    override fun updatePartner(partnerForm: PartnerForm): Either<ServiceError, Unit> = transaction {
+    override fun updatePartner(partnerForm: PartnerUpdateForm): Either<ServiceError, Unit> = transaction {
         when (val partner = getPartnerById(partnerForm.id)) {
             is Either.Left -> partner.a.left()
             is Either.Right -> {
                 PartnerRepository.updatePartner(partnerForm)
-                    .map { KeycloakGroupIntegration.updateGroup(partner.b.name, partnerForm.name) }
+                    .map {partnerForm.name?.let { KeycloakGroupIntegration.updateGroup(partner.b.name, partnerForm.name!!) }}
                     .bimap({ rollback(); it }, { Unit })
             }
         }

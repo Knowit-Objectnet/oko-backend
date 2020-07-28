@@ -4,7 +4,8 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import ombruk.backend.shared.error.RepositoryError
-import ombruk.backend.partner.form.PartnerForm
+import ombruk.backend.partner.form.PartnerPostForm
+import ombruk.backend.partner.form.PartnerUpdateForm
 import ombruk.backend.partner.model.Partner
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.*
@@ -21,7 +22,7 @@ object Partners : IntIdTable("partners") {
 object PartnerRepository : IPartnerRepository {
     private val logger = LoggerFactory.getLogger("ombruk.partner.service.PartnerRepository")
 
-    override fun insertPartner(partner: PartnerForm) = runCatching {
+    override fun insertPartner(partner: PartnerPostForm) = runCatching {
         Partners.insertAndGetId {
             it[name] = partner.name
             it[description] = partner.description
@@ -37,9 +38,9 @@ object PartnerRepository : IPartnerRepository {
         })
 
 
-    override fun updatePartner(partner: PartnerForm) = runCatching {
+    override fun updatePartner(partner: PartnerUpdateForm) = runCatching {
         Partners.update({ Partners.id eq partner.id }) { row ->
-            row[name] = partner.name
+            partner.name?.let { row[name] = it }
             partner.description?.let { row[description] = it }
             partner.phone?.let { row[phone] = it }
             partner.email?.let { row[email] = it }

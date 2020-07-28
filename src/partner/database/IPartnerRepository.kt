@@ -2,27 +2,28 @@ package ombruk.backend.partner.database
 
 import arrow.core.Either
 import ombruk.backend.shared.error.RepositoryError
-import ombruk.backend.partner.form.PartnerForm
+import ombruk.backend.partner.form.PartnerPostForm
+import ombruk.backend.partner.form.PartnerUpdateForm
 import ombruk.backend.partner.model.Partner
 
 interface IPartnerRepository {
 
     /**
-     * Inserts a [PartnerForm] into the database. The ID passed in the [PartnerForm] will be overriden, and a serial
+     * Inserts a [PartnerPostForm] into the database. The ID passed in the [PartnerPostForm] will be overriden, and a serial
      * ID will be used instead.
      *
-     * @param partner A [PartnerForm]
+     * @param partner A [PartnerPostForm]
      * @return An [Either] object consisting of a [RepositoryError] on failure and the ID of the saved partner on success.
      */
-    fun insertPartner(partner: PartnerForm): Either<RepositoryError, Partner>
+    fun insertPartner(partner: PartnerPostForm): Either<RepositoryError, Partner>
 
     /**
-     * Updates a stored partner. The id passed in the [PartnerForm] must already exist in the database.
+     * Updates a stored partner. The id passed in the [PartnerPostForm] must already exist in the database.
      *
-     * @param partner A [PartnerForm] object containing the information that should be updated. ID cannot be altered.
+     * @param partner A [PartnerPostForm] object containing the information that should be updated. ID cannot be altered.
      * @return An [Either] object consisting of a [RepositoryError] on failure and [Unit] on success.
      */
-    fun updatePartner(partner: PartnerForm): Either<RepositoryError, Unit>
+    fun updatePartner(partner: PartnerUpdateForm): Either<RepositoryError, Unit>
 
     /**
      * Deletes a partner from the database with the specified partnerID.
