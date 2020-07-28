@@ -20,6 +20,7 @@ object Stations : IntIdTable("stations") {
 
 object StationRepository : IStationRepository {
 
+
     /**
      * Get a Station by id or null if it doesn't exist.
      * @param id Id of the station to get
@@ -73,7 +74,9 @@ object StationRepository : IStationRepository {
         }
     }
         .onFailure { logger.error("Failed to update station to db") }
-        .fold({ getStationById(stationUpdateForm.id) }, { RepositoryError.UpdateError("Failed to update station $stationUpdateForm").left() })
+        .fold(
+            { getStationById(stationUpdateForm.id) },
+            { RepositoryError.UpdateError("Failed to update station $stationUpdateForm").left() })
 
     /**
      * Delete a given station from the DB.
@@ -85,4 +88,6 @@ object StationRepository : IStationRepository {
     }
         .onFailure { logger.error("Failed to delete station from db") }
         .fold({ id.right() }, { RepositoryError.DeleteError("Failed to delete station with ID $id").left() })
+
+    override fun exists(id: Int) = transaction { Stations.select { Stations.id eq id }.count() >= 1 }
 }

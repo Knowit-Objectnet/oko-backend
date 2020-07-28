@@ -1,7 +1,5 @@
 package ombruk.backend.calendar.api
 
-import ombruk.backend.shared.api.Authorization
-import ombruk.backend.shared.api.Roles
 import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
@@ -13,14 +11,16 @@ import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.*
 import kotlinx.serialization.json.JsonDecodingException
-import ombruk.backend.shared.error.RequestError
-import ombruk.backend.shared.api.generateResponse
-import ombruk.backend.calendar.form.EventUpdateForm
 import ombruk.backend.calendar.form.CreateEventForm
 import ombruk.backend.calendar.form.EventDeleteForm
+import ombruk.backend.calendar.form.EventUpdateForm
 import ombruk.backend.calendar.model.validator.EventUpdateFormValidator
 import ombruk.backend.calendar.model.validator.EventValidatorCode
 import ombruk.backend.calendar.service.IEventService
+import ombruk.backend.shared.api.Authorization
+import ombruk.backend.shared.api.Roles
+import ombruk.backend.shared.api.generateResponse
+import ombruk.backend.shared.error.RequestError
 import ombruk.calendar.form.api.EventGetForm
 import java.time.format.DateTimeParseException
 
@@ -44,7 +44,7 @@ fun Routing.events(eventService: IEventService) {
 
     authenticate {
         post("/events/") {
-            val event = runCatching { call.receive<CreateEventForm>() }.onFailure {
+            val form = runCatching { call.receive<CreateEventForm>() }.onFailure {
                 if (it.message == null) return@onFailure
                 when (it) {
                     is JsonDecodingException -> call.respond(HttpStatusCode.BadRequest, it.message!!)
@@ -53,7 +53,8 @@ fun Routing.events(eventService: IEventService) {
             }.getOrThrow()
 
             Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
-                .flatMap { eventService.saveEvent(event) }
+                .flatMap { form.validOrError() }
+                .flatMap { eventService.saveEvent(it) }
                 .run { generateResponse(this) }
                 .also { (code, response) -> call.respond(code, response) }
         }

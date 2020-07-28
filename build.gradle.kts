@@ -4,6 +4,7 @@ val logback_version: String by project
 val ktor_version: String by project
 val kotlin_version: String by project
 val exposed_version: String by project
+val valiktor_version: String by project
 
 group = "oslokommune.ombruk"
 
@@ -29,7 +30,7 @@ dependencies {
 
     fun ktor(module: String) = "io.ktor:ktor-$module:$ktor_version"
     fun exposed(module: String) = "org.jetbrains.exposed:exposed-$module:$exposed_version"
-
+    fun valiktor(module: String) = "org.valiktor:valiktor-$module:$valiktor_version"
     implementation(kotlin("stdlib-jdk8"))
     implementation(ktor("server-netty"))
     implementation(ktor("server-core"))
@@ -42,6 +43,8 @@ dependencies {
     implementation(exposed("jdbc"))
     implementation(exposed("java-time"))
 
+    implementation(valiktor("core"))
+    implementation(valiktor("javatime"))
     implementation("io.arrow-kt:arrow-core:0.10.5")
     implementation("org.postgresql:postgresql:42.2.2")
     implementation("com.zaxxer:HikariCP:3.4.5")
