@@ -1,9 +1,9 @@
 package ombruk.backend.calendar.database
 
 import arrow.core.Either
-import ombruk.backend.calendar.form.EventUpdateForm
 import ombruk.backend.calendar.form.CreateEventForm
 import ombruk.backend.calendar.form.EventDeleteForm
+import ombruk.backend.calendar.form.EventUpdateForm
 import ombruk.backend.calendar.model.Event
 import ombruk.backend.calendar.model.EventType
 import ombruk.backend.shared.error.RepositoryError
@@ -50,7 +50,7 @@ interface IEventRepository {
      * @return An [Either] object consisting of a [RepositoryError] on failure and a [List] of [Event] objects on success.
      */
     fun getEvents(
-        eventGetForm: EventGetForm,
+        eventGetForm: EventGetForm?,
         eventType: EventType?
     ): Either<RepositoryError, List<Event>>
 }

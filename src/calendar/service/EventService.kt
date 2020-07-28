@@ -8,9 +8,9 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 import ombruk.backend.calendar.database.EventRepository
 import ombruk.backend.calendar.database.RecurrenceRules
-import ombruk.backend.calendar.form.EventUpdateForm
 import ombruk.backend.calendar.form.CreateEventForm
 import ombruk.backend.calendar.form.EventDeleteForm
+import ombruk.backend.calendar.form.EventUpdateForm
 import ombruk.backend.calendar.model.Event
 import ombruk.backend.calendar.model.EventType
 import ombruk.backend.reporting.service.IReportService
@@ -39,7 +39,7 @@ class EventService(private val reportingService: IReportService) : IEventService
         EventRepository.getEventByID(id)
     }
 
-    override fun getEvents(eventGetForm: EventGetForm, eventType: EventType?) = transaction {
+    override fun getEvents(eventGetForm: EventGetForm?, eventType: EventType?) = transaction {
         EventRepository.getEvents(eventGetForm, eventType)
     }
 
