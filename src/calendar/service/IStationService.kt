@@ -1,40 +1,43 @@
 package ombruk.backend.calendar.service
 
 import arrow.core.Either
+import ombruk.backend.calendar.form.StationPostForm
+import ombruk.backend.calendar.form.StationUpdateForm
 import ombruk.backend.calendar.model.Station
+import ombruk.backend.shared.error.ServiceError
 
 interface IStationService {
 
     /**
-     * Get a single station by it's id.
-     * @return Either a throwable or a Station. The station mey be null if the id does not exist.
+     * Get a single station by its id.
+     * @return Either a [ServiceError] or a Station.
      */
-    fun getStationById(id: Int): Either<Throwable, Station?>
+    fun getStationById(id: Int): Either<ServiceError, Station>
 
     /**
      * Gets all stations
-     * @return Either a throwable or a list of stations. The list may be empty if there are no stations
+     * @return Either a [ServiceError] or a list of [Station] objects. The list may be empty if there are no stations
      */
-    fun getStations(): Either<Throwable, List<Station>>
+    fun getStations(): Either<ServiceError, List<Station>>
     
     /**
      * Saves a station.
-     * @param station Station to save
-     * @return Either a throwable or a the station that was saved
+     * @param stationPostForm Station to save
+     * @return Either a [ServiceError] or the saved [Station]
      */
-    fun saveStation(station: Station): Either<Throwable, Station>
+    fun saveStation(stationPostForm: StationPostForm): Either<ServiceError, Station>
 
     /**
      * Update a station.
-     * @param station Station to update
-     * @return Either a Throwable or a the Station that was updated
+     * @param stationUpdateForm Station to update
+     * @return Either a [ServiceError] or the updated [Station]
      */
-    fun updateStation(station: Station): Either<Throwable, Station>
+    fun updateStation(stationUpdateForm: StationUpdateForm): Either<ServiceError, Station>
 
     /**
      * Delete a station.
-     * @param station Station to delete
-     * @return Either a Throwable or the delete Station
+     * @param id ID of station to delete
+     * @return Either a [ServiceError] or the ID of the deleted event
      */
-    fun deleteStationById(id: Int): Either<Throwable, Station>
+    fun deleteStationById(id: Int): Either<ServiceError, Int>
 }

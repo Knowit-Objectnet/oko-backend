@@ -22,6 +22,7 @@ import ombruk.backend.calendar.api.events
 import ombruk.backend.calendar.api.stations
 import ombruk.backend.shared.database.initDB
 import ombruk.backend.calendar.service.EventService
+import ombruk.backend.calendar.service.StationService
 import ombruk.backend.partner.api.partners
 import ombruk.backend.partner.service.PartnerService
 import ombruk.backend.pickup.api.pickup
@@ -96,7 +97,7 @@ fun Application.module(testing: Boolean = false) {
         partners(PartnerService())
         report(ReportService)
         pickup(PickupService)
-        stations()
+        stations(StationService)
         get("/health_check") {
             call.respond(HttpStatusCode.OK)
         }
