@@ -17,6 +17,7 @@ import org.valiktor.ConstraintViolationException
 import org.valiktor.functions.isGreaterThan
 import org.valiktor.functions.isGreaterThanOrEqualTo
 import org.valiktor.functions.validate
+import org.valiktor.i18n.mapToMessage
 import org.valiktor.validate
 import java.time.LocalDateTime
 
@@ -51,7 +52,7 @@ data class CreateEventForm(
             }
             this.right()
         } catch (e: ConstraintViolationException) {
-            val msg = e.constraintViolations.joinToString { "${it.property} is invalid (${it.constraint})" }
+            val msg = e.constraintViolations.mapToMessage().joinToString { "${it.property}: ${it.message}" }
             ValidationError.Unprocessable(msg).left()
         }
     }
