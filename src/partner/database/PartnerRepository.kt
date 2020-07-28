@@ -38,11 +38,11 @@ object PartnerRepository : IPartnerRepository {
 
 
     override fun updatePartner(partner: PartnerForm) = runCatching {
-        Partners.update({ Partners.id eq partner.id }) {
-            it[name] = partner.name
-            it[description] = partner.description
-            it[phone] = partner.phone
-            it[email] = partner.email
+        Partners.update({ Partners.id eq partner.id }) { row ->
+            row[name] = partner.name
+            partner.description?.let { row[description] = it }
+            partner.phone?.let { row[phone] = it }
+            partner.email?.let { row[email] = it }
         }
     }
         .onFailure { logger.error("Failed to update partner to DB: ${it.message}") }
