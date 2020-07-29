@@ -39,7 +39,7 @@ paths:
         '400':
           description: Bad input parameter
         '404':
-          description: Partner not found
+          description: Station not found
         '500':
           description: Internal server error
 
