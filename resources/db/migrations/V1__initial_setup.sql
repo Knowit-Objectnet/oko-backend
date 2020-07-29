@@ -7,7 +7,10 @@ create TABLE stations
 create TABLE partners
 (
     id   serial primary key,
-    name varchar(200)
+    name varchar(200),
+    description varchar(100),
+    phone varchar(20),
+    email varchar(30)
 );
 
 create table recurrence_rules

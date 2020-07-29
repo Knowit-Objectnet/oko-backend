@@ -37,16 +37,36 @@ class EventServiceSaveTest {
             initDB()
             transaction {
                 val testPartnerId = Partners.insertAndGetId {
-                    it[name] = "Test Partner 1"
+                    it[name] = "TestPartner 1"
+                    it[description] = "Description of TestPartner 1"
+                    it[phone] = "+47 2381931"
+                    it[email] = "example@gmail.com"
                 }.value
 
-                testPartner = Partner(testPartnerId, "Test Partner 1")
+                testPartner =
+                    Partner(
+                        testPartnerId,
+                        "TestPartner 1",
+                        "Description of TestPartner 1",
+                        "+47 2381931",
+                        "example@gmail.com"
+                    )
 
                 val testPartnerId2 = Partners.insertAndGetId {
-                    it[name] = "Test Partner 2"
+                    it[name] = "TestPartner 2"
+                    it[description] = "Description of TestPartner 2"
+                    it[phone] = "911"
+                    it[email] = "example@gmail.com"
                 }.value
 
-                testPartner2 = Partner(testPartnerId2, "Test Partner 2")
+                testPartner2 =
+                    Partner(
+                        testPartnerId2,
+                        "TestPartner 2",
+                        "Description of TestPartner 2",
+                        "911",
+                        "example@gmail.com"
+                    )
 
 
                 val testStationId = Stations.insertAndGetId {

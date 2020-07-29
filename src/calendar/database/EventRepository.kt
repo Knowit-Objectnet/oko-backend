@@ -57,9 +57,11 @@ object EventRepository : IEventRepository {
         }
     }
         .onFailure { logger.error(it.message) }
-        .fold({ getEventByID(event.id) }, { RepositoryError.UpdateError(
-            it.message
-        ).left() })
+        .fold({ getEventByID(event.id) }, {
+            RepositoryError.UpdateError(
+                it.message
+            ).left()
+        })
 
 
     override fun deleteEvent(eventDeleteForm: EventDeleteForm): Either<RepositoryError, List<Event>> =
@@ -107,11 +109,13 @@ object EventRepository : IEventRepository {
     }
         .onFailure { logger.error(it.message) }
         .fold(
-            { Either.cond(it != null, { it!! }, {
-                RepositoryError.NoRowsFound(
-                    "ID does not exist!"
-                )
-            }) },
+            {
+                Either.cond(it != null, { it!! }, {
+                    RepositoryError.NoRowsFound(
+                        "ID does not exist!"
+                    )
+                })
+            },
             { RepositoryError.SelectError(it.message).left() })
 
 
@@ -125,7 +129,7 @@ object EventRepository : IEventRepository {
                         EventType.RECURRING -> query.andWhere { Events.recurrenceRuleID.isNotNull() }
                     }
                 }
-                if(eventGetForm != null) {
+                if (eventGetForm != null) {
                     eventGetForm.eventID?.let { query.andWhere { Events.id eq it } }
                     eventGetForm.stationID?.let { query.andWhere { Events.stationID eq it } }
                     eventGetForm.partnerID?.let { query.andWhere { Events.partnerID eq it } }
@@ -148,7 +152,13 @@ object EventRepository : IEventRepository {
             row[Events.startDateTime],
             row[Events.endDateTime],
             Station(row[Stations.id].value, row[Stations.name]),
-            Partner(row[Partners.id].value, row[Partners.name]),
+            Partner(
+                row[Partners.id].value,
+                row[Partners.name],
+                row[Partners.description],
+                row[Partners.phone],
+                row[Partners.email]
+            ),
             getGetRecurrenceRuleFromResultRow(row)
         )
     }
@@ -156,7 +166,9 @@ object EventRepository : IEventRepository {
 
     private fun getGetRecurrenceRuleFromResultRow(row: ResultRow): RecurrenceRule? {
         if (!row.hasValue(RecurrenceRules.id) || row.getOrNull(
-                RecurrenceRules.id) == null) return null
+                RecurrenceRules.id
+            ) == null
+        ) return null
 
         return RecurrenceRule(
             row[RecurrenceRules.id].value,

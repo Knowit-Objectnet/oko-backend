@@ -1,5 +1,6 @@
 package pickup.service
 
+import calendar.service.EventServiceGetEventTest
 import ombruk.backend.calendar.database.Stations
 import ombruk.backend.calendar.model.Station
 import ombruk.backend.partner.database.Partners
@@ -36,16 +37,35 @@ class RequestServiceTest {
             initDB()
             transaction {
                 val testPartnerId = Partners.insertAndGetId {
-                    it[name] = "Test Partner 1"
+                    it[name] = "TestPartner 1"
+                    it[description] = "Description of TestPartner 1"
+                    it[phone] = "+47 2381931"
+                    it[email] = "example@gmail.com"
                 }.value
 
-                testPartner = Partner(testPartnerId, "Test Partner 1")
+                testPartner =
+                    Partner(
+                        testPartnerId,
+                        "TestPartner 1",
+                        "Description of TestPartner 1",
+                        "+47 2381931",
+                        "example@gmail.com"
+                    )
 
                 val testPartnerId2 = Partners.insertAndGetId {
-                    it[name] = "Test Partner 2"
+                    it[name] = "TestPartner 2"
+                    it[description] = "Description of TestPartner 2"
+                    it[phone] = "911"
+                    it[email] = "example@gmail.com"
                 }.value
 
-                testPartner2 = Partner(testPartnerId2, "Test Partner 2")
+                testPartner2 = Partner(
+                    testPartnerId2,
+                    "TestPartner 2",
+                    "Description of TestPartner 2",
+                    "911",
+                    "example@gmail.com"
+                )
 
 
                 val testStationId = Stations.insertAndGetId {
@@ -107,7 +127,7 @@ class RequestServiceTest {
     }
 
     @Test
-    fun testDeleteRequestByPartnerID(){
+    fun testDeleteRequestByPartnerID() {
         val start = LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME)
         val end = LocalDateTime.parse("2020-08-14T16:30:00", DateTimeFormatter.ISO_DATE_TIME)
         val pickup = PickupService.savePickup(CreatePickupForm(start, end, testStation.id))
@@ -127,7 +147,7 @@ class RequestServiceTest {
     }
 
     @Test
-    fun testDeleteRequestByStationID(){
+    fun testDeleteRequestByStationID() {
         val start = LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME)
         val end = LocalDateTime.parse("2020-08-14T16:30:00", DateTimeFormatter.ISO_DATE_TIME)
         val pickup1 = PickupService.savePickup(CreatePickupForm(start, end, testStation.id))
@@ -148,7 +168,7 @@ class RequestServiceTest {
     }
 
     @Test
-    fun testDeleteRequestByStationIDAndPartnerID(){
+    fun testDeleteRequestByStationIDAndPartnerID() {
         val start = LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME)
         val end = LocalDateTime.parse("2020-08-14T16:30:00", DateTimeFormatter.ISO_DATE_TIME)
         val pickup1 = PickupService.savePickup(CreatePickupForm(start, end, testStation.id))
@@ -169,7 +189,7 @@ class RequestServiceTest {
     }
 
     @Test
-    fun testDeleteRequestAllParams(){
+    fun testDeleteRequestAllParams() {
         val start = LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME)
         val end = LocalDateTime.parse("2020-08-14T16:30:00", DateTimeFormatter.ISO_DATE_TIME)
         val pickup1 = PickupService.savePickup(CreatePickupForm(start, end, testStation.id))
