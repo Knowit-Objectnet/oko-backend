@@ -1,16 +1,16 @@
 create TABLE stations
 (
     id   serial primary key,
-    name varchar(200)
+    name varchar(200) not null unique
 );
 
 create TABLE partners
 (
     id   serial primary key,
-    name varchar(200),
-    description varchar(100),
-    phone varchar(20),
-    email varchar(30)
+    name varchar(200) not null unique,
+    description varchar(100) not null,
+    phone varchar(20) not null,
+    email varchar(30) not null
 );
 
 create table recurrence_rules
@@ -25,11 +25,11 @@ create table recurrence_rules
 create TABLE events
 (
     id                 serial primary key,
-    start_date_time    timestamp,
-    end_date_time      timestamp,
+    start_date_time    timestamp not null,
+    end_date_time      timestamp not null,
     recurrence_rule_id int,
-    station_id         int,
-    partner_id         int,
+    station_id         int not null,
+    partner_id         int not null,
     FOREIGN KEY (recurrence_rule_id) references recurrence_rules on delete cascade,
     FOREIGN KEY (station_id) references stations on delete cascade,
     FOREIGN KEY (partner_id) references partners on delete cascade
@@ -38,16 +38,16 @@ create TABLE events
 create TABLE pickups
 (
     id         serial primary key,
-    start_time timestamp,
-    end_time   timestamp,
-    station_id int,
+    start_time timestamp not null,
+    end_time   timestamp not null,
+    station_id int not null,
     FOREIGN KEY (station_id) references stations
 );
 
 create TABLE requests
 (
-    partner_id int,
-    pickup_id  int,
+    partner_id int not null,
+    pickup_id  int not null,
     FOREIGN KEY (pickup_id) references pickups,
     FOREIGN KEY (partner_id) references partners
 
@@ -56,13 +56,13 @@ create TABLE requests
 create TABLE reports
 (
     id                serial primary key,
-    event_id          int,
-    weight            int,
-    created_date_time timestamp,
-    start_date_time   timestamp,
-    end_date_time     timestamp,
-    partner_id        int,
-    station_id        int,
+    event_id          int not null,
+    weight            int not null,
+    created_date_time timestamp not null,
+    start_date_time   timestamp not null,
+    end_date_time     timestamp not null,
+    partner_id        int not null,
+    station_id        int not null,
     FOREIGN KEY (station_id) references stations,
     FOREIGN KEY (partner_id) references partners
 );
