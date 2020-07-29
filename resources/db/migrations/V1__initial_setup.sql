@@ -41,15 +41,15 @@ create TABLE pickups
     start_time timestamp not null,
     end_time   timestamp not null,
     station_id int not null,
-    FOREIGN KEY (station_id) references stations
+    FOREIGN KEY (station_id) references stations on delete cascade
 );
 
 create TABLE requests
 (
     partner_id int not null,
     pickup_id  int not null,
-    FOREIGN KEY (pickup_id) references pickups,
-    FOREIGN KEY (partner_id) references partners
+    FOREIGN KEY (pickup_id) references pickups on delete cascade,
+    FOREIGN KEY (partner_id) references partners on delete cascade
 
 );
 
@@ -63,6 +63,6 @@ create TABLE reports
     end_date_time     timestamp not null,
     partner_id        int not null,
     station_id        int not null,
-    FOREIGN KEY (station_id) references stations,
-    FOREIGN KEY (partner_id) references partners
+    FOREIGN KEY (station_id) references stations on delete cascade,
+    FOREIGN KEY (partner_id) references partners on delete cascade
 );
