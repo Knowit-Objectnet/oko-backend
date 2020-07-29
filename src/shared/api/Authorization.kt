@@ -21,13 +21,18 @@ enum class Roles(val value: String) {
 
 object Authorization {
 
+    var testing = false
+
     fun authorizeRole(allowedRoles: List<Roles>, call: ApplicationCall): Either<AuthorizationError, Pair<Roles, Int>> {
         val principal = runCatching { call.principal<JWTPrincipal>()!! }.onFailure {
             return AuthorizationError.InvalidPrincipal().left()
         }.getOrElse { return AuthorizationError.InvalidPrincipal().left() }
-        val claimRoles = principal.payload.claims["realm_access"]?.asMap()?.get("roles") as List<String>?
-            ?: return AuthorizationError.MissingRolesError().left()
-        val role = allowedRoles.firstOrNull { role -> claimRoles.any { it == role.value } }
+        val claimRoles = when(!testing){
+            true -> principal.payload.claims["realm_access"]?.asMap()?.get("roles") as List<String>?
+            else -> {principal.payload.claims["roles"]?.asList(String::class.java)} //Have to do this because our JWT library doesn't support
+            //objects within a claim
+        } ?: return AuthorizationError.MissingRolesError().left()
+        val role = allowedRoles.firstOrNull { role -> println(role); claimRoles.any { it == role.value } }
             ?: return AuthorizationError.InsufficientRoleError().left()
         val groupID = principal.payload.claims["GroupID"]?.asInt() //-1 serves as a placeholder value for stations and REG admin
             ?: if (role != Roles.Partner) -1 else return AuthorizationError.MissingGroupIDError().left()

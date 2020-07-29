@@ -29,6 +29,8 @@ import ombruk.backend.pickup.api.pickup
 import ombruk.backend.reporting.api.report
 import ombruk.backend.pickup.service.PickupService
 import ombruk.backend.reporting.service.ReportService
+import ombruk.backend.shared.api.Authorization
+import ombruk.backend.shared.api.JwtMockConfig
 import java.net.URL
 import java.util.concurrent.TimeUnit
 
@@ -36,26 +38,38 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
-fun Application.module(testing: Boolean = false) {
+fun Application.module(testing: Boolean = true) {
 
     initDB()
 
 
     install(Authentication) {
+        if(testing){    //create a mock service for authorization
+            Authorization.testing = true
+            jwt {
+                verifier(JwtMockConfig.createMockVerifier())
+                realm = "local testing"
+                validate { jwt ->
+                    if (jwt.payload.audience.contains("account")) JWTPrincipal(jwt.payload)
+                    else null
+                }
+            }
+        } else {
+            val jwkIssuer =
+                URL("https://keycloak.staging.oko.knowit.no:8443/auth/realms/staging/protocol/openid-connect/certs")
+            val jwkRealm = "Calendar microservice"
+            val jwkProvider = JwkProviderBuilder(jwkIssuer)
+                .cached(10, 24, TimeUnit.HOURS)
+                .rateLimited(10, 1, TimeUnit.HOURS)
+                .build()
 
-        val jwkIssuer = URL("https://keycloak.staging.oko.knowit.no:8443/auth/realms/staging/protocol/openid-connect/certs")
-        val jwkRealm = "Calendar microservice"
-        val jwkProvider = JwkProviderBuilder(jwkIssuer)
-            .cached(10, 24, TimeUnit.HOURS)
-            .rateLimited(10, 1, TimeUnit.HOURS)
-            .build()
-
-        jwt {
-            verifier(jwkProvider)
-            realm = jwkRealm
-            validate { jwt ->
-                if (jwt.payload.audience.contains("account")) JWTPrincipal(jwt.payload)
-                else null
+            jwt {
+                verifier(jwkProvider)
+                realm = jwkRealm
+                validate { jwt ->
+                    if (jwt.payload.audience.contains("account")) JWTPrincipal(jwt.payload)
+                    else null
+                }
             }
         }
     }
