@@ -89,13 +89,13 @@ object PartnerRepository : IPartnerRepository {
             .onFailure { logger.error(it.message) }
             .fold({ it.right() }, { RepositoryError.SelectError(it.message).left() })
 
-    private fun toPartner(resultRow: ResultRow): Partner =
-        Partner(
-            resultRow[Partners.id].value,
-            resultRow[Partners.name],
-            resultRow[Partners.description],
-            resultRow[Partners.phone],
-            resultRow[Partners.email]
-        )
-
 }
+
+fun toPartner(resultRow: ResultRow): Partner =
+    Partner(
+        resultRow[Partners.id].value,
+        resultRow[Partners.name],
+        resultRow[Partners.description],
+        resultRow[Partners.phone],
+        resultRow[Partners.email]
+    )

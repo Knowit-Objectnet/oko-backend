@@ -8,7 +8,7 @@ import ombruk.backend.calendar.form.EventDeleteForm
 import ombruk.backend.calendar.form.EventUpdateForm
 import ombruk.backend.calendar.model.*
 import ombruk.backend.partner.database.Partners
-import ombruk.backend.partner.model.Partner
+import ombruk.backend.partner.database.toPartner
 import ombruk.backend.shared.error.RepositoryError
 import ombruk.calendar.form.api.EventGetForm
 import org.jetbrains.exposed.dao.id.IntIdTable
@@ -92,12 +92,7 @@ object EventRepository : IEventRepository {
         }
             .onFailure { logger.error(it.message) }
             .fold(
-                {
-                    Either.cond(
-                        it.isNotEmpty(),
-                        { it },
-                        { RepositoryError.NoRowsFound("Search did not match any events") })
-                },
+                { Either.cond(it.isNotEmpty(), { it }, { RepositoryError.NoRowsFound("No matches found") }) },
                 { RepositoryError.DeleteError(it.message).left() })
 
 
@@ -109,13 +104,7 @@ object EventRepository : IEventRepository {
     }
         .onFailure { logger.error(it.message) }
         .fold(
-            {
-                Either.cond(it != null, { it!! }, {
-                    RepositoryError.NoRowsFound(
-                        "ID does not exist!"
-                    )
-                })
-            },
+            { Either.cond(it != null, { it!! }, { RepositoryError.NoRowsFound("ID does not exist!") }) },
             { RepositoryError.SelectError(it.message).left() })
 
 
@@ -151,14 +140,8 @@ object EventRepository : IEventRepository {
             row[Events.id].value,
             row[Events.startDateTime],
             row[Events.endDateTime],
-            Station(row[Stations.id].value, row[Stations.name]),
-            Partner(
-                row[Partners.id].value,
-                row[Partners.name],
-                row[Partners.description],
-                row[Partners.phone],
-                row[Partners.email]
-            ),
+            toStation(row),
+            toPartner(row),
             getGetRecurrenceRuleFromResultRow(row)
         )
     }

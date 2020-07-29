@@ -9,13 +9,21 @@ import ombruk.backend.partner.model.Partner
 import org.junit.Test
 import java.time.DayOfWeek
 import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import kotlin.test.assertEquals
 
 class CreateEventFormIteratorTest {
 
     companion object {
-        val testPartner = Partner(10, "TestPartner 1", "Description of TestPartner 1", "+47 2381931", "example@gmail.com")
-        val testStation = Station(10, "TestStation 1")
+        val testPartner =
+            Partner(10, "TestPartner 1", "Description of TestPartner 1", "+47 2381931", "example@gmail.com")
+        val testStation = Station(
+            10,
+            "Test Station 1",
+            LocalTime.parse("09:00:00", DateTimeFormatter.ISO_TIME),
+            LocalTime.parse("21:00:00", DateTimeFormatter.ISO_TIME)
+        )
     }
 
     @Test

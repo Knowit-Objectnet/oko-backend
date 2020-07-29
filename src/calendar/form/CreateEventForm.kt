@@ -2,7 +2,7 @@ package ombruk.backend.calendar.form
 
 import kotlinx.serialization.Serializable
 import ombruk.backend.calendar.model.RecurrenceRule
-import ombruk.backend.shared.model.LocalDateTimeSerializer
+import ombruk.backend.shared.model.serializer.LocalDateTimeSerializer
 import ombruk.backend.calendar.utils.CreateEventFormIterator
 import ombruk.backend.calendar.utils.NonRecurringCreateEventFormIterator
 import java.time.LocalDateTime

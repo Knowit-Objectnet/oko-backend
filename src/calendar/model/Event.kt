@@ -2,7 +2,7 @@ package ombruk.backend.calendar.model
 
 import kotlinx.serialization.Serializable
 import ombruk.backend.partner.model.Partner
-import ombruk.backend.shared.model.LocalDateTimeSerializer
+import ombruk.backend.shared.model.serializer.LocalDateTimeSerializer
 import java.time.LocalDateTime
 
 
