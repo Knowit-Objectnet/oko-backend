@@ -1,6 +1,8 @@
 create TABLE stations
 (
     id   serial primary key,
+    opening_time varchar(20) not null,
+    closing_time varchar(20) not null,
     name varchar(200)
 );
 
