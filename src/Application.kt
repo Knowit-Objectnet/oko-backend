@@ -12,38 +12,45 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
+import io.ktor.locations.Locations
 import io.ktor.response.respond
 import io.ktor.routing.get
 import io.ktor.routing.routing
 import io.ktor.serialization.DefaultJsonConfiguration
 import io.ktor.serialization.json
+import io.ktor.util.KtorExperimentalAPI
 import kotlinx.serialization.json.Json
 import ombruk.backend.calendar.api.events
 import ombruk.backend.calendar.api.stations
-import ombruk.backend.shared.database.initDB
 import ombruk.backend.calendar.service.EventService
 import ombruk.backend.calendar.service.StationService
 import ombruk.backend.partner.api.partners
 import ombruk.backend.partner.service.PartnerService
 import ombruk.backend.pickup.api.pickup
-import ombruk.backend.reporting.api.report
 import ombruk.backend.pickup.service.PickupService
+import ombruk.backend.reporting.api.report
 import ombruk.backend.reporting.service.ReportService
+import ombruk.backend.shared.database.initDB
+import org.valiktor.ConstraintViolationException
+import org.valiktor.i18n.mapToMessage
 import java.net.URL
 import java.util.concurrent.TimeUnit
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
+@KtorExperimentalAPI
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
 fun Application.module(testing: Boolean = false) {
 
     initDB()
 
+    install(Locations)
 
     install(Authentication) {
 
-        val jwkIssuer = URL("https://keycloak.staging.oko.knowit.no:8443/auth/realms/staging/protocol/openid-connect/certs")
+        val jwkIssuer =
+            URL("https://keycloak.staging.oko.knowit.no:8443/auth/realms/staging/protocol/openid-connect/certs")
         val jwkRealm = "Calendar microservice"
         val jwkProvider = JwkProviderBuilder(jwkIssuer)
             .cached(10, 24, TimeUnit.HOURS)
@@ -67,6 +74,7 @@ fun Application.module(testing: Boolean = false) {
             minimumSize(1024) // condition
         }
     }
+
 
     install(DefaultHeaders)
     install(ConditionalHeaders)
@@ -105,6 +113,17 @@ fun Application.module(testing: Boolean = false) {
         install(StatusPages) {
             exception<AuthenticationException> { call.respond(HttpStatusCode.Unauthorized) }
             exception<AuthorizationException> { call.respond(HttpStatusCode.Forbidden) }
+            exception<ParameterConversionException> {
+                call.respond(
+                    HttpStatusCode.BadRequest,
+                    "${it.parameterName} could not be parsed."
+                )
+            }
+            exception<ConstraintViolationException> { exception ->
+                call.respond(
+                    HttpStatusCode.UnprocessableEntity,
+                    exception.constraintViolations.mapToMessage().joinToString { "${it.property}: ${it.message}" })
+            }
         }
 
     }

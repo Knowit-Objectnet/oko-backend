@@ -35,6 +35,7 @@ dependencies {
     implementation(ktor("server-netty"))
     implementation(ktor("server-core"))
     implementation(ktor("server-host-common"))
+    implementation(ktor("locations"))
     implementation(ktor("client-apache"))
     implementation(ktor("serialization"))
     implementation(ktor("auth-jwt"))

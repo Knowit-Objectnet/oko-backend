@@ -3,14 +3,14 @@ package ombruk.backend.calendar.database
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
-import ombruk.backend.calendar.form.EventPostForm
 import ombruk.backend.calendar.form.EventDeleteForm
+import ombruk.backend.calendar.form.EventPostForm
 import ombruk.backend.calendar.form.EventUpdateForm
 import ombruk.backend.calendar.model.*
 import ombruk.backend.partner.database.Partners
 import ombruk.backend.partner.model.Partner
 import ombruk.backend.shared.error.RepositoryError
-import ombruk.calendar.form.api.EventGetForm
+import calendar.form.EventGetForm
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.ReferenceOption
@@ -138,6 +138,8 @@ object EventRepository : IEventRepository {
         }
             .onFailure { logger.error(it.message) }
             .fold({ it.right() }, { RepositoryError.SelectError(it.message).left() })
+
+    override fun exists(id: Int) = transaction { Events.select{Events.id eq id}.count() >= 1 }
 
 
     private fun toEvent(row: ResultRow?): Event? {

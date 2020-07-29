@@ -13,7 +13,7 @@ import ombruk.backend.calendar.model.Event
 import ombruk.backend.calendar.model.EventType
 import ombruk.backend.reporting.service.IReportService
 import ombruk.backend.shared.error.ServiceError
-import ombruk.calendar.form.api.EventGetForm
+import calendar.form.EventGetForm
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class EventService(private val reportingService: IReportService) : IEventService {

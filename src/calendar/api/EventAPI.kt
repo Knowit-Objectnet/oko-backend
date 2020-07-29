@@ -3,14 +3,18 @@ package ombruk.backend.calendar.api
 import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
-import io.ktor.application.ApplicationCall
+import calendar.form.EventGetForm
 import io.ktor.application.call
 import io.ktor.auth.authenticate
+import io.ktor.locations.KtorExperimentalLocationsAPI
+import io.ktor.locations.get
 import io.ktor.request.receive
 import io.ktor.response.respond
-import io.ktor.routing.*
+import io.ktor.routing.Routing
+import io.ktor.routing.get
+import io.ktor.routing.patch
+import io.ktor.routing.post
 import ombruk.backend.calendar.form.EventPostForm
-import ombruk.backend.calendar.form.EventDeleteForm
 import ombruk.backend.calendar.form.EventUpdateForm
 import ombruk.backend.calendar.service.IEventService
 import ombruk.backend.shared.api.Authorization
@@ -18,9 +22,8 @@ import ombruk.backend.shared.api.Roles
 import ombruk.backend.shared.api.generateResponse
 import ombruk.backend.shared.api.receiveCatching
 import ombruk.backend.shared.error.RequestError
-import ombruk.calendar.form.api.EventGetForm
 
-
+@KtorExperimentalLocationsAPI
 fun Routing.events(eventService: IEventService) {
 
     get("/events/{event_id}") {
@@ -31,12 +34,13 @@ fun Routing.events(eventService: IEventService) {
             .also { (code, response) -> call.respond(code, response) }
     }
 
-    get("/events/") {
-        EventGetForm.create(call.request.queryParameters)
-            .flatMap { eventService.getEvents(it) }
-            .run { generateResponse(this) }
-            .also { (code, response) -> call.respond(code, response) }
-    }
+        get<EventGetForm> { form ->
+            form.validOrError()
+                .flatMap { it.validOrError() }
+                .flatMap { eventService.getEvents(it) }
+                .run { generateResponse(this) }
+                .also { (code, response) -> call.respond(code, response) }
+        }
 
     authenticate {
         post("/events/") {
@@ -61,7 +65,7 @@ fun Routing.events(eventService: IEventService) {
                 .also { (code, response) -> call.respond(code, response) }
         }
     }
-
+/*
     fun delete(auth: Pair<Roles, Int>, call: ApplicationCall) =
         EventDeleteForm.create(call.request.queryParameters)
             .flatMap { deleteForm ->
@@ -78,4 +82,6 @@ fun Routing.events(eventService: IEventService) {
                 .also { (code, response) -> call.respond(code, response) }
         }
     }
+
+ */
 }

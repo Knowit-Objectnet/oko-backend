@@ -1,11 +1,17 @@
 package ombruk.backend.calendar.form
 
-import arrow.core.*
+import arrow.core.Either
 import kotlinx.serialization.Serializable
 import ombruk.backend.calendar.database.EventRepository
 import ombruk.backend.shared.error.ValidationError
 import ombruk.backend.shared.form.IForm
 import ombruk.backend.shared.model.LocalDateTimeSerializer
+import ombruk.backend.shared.utils.validation.isGreaterThanStartDateTime
+import ombruk.backend.shared.utils.validation.isInRepository
+import ombruk.backend.shared.utils.validation.isLessThanEndDateTime
+import ombruk.backend.shared.utils.validation.runCatchingValidation
+import org.valiktor.functions.isNotNull
+import org.valiktor.validate
 import java.time.LocalDateTime
 
 @Serializable
@@ -14,33 +20,24 @@ data class EventUpdateForm(
     @Serializable(with = LocalDateTimeSerializer::class) val startDateTime: LocalDateTime? = null,
     @Serializable(with = LocalDateTimeSerializer::class) val endDateTime: LocalDateTime? = null
 ) : IForm<EventUpdateForm> {
-    override fun validOrError(): Either<ValidationError, EventUpdateForm> {
-        val errors = StringBuilder()
-        if (startDateTime == null && endDateTime == null) {
-            errors.appendln("Both dates cannot be null!")
-        } else if(startDateTime != null && endDateTime != null){
-            if(startDateTime >= endDateTime){
-                errors.appendln("start-date-time cannot be greater than end-date-time!")
-            } else if(endDateTime <= startDateTime){
-                errors.appendln("end-date-time cannot be lesser than start-date-time")
-            }
-        }
+    override fun validOrError(): Either<ValidationError, EventUpdateForm> = runCatchingValidation {
+        validate(this) {
+            validate(EventUpdateForm::id).isInRepository(EventRepository)
 
-        when (val event = EventRepository.getEventByID(id)) {
-            is Either.Left -> errors.appendln("ID $id does not exist")
-            is Either.Right -> {
-                if(endDateTime == null && startDateTime != null && startDateTime >= event.b.endDateTime) {
-                    errors.appendln("start-date-time cannot be greater than end-date-time!")
-                }
-                if(startDateTime == null && endDateTime != null && endDateTime <= event.b.startDateTime){
-                    errors.appendln("end-date-time cannot be lesser than start-date-time")
-                }
+            if (startDateTime == null) validate(EventUpdateForm::endDateTime).isNotNull()
+            if (endDateTime == null) validate(EventUpdateForm::startDateTime).isNotNull()
+
+            EventRepository.getEventByID(id).map { event ->
+                val newStartDateTime = startDateTime ?: event.startDateTime
+                val newEndDateTime = endDateTime ?: event.endDateTime
+                validate(EventUpdateForm::startDateTime).isLessThanEndDateTime(newEndDateTime)
+                validate(EventUpdateForm::startDateTime).isGreaterThanStartDateTime(newStartDateTime)
             }
-        }
-        return if(!errors.isBlank()){
-            ValidationError.Unprocessable(errors.toString()).left()
-        } else{
-            this.right()
         }
     }
 }
+
+
+
+
+

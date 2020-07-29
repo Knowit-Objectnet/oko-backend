@@ -28,7 +28,7 @@ fun <T> receiveCatching(func: suspend () -> T) = runCatching { runBlocking { fun
 
 fun generateResponse(result: Either<ServiceError, Any>) = when (result) {
     is Either.Left -> when (result.a) {
-        is ValidationError, is RequestError -> Pair(HttpStatusCode.BadRequest, result.a.message)
+        is ValidationError, is RequestError -> Pair(HttpStatusCode.UnprocessableEntity, result.a.message)
         is AuthorizationError -> Pair(HttpStatusCode.Unauthorized, result.a.message)
 
         is RepositoryError.NoRowsFound,

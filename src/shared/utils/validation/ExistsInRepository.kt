@@ -1,4 +1,4 @@
-package ombruk.backend.shared.utils.validators
+package ombruk.backend.shared.utils.validation
 
 import ombruk.backend.shared.database.IRepository
 import org.valiktor.Constraint

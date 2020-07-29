@@ -7,7 +7,7 @@ import ombruk.backend.calendar.form.EventUpdateForm
 import ombruk.backend.calendar.model.Event
 import ombruk.backend.calendar.model.EventType
 import ombruk.backend.shared.error.ServiceError
-import ombruk.calendar.form.api.EventGetForm
+import calendar.form.EventGetForm
 
 interface IEventService {
     fun saveEvent(eventPostForm: EventPostForm): Either<ServiceError, Event>

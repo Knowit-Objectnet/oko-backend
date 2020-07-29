@@ -16,7 +16,7 @@ import ombruk.backend.partner.model.Partner
 import ombruk.backend.reporting.service.ReportService
 import ombruk.backend.shared.database.initDB
 import ombruk.backend.shared.utils.rangeTo
-import ombruk.calendar.form.api.EventGetForm
+import calendar.form.EventGetForm
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.transactions.transaction
