@@ -4,16 +4,16 @@ import org.valiktor.Constraint
 import org.valiktor.Validator
 import java.time.LocalDateTime
 
-data class GreaterThanStartDateTime(val startDateTime: LocalDateTime) : Constraint
+data class GreaterThanStartDateTime(val startDateTime: LocalDateTime?) : Constraint
 
-fun <E> Validator<E>.Property<LocalDateTime?>.isGreaterThanStartDateTime(startDateTime: LocalDateTime) =
+fun <E> Validator<E>.Property<LocalDateTime?>.isGreaterThanStartDateTime(startDateTime: LocalDateTime?) =
     this.validate(GreaterThanStartDateTime(startDateTime)) {
-        it == null || it > startDateTime
+        it == null || startDateTime == null || it > startDateTime
     }
 
-data class LessThanEndDateTime(val endDateTime: LocalDateTime) : Constraint
+data class LessThanEndDateTime(val endDateTime: LocalDateTime?) : Constraint
 
-fun <E> Validator<E>.Property<LocalDateTime?>.isLessThanEndDateTime(endDateTime: LocalDateTime) =
+fun <E> Validator<E>.Property<LocalDateTime?>.isLessThanEndDateTime(endDateTime: LocalDateTime?) =
     this.validate(LessThanEndDateTime(endDateTime)) {
-        it == null || it < endDateTime
+        it == null || endDateTime == null ||it < endDateTime
     }

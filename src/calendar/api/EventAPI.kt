@@ -7,6 +7,7 @@ import calendar.form.EventGetForm
 import io.ktor.application.call
 import io.ktor.auth.authenticate
 import io.ktor.locations.KtorExperimentalLocationsAPI
+import io.ktor.locations.delete
 import io.ktor.locations.get
 import io.ktor.request.receive
 import io.ktor.response.respond
@@ -14,6 +15,7 @@ import io.ktor.routing.Routing
 import io.ktor.routing.get
 import io.ktor.routing.patch
 import io.ktor.routing.post
+import ombruk.backend.calendar.form.EventDeleteForm
 import ombruk.backend.calendar.form.EventPostForm
 import ombruk.backend.calendar.form.EventUpdateForm
 import ombruk.backend.calendar.service.IEventService
@@ -34,13 +36,13 @@ fun Routing.events(eventService: IEventService) {
             .also { (code, response) -> call.respond(code, response) }
     }
 
-        get<EventGetForm> { form ->
-            form.validOrError()
-                .flatMap { it.validOrError() }
-                .flatMap { eventService.getEvents(it) }
-                .run { generateResponse(this) }
-                .also { (code, response) -> call.respond(code, response) }
-        }
+    get<EventGetForm> { form ->
+        form.validOrError()
+            .flatMap { it.validOrError() }
+            .flatMap { eventService.getEvents(it) }
+            .run { generateResponse(this) }
+            .also { (code, response) -> call.respond(code, response) }
+    }
 
     authenticate {
         post("/events/") {
@@ -65,23 +67,18 @@ fun Routing.events(eventService: IEventService) {
                 .also { (code, response) -> call.respond(code, response) }
         }
     }
-/*
-    fun delete(auth: Pair<Roles, Int>, call: ApplicationCall) =
-        EventDeleteForm.create(call.request.queryParameters)
-            .flatMap { deleteForm ->
-                EventGetForm.create(call.request.queryParameters)
-                    .flatMap { Authorization.authorizePartnerID(auth) { eventService.getEvents(it) } }
-                    .fold({ it.left() }, { eventService.deleteEvent(deleteForm) })
-            }
 
     authenticate {
-        delete("/events/") {
+        delete<EventDeleteForm> { form ->
             Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.ReuseStation, Roles.Partner), call)
-                .flatMap { delete(it, call) }
+                .flatMap { Authorization.authorizePartnerID(it) { eventService.getEvents(form.toGetForm()) }  }
+                .flatMap { form.validOrError() }
+                .flatMap { eventService.deleteEvent(it) }
                 .run { generateResponse(this) }
                 .also { (code, response) -> call.respond(code, response) }
         }
     }
-
- */
 }
+
+private fun EventDeleteForm.toGetForm() =
+    EventGetForm(eventID, recurrenceRuleID = recurrenceRuleID, fromDate = fromDate, toDate = toDate)

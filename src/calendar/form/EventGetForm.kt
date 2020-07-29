@@ -1,6 +1,7 @@
 package calendar.form
 
 import arrow.core.Either
+import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.locations.Location
 import kotlinx.serialization.Serializable
 import ombruk.backend.shared.error.ValidationError
@@ -13,7 +14,7 @@ import org.valiktor.validate
 import java.time.LocalDateTime
 
 
-@Serializable
+@KtorExperimentalLocationsAPI
 @Location("/events/")
 data class EventGetForm(
     val eventID: Int? = null,
