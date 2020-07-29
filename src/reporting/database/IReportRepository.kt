@@ -15,8 +15,6 @@ interface IReportRepository {
 
     fun updateReport(event: Event): Either<RepositoryError, Unit>
 
-//    fun deleteReport(reportID: Int): Either<RepositoryError, Unit>
-
     fun getReportByID(reportID: Int): Either<RepositoryError, Report>
 
     fun getReports(reportGetForm: ReportGetForm?): Either<RepositoryError, List<Report>>

@@ -69,15 +69,6 @@ object ReportRepository : IReportRepository {
         .onFailure { logger.error("Failed to update report: ${it.message}") }
         .fold({ Unit.right() }, { RepositoryError.UpdateError("Failed to update report").left() })
 
-//    override fun deleteReport(reportID: Int) = transaction {
-//        kotlin.runCatching { Reports.deleteWhere { Reports.id eq reportID } }
-//            .onFailure { logger.error("Failed to delete report in DB: $reportID not found") }
-//            .fold(
-//                { Either.cond(it > 0, { Unit }, { RepositoryError.NoRowsFound("$reportID not found") }) },
-//                { RepositoryError.DeleteError(it.message).left() }
-//            )
-//    }
-
 
     override fun getReportByID(reportID: Int): Either<RepositoryError.NoRowsFound, Report> = transaction {
         runCatching { Reports.select { Reports.id eq reportID }.map { toReport(it) }.firstOrNull() }
