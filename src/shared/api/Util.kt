@@ -29,7 +29,11 @@ fun <T> receiveCatching(func: suspend () -> T) = runCatching { runBlocking { fun
 fun generateResponse(result: Either<ServiceError, Any>) = when (result) {
     is Either.Left -> when (result.a) {
         is ValidationError, is RequestError -> Pair(HttpStatusCode.BadRequest, result.a.message)
-        is AuthorizationError -> Pair(HttpStatusCode.Unauthorized, result.a.message)
+
+        is AuthorizationError.MissingRolesError,
+        is AuthorizationError.InvalidPrincipal -> Pair(HttpStatusCode.Unauthorized, result.a.message)
+
+        is AuthorizationError -> Pair(HttpStatusCode.Forbidden, result.a.message)
 
         is RepositoryError.NoRowsFound,
         is KeycloakIntegrationError.NotFoundError -> Pair(HttpStatusCode.NotFound, result.a.message)
