@@ -1,7 +1,9 @@
 create TABLE stations
 (
     id   serial primary key,
-    name varchar(255) not null unique
+    name varchar(255) not null unique,
+    opening_time varchar(20) not null,
+    closing_time varchar(20) not null
 );
 
 create TABLE partners

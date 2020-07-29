@@ -1,4 +1,4 @@
-package ombruk.backend.shared.model
+package ombruk.backend.shared.model.serializer
 
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter

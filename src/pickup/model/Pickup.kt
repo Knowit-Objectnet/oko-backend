@@ -2,7 +2,7 @@ package ombruk.backend.pickup.model
 
 import kotlinx.serialization.Serializable
 import ombruk.backend.calendar.model.Station
-import ombruk.backend.shared.model.LocalDateTimeSerializer
+import ombruk.backend.shared.model.serializer.LocalDateTimeSerializer
 import java.time.LocalDateTime
 
 @Serializable
