@@ -2,6 +2,7 @@ package pickup.service
 
 import ombruk.backend.calendar.database.Stations
 import ombruk.backend.calendar.model.Station
+import ombruk.backend.partner.database.Partners
 import ombruk.backend.pickup.database.Pickups
 import ombruk.backend.pickup.database.Requests
 import ombruk.backend.pickup.form.CreatePickupForm
@@ -12,6 +13,7 @@ import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.After
+import org.junit.AfterClass
 import org.junit.BeforeClass
 import org.junit.Test
 import java.time.LocalDateTime
@@ -61,7 +63,17 @@ class PickupServiceDeleteTest {
 
             pickupService = PickupService
         }
+        @AfterClass
+        @JvmStatic
+        fun cleanPartnersAndStationsFromDB(){
+            transaction {
+                Partners.deleteAll()
+                Stations.deleteAll()
+            }
+        }
     }
+
+
 
     @After
     fun cleanEventsFromDB() {
