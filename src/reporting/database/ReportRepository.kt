@@ -7,12 +7,12 @@ import ombruk.backend.calendar.database.Events
 import ombruk.backend.calendar.database.Stations
 import ombruk.backend.calendar.model.Event
 import ombruk.backend.shared.error.RepositoryError
-import ombruk.backend.partner.model.Partner
 import ombruk.backend.reporting.model.Report
 import ombruk.backend.partner.database.Partners
+import ombruk.backend.reporting.form.ReportGetForm
+import ombruk.backend.reporting.form.ReportUpdateForm
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.`java-time`.datetime
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
@@ -48,37 +48,54 @@ object ReportRepository : IReportRepository {
         .onFailure { logger.error("Failed to insert station to db: ${it.message}") }
         .fold({ getReportByID(it) }, { RepositoryError.InsertError("SQL error").left() })
 
-    override fun updateReport(report: Report): Either<RepositoryError, Unit> {
-        TODO("Not yet implemented")
+    override fun updateReport(reportUpdateForm: ReportUpdateForm): Either<RepositoryError, Report> = runCatching {
+        transaction {
+            Reports.update({ Reports.id eq reportUpdateForm.id }) {
+                it[weight] = reportUpdateForm.weight
+            }
+        }
     }
+        .onFailure { logger.error("Failed to update report: ${it.message}") }
+        .fold({ getReportByID(reportUpdateForm.id) }, { RepositoryError.UpdateError("Failed to update report").left() })
 
-    override fun deleteReport(reportID: Int) =
-        kotlin.runCatching { Reports.deleteWhere { Reports.id eq reportID } }
-            .onFailure { logger.error("Failed to delete report in DB: $reportID not found") }
-            .fold({
-                Either.cond(it > 0, { Unit }, { RepositoryError.NoRowsFound("$reportID not found") })
-            },
-                { RepositoryError.DeleteError(it.message).left() })
-
-    override fun getReportByID(reportID: Int): Either<RepositoryError.NoRowsFound, Report> = runCatching {
-        Reports.select { Reports.id eq reportID }
-            .map { toReport(it) }.first()
+    override fun updateReport(event: Event): Either<RepositoryError, Unit> = kotlin.runCatching {
+        transaction {
+            Reports.update({ Reports.eventID eq event.id }) {
+                it[startDateTime] = event.startDateTime
+                it[endDateTime] = event.endDateTime
+            }
+        }
     }
-        .onFailure { logger.error(it.message) }
-        .fold({ it.right() }, { RepositoryError.NoRowsFound(it.message).left() })
+        .onFailure { logger.error("Failed to update report: ${it.message}") }
+        .fold({ Unit.right() }, { RepositoryError.UpdateError("Failed to update report").left() })
 
-    override fun getReports(): Either<RepositoryError, List<Report>> =
-        runCatching { Reports.selectAll().map { toReport(it) } }
+
+    override fun getReportByID(reportID: Int): Either<RepositoryError.NoRowsFound, Report> = transaction {
+        runCatching { Reports.select { Reports.id eq reportID }.map { toReport(it) }.firstOrNull() }
             .onFailure { logger.error(it.message) }
-            .fold({ it.right() }, { RepositoryError.SelectError(it.message).left() })
+            .fold(
+                { Either.cond(it != null, { it!! }, { RepositoryError.NoRowsFound("ID $reportID does not exist!") }) },
+                { RepositoryError.NoRowsFound(it.message).left() }
+            )
+    }
 
-    override fun getReportsByPartnerID(partnerID: Int): Either<RepositoryError.NoRowsFound, List<Report>> =
+
+    override fun getReports(reportGetForm: ReportGetForm?): Either<RepositoryError, List<Report>> = transaction {
         runCatching {
-            Reports.select(Reports.partnerID eq partnerID)
-                .map { toReport(it) }
+            val query = Reports.selectAll()
+            if (reportGetForm != null) {
+                reportGetForm.eventID?.let { query.andWhere { Reports.eventID eq it } }
+                reportGetForm.stationID?.let { query.andWhere { Reports.stationID eq it } }
+                reportGetForm.partnerID?.let { query.andWhere { Reports.partnerID eq it } }
+                reportGetForm.fromDate?.let { query.andWhere { Reports.startDateTime.greaterEq(it) } }
+                reportGetForm.toDate?.let { query.andWhere { Reports.endDateTime.lessEq(it) } }
+            }
+            query.mapNotNull { toReport(it) }
         }
             .onFailure { logger.error(it.message) }
-            .fold({ it.right() }, { RepositoryError.NoRowsFound(it.message).left() })
+            .fold({ it.right() }, { RepositoryError.SelectError(it.message).left() })
+    }
+
 
     private fun toReport(resultRow: ResultRow): Report {
         return Report(
@@ -92,5 +109,4 @@ object ReportRepository : IReportRepository {
             resultRow[Reports.createdDateTime]
         )
     }
-
 }

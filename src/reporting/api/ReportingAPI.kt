@@ -1,60 +1,56 @@
 package ombruk.backend.reporting.api
 
-import arrow.core.Either
+import arrow.core.flatMap
+import arrow.core.left
+import arrow.core.right
+import io.ktor.application.ApplicationCall
 import io.ktor.application.call
-import io.ktor.http.HttpStatusCode
+import io.ktor.auth.authenticate
 import io.ktor.request.receive
 import io.ktor.response.respond
-import io.ktor.routing.Routing
-import io.ktor.routing.get
-import io.ktor.routing.post
-import io.ktor.routing.route
-import ombruk.backend.shared.error.RepositoryError
-import ombruk.backend.reporting.model.Report
+import io.ktor.routing.*
+import ombruk.backend.reporting.form.ReportGetForm
+import ombruk.backend.reporting.form.ReportUpdateForm
 import ombruk.backend.reporting.service.IReportService
+import ombruk.backend.shared.api.Authorization
+import ombruk.backend.shared.api.Roles
+import ombruk.backend.shared.api.generateResponse
+import ombruk.backend.shared.api.receiveCatching
+import ombruk.backend.shared.error.RequestError
 
 fun Routing.report(reportService: IReportService) {
     route("/reports") {
 
         get("/{id}") {
-            val id = runCatching { call.parameters["id"]!!.toInt() }.getOrElse {
-                call.respond(HttpStatusCode.BadRequest, "Invalid ID")
-                return@get
-            }
-
-            when (val result = reportService.getReportById(id)) {
-                is Either.Left -> when (result.a) {
-                    is RepositoryError.NoRowsFound -> call.respond(HttpStatusCode.NotFound)
-                    else -> call.respond(HttpStatusCode.InternalServerError)
-                }
-                is Either.Right -> call.respond(HttpStatusCode.OK, result.b)
-            }
-        }
-
-        get("/partner/{partnerID}") {
-            val partnerID = runCatching { call.parameters["partnerID"]!!.toInt() }.getOrElse {
-                call.respond(HttpStatusCode.BadRequest, "Invalid partner ID")
-                return@get
-            }
-
-            when (val result = reportService.getReportsByPartnerId(partnerID)) {
-                is Either.Left -> when (result.a) {
-                    is RepositoryError.NoRowsFound -> call.respond(HttpStatusCode.NotFound)
-                    else -> call.respond(HttpStatusCode.InternalServerError)
-                }
-                is Either.Right -> call.respond(HttpStatusCode.OK, result.b)
-            }
+            runCatching { call.parameters["id"]!!.toInt() }
+                .fold({ it.right() }, { RequestError.InvalidIdError().left() })
+                .flatMap { reportService.getReportById(it) }
+                .run { generateResponse(this) }
+                .also { (code, response) -> call.respond(code, response) }
         }
 
         get {
-            when (val result = reportService.getReports()) {
-                is Either.Left -> when (result.a) {
-                    is RepositoryError.NoRowsFound -> call.respond(HttpStatusCode.NotFound)
-                    else -> call.respond(HttpStatusCode.InternalServerError)
+            ReportGetForm.create(call.request.queryParameters)
+                .flatMap { reportService.getReports(it) }
+                .run { generateResponse(this) }
+                .also { (code, response) -> call.respond(code, response) }
+        }
+
+        fun patch(auth: Pair<Roles, Int>, reportUpdateForm: ReportUpdateForm) =
+            Authorization.authorizeReportPatchByPartnerId(auth) { reportService.getReportById(reportUpdateForm.id) }
+                .fold({it.left()}, {reportService.updateReport(reportUpdateForm)})
+
+        authenticate {
+            patch {
+                receiveCatching { call.receive<ReportUpdateForm>() }.flatMap { patchForm ->
+                    Authorization.authorizeRole(listOf(Roles.Partner, Roles.RegEmployee, Roles.ReuseStation), call)
+                        .flatMap { patch(it, patchForm) }
                 }
-                is Either.Right -> call.respond(HttpStatusCode.OK, result.b)
+                    .run { generateResponse(this) }
+                    .also { (code, response) -> call.respond(code, response) }
             }
         }
+
     }
 
 
