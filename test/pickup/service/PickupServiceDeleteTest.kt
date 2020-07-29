@@ -2,6 +2,7 @@ package pickup.service
 
 import ombruk.backend.calendar.database.Stations
 import ombruk.backend.calendar.model.Station
+import ombruk.backend.partner.database.Partners
 import ombruk.backend.pickup.database.Pickups
 import ombruk.backend.pickup.database.Requests
 import ombruk.backend.pickup.form.CreatePickupForm
@@ -12,9 +13,11 @@ import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.After
+import org.junit.AfterClass
 import org.junit.BeforeClass
 import org.junit.Test
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import kotlin.test.assertEquals
 
@@ -33,21 +36,44 @@ class PickupServiceDeleteTest {
             transaction {
                 val testStationId = Stations.insertAndGetId {
                     it[name] = "Test Station 1"
+                    it[openingTime] = "09:00:00"
+                    it[closingTime] = "21:00:00"
                 }.value
 
-                testStation = Station(testStationId, "Test Station 1")
+                testStation = Station(
+                    testStationId,
+                    "Test Station 1",
+                    LocalTime.parse("09:00:00", DateTimeFormatter.ISO_TIME),
+                    LocalTime.parse("21:00:00", DateTimeFormatter.ISO_TIME)
+                )
 
                 val testStationId2 = Stations.insertAndGetId {
                     it[name] = "Test Station 2"
+                    it[openingTime] = "08:00:00"
+                    it[closingTime] = "20:00:00"
                 }.value
-
-                testStation2 = Station(testStationId2, "Test Station 2")
+                testStation2 = Station(
+                    testStationId2,
+                    "Test Station 2",
+                    LocalTime.parse("08:00:00", DateTimeFormatter.ISO_TIME),
+                    LocalTime.parse("20:00:00", DateTimeFormatter.ISO_TIME)
+                )
 
             }
 
             pickupService = PickupService
         }
+        @AfterClass
+        @JvmStatic
+        fun cleanPartnersAndStationsFromDB(){
+            transaction {
+                Partners.deleteAll()
+                Stations.deleteAll()
+            }
+        }
     }
+
+
 
     @After
     fun cleanEventsFromDB() {

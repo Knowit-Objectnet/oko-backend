@@ -14,11 +14,11 @@ interface IEventRepository {
      * Inserts an [Event] into the database. The ID passed in the [Event] will be overriden, and a serial
      * ID will be used instead.
      *
-     * @param event An [Event]
+     * @param form An [Event]
      * @return An [Either] object consisting of a [RepositoryError] on failure and the saved [Event] on success.
      * The recurrence rule will be returned instead of an individual ID if the event is recurring.
      */
-    fun insertEvent(from: CreateEventForm): Either<RepositoryError, Event>
+    fun insertEvent(form: CreateEventForm): Either<RepositoryError, Event>
 
     /**
      * Updates a stored Event. The id passed in the [Event] must already exist in the database.

@@ -1,7 +1,7 @@
 package ombruk.backend.pickup.form
 
 import kotlinx.serialization.Serializable
-import ombruk.backend.shared.model.LocalDateTimeSerializer
+import ombruk.backend.shared.model.serializer.LocalDateTimeSerializer
 import java.time.LocalDateTime
 
 

@@ -18,10 +18,12 @@ import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.After
+import org.junit.AfterClass
 import org.junit.BeforeClass
 import org.junit.Test
 import java.time.DayOfWeek
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import kotlin.test.assertEquals
 
@@ -39,33 +41,74 @@ class EventServiceDeleteTest {
             initDB()
             transaction {
                 val testPartnerId = Partners.insertAndGetId {
-                    it[name] = "Test Partner 1"
+                    it[name] = "TestPartner 1"
+                    it[description] = "Description of TestPartner 1"
+                    it[phone] = "+47 2381931"
+                    it[email] = "example@gmail.com"
                 }.value
 
-                testPartner = Partner(testPartnerId, "Test Partner 1")
+                testPartner =
+                    Partner(
+                        testPartnerId,
+                        "TestPartner 1",
+                        "Description of TestPartner 1",
+                        "+47 2381931",
+                        "example@gmail.com"
+                    )
 
                 val testPartnerId2 = Partners.insertAndGetId {
-                    it[name] = "Test Partner 2"
+                    it[name] = "TestPartner 2"
+                    it[description] = "Description of TestPartner 2"
+                    it[phone] = "911"
+                    it[email] = "example@gmail.com"
                 }.value
 
-                testPartner2 = Partner(testPartnerId2, "Test Partner 2")
+                testPartner2 =
+                    Partner(
+                        testPartnerId2,
+                        "TestPartner 2",
+                        "Description of TestPartner 2",
+                        "911",
+                        "example@gmail.com"
+                    )
 
 
                 val testStationId = Stations.insertAndGetId {
                     it[name] = "Test Station 1"
+                    it[openingTime] = "09:00:00"
+                    it[closingTime] = "21:00:00"
                 }.value
 
-                testStation = Station(testStationId, "Test Station 1")
+                testStation = Station(
+                    testStationId,
+                    "Test Station 1",
+                    LocalTime.parse("09:00:00", DateTimeFormatter.ISO_TIME),
+                    LocalTime.parse("21:00:00", DateTimeFormatter.ISO_TIME)
+                )
 
                 val testStationId2 = Stations.insertAndGetId {
                     it[name] = "Test Station 2"
+                    it[openingTime] = "08:00:00"
+                    it[closingTime] = "20:00:00"
                 }.value
-                testStation2 = Station(testStationId2, "Test Station 2")
+                testStation2 = Station(
+                    testStationId2,
+                    "Test Station 2",
+                    LocalTime.parse("08:00:00", DateTimeFormatter.ISO_TIME),
+                    LocalTime.parse("20:00:00", DateTimeFormatter.ISO_TIME)
+                )
             }
 
             eventService = EventService(ReportService)
         }
-
+        @AfterClass
+        @JvmStatic
+        fun cleanPartnersAndStationsFromDB(){
+            transaction {
+                Partners.deleteAll()
+                Stations.deleteAll()
+            }
+        }
     }
 
     @After
@@ -74,6 +117,8 @@ class EventServiceDeleteTest {
             Events.deleteAll()
         }
     }
+
+
 
     @Test
     fun testDeleteEventByid() {
@@ -163,7 +208,7 @@ class EventServiceDeleteTest {
         val createForm = CreateEventForm(
             LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME),
             LocalDateTime.parse("2020-07-27T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
-           testStation.id,
+            testStation.id,
             testPartner.id,
             RecurrenceRule(count = 7)
         )
@@ -172,17 +217,17 @@ class EventServiceDeleteTest {
         require(recurrenceRuleId is Either.Right)
 
         val eventNotToDelete = dateRange.map {
-                eventService.saveEvent(
-                    CreateEventForm(it, it.plusHours(1), testStation.id,testPartner.id)
-                )
-            }.map{ require(it is Either.Right); it.b}
+            eventService.saveEvent(
+                CreateEventForm(it, it.plusHours(1), testStation.id, testPartner.id)
+            )
+        }.map { require(it is Either.Right); it.b }
 
         val params = ParametersBuilder()
         params.append("from-date", "2020-07-27T15:30:00Z")
         params.append("to-date", "2021-07-27T15:30:00Z")
         params.append("recurrence-rule-id", recurrenceRuleId.b.toString())
         val deleteForm = EventDeleteForm.create(params.build())
-        if(deleteForm is Either.Left) println(deleteForm.a)
+        if (deleteForm is Either.Left) println(deleteForm.a)
         require(deleteForm is Either.Right)
 
         assert(eventService.deleteEvent(deleteForm.b) is Either.Right)

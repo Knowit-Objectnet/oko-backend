@@ -1,8 +1,7 @@
 package ombruk.backend.reporting.model
 
 import kotlinx.serialization.Serializable
-import ombruk.backend.partner.model.Partner
-import ombruk.backend.shared.model.LocalDateTimeSerializer
+import ombruk.backend.shared.model.serializer.LocalDateTimeSerializer
 import java.time.LocalDateTime
 
 @Serializable
@@ -14,5 +13,5 @@ data class Report(
     @Serializable(with = LocalDateTimeSerializer::class) val startDateTime: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class) val endDateTime: LocalDateTime,
     val weight: Int?,
-    @Serializable(with = LocalDateTimeSerializer::class) val createdDateTime: LocalDateTime = LocalDateTime.now()
+    @Serializable(with = LocalDateTimeSerializer::class) val reportedDateTime: LocalDateTime? = null
 )

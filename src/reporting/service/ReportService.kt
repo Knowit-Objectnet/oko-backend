@@ -1,13 +1,11 @@
 package ombruk.backend.reporting.service
 
-import arrow.core.Left
-import arrow.core.Right
 import arrow.core.leftIfNull
 import ombruk.backend.calendar.model.Event
+import ombruk.backend.reporting.form.ReportUpdateForm
 import ombruk.backend.reporting.database.ReportRepository
-import ombruk.backend.reporting.database.Reports
+import ombruk.backend.reporting.form.ReportGetForm
 import ombruk.backend.shared.error.ServiceError
-import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 
@@ -16,28 +14,13 @@ object ReportService : IReportService {
 
     override fun saveReport(event: Event) = ReportRepository.insertReport(event)
 
-    override fun getReportById(id: Int) = transaction {
-        ReportRepository.getReportByID(id).leftIfNull {
-            ServiceError(
-                "No report with ID $id exists"
-            )
-        }
-    }
+    override fun updateReport(event: Event) = ReportRepository.updateReport(event)
 
+    override fun updateReport(reportUpdateForm: ReportUpdateForm) = ReportRepository.updateReport(reportUpdateForm)
 
-    override fun getReports() = transaction {
-        ReportRepository.getReports().leftIfNull { ServiceError("No reports") }
-    }
+    override fun getReportById(reportID: Int) = ReportRepository.getReportByID(reportID)
 
-    override fun getReportsByPartnerId(partnerID: Int) = transaction {
-        ReportRepository.getReports()
-    }
-
-    override fun deleteReportByEventId(eventID: Int) = runCatching {
-        transaction {
-            Reports.deleteWhere { Reports.eventID eq eventID }
-        }
-    }.fold({ Right(Unit) }, { logger.error("Failed to delete partner in DB: ${it.message}"); Left(it) })
+    override fun getReports(reportGetForm: ReportGetForm) = ReportRepository.getReports(reportGetForm)
 
 
 }

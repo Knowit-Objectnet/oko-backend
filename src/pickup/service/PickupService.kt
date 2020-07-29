@@ -3,6 +3,7 @@ package ombruk.backend.pickup.service
 import ombruk.backend.pickup.database.Pickups
 import ombruk.backend.pickup.database.Requests
 import ombruk.backend.calendar.database.Stations
+import ombruk.backend.calendar.database.toStation
 import ombruk.backend.pickup.form.CreatePickupForm
 import ombruk.backend.pickup.model.Pickup
 import ombruk.backend.calendar.model.Station
@@ -88,7 +89,7 @@ object PickupService : IPickupService {
             row[Pickups.id].value,
             row[Pickups.startTime],
             row[Pickups.endTime],
-            Station(row[Stations.id].value, row[Stations.name])
+            toStation(row)
         )
     }
 }

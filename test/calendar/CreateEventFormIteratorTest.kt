@@ -9,13 +9,21 @@ import ombruk.backend.partner.model.Partner
 import org.junit.Test
 import java.time.DayOfWeek
 import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import kotlin.test.assertEquals
 
 class CreateEventFormIteratorTest {
 
     companion object {
-        val testPartner = Partner(10, "TestPartner 1")
-        val testStation = Station(10, "TestStation 1")
+        val testPartner =
+            Partner(10, "TestPartner 1", "Description of TestPartner 1", "+47 2381931", "example@gmail.com")
+        val testStation = Station(
+            10,
+            "Test Station 1",
+            LocalTime.parse("09:00:00", DateTimeFormatter.ISO_TIME),
+            LocalTime.parse("21:00:00", DateTimeFormatter.ISO_TIME)
+        )
     }
 
     @Test
@@ -35,7 +43,8 @@ class CreateEventFormIteratorTest {
         for (actualForm in recurringForm) {
             val expectedForm = recurringForm.copy(
                 recurringForm.startDateTime.plusDays(counter),
-                recurringForm.endDateTime.plusDays(counter))
+                recurringForm.endDateTime.plusDays(counter)
+            )
 
             assertEquals(expectedForm, actualForm)
             counter++
@@ -61,7 +70,8 @@ class CreateEventFormIteratorTest {
         for (actualForm in recurringForm) {
             val expectedForm = recurringForm.copy(
                 recurringForm.startDateTime.plusDays(counter),
-                recurringForm.endDateTime.plusDays(counter))
+                recurringForm.endDateTime.plusDays(counter)
+            )
 
             assertEquals(expectedForm, actualForm)
             counter++
@@ -92,7 +102,8 @@ class CreateEventFormIteratorTest {
         for (actualForm in recurringForm) {
             val expectedForm = recurringForm.copy(
                 recurringForm.startDateTime.plusDays(counter + offset),
-                recurringForm.endDateTime.plusDays(counter + offset))
+                recurringForm.endDateTime.plusDays(counter + offset)
+            )
 
             assertEquals(expectedForm, actualForm)
             counter++
@@ -120,7 +131,8 @@ class CreateEventFormIteratorTest {
         for (actualForm in recurringForm) {
             val expectedForm = recurringForm.copy(
                 recurringForm.startDateTime.plusDays(counter),
-                recurringForm.endDateTime.plusDays(counter))
+                recurringForm.endDateTime.plusDays(counter)
+            )
 
             assertEquals(expectedForm, actualForm)
             counter++
@@ -146,7 +158,8 @@ class CreateEventFormIteratorTest {
         for (actualForm in recurringForm) {
             val expectedForm = recurringForm.copy(
                 recurringForm.startDateTime.plusDays(counter + 1),
-                recurringForm.endDateTime.plusDays(counter + 1))
+                recurringForm.endDateTime.plusDays(counter + 1)
+            )
 
             assertEquals(expectedForm, actualForm)
             counter++
@@ -172,7 +185,8 @@ class CreateEventFormIteratorTest {
         for (actualForm in recurringForm) {
             val expectedForm = recurringForm.copy(
                 recurringForm.startDateTime.plusDays(counter),
-                recurringForm.endDateTime.plusDays(counter))
+                recurringForm.endDateTime.plusDays(counter)
+            )
 
             assertEquals(expectedForm, actualForm)
             counter++
@@ -197,7 +211,8 @@ class CreateEventFormIteratorTest {
         for (actualForm in recurringForm) {
             val expectedForm = recurringForm.copy(
                 recurringForm.startDateTime.plusWeeks(counter),
-                recurringForm.endDateTime.plusWeeks(counter))
+                recurringForm.endDateTime.plusWeeks(counter)
+            )
 
             assertEquals(expectedForm, actualForm)
             counter++
@@ -225,7 +240,8 @@ class CreateEventFormIteratorTest {
         for (actualForm in recurringForm) {
             val expectedForm = recurringForm.copy(
                 recurringForm.startDateTime.plusDays(counter),
-                recurringForm.endDateTime.plusDays(counter))
+                recurringForm.endDateTime.plusDays(counter)
+            )
 
             assertEquals(expectedForm, actualForm)
             counter++
@@ -257,7 +273,8 @@ class CreateEventFormIteratorTest {
         for (actualForm in recurringForm) {
             val expectedForm = recurringForm.copy(
                 recurringForm.startDateTime.plusDays(counter + offset),
-                recurringForm.endDateTime.plusDays(counter + offset))
+                recurringForm.endDateTime.plusDays(counter + offset)
+            )
 
             assertEquals(expectedForm, actualForm)
             counter++
@@ -289,7 +306,8 @@ class CreateEventFormIteratorTest {
         for (actualForm in recurringForm) {
             val expectedForm = recurringForm.copy(
                 recurringForm.startDateTime.plusDays(counter + offset),
-                recurringForm.endDateTime.plusDays(counter + offset))
+                recurringForm.endDateTime.plusDays(counter + offset)
+            )
 
             assertEquals(expectedForm, actualForm)
             counter++
@@ -314,7 +332,8 @@ class CreateEventFormIteratorTest {
         for (actualForm in nonRecurringForm) {
             val expectedForm = nonRecurringForm.copy(
                 nonRecurringForm.startDateTime.plusDays(counter),
-                nonRecurringForm.endDateTime.plusDays(counter))
+                nonRecurringForm.endDateTime.plusDays(counter)
+            )
             assertEquals(expectedForm, actualForm)
             counter++
         }
