@@ -73,7 +73,7 @@ class PickupServiceDeleteTest {
 
         pickupService.deletePickup(pickupTodelete.id, null)
 
-        val pickupsLeftAfterDelete = pickupService.getPickups(null)
+        val pickupsLeftAfterDelete = pickupService.getPickups()
         assertEquals(pickupsNotToDelete, pickupsLeftAfterDelete)
     }
 
@@ -93,7 +93,7 @@ class PickupServiceDeleteTest {
 
         pickupService.deletePickup(null, testStation.id)
 
-        val pickupsLeftAfterDelete = pickupService.getPickups(null)
+        val pickupsLeftAfterDelete = pickupService.getPickups()
         assertEquals(pickupsNotToDelete, pickupsLeftAfterDelete)
     }
 

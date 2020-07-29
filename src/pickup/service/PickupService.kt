@@ -6,18 +6,19 @@ import ombruk.backend.calendar.database.Stations
 import ombruk.backend.pickup.form.CreatePickupForm
 import ombruk.backend.pickup.model.Pickup
 import ombruk.backend.calendar.model.Station
+import ombruk.backend.pickup.form.GetPickupsForm
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 
 
 object PickupService : IPickupService {
 
-    override fun savePickup(form: CreatePickupForm): Pickup {
+    override fun savePickup(pickupForm: CreatePickupForm): Pickup {
         val id = transaction {
             Pickups.insertAndGetId {
-                it[stationID] = form.stationId
-                it[startTime] = form.startTime
-                it[endTime] = form.endTime
+                it[stationID] = pickupForm.stationId
+                it[startTime] = pickupForm.startTime
+                it[endTime] = pickupForm.endTime
             }
         }.value
 
@@ -32,12 +33,12 @@ object PickupService : IPickupService {
         }
     }
 
-    override fun getPickups(stationID: Int?): List<Pickup>{
+    override fun getPickups(pickupQueryForm: GetPickupsForm): List<Pickup>{
         return transaction{
             val query = (Pickups innerJoin Stations).selectAll()
-            stationID?.let{
+            /* pickupQueryForm.stationId.let{
                 query.andWhere { Pickups.stationID eq it }
-            }
+            }*/
             query.map { toPickup(it) }
         }
     }

@@ -6,6 +6,7 @@ import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.*
 import ombruk.backend.pickup.form.CreatePickupForm
+import ombruk.backend.pickup.form.GetPickupsForm
 import ombruk.backend.pickup.model.Pickup
 import ombruk.backend.pickup.service.IPickupService
 
@@ -14,59 +15,66 @@ fun Routing.pickup(pickupService: IPickupService) {
         call.respond("Ombruk er kult")
     }
 
-    get("/health_check/"){
-        call.respond(HttpStatusCode.OK)
-    }
+    route("/pickups") {
 
-    delete("/pickups/") {
-        val params = call.request.queryParameters
-        try {
-            when(pickupService.deletePickup(params["pickupID"]?.toInt(), params["stationID"]?.toInt())){
-                true -> call.respond(HttpStatusCode.OK)
-                else -> call.respond(HttpStatusCode.NotFound)
+
+        get("/health_check/") {
+            call.respond(HttpStatusCode.OK)
+        }
+
+        delete("/") {
+            val params = call.request.queryParameters
+            try {
+                when (pickupService.deletePickup(params["pickupID"]?.toInt(), params["stationID"]?.toInt())) {
+                    true -> call.respond(HttpStatusCode.OK)
+                    else -> call.respond(HttpStatusCode.NotFound)
+                }
+            } catch (e: NumberFormatException) {
+                e.printStackTrace()
+                call.respond(HttpStatusCode.BadRequest)
             }
-        } catch (e: NumberFormatException) {
-            e.printStackTrace()
-            call.respond(HttpStatusCode.BadRequest)
         }
-    }
 
-    patch("/pickups/") {
-        val body = runCatching { call.receive<Pickup>() }.onFailure {
-            call.respond(HttpStatusCode.InternalServerError, "Failed to update pickup") }.getOrThrow()
-        try {
-            when(pickupService.updatePickup(body)){
-                true -> call.respond(HttpStatusCode.OK)
-                else -> call.respond(HttpStatusCode.NotFound)
+        patch("/") {
+            val body = runCatching { call.receive<Pickup>() }.onFailure {
+                call.respond(HttpStatusCode.InternalServerError, "Failed to update pickup")
+            }.getOrThrow()
+            try {
+                when (pickupService.updatePickup(body)) {
+                    true -> call.respond(HttpStatusCode.OK)
+                    else -> call.respond(HttpStatusCode.NotFound)
+                }
+            } catch (e: NumberFormatException) {
+                e.printStackTrace()
+                call.respond(HttpStatusCode.BadRequest)
             }
-        } catch (e: NumberFormatException) {
-            e.printStackTrace()
-            call.respond(HttpStatusCode.BadRequest)
         }
-    }
 
-    post("/pickups/") {
-        val form = runCatching { call.receive<CreatePickupForm>() }.onFailure {
-            call.respond(HttpStatusCode.InternalServerError, "Failed to create pickup") }.getOrThrow()
-        val result = pickupService.savePickup(form)
-        call.respond(HttpStatusCode.Created, result)
-    }
-
-    get("/pickups/") {
-        val params = call.request.queryParameters
-        try {
-            call.respond(pickupService.getPickups(params["stationID"]?.toInt()))
-        } catch (e: NumberFormatException) {
-            e.printStackTrace()
-            call.respond(HttpStatusCode.BadRequest)
+        post("/") {
+            val form = runCatching { call.receive<CreatePickupForm>() }.onFailure {
+                call.respond(HttpStatusCode.InternalServerError, "Failed to create pickup")
+            }.getOrThrow()
+            val result = pickupService.savePickup(form)
+            call.respond(HttpStatusCode.Created, result)
         }
-    }
 
-    get("/pickups/{pickup_id}") {
-        val id = call.parameters["pickup_id"]?.toInt() ?: throw IllegalArgumentException("Invalid pickup id")
-        when (val pickup = pickupService.getPickupById(id)) {
-            null -> call.respond(HttpStatusCode.NotFound, "Pickup id not found")
-            else -> call.respond(HttpStatusCode.OK, pickup)
+        get("/") {
+            // val params = call.request.queryParameters
+            val form = call.receive<GetPickupsForm>()
+            try {
+                call.respond(pickupService.getPickups(form))
+            } catch (e: NumberFormatException) {
+                e.printStackTrace()
+                call.respond(HttpStatusCode.BadRequest)
+            }
+        }
+
+        get("/{pickup_id}") {
+            val id = call.parameters["pickup_id"]?.toInt() ?: throw IllegalArgumentException("Invalid pickup id")
+            when (val pickup = pickupService.getPickupById(id)) {
+                null -> call.respond(HttpStatusCode.NotFound, "Pickup id not found")
+                else -> call.respond(HttpStatusCode.OK, pickup)
+            }
         }
     }
 }

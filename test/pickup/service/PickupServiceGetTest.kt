@@ -2,8 +2,11 @@ package pickup.service
 
 import ombruk.backend.calendar.database.Stations
 import ombruk.backend.calendar.model.Station
+import ombruk.backend.partner.database.Partners
 import ombruk.backend.pickup.database.Pickups
+import ombruk.backend.pickup.database.Requests
 import ombruk.backend.pickup.form.CreatePickupForm
+import ombruk.backend.pickup.form.GetPickupsForm
 import ombruk.backend.pickup.service.PickupService
 import ombruk.backend.shared.database.initDB
 import ombruk.backend.shared.utils.rangeTo
@@ -29,6 +32,16 @@ class PickupServiceGetTest {
         @JvmStatic
         fun setup() {
             initDB()
+            // Clear the database in order to get to a known state.
+            // Note that order matter (db constraints)
+            transaction {
+                // Partners.deleteAll()
+
+                Requests.deleteAll()
+                Pickups.deleteAll()
+                //Stations.deleteAll()
+
+            }
             transaction {
                 val testStationId = Stations.insertAndGetId {
                     it[name] = "Test Station 1"
@@ -84,8 +97,8 @@ class PickupServiceGetTest {
                 CreatePickupForm(startDate, startDate.plusHours(1), testStation.id)
             )
         }
-
-        val actualPickups = pickupService.getPickups(null)
+        val form = GetPickupsForm(null,null,null)
+        val actualPickups = pickupService.getPickups(form)
 
         assertEquals(expectedPickups, actualPickups)
     }
