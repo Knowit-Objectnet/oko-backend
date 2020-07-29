@@ -13,5 +13,5 @@ data class Report(
     @Serializable(with = LocalDateTimeSerializer::class) val startDateTime: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class) val endDateTime: LocalDateTime,
     val weight: Int?,
-    @Serializable(with = LocalDateTimeSerializer::class) val createdDateTime: LocalDateTime = LocalDateTime.now()
+    @Serializable(with = LocalDateTimeSerializer::class) val reportedDateTime: LocalDateTime? = null
 )

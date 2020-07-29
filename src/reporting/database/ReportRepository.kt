@@ -27,7 +27,7 @@ object Reports : IntIdTable("reports") {
     val startDateTime = datetime("start_date_time")
     val endDateTime = datetime("end_date_time")
     val weight = integer("weight").nullable()
-    val createdDateTime = datetime("created_date_time")
+    val reportedDateTime = datetime("reported_date_time").nullable()
 }
 
 object ReportRepository : IReportRepository {
@@ -36,12 +36,12 @@ object ReportRepository : IReportRepository {
         transaction {
             Reports.insertAndGetId {
                 it[weight] = null
+                it[reportedDateTime] = null
                 it[eventID] = event.id
                 it[partnerID] = event.partner.id
                 it[stationID] = event.station.id
                 it[startDateTime] = event.startDateTime
                 it[endDateTime] = event.endDateTime
-                it[createdDateTime] = LocalDateTime.now()
             }.value
         }
     }
@@ -52,6 +52,7 @@ object ReportRepository : IReportRepository {
         transaction {
             Reports.update({ Reports.id eq reportUpdateForm.id }) {
                 it[weight] = reportUpdateForm.weight
+                it[reportedDateTime] = LocalDateTime.now()
             }
         }
     }
@@ -106,7 +107,7 @@ object ReportRepository : IReportRepository {
             resultRow[Reports.startDateTime],
             resultRow[Reports.endDateTime],
             resultRow[Reports.weight],
-            resultRow[Reports.createdDateTime]
+            resultRow[Reports.reportedDateTime]
         )
     }
 }

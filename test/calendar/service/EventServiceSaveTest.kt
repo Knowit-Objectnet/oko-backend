@@ -16,6 +16,7 @@ import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.After
+import org.junit.AfterClass
 import org.junit.BeforeClass
 import org.junit.Test
 import java.time.DayOfWeek
@@ -98,6 +99,14 @@ class EventServiceSaveTest {
 
             eventService = EventService(ReportService)
         }
+        @AfterClass
+        @JvmStatic
+        fun cleanPartnersAndStationsFromDB(){
+            transaction {
+                Partners.deleteAll()
+                Stations.deleteAll()
+            }
+        }
 
     }
 
@@ -107,6 +116,8 @@ class EventServiceSaveTest {
             Events.deleteAll()
         }
     }
+
+
 
     @Test
     fun testSaveEvent() {

@@ -59,8 +59,8 @@ create TABLE reports
 (
     id                serial primary key,
     event_id          int not null,
-    weight            int not null,
-    created_date_time timestamp not null,
+    weight            int,
+    reported_date_time timestamp,
     start_date_time   timestamp not null,
     end_date_time     timestamp not null,
     partner_id        int not null,

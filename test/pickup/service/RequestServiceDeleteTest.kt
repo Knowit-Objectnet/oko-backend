@@ -15,6 +15,7 @@ import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.After
+import org.junit.AfterClass
 import org.junit.BeforeClass
 import org.junit.Test
 import java.time.LocalDateTime
@@ -95,6 +96,14 @@ class RequestServiceTest {
             }
 
             requestService = RequestService
+        }
+        @AfterClass
+        @JvmStatic
+        fun cleanPartnersAndStationsFromDB(){
+            transaction {
+                Partners.deleteAll()
+                Stations.deleteAll()
+            }
         }
     }
 
