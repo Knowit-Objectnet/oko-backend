@@ -1,16 +1,16 @@
 create TABLE stations
 (
     id   serial primary key,
-    name varchar(200) not null unique
+    name varchar(255) not null unique
 );
 
 create TABLE partners
 (
     id   serial primary key,
-    name varchar(200) not null unique,
-    description varchar(100) not null,
+    name varchar(255) not null unique,
+    description text not null,
     phone varchar(20) not null,
-    email varchar(30) not null
+    email varchar(255) not null
 );
 
 create table recurrence_rules
