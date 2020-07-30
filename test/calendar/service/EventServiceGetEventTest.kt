@@ -20,6 +20,7 @@ import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.After
+import org.junit.AfterClass
 import org.junit.BeforeClass
 import org.junit.Test
 import java.time.LocalDateTime
@@ -102,6 +103,14 @@ class EventServiceGetEventTest {
             eventService = EventService(ReportService)
         }
 
+        @AfterClass
+        @JvmStatic
+        fun cleanPartnersAndStationsFromDB(){
+            transaction {
+                Partners.deleteAll()
+                Stations.deleteAll()
+            }
+        }
     }
 
     @After
@@ -110,6 +119,7 @@ class EventServiceGetEventTest {
             Events.deleteAll()
         }
     }
+
 
     @Test
     fun testGetEventById() {
