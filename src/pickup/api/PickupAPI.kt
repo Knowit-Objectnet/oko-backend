@@ -2,6 +2,7 @@ package ombruk.backend.pickup.api
 
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
+import io.ktor.locations.get
 import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.*
@@ -58,9 +59,9 @@ fun Routing.pickup(pickupService: IPickupService) {
             call.respond(HttpStatusCode.Created, result)
         }
 
-        get("/") {
-            // val params = call.request.queryParameters
-            val form = call.receive<GetPickupsForm>()
+        get<GetPickupsForm> { form ->
+            println("XXX: Dumping form")
+            println(form)
             try {
                 call.respond(pickupService.getPickups(form))
             } catch (e: NumberFormatException) {
