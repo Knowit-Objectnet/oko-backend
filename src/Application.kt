@@ -40,6 +40,7 @@ import org.valiktor.ConstraintViolationException
 import org.valiktor.i18n.mapToMessage
 import java.net.URL
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
 
@@ -59,6 +60,7 @@ fun Application.module(testing: Boolean = false) {
     initDB()
 
     install(Locations)
+
     install(DataConversion) {
         convert<LocalDateTime> {
 
@@ -71,6 +73,21 @@ fun Application.module(testing: Boolean = false) {
                     null -> listOf()
                     is LocalDateTime -> listOf(value.format(DateTimeFormatter.ISO_DATE_TIME))
                     else -> throw DataConversionException("Cannot convert $value as LocalDateTime")
+                }
+            }
+        }
+
+        convert<LocalTime> {
+
+            decode { values, _ ->
+                values.singleOrNull()?.let { LocalTime.parse(it, DateTimeFormatter.ISO_TIME) }
+            }
+
+            encode { value ->
+                when (value) {
+                    null -> listOf()
+                    is LocalTime -> listOf(value.format(DateTimeFormatter.ISO_TIME))
+                    else -> throw DataConversionException("Cannot convert $value as LocalTime")
                 }
             }
         }
