@@ -3,7 +3,7 @@ package calendar.service
 import arrow.core.Either
 import ombruk.backend.calendar.database.Events
 import ombruk.backend.calendar.database.Stations
-import ombruk.backend.calendar.form.CreateEventForm
+import ombruk.backend.calendar.form.EventPostForm
 import ombruk.backend.calendar.form.EventUpdateForm
 import ombruk.backend.calendar.model.Station
 import ombruk.backend.calendar.service.EventService
@@ -123,7 +123,7 @@ class EvetServiceUpdateEventTest {
         val end = LocalDateTime.parse("2020-08-14T16:30:00", DateTimeFormatter.ISO_DATE_TIME)
 
         val initialEvent = eventService.saveEvent(
-            CreateEventForm(
+            EventPostForm(
                 start,
                 end,
                 testStation.id,
