@@ -1,0 +1,24 @@
+get:
+  tags:
+    - everyone
+  summary: fetches a report
+  operationId: getReport
+  parameters:
+    - in: path
+      name: id
+      required: true
+      schema:
+        type: integer
+  responses:
+    '200':
+      description: "Report matching ID"
+      content:
+        application/json:
+          schema:
+            $ref: '../api.yaml#/components/schemas/Report'
+    '400':
+      description: Bad input parameter
+    '404':
+      description: Report not found
+    '500':
+      description: Internal server error

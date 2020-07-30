@@ -1,0 +1,54 @@
+openapi: 3.0.0
+info:
+  description: API documentation for the OKO partners endpoint
+  version: "1.0.1"
+  title: OKO Partners
+  contact:
+    email: jonas.carlsen@knowit.no
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+servers:
+  - description: Actual API
+    url: https://tcuk58u5ge.execute-api.eu-central-1.amazonaws.com/backend/partner
+tags:
+  - name: reg-admin
+    description: Calls available for reg admins
+  - name: reuse-station
+    description: Calls available for reuse station workers.
+  - name: partner
+    description: Calls available for partners. Can only access reports that belong to said partner.
+  - name: everyone
+    description: Calls available for unauthorized users
+paths:
+  /partners{id}:
+    $ref: "./partner/partnersId.yaml"
+  /partners:
+    $ref: "./partner/partners.yaml"
+  /stations:
+    $ref: "./station/stations.yaml"
+  /stations{id}:
+    $ref: "./station/stationsId.yaml"
+  /reports:
+    $ref: "./report/reports.yaml"
+  /reports{id}:
+    $ref: "./report/reportsId.yaml"
+
+components:
+  schemas:
+    PartnerPost:
+      $ref: "./partner/schemas/partnerPost.yaml"
+    Partner:
+      $ref: "./partner/schemas/partner.yaml"
+    PartnerPatch:
+      $ref: "./partner/schemas/partnerPatch.yaml"
+    Report:
+      $ref: "./report/schemas/report.yaml"
+    ReportPatch:
+      $ref: "./report/schemas/reportPatch.yaml"
+    Station:
+      $ref: "./station/schemas/station.yaml"
+    StationPost:
+      $ref: "./station/schemas/stationPost.yaml"
+    StationPatch:
+      $ref: "./station/schemas/stationPatch.yaml"
