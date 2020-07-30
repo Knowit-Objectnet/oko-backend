@@ -38,7 +38,6 @@ fun Routing.events(eventService: IEventService) {
 
     get<EventGetForm> { form ->
         form.validOrError()
-            .flatMap { it.validOrError() }
             .flatMap { eventService.getEvents(it) }
             .run { generateResponse(this) }
             .also { (code, response) -> call.respond(code, response) }
