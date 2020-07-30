@@ -70,8 +70,8 @@ object EventRepository : IEventRepository {
     override fun deleteEvent(eventDeleteForm: EventDeleteForm): Either<RepositoryError, List<Event>> =
         runCatching {
             transaction {
-                var statement = eventDeleteForm.eventID?.let { Op.build { Events.id eq eventDeleteForm.eventID } }
-                    ?: Op.build { Events.recurrenceRuleID eq eventDeleteForm.recurrenceRuleID }
+                var statement = eventDeleteForm.eventId?.let { Op.build { Events.id eq eventDeleteForm.eventId } }
+                    ?: Op.build { Events.recurrenceRuleID eq eventDeleteForm.recurrenceRuleId }
                 eventDeleteForm.fromDate?.let {
                     statement =
                         AndOp(
@@ -122,10 +122,10 @@ object EventRepository : IEventRepository {
                     }
                 }
                 if (eventGetForm != null) {
-                    eventGetForm.eventID?.let { query.andWhere { Events.id eq it } }
-                    eventGetForm.stationID?.let { query.andWhere { Events.stationID eq it } }
-                    eventGetForm.partnerID?.let { query.andWhere { Events.partnerID eq it } }
-                    eventGetForm.recurrenceRuleID?.let { query.andWhere { Events.recurrenceRuleID eq it } }
+                    eventGetForm.eventId?.let { query.andWhere { Events.id eq it } }
+                    eventGetForm.stationId?.let { query.andWhere { Events.stationID eq it } }
+                    eventGetForm.partnerId?.let { query.andWhere { Events.partnerID eq it } }
+                    eventGetForm.recurrenceRuleId?.let { query.andWhere { Events.recurrenceRuleID eq it } }
                     eventGetForm.fromDate?.let { query.andWhere { Events.startDateTime.greaterEq(it) } }
                     eventGetForm.toDate?.let { query.andWhere { Events.endDateTime.lessEq(it) } }
                 }

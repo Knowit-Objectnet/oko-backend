@@ -186,7 +186,7 @@ class EventServiceGetEventTest {
             )
         }
 
-        val getForm = EventGetForm(stationID = testStation.id)
+        val getForm = EventGetForm(stationId = testStation.id)
 
         val actualEvents = eventService.getEvents(getForm)
         require(actualEvents is Either.Right)
@@ -218,7 +218,7 @@ class EventServiceGetEventTest {
         }
 
 
-        val getForm = EventGetForm(partnerID = testPartner.id)
+        val getForm = EventGetForm(partnerId = testPartner.id)
 
         val actualEvents = eventService.getEvents(getForm)
         require(actualEvents is Either.Right)
@@ -256,7 +256,7 @@ class EventServiceGetEventTest {
             )
         }
 
-        val getForm = EventGetForm(stationID = testStation.id, partnerID = testPartner.id)
+        val getForm = EventGetForm(stationId = testStation.id, partnerId = testPartner.id)
 
         val actualEvents = eventService.getEvents(getForm)
         require(actualEvents is Either.Right)
@@ -329,7 +329,7 @@ class EventServiceGetEventTest {
             )
         }
 
-        val getForm = EventGetForm(recurrenceRuleID = recurrenceRuleId.b)
+        val getForm = EventGetForm(recurrenceRuleId = recurrenceRuleId.b)
 
         val actualEvents = eventService.getEvents(getForm)
         require(actualEvents is Either.Right)

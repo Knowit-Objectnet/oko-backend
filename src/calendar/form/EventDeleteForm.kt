@@ -13,15 +13,15 @@ import java.time.LocalDateTime
 
 @Location("/events")
 data class EventDeleteForm(
-    var eventID: Int? = null,
-    var recurrenceRuleID: Int? = null,
+    var eventId: Int? = null,
+    var recurrenceRuleId: Int? = null,
     var fromDate: LocalDateTime? = null,
     var toDate: LocalDateTime? = null
 ) : IForm<EventDeleteForm> {
     override fun validOrError(): Either<ValidationError, EventDeleteForm> = runCatchingValidation {
         validate(this) {
-            if (eventID == null) validate(EventDeleteForm::recurrenceRuleID).isNotNull()
-            else validate(EventDeleteForm::recurrenceRuleID).isNull()
+            if (eventId == null) validate(EventDeleteForm::recurrenceRuleId).isNotNull()
+            else validate(EventDeleteForm::recurrenceRuleId).isNull()
 
             validate(EventDeleteForm::toDate).isGreaterThanStartDateTime(fromDate)
         }

@@ -81,4 +81,4 @@ fun Routing.events(eventService: IEventService) {
 }
 
 private fun EventDeleteForm.toGetForm() =
-    EventGetForm(eventID, recurrenceRuleID = recurrenceRuleID, fromDate = fromDate, toDate = toDate)
+    EventGetForm(eventId, recurrenceRuleId = recurrenceRuleId, fromDate = fromDate, toDate = toDate)
