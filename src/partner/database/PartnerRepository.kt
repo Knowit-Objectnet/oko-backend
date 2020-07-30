@@ -3,12 +3,14 @@ package ombruk.backend.partner.database
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
-import ombruk.backend.shared.error.RepositoryError
+
 import ombruk.backend.partner.form.PartnerPostForm
 import ombruk.backend.partner.form.PartnerUpdateForm
 import ombruk.backend.partner.model.Partner
+import ombruk.backend.shared.error.RepositoryError
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 
 
@@ -31,6 +33,7 @@ object PartnerRepository : IPartnerRepository {
         }
     }
         .onFailure { logger.error("Failed to save partner to DB: ${it.message}") }
+
         .fold({ Partner(it.value, partner.name, partner.description, partner.phone, partner.email).right() }, {
             RepositoryError.InsertError(
                 "SQL error"
@@ -84,12 +87,15 @@ object PartnerRepository : IPartnerRepository {
 
     override fun getPartners(): Either<RepositoryError.SelectError, List<Partner>> =
         runCatching {
+
             Partners.selectAll().map { toPartner(it) }
         }
             .onFailure { logger.error(it.message) }
             .fold({ it.right() }, { RepositoryError.SelectError(it.message).left() })
 
+    override fun exists(id: Int) = transaction { Partners.select { Partners.id eq id }.count() >= 1 }
 }
+
 
 fun toPartner(resultRow: ResultRow): Partner =
     Partner(

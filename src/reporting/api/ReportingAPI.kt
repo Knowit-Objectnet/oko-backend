@@ -3,12 +3,14 @@ package ombruk.backend.reporting.api
 import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
-import io.ktor.application.ApplicationCall
 import io.ktor.application.call
 import io.ktor.auth.authenticate
 import io.ktor.request.receive
 import io.ktor.response.respond
-import io.ktor.routing.*
+import io.ktor.routing.Routing
+import io.ktor.routing.get
+import io.ktor.routing.patch
+import io.ktor.routing.route
 import ombruk.backend.reporting.form.ReportGetForm
 import ombruk.backend.reporting.form.ReportUpdateForm
 import ombruk.backend.reporting.service.IReportService
@@ -16,14 +18,14 @@ import ombruk.backend.shared.api.Authorization
 import ombruk.backend.shared.api.Roles
 import ombruk.backend.shared.api.generateResponse
 import ombruk.backend.shared.api.receiveCatching
-import ombruk.backend.shared.error.RequestError
+import ombruk.backend.shared.error.ValidationError
 
 fun Routing.report(reportService: IReportService) {
     route("/reports") {
 
         get("/{id}") {
             runCatching { call.parameters["id"]!!.toInt() }
-                .fold({ it.right() }, { RequestError.InvalidIdError().left() })
+                .fold({ it.right() }, { ValidationError.InputError("Failed to parse id").left() })
                 .flatMap { reportService.getReportById(it) }
                 .run { generateResponse(this) }
                 .also { (code, response) -> call.respond(code, response) }

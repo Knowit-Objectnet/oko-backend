@@ -1,10 +1,9 @@
 package calendar.service
 
 import arrow.core.Either
-import io.ktor.http.ParametersBuilder
 import ombruk.backend.calendar.database.Events
 import ombruk.backend.calendar.database.Stations
-import ombruk.backend.calendar.form.CreateEventForm
+import ombruk.backend.calendar.form.EventPostForm
 import ombruk.backend.calendar.form.EventDeleteForm
 import ombruk.backend.calendar.model.RecurrenceRule
 import ombruk.backend.calendar.model.Station
@@ -124,7 +123,7 @@ class EventServiceDeleteTest {
     fun testDeleteEventByid() {
 
         val eventToDelete = eventService.saveEvent(
-            CreateEventForm(
+            EventPostForm(
                 LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-07-27T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
                 testStation.id,
@@ -133,7 +132,7 @@ class EventServiceDeleteTest {
         )
 
         val eventNotToDelete = eventService.saveEvent(
-            CreateEventForm(
+            EventPostForm(
                 LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-07-27T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
                 testStation.id,
@@ -144,13 +143,9 @@ class EventServiceDeleteTest {
         require(eventToDelete is Either.Right)
         require(eventNotToDelete is Either.Right)
 
-        val paramsBuilder = ParametersBuilder()
-        paramsBuilder.append("event-id", eventToDelete.b.id.toString())
-        val params = paramsBuilder.build()
-        val deleteForm = EventDeleteForm.create(params)
-        require(deleteForm is Either.Right)
+        val deleteForm = EventDeleteForm(eventToDelete.b.id)
 
-        assert(eventService.deleteEvent(deleteForm.b) is Either.Right)
+        assert(eventService.deleteEvent(deleteForm) is Either.Right)
 
         val eventLeftAfterDelete = eventService.getEvents()
         require(eventLeftAfterDelete is Either.Right)
@@ -163,7 +158,7 @@ class EventServiceDeleteTest {
     fun testDeleteEventByRecurrenceRuleId() {
 
         val eventToDelete = eventService.saveEvent(
-            CreateEventForm(
+            EventPostForm(
                 LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-07-27T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
                 testStation.id,
@@ -173,7 +168,7 @@ class EventServiceDeleteTest {
         )
 
         val eventNotToDelete = eventService.saveEvent(
-            CreateEventForm(
+            EventPostForm(
                 LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-07-27T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
                 testStation.id,
@@ -184,12 +179,9 @@ class EventServiceDeleteTest {
         require(eventToDelete is Either.Right)
         require(eventNotToDelete is Either.Right)
 
-        val params = ParametersBuilder()
-        params.append("recurrence-rule-id", eventToDelete.b.recurrenceRule!!.id.toString())
-        val deleteForm = EventDeleteForm.create(params.build())
-        require(deleteForm is Either.Right)
+        val deleteForm = EventDeleteForm(recurrenceRuleId = eventToDelete.b.recurrenceRule!!.id)
 
-        assert(eventService.deleteEvent(deleteForm.b) is Either.Right)
+        assert(eventService.deleteEvent(deleteForm) is Either.Right)
 
         val eventLeftAfterDelete = eventService.getEvents()
         require(eventLeftAfterDelete is Either.Right)
@@ -205,7 +197,7 @@ class EventServiceDeleteTest {
         val dateRange = start..end
 
         // Save expected Events
-        val createForm = CreateEventForm(
+        val createForm = EventPostForm(
             LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME),
             LocalDateTime.parse("2020-07-27T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
             testStation.id,
@@ -218,19 +210,18 @@ class EventServiceDeleteTest {
 
         val eventNotToDelete = dateRange.map {
             eventService.saveEvent(
-                CreateEventForm(it, it.plusHours(1), testStation.id, testPartner.id)
+                EventPostForm(it, it.plusHours(1), testStation.id, testPartner.id)
             )
         }.map { require(it is Either.Right); it.b }
 
-        val params = ParametersBuilder()
-        params.append("from-date", "2020-07-27T15:30:00Z")
-        params.append("to-date", "2021-07-27T15:30:00Z")
-        params.append("recurrence-rule-id", recurrenceRuleId.b.toString())
-        val deleteForm = EventDeleteForm.create(params.build())
-        if (deleteForm is Either.Left) println(deleteForm.a)
-        require(deleteForm is Either.Right)
 
-        assert(eventService.deleteEvent(deleteForm.b) is Either.Right)
+        val deleteForm = EventDeleteForm(
+            fromDate = LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME),
+            toDate = LocalDateTime.parse("2021-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME),
+            recurrenceRuleId = recurrenceRuleId.b
+        )
+
+        assert(eventService.deleteEvent(deleteForm) is Either.Right)
 
         val eventsLeftAfterDelete = eventService.getEvents()
         require(eventsLeftAfterDelete is Either.Right)

@@ -47,7 +47,7 @@ paths:
             application/json:
               schema:
                 type: object
-                $ref: '#/components/schemas/GetEvent'
+                $ref: '#/components/schemas/Event'
         '400':
           description: bad input parameter
         '404':
@@ -64,13 +64,13 @@ paths:
         down search results
       parameters:
         - in: query
-          name: station-id
+          name: stationId
           description: pass an optional station id for events
           required: false
           schema:
             type: integer
         - in: query
-          name: partner-id
+          name: partnerId
           description: pass an optional partner id for events
           required: false
           schema:
@@ -83,7 +83,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/GetEvent'
+                  $ref: '#/components/schemas/Event'
         '400':
           description: bad input parameter
     post:
@@ -101,7 +101,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PostEvent'
+              $ref: '#/components/schemas/PostEventForm'
         description: Event to add. Omit recurrenceRule if singular event. The recurrence rule has to specifiy EITHER until or count. The first day of the days array in the recurrence rule has to match the start date of the event.
     patch:
       tags:
@@ -114,7 +114,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateEvent'
+              $ref: '#/components/schemas/UpdateEventForm'
       responses:
         '200':
           description: Event updated successfully
@@ -129,17 +129,17 @@ paths:
       operationId: deleteEvents
       description: |
         Deletes all inserted events and their corresponding recurrence rules
-        (if any). Must pass in either event-id or recurrence-rule-id.
+        (if any). Must pass in either eventId or recurrence-ruleId.
       parameters:
         - in: query
-          name: event-id
+          name: eventId
           description: ID of event to delete
           schema:
             type: integer
             format: int64
             example: 10
         - in: query
-          name: recurrence-rule-id
+          name: recurrenceRuleId
           description: |
             Deletes all events that references the specified recurrence
             rule
@@ -148,14 +148,14 @@ paths:
             format: int64
             example: 1
         - in: query
-          name: from-date
+          name: fromDate
           description: Delete events from specified date
           schema:
             type: string
             format: date-time
             example: "2020-07-10T12:17:39"
         - in: query
-          name: to-date
+          name: toDate
           description: Delete events up to and including specified date
           schema:
             type: string
@@ -171,7 +171,7 @@ paths:
 
 components:
   schemas:
-    PostEvent:
+    PostEventForm:
       type: object
       properties:
         startDateTime:
@@ -183,23 +183,17 @@ components:
           format: date-time
           example: "2020-07-10T13:17:39"
         station:
-          type: object
-          properties:
-            id:
-              type: integer
-              format: int64
-              example: 1
+          type: integer
+          format: int64
+          example: 1
         partner:
-          type: object
-          properties:
-            id:
-              type: integer
-              format: int64
-              example: 2
+          type: integer
+          format: int64
+          example: 3
         recurrenceRule:
           $ref: '#/components/schemas/PostRecurrenceRule'
 
-    GetEvent:
+    Event:
       type: object
       properties:
         id:
@@ -220,7 +214,7 @@ components:
         recurrenceRule:
           $ref: '#/components/schemas/RecurrenceRule'
 
-    UpdateEvent:
+    UpdateEventForm:
       type: object
       properties:
         id:

@@ -3,14 +3,17 @@ package ombruk.backend.calendar.database
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
-import ombruk.backend.calendar.form.CreateEventForm
+import calendar.form.EventGetForm
 import ombruk.backend.calendar.form.EventDeleteForm
+import ombruk.backend.calendar.form.EventPostForm
 import ombruk.backend.calendar.form.EventUpdateForm
-import ombruk.backend.calendar.model.*
+import ombruk.backend.calendar.model.Event
+import ombruk.backend.calendar.model.EventType
+import ombruk.backend.calendar.model.RecurrenceRule
+import ombruk.backend.calendar.model.toWeekDayList
 import ombruk.backend.partner.database.Partners
 import ombruk.backend.partner.database.toPartner
 import ombruk.backend.shared.error.RepositoryError
-import ombruk.calendar.form.api.EventGetForm
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.ReferenceOption
@@ -30,14 +33,14 @@ object Events : IntIdTable("events") {
 object EventRepository : IEventRepository {
     private val logger = LoggerFactory.getLogger("ombruk.backend.service.EventRepository")
 
-    override fun insertEvent(form: CreateEventForm): Either<RepositoryError, Event> {
+    override fun insertEvent(postForm: EventPostForm): Either<RepositoryError, Event> {
         val id = runCatching {
             Events.insertAndGetId {
-                it[startDateTime] = form.startDateTime
-                it[endDateTime] = form.endDateTime
-                it[recurrenceRuleID] = form.recurrenceRule?.id
-                it[stationID] = form.stationId
-                it[partnerID] = form.partnerId
+                it[startDateTime] = postForm.startDateTime
+                it[endDateTime] = postForm.endDateTime
+                it[recurrenceRuleID] = postForm.recurrenceRule?.id
+                it[stationID] = postForm.stationId
+                it[partnerID] = postForm.partnerId
             }.value
         }.getOrElse {
             logger.error("Failed to save event to DB: ${it.message}")
@@ -67,8 +70,8 @@ object EventRepository : IEventRepository {
     override fun deleteEvent(eventDeleteForm: EventDeleteForm): Either<RepositoryError, List<Event>> =
         runCatching {
             transaction {
-                var statement = eventDeleteForm.eventID?.let { Op.build { Events.id eq eventDeleteForm.eventID } }
-                    ?: Op.build { Events.recurrenceRuleID eq eventDeleteForm.recurrenceRuleID }
+                var statement = eventDeleteForm.eventId?.let { Op.build { Events.id eq eventDeleteForm.eventId } }
+                    ?: Op.build { Events.recurrenceRuleID eq eventDeleteForm.recurrenceRuleId }
                 eventDeleteForm.fromDate?.let {
                     statement =
                         AndOp(
@@ -119,10 +122,10 @@ object EventRepository : IEventRepository {
                     }
                 }
                 if (eventGetForm != null) {
-                    eventGetForm.eventID?.let { query.andWhere { Events.id eq it } }
-                    eventGetForm.stationID?.let { query.andWhere { Events.stationID eq it } }
-                    eventGetForm.partnerID?.let { query.andWhere { Events.partnerID eq it } }
-                    eventGetForm.recurrenceRuleID?.let { query.andWhere { Events.recurrenceRuleID eq it } }
+                    eventGetForm.eventId?.let { query.andWhere { Events.id eq it } }
+                    eventGetForm.stationId?.let { query.andWhere { Events.stationID eq it } }
+                    eventGetForm.partnerId?.let { query.andWhere { Events.partnerID eq it } }
+                    eventGetForm.recurrenceRuleId?.let { query.andWhere { Events.recurrenceRuleID eq it } }
                     eventGetForm.fromDate?.let { query.andWhere { Events.startDateTime.greaterEq(it) } }
                     eventGetForm.toDate?.let { query.andWhere { Events.endDateTime.lessEq(it) } }
                 }
@@ -131,6 +134,8 @@ object EventRepository : IEventRepository {
         }
             .onFailure { logger.error(it.message) }
             .fold({ it.right() }, { RepositoryError.SelectError(it.message).left() })
+
+    override fun exists(id: Int) = transaction { Events.select{Events.id eq id}.count() >= 1 }
 
 
     private fun toEvent(row: ResultRow?): Event? {

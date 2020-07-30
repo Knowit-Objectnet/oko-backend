@@ -1,12 +1,13 @@
 package ombruk.backend.partner.database
 
 import arrow.core.Either
-import ombruk.backend.shared.error.RepositoryError
 import ombruk.backend.partner.form.PartnerPostForm
 import ombruk.backend.partner.form.PartnerUpdateForm
 import ombruk.backend.partner.model.Partner
+import ombruk.backend.shared.database.IRepository
+import ombruk.backend.shared.error.RepositoryError
 
-interface IPartnerRepository {
+interface IPartnerRepository : IRepository{
 
     /**
      * Inserts a [PartnerPostForm] into the database. The ID passed in the [PartnerPostForm] will be overriden, and a serial

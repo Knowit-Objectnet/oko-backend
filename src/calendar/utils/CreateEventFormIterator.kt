@@ -1,15 +1,15 @@
 package ombruk.backend.calendar.utils
 
-import ombruk.backend.calendar.form.CreateEventForm
+import ombruk.backend.calendar.form.EventPostForm
 import ombruk.backend.calendar.model.RecurrenceRule
 import java.time.temporal.TemporalAdjusters
 
 
-class CreateEventFormIterator(form: CreateEventForm) : Iterator<CreateEventForm> {
+class CreateEventFormIterator(postForm: EventPostForm) : Iterator<EventPostForm> {
 
-    private var currentForm = form
+    private var currentForm = postForm
     private var currentCount: Int = 1
-    private val rRule: RecurrenceRule = form.recurrenceRule!!
+    private val rRule: RecurrenceRule = postForm.recurrenceRule!!
 
     init {
         // Make iteration start on the first day of the days list. Next week if start date doesn't correspond with first value in days.
@@ -28,7 +28,7 @@ class CreateEventFormIterator(form: CreateEventForm) : Iterator<CreateEventForm>
         return false
     }
 
-    override fun next(): CreateEventForm {
+    override fun next(): EventPostForm {
 
         // Find next day
         val currentDay = currentForm.startDateTime.dayOfWeek
@@ -52,7 +52,7 @@ class CreateEventFormIterator(form: CreateEventForm) : Iterator<CreateEventForm>
     }
 }
 
-class NonRecurringCreateEventFormIterator(val form: CreateEventForm) : Iterator<CreateEventForm> {
+class NonRecurringCreateEventFormIterator(val postForm: EventPostForm) : Iterator<EventPostForm> {
     var hasNext = true
     override fun hasNext(): Boolean {
         val result = hasNext
@@ -60,7 +60,7 @@ class NonRecurringCreateEventFormIterator(val form: CreateEventForm) : Iterator<
         return result
     }
 
-    override fun next(): CreateEventForm {
-        return form
+    override fun next(): EventPostForm {
+        return postForm
     }
 }

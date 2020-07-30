@@ -3,7 +3,7 @@ package calendar.service
 import arrow.core.Either
 import ombruk.backend.calendar.database.Events
 import ombruk.backend.calendar.database.Stations
-import ombruk.backend.calendar.form.CreateEventForm
+import ombruk.backend.calendar.form.EventPostForm
 import ombruk.backend.calendar.model.Event
 import ombruk.backend.calendar.model.RecurrenceRule
 import ombruk.backend.calendar.model.Station
@@ -122,7 +122,7 @@ class EventServiceSaveTest {
     @Test
     fun testSaveEvent() {
         val expectedEvent = eventService.saveEvent(
-            CreateEventForm(
+            EventPostForm(
                 startDateTime = LocalDateTime.parse("2020-07-06T15:48:06", DateTimeFormatter.ISO_DATE_TIME),
                 endDateTime = LocalDateTime.parse("2020-07-06T16:48:06", DateTimeFormatter.ISO_DATE_TIME),
                 partnerId = testPartner.id,
@@ -139,7 +139,7 @@ class EventServiceSaveTest {
     @Test
     fun testSaveRecurringEvent() {
 
-        val createForm = CreateEventForm(
+        val createForm = EventPostForm(
             startDateTime = LocalDateTime.parse("2020-07-06T15:48:06", DateTimeFormatter.ISO_DATE_TIME),
             endDateTime = LocalDateTime.parse("2020-07-06T16:48:06", DateTimeFormatter.ISO_DATE_TIME),
             partnerId = testPartner.id,
@@ -156,8 +156,8 @@ class EventServiceSaveTest {
         require(actualEvents is Either.Right)
 
         val firstId = actualEvents.b.first().id
-        val expectedEvents = createForm.mapIndexed { index: Int, form: CreateEventForm ->
-            Event(firstId + index, form.startDateTime, form.endDateTime, testStation, testPartner, form.recurrenceRule)
+        val expectedEvents = createForm.mapIndexed { index: Int, postForm: EventPostForm ->
+            Event(firstId + index, postForm.startDateTime, postForm.endDateTime, testStation, testPartner, postForm.recurrenceRule)
         }
 
         assertEquals(expectedEvents, actualEvents.b)
