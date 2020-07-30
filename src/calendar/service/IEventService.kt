@@ -1,13 +1,13 @@
 package ombruk.backend.calendar.service
 
 import arrow.core.Either
-import ombruk.backend.calendar.form.EventPostForm
-import ombruk.backend.calendar.form.EventDeleteForm
-import ombruk.backend.calendar.form.EventUpdateForm
+import ombruk.backend.calendar.form.event.EventPostForm
+import ombruk.backend.calendar.form.event.EventDeleteForm
+import ombruk.backend.calendar.form.event.EventUpdateForm
 import ombruk.backend.calendar.model.Event
 import ombruk.backend.calendar.model.EventType
 import ombruk.backend.shared.error.ServiceError
-import calendar.form.EventGetForm
+import ombruk.backend.calendar.form.event.EventGetForm
 
 interface IEventService {
     fun saveEvent(eventPostForm: EventPostForm): Either<ServiceError, Event>

@@ -1,10 +1,11 @@
-package ombruk.backend.calendar.form
+package ombruk.backend.calendar.form.station
 
 import kotlinx.serialization.Serializable
 import ombruk.backend.calendar.database.StationRepository
 import ombruk.backend.shared.form.IForm
 import ombruk.backend.shared.model.serializer.LocalTimeSerializer
 import ombruk.backend.shared.utils.validation.isLessThanClosingTime
+import ombruk.backend.shared.utils.validation.isStationUnique
 import ombruk.backend.shared.utils.validation.runCatchingValidation
 import org.valiktor.functions.isNotBlank
 import org.valiktor.validate
@@ -20,7 +21,7 @@ data class StationPostForm(
         validate(this) {
             validate(StationPostForm::name).isNotBlank()
             validate(StationPostForm::openingTime).isLessThanClosingTime(closingTime)
-            StationRepository.getStations()
+            validate(StationPostForm::name).isStationUnique(StationRepository)
         }
     }
 }

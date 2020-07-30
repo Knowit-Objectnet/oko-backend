@@ -3,8 +3,8 @@ package calendar.service
 import arrow.core.Either
 import ombruk.backend.calendar.database.Events
 import ombruk.backend.calendar.database.Stations
-import ombruk.backend.calendar.form.EventPostForm
-import ombruk.backend.calendar.form.EventUpdateForm
+import ombruk.backend.calendar.form.event.EventPostForm
+import ombruk.backend.calendar.form.event.EventUpdateForm
 import ombruk.backend.calendar.model.Station
 import ombruk.backend.calendar.service.EventService
 import ombruk.backend.partner.database.Partners

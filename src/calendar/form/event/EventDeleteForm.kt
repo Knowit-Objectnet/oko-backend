@@ -1,6 +1,7 @@
-package ombruk.backend.calendar.form
+package ombruk.backend.calendar.form.event
 
 import arrow.core.Either
+import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.locations.Location
 import ombruk.backend.shared.error.ValidationError
 import ombruk.backend.shared.form.IForm
@@ -12,7 +13,8 @@ import org.valiktor.functions.isNull
 import org.valiktor.validate
 import java.time.LocalDateTime
 
-@Location("/events")
+@KtorExperimentalLocationsAPI
+@Location("/")
 data class EventDeleteForm(
     var eventId: Int? = null,
     var recurrenceRuleId: Int? = null,

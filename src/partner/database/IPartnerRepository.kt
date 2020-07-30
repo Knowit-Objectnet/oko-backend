@@ -1,6 +1,7 @@
 package ombruk.backend.partner.database
 
 import arrow.core.Either
+import ombruk.backend.partner.form.PartnerGetForm
 import ombruk.backend.partner.form.PartnerPostForm
 import ombruk.backend.partner.form.PartnerUpdateForm
 import ombruk.backend.partner.model.Partner
@@ -47,5 +48,5 @@ interface IPartnerRepository : IRepository{
      *
      * @return An [Either] object consisting of a [RepositoryError] on failure and a [List] of [Partner] objects on success.
      */
-    fun getPartners(): Either<RepositoryError, List<Partner>>
+    fun getPartners(partnerGetForm: PartnerGetForm): Either<RepositoryError, List<Partner>>
 }

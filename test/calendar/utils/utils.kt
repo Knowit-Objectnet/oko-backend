@@ -1,6 +1,6 @@
 package calendar.utils
 
-import ombruk.backend.calendar.form.EventPostForm
+import ombruk.backend.calendar.form.event.EventPostForm
 import ombruk.backend.calendar.model.Event
 import java.time.DayOfWeek
 
