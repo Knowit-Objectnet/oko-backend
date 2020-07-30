@@ -53,19 +53,20 @@ object StationRepository : IStationRepository {
      * @param stationPostForm The Station to insert
      * @return Either a Throwable or the Station with the correct id
      */
-    override fun insertStation(stationPostForm: StationPostForm) = runCatching {
+    override fun insertStation(stationPostForm: StationPostForm) =
         transaction {
-            Stations.insertAndGetId {
-                it[name] = stationPostForm.name
-                it[openingTime] = stationPostForm.openingTime.toString()
-                it[closingTime] = stationPostForm.closingTime.toString()
-            }.value
+            runCatching {
+                Stations.insertAndGetId {
+                    it[name] = stationPostForm.name
+                    it[openingTime] = stationPostForm.openingTime.toString()
+                    it[closingTime] = stationPostForm.closingTime.toString()
+                }.value
+            }
         }
-    }
-        .onFailure { logger.error("Failed to insert station to db") }
-        .fold(
-            { getStationById(it) },
-            { RepositoryError.InsertError("Failed to insert station $stationPostForm").left() })
+            .onFailure { logger.error("Failed to insert station to db: ${it.message}") }
+            .fold(
+                { getStationById(it) },
+                { RepositoryError.InsertError("Failed to insert station $stationPostForm").left() })
 
     /**
      * Update a given Station

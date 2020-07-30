@@ -29,6 +29,10 @@ data class EventGetForm(
     override fun validOrError(): Either<ValidationError, EventGetForm> = runCatchingValidation {
         validate(this) {
             validate(EventGetForm::eventId).isGreaterThan(0)
+            validate(EventGetForm::stationId).isGreaterThan(0)
+            validate(EventGetForm::partnerId).isGreaterThan(0)
+            validate(EventGetForm::recurrenceRuleId).isGreaterThan(0)
+
             if (fromDate != null && toDate != null) validate(EventGetForm::fromDate).isLessThanEndDateTime(toDate)
 
             if (eventId != null){
