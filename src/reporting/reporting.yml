@@ -41,7 +41,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Report'
         '400':
-          description: bad input parameter
+          description: Bad input parameter
         '404':
           description: Report not found
         '500':
