@@ -59,6 +59,10 @@ paths:
           description: Station deleted successfully
         '400':
           description: Bad input parameter
+        '401':
+          description: Unauthorized
+        '403':
+          description: Insufficient role privileges
         '404':
           description: ID not found
         '500':
@@ -87,7 +91,7 @@ paths:
         - reg-admin
       summary: Adds a station
       operationId: addStation
-      description: Adds a station to the database
+      description: Adds a station to the database. Name must be unique. The stored Station object is returned if request is valid.
       responses:
         '200':
           description: item created
@@ -97,27 +101,42 @@ paths:
                 $ref: '#/components/schemas/Station'
         '400':
           description: 'Bad station body'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Insufficient role privileges
+        '409':
+          description: "Name conflict"
         '500':
           description: Internal server error
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PostStation'
+              $ref: '#/components/schemas/StationPostForm'
 
     patch:
       tags:
         - reg-admin
       summary: Updates a station
       operationId: patchpartner
-      description: Updates a partner. ID cannot be changed and must correspond with an existing station. Name must be unique.
+      description:
+        |
+        Updates a partner. ID cannot be changed and must correspond with an existing station. Name must be unique.
+        The stored station object is returned if request is valid
       responses:
         '200':
           description: Station updated
         '400':
           description: Bad request body
+        '401':
+          description: Unauthorized
+        '403':
+          description: Insufficient role privileges
         '404':
           description: ID not found
+        '409':
+          description: Name conflict
         '500':
           description: Internal server error
       requestBody:
@@ -128,15 +147,8 @@ paths:
 
 components:
   schemas:
-    PostStation:
-      type: object
-      properties:
-        name:
-          type: string
-          example: "Smestad"
-          required: true
 
-    UpdateStation:
+    StationUpdateForm:
       type: object
       properties:
         id:
@@ -145,7 +157,33 @@ components:
           required: true
         name:
           type: string
+          description: Must be unique
           example: "Ryen"
+          required: false
+        openingTime:
+          type: time
+          example: "08:00:00Z"
+          required: false
+        closingTime:
+          type: time
+          example: "21:00:00Z"
+          required: false
+
+    StationPostForm:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Must be unique
+          example: "Ryen"
+          required: true
+        openingTime:
+          type: time
+          example: "08:00:00Z"
+          required: true
+        closingTime:
+          type: time
+          example: "21:00:00Z"
           required: true
 
     Station:
@@ -157,3 +195,9 @@ components:
         name:
           type: string
           example: "Haraldrud"
+        openingTime:
+          type: time
+          example: "09:00:00Z"
+        closingTime:
+          type: time
+          example: "20:00:00Z"

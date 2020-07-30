@@ -24,6 +24,7 @@ object Stations : IntIdTable("stations") {
 
 object StationRepository : IStationRepository {
 
+
     /**
      * Get a Station by id or null if it doesn't exist.
      * @param id Id of the station to get
@@ -74,14 +75,16 @@ object StationRepository : IStationRepository {
     override fun updateStation(stationUpdateForm: StationUpdateForm) = runCatching {
         transaction {
             Stations.update({ Stations.id eq stationUpdateForm.id }) { row ->
-                stationUpdateForm.name?.let {row[name] = stationUpdateForm.name}
+                stationUpdateForm.name?.let { row[name] = stationUpdateForm.name }
                 stationUpdateForm.openingTime?.let { row[openingTime] = stationUpdateForm.openingTime.toString() }
                 stationUpdateForm.closingTime?.let { row[closingTime] = stationUpdateForm.closingTime.toString() }
             }
         }
     }
         .onFailure { logger.error("Failed to update station to db") }
-        .fold({ getStationById(stationUpdateForm.id) }, { RepositoryError.UpdateError("Failed to update station $stationUpdateForm").left() })
+        .fold(
+            { getStationById(stationUpdateForm.id) },
+            { RepositoryError.UpdateError("Failed to update station $stationUpdateForm").left() })
 
     /**
      * Delete a given station from the DB.
@@ -93,6 +96,9 @@ object StationRepository : IStationRepository {
     }
         .onFailure { logger.error("Failed to delete station from db") }
         .fold({ id.right() }, { RepositoryError.DeleteError("Failed to delete station with ID $id").left() })
+
+    override fun exists(id: Int) = transaction { Stations.select { Stations.id eq id }.count() >= 1 }
+
 }
 
 fun toStation(row: ResultRow): Station {
@@ -102,4 +108,5 @@ fun toStation(row: ResultRow): Station {
         LocalTime.parse(row[Stations.openingTime], DateTimeFormatter.ISO_TIME),
         LocalTime.parse(row[Stations.closingTime], DateTimeFormatter.ISO_TIME)
     )
+
 }
