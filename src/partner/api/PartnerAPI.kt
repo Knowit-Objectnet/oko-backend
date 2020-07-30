@@ -30,7 +30,8 @@ fun Routing.partners(partnerService: IPartnerService) {
         }
 
         get {
-            partnerService.getPartners().run { generateResponse(this) }
+            partnerService.getPartners()
+                .run { generateResponse(this) }
                 .also { (code, response) -> call.respond(code, response) }
         }
 
