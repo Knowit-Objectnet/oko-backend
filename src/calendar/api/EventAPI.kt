@@ -60,8 +60,8 @@ fun Routing.events(eventService: IEventService) {
         patch("/events/") {
             receiveCatching { call.receive<EventUpdateForm>() }.map { form ->
                 Authorization.authorizeRole(listOf(Roles.ReuseStation, Roles.RegEmployee), call)
-                    .map { form.validOrError() }
-                    .map { eventService.updateEvent(form) }
+                    .flatMap { form.validOrError() }
+                    .map { eventService.updateEvent(it) }
             }
                 .run { generateResponse(this) }
                 .also { (code, response) -> call.respond(code, response) }
@@ -71,7 +71,7 @@ fun Routing.events(eventService: IEventService) {
     authenticate {
         delete<EventDeleteForm> { form ->
             Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.ReuseStation, Roles.Partner), call)
-                .flatMap { Authorization.authorizePartnerID(it) { eventService.getEvents(form.toGetForm()) }  }
+                .flatMap { Authorization.authorizePartnerID(it) { eventService.getEvents(form.toGetForm()) } }
                 .flatMap { form.validOrError() }
                 .flatMap { eventService.deleteEvent(it) }
                 .run { generateResponse(this) }

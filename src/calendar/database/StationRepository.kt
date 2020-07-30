@@ -11,11 +11,15 @@ import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 private val logger = LoggerFactory.getLogger("ombruk.backend.database.StationRepository")
 
 object Stations : IntIdTable("stations") {
     val name = varchar("name", 200)
+    val openingTime = varchar("opening_time", 20)
+    val closingTime = varchar("closing_time", 20)
 }
 
 object StationRepository : IStationRepository {
@@ -27,7 +31,7 @@ object StationRepository : IStationRepository {
      * @return Either a Throwable or the Station
      */
     override fun getStationById(id: Int) = runCatching {
-        transaction { Stations.select { Stations.id eq id }.map { Station(id, it[Stations.name]) } }
+        transaction { Stations.select { Stations.id eq id }.map { toStation(it) } }
     }
         .onFailure { logger.error("Failed to get station from db: ${it.message}") }
         .fold(
@@ -39,27 +43,29 @@ object StationRepository : IStationRepository {
      * @return Either a Throwable or the list of stations
      */
     override fun getStations() = runCatching {
-        transaction { Stations.selectAll().map { Station(it[Stations.id].value, it[Stations.name]) } }
+        transaction { Stations.selectAll().map { toStation(it) } }
     }
         .onFailure { logger.error("Failed to get stations from db") }
         .fold({ it.right() }, { RepositoryError.SelectError("Failed to get stations").left() })
 
     /**
      * Insert a Station to the db
-     * @param station The Station to insert
-     * @return Either a Throwable or the Station with the corret id
+     * @param stationPostForm The Station to insert
+     * @return Either a Throwable or the Station with the correct id
      */
-    override fun insertStation(station: StationPostForm) = runCatching {
+    override fun insertStation(stationPostForm: StationPostForm) = runCatching {
         transaction {
             Stations.insertAndGetId {
-                it[name] = station.name
+                it[name] = stationPostForm.name
+                it[openingTime] = stationPostForm.openingTime.toString()
+                it[closingTime] = stationPostForm.closingTime.toString()
             }.value
         }
     }
         .onFailure { logger.error("Failed to insert station to db") }
         .fold(
             { getStationById(it) },
-            { RepositoryError.InsertError("Failed to insert station $station").left() })
+            { RepositoryError.InsertError("Failed to insert station $stationPostForm").left() })
 
     /**
      * Update a given Station
@@ -68,8 +74,10 @@ object StationRepository : IStationRepository {
      */
     override fun updateStation(stationUpdateForm: StationUpdateForm) = runCatching {
         transaction {
-            Stations.update({ Stations.id eq stationUpdateForm.id }) {
-                it[name] = stationUpdateForm.name
+            Stations.update({ Stations.id eq stationUpdateForm.id }) { row ->
+                stationUpdateForm.name?.let { row[name] = stationUpdateForm.name }
+                stationUpdateForm.openingTime?.let { row[openingTime] = stationUpdateForm.openingTime.toString() }
+                stationUpdateForm.closingTime?.let { row[closingTime] = stationUpdateForm.closingTime.toString() }
             }
         }
     }
@@ -90,4 +98,15 @@ object StationRepository : IStationRepository {
         .fold({ id.right() }, { RepositoryError.DeleteError("Failed to delete station with ID $id").left() })
 
     override fun exists(id: Int) = transaction { Stations.select { Stations.id eq id }.count() >= 1 }
+
+}
+
+fun toStation(row: ResultRow): Station {
+    return Station(
+        row[Stations.id].value,
+        row[Stations.name],
+        LocalTime.parse(row[Stations.openingTime], DateTimeFormatter.ISO_TIME),
+        LocalTime.parse(row[Stations.closingTime], DateTimeFormatter.ISO_TIME)
+    )
+
 }

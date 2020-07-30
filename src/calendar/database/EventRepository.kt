@@ -3,14 +3,17 @@ package ombruk.backend.calendar.database
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
+import calendar.form.EventGetForm
 import ombruk.backend.calendar.form.EventDeleteForm
 import ombruk.backend.calendar.form.EventPostForm
 import ombruk.backend.calendar.form.EventUpdateForm
-import ombruk.backend.calendar.model.*
+import ombruk.backend.calendar.model.Event
+import ombruk.backend.calendar.model.EventType
+import ombruk.backend.calendar.model.RecurrenceRule
+import ombruk.backend.calendar.model.toWeekDayList
 import ombruk.backend.partner.database.Partners
-import ombruk.backend.partner.model.Partner
+import ombruk.backend.partner.database.toPartner
 import ombruk.backend.shared.error.RepositoryError
-import calendar.form.EventGetForm
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.ReferenceOption
@@ -57,9 +60,11 @@ object EventRepository : IEventRepository {
         }
     }
         .onFailure { logger.error(it.message) }
-        .fold({ getEventByID(event.id) }, { RepositoryError.UpdateError(
-            it.message
-        ).left() })
+        .fold({ getEventByID(event.id) }, {
+            RepositoryError.UpdateError(
+                it.message
+            ).left()
+        })
 
 
     override fun deleteEvent(eventDeleteForm: EventDeleteForm): Either<RepositoryError, List<Event>> =
@@ -90,12 +95,7 @@ object EventRepository : IEventRepository {
         }
             .onFailure { logger.error(it.message) }
             .fold(
-                {
-                    Either.cond(
-                        it.isNotEmpty(),
-                        { it },
-                        { RepositoryError.NoRowsFound("Search did not match any events") })
-                },
+                { Either.cond(it.isNotEmpty(), { it }, { RepositoryError.NoRowsFound("No matches found") }) },
                 { RepositoryError.DeleteError(it.message).left() })
 
 
@@ -107,11 +107,7 @@ object EventRepository : IEventRepository {
     }
         .onFailure { logger.error(it.message) }
         .fold(
-            { Either.cond(it != null, { it!! }, {
-                RepositoryError.NoRowsFound(
-                    "ID does not exist!"
-                )
-            }) },
+            { Either.cond(it != null, { it!! }, { RepositoryError.NoRowsFound("ID does not exist!") }) },
             { RepositoryError.SelectError(it.message).left() })
 
 
@@ -125,7 +121,7 @@ object EventRepository : IEventRepository {
                         EventType.RECURRING -> query.andWhere { Events.recurrenceRuleID.isNotNull() }
                     }
                 }
-                if(eventGetForm != null) {
+                if (eventGetForm != null) {
                     eventGetForm.eventID?.let { query.andWhere { Events.id eq it } }
                     eventGetForm.stationID?.let { query.andWhere { Events.stationID eq it } }
                     eventGetForm.partnerID?.let { query.andWhere { Events.partnerID eq it } }
@@ -149,8 +145,8 @@ object EventRepository : IEventRepository {
             row[Events.id].value,
             row[Events.startDateTime],
             row[Events.endDateTime],
-            Station(row[Stations.id].value, row[Stations.name]),
-            Partner(row[Partners.id].value, row[Partners.name]),
+            toStation(row),
+            toPartner(row),
             getGetRecurrenceRuleFromResultRow(row)
         )
     }
@@ -158,7 +154,9 @@ object EventRepository : IEventRepository {
 
     private fun getGetRecurrenceRuleFromResultRow(row: ResultRow): RecurrenceRule? {
         if (!row.hasValue(RecurrenceRules.id) || row.getOrNull(
-                RecurrenceRules.id) == null) return null
+                RecurrenceRules.id
+            ) == null
+        ) return null
 
         return RecurrenceRule(
             row[RecurrenceRules.id].value,

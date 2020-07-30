@@ -18,6 +18,7 @@ import org.junit.After
 import org.junit.BeforeClass
 import org.junit.Test
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import kotlin.test.assertEquals
 
@@ -36,28 +37,61 @@ class RequestServiceTest {
             initDB()
             transaction {
                 val testPartnerId = Partners.insertAndGetId {
-                    it[name] = "Test Partner 1"
+                    it[name] = "TestPartner 1"
+                    it[description] = "Description of TestPartner 1"
+                    it[phone] = "+47 2381931"
+                    it[email] = "example@gmail.com"
                 }.value
 
-                testPartner = Partner(testPartnerId, "Test Partner 1")
+                testPartner =
+                    Partner(
+                        testPartnerId,
+                        "TestPartner 1",
+                        "Description of TestPartner 1",
+                        "+47 2381931",
+                        "example@gmail.com"
+                    )
 
                 val testPartnerId2 = Partners.insertAndGetId {
-                    it[name] = "Test Partner 2"
+                    it[name] = "TestPartner 2"
+                    it[description] = "Description of TestPartner 2"
+                    it[phone] = "911"
+                    it[email] = "example@gmail.com"
                 }.value
 
-                testPartner2 = Partner(testPartnerId2, "Test Partner 2")
+                testPartner2 = Partner(
+                    testPartnerId2,
+                    "TestPartner 2",
+                    "Description of TestPartner 2",
+                    "911",
+                    "example@gmail.com"
+                )
 
 
                 val testStationId = Stations.insertAndGetId {
                     it[name] = "Test Station 1"
+                    it[openingTime] = "09:00:00"
+                    it[closingTime] = "21:00:00"
                 }.value
 
-                testStation = Station(testStationId, "Test Station 1")
+                testStation = Station(
+                    testStationId,
+                    "Test Station 1",
+                    LocalTime.parse("09:00:00", DateTimeFormatter.ISO_TIME),
+                    LocalTime.parse("21:00:00", DateTimeFormatter.ISO_TIME)
+                )
 
                 val testStationId2 = Stations.insertAndGetId {
                     it[name] = "Test Station 2"
+                    it[openingTime] = "08:00:00"
+                    it[closingTime] = "20:00:00"
                 }.value
-                testStation2 = Station(testStationId2, "Test Station 2")
+                testStation2 = Station(
+                    testStationId2,
+                    "Test Station 2",
+                    LocalTime.parse("08:00:00", DateTimeFormatter.ISO_TIME),
+                    LocalTime.parse("20:00:00", DateTimeFormatter.ISO_TIME)
+                )
             }
 
             requestService = RequestService
@@ -107,7 +141,7 @@ class RequestServiceTest {
     }
 
     @Test
-    fun testDeleteRequestByPartnerID(){
+    fun testDeleteRequestByPartnerID() {
         val start = LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME)
         val end = LocalDateTime.parse("2020-08-14T16:30:00", DateTimeFormatter.ISO_DATE_TIME)
         val pickup = PickupService.savePickup(CreatePickupForm(start, end, testStation.id))
@@ -127,7 +161,7 @@ class RequestServiceTest {
     }
 
     @Test
-    fun testDeleteRequestByStationID(){
+    fun testDeleteRequestByStationID() {
         val start = LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME)
         val end = LocalDateTime.parse("2020-08-14T16:30:00", DateTimeFormatter.ISO_DATE_TIME)
         val pickup1 = PickupService.savePickup(CreatePickupForm(start, end, testStation.id))
@@ -148,7 +182,7 @@ class RequestServiceTest {
     }
 
     @Test
-    fun testDeleteRequestByStationIDAndPartnerID(){
+    fun testDeleteRequestByStationIDAndPartnerID() {
         val start = LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME)
         val end = LocalDateTime.parse("2020-08-14T16:30:00", DateTimeFormatter.ISO_DATE_TIME)
         val pickup1 = PickupService.savePickup(CreatePickupForm(start, end, testStation.id))
@@ -169,7 +203,7 @@ class RequestServiceTest {
     }
 
     @Test
-    fun testDeleteRequestAllParams(){
+    fun testDeleteRequestAllParams() {
         val start = LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME)
         val end = LocalDateTime.parse("2020-08-14T16:30:00", DateTimeFormatter.ISO_DATE_TIME)
         val pickup1 = PickupService.savePickup(CreatePickupForm(start, end, testStation.id))

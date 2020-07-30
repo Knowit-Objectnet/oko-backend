@@ -1,10 +1,9 @@
-package ombruk.backend.partner.model
+package ombruk.backend.partner.form
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Partner(
-    val id: Int,
+data class PartnerPostForm(
     var name: String,
     var description: String,
     var phone: String,

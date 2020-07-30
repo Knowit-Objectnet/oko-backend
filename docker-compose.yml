@@ -12,10 +12,10 @@ services:
     volumes:
       - .:/srv/ombruk-backend
     environment:
-      CALENDAR_JDBC_URL: "jdbc:postgresql://calendar-microservice_database_1/postgres"
-      CALENDAR_DB_USER: "postgres"
-      CALENDAR_DB_PASSWORD: "postgres"
-      CALENDAR_DB_MIGRATIONS_LOCATION: filesystem:resources/db/migrations
+      OKO_JDBC_URL: "jdbc:postgresql://backend-microservice_database_1/postgres"
+      OKO_DB_USER: "postgres"
+      OKO_DB_PASSWORD: "postgres"
+      OKO_DB_MIGRATIONS_LOCATION: filesystem:resources/db/migrations
   database:
     image: postgres
     restart: always

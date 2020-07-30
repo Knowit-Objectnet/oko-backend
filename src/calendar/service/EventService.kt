@@ -42,9 +42,15 @@ class EventService(private val reportingService: IReportService) : IEventService
     }
 
     override fun deleteEvent(eventDeleteForm: EventDeleteForm) = transaction {
-        transaction { EventRepository.deleteEvent(eventDeleteForm) }
+        EventRepository.deleteEvent(eventDeleteForm)
     }
 
-    override fun updateEvent(eventUpdate: EventUpdateForm) = transaction { EventRepository.updateEvent(eventUpdate) }
+    override fun updateEvent(eventUpdate: EventUpdateForm) = transaction {
+        EventRepository.updateEvent(eventUpdate)
+            .flatMap { event ->
+                reportingService.updateReport(event)
+                    .fold({ rollback(); it.left() }, { event.right() })
+            }
+    }
 
 }

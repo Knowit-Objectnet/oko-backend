@@ -5,13 +5,13 @@ import kotlinx.serialization.Serializable
 import ombruk.backend.calendar.database.EventRepository
 import ombruk.backend.shared.error.ValidationError
 import ombruk.backend.shared.form.IForm
-import ombruk.backend.shared.model.LocalDateTimeSerializer
 import ombruk.backend.shared.utils.validation.isGreaterThanStartDateTime
 import ombruk.backend.shared.utils.validation.isInRepository
 import ombruk.backend.shared.utils.validation.isLessThanEndDateTime
 import ombruk.backend.shared.utils.validation.runCatchingValidation
 import org.valiktor.functions.isNotNull
 import org.valiktor.validate
+import ombruk.backend.shared.model.serializer.LocalDateTimeSerializer
 import java.time.LocalDateTime
 
 @Serializable

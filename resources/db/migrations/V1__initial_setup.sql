@@ -1,13 +1,18 @@
 create TABLE stations
 (
     id   serial primary key,
+    opening_time varchar(20) not null,
+    closing_time varchar(20) not null,
     name varchar(200)
 );
 
 create TABLE partners
 (
     id   serial primary key,
-    name varchar(200)
+    name varchar(200),
+    description varchar(100),
+    phone varchar(20),
+    email varchar(30)
 );
 
 create table recurrence_rules

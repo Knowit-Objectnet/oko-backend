@@ -7,8 +7,9 @@ import arrow.core.right
 import io.ktor.application.ApplicationCall
 import io.ktor.auth.jwt.JWTPrincipal
 import io.ktor.auth.principal
-import ombruk.backend.shared.error.AuthorizationError
 import ombruk.backend.calendar.model.Event
+import ombruk.backend.reporting.model.Report
+import ombruk.backend.shared.error.AuthorizationError
 import ombruk.backend.shared.error.ServiceError
 
 enum class Roles(val value: String) {
@@ -37,5 +38,13 @@ object Authorization {
             if (role.first == Roles.Partner && it.any { event -> event.partner.id != role.second }) {
                 AuthorizationError.AccessViolationError().left()
             } else Unit.right()
+        }
+
+    fun authorizeReportPatchByPartnerId(role: Pair<Roles, Int>, reportFunc: () -> Either<ServiceError, Report>) = reportFunc()
+        .flatMap {
+            if(role.first == Roles.Partner && it.partnerID != role.second){
+                AuthorizationError.AccessViolationError().left()
+            }
+            else Unit.right()
         }
 }

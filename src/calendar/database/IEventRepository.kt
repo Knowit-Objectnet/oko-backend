@@ -15,7 +15,7 @@ interface IEventRepository : IRepository{
      * Inserts an [Event] into the database. The ID passed in the [Event] will be overriden, and a serial
      * ID will be used instead.
      *
-     * @param event An [Event]
+     * @param form An [Event]
      * @return An [Either] object consisting of a [RepositoryError] on failure and the saved [Event] on success.
      * The recurrence rule will be returned instead of an individual ID if the event is recurring.
      */

@@ -13,10 +13,10 @@ import io.ktor.routing.*
 import kotlinx.coroutines.runBlocking
 import ombruk.backend.shared.error.RequestError
 import ombruk.backend.shared.api.generateResponse
-import ombruk.backend.partner.form.PartnerForm
+import ombruk.backend.partner.form.PartnerPostForm
+import ombruk.backend.partner.form.PartnerUpdateForm
 import ombruk.backend.partner.service.IPartnerService
 import ombruk.backend.shared.api.catchingCall
-import ombruk.backend.shared.error.ServiceError
 
 fun Routing.partners(partnerService: IPartnerService) {
 
@@ -37,7 +37,7 @@ fun Routing.partners(partnerService: IPartnerService) {
         authenticate {
             patch {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
-                    .flatMap { catchingCall(RequestError.MangledRequestBody()) { runBlocking { call.receive<PartnerForm>() } } }
+                    .flatMap { catchingCall(RequestError.MangledRequestBody()) { runBlocking { call.receive<PartnerUpdateForm>() } } }
                     .flatMap { partnerService.updatePartner(it) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
@@ -47,7 +47,7 @@ fun Routing.partners(partnerService: IPartnerService) {
         authenticate {
             post {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
-                    .flatMap { catchingCall(RequestError.MangledRequestBody()) { runBlocking { call.receive<PartnerForm>() } } }
+                    .flatMap { catchingCall(RequestError.MangledRequestBody()) { runBlocking { call.receive<PartnerPostForm>() } } }
                     .flatMap { partnerService.savePartner(it) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }

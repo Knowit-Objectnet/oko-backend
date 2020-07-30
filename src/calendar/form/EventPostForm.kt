@@ -9,7 +9,7 @@ import ombruk.backend.calendar.utils.NonRecurringCreateEventFormIterator
 import ombruk.backend.partner.database.PartnerRepository
 import ombruk.backend.shared.error.ValidationError
 import ombruk.backend.shared.form.IForm
-import ombruk.backend.shared.model.LocalDateTimeSerializer
+import ombruk.backend.shared.model.serializer.LocalDateTimeSerializer
 import ombruk.backend.shared.utils.validation.isGreaterThanStartDateTime
 import ombruk.backend.shared.utils.validation.isInRepository
 import ombruk.backend.shared.utils.validation.runCatchingValidation

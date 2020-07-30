@@ -1,7 +1,8 @@
 package ombruk.backend.partner.service
 
 import arrow.core.Either
-import ombruk.backend.partner.form.PartnerForm
+import ombruk.backend.partner.form.PartnerPostForm
+import ombruk.backend.partner.form.PartnerUpdateForm
 import ombruk.backend.partner.model.Partner
 import ombruk.backend.shared.error.ServiceError
 
@@ -14,7 +15,7 @@ interface IPartnerService {
      * @param partnerForm A custom object used to edit existing partners. [partnerForm] id must belong to an existing user.
      * @return An [Either] object consisting of [ServiceError] on failure or the ID of the saved partner on success.
      */
-    fun savePartner(partnerForm: PartnerForm): Either<ServiceError, Partner>
+    fun savePartner(partnerForm: PartnerPostForm): Either<ServiceError, Partner>
 
     /**
      * Gets a partner by its ID. Returns an error if the provided ID does not exist.
@@ -43,5 +44,5 @@ interface IPartnerService {
      *
      * @param partnerForm The information that should be updated. ID cannot be updated and must correspond to an existing user.
      */
-    fun updatePartner(partnerForm: PartnerForm): Either<ServiceError, Unit>
+    fun updatePartner(partnerForm: PartnerUpdateForm): Either<ServiceError, Unit>
 }
