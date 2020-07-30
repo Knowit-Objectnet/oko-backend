@@ -1,12 +1,14 @@
 package ombruk.backend
 
 import com.auth0.jwk.JwkProviderBuilder
+import com.typesafe.config.ConfigFactory
 import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.application.install
 import io.ktor.auth.Authentication
 import io.ktor.auth.jwt.JWTPrincipal
 import io.ktor.auth.jwt.jwt
+import io.ktor.config.HoconApplicationConfig
 import io.ktor.features.*
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
@@ -36,17 +38,21 @@ import java.util.concurrent.TimeUnit
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
+var appConfig = HoconApplicationConfig(ConfigFactory.load())
+var debug: Boolean = appConfig.property("ktor.oko.debug").getString().toBoolean()
+var keycloakUrl = appConfig.property("ktor.keycloak.keycloakUrl").getString()
+var keycloakRealm = appConfig.property("ktor.keycloak.keycloakRealm").getString()
+
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
-fun Application.module(testing: Boolean = true) {
+fun Application.module(testing: Boolean = false) {
 
     initDB()
 
-
     install(Authentication) {
-        if(testing){    //create a mock service for authorization
-            Authorization.testing = true
+        if (testing || debug) {    //create a mock service for authorization
             jwt {
+                if (testing) Authorization.testing = true
                 verifier(JwtMockConfig.createMockVerifier())
                 realm = "local testing"
                 validate { jwt ->
@@ -55,9 +61,8 @@ fun Application.module(testing: Boolean = true) {
                 }
             }
         } else {
-            val jwkIssuer =
-                URL("https://keycloak.staging.oko.knowit.no:8443/auth/realms/staging/protocol/openid-connect/certs")
-            val jwkRealm = "Calendar microservice"
+            val jwkIssuer = URL("${keycloakUrl}realms/${keycloakRealm}/protocol/openid-connect/certs")
+            val jwkRealm = "OKO backend"
             val jwkProvider = JwkProviderBuilder(jwkIssuer)
                 .cached(10, 24, TimeUnit.HOURS)
                 .rateLimited(10, 1, TimeUnit.HOURS)
