@@ -7,6 +7,7 @@ import kotlinx.serialization.Serializable
 import ombruk.backend.shared.error.ValidationError
 import ombruk.backend.shared.form.IForm
 import ombruk.backend.shared.model.serializer.LocalDateTimeSerializer
+import ombruk.backend.shared.utils.validation.isLessThanEndDateTime
 import ombruk.backend.shared.utils.validation.runCatchingValidation
 import org.valiktor.functions.isGreaterThan
 import org.valiktor.functions.isNull
@@ -28,7 +29,7 @@ data class EventGetForm(
     override fun validOrError(): Either<ValidationError, EventGetForm> = runCatchingValidation {
         validate(this) {
             validate(EventGetForm::eventId).isGreaterThan(0)
-            if (fromDate != null && toDate != null) validate(EventGetForm::fromDate).isGreaterThan(toDate)
+            if (fromDate != null && toDate != null) validate(EventGetForm::fromDate).isLessThanEndDateTime(toDate)
 
             if (eventId != null){
                 validate(EventGetForm::stationId).isNull()
