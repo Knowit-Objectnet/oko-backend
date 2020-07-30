@@ -20,6 +20,7 @@ import io.ktor.routing.get
 import io.ktor.routing.routing
 import io.ktor.serialization.DefaultJsonConfiguration
 import io.ktor.serialization.json
+import io.ktor.util.DataConversionException
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.serialization.json.Json
 import ombruk.backend.calendar.api.events
@@ -32,13 +33,14 @@ import ombruk.backend.pickup.api.pickup
 import ombruk.backend.pickup.service.PickupService
 import ombruk.backend.reporting.api.report
 import ombruk.backend.reporting.service.ReportService
-
+import ombruk.backend.shared.api.Authorization
+import ombruk.backend.shared.api.JwtMockConfig
 import ombruk.backend.shared.database.initDB
 import org.valiktor.ConstraintViolationException
 import org.valiktor.i18n.mapToMessage
-import ombruk.backend.shared.api.Authorization
-import ombruk.backend.shared.api.JwtMockConfig
 import java.net.URL
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
@@ -57,7 +59,24 @@ fun Application.module(testing: Boolean = false) {
     initDB()
 
     install(Locations)
-    
+    install(DataConversion) {
+        convert<LocalDateTime> {
+
+            decode { values, _ ->
+                values.singleOrNull()?.let { LocalDateTime.parse(it, DateTimeFormatter.ISO_DATE_TIME) }
+            }
+
+            encode { value ->
+                when (value) {
+                    null -> listOf()
+                    is LocalDateTime -> listOf(value.format(DateTimeFormatter.ISO_DATE_TIME))
+                    else -> throw DataConversionException("Cannot convert $value as LocalDateTime")
+                }
+            }
+        }
+    }
+
+
     install(Authentication) {
         if (testing || debug) {    //create a mock service for authorization
             jwt {
