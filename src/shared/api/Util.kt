@@ -7,7 +7,10 @@ import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.JsonDecodingException
 import ombruk.backend.partner.service.KeycloakIntegrationError
-import ombruk.backend.shared.error.*
+import ombruk.backend.shared.error.AuthorizationError
+import ombruk.backend.shared.error.RepositoryError
+import ombruk.backend.shared.error.ServiceError
+import ombruk.backend.shared.error.ValidationError
 import org.slf4j.LoggerFactory
 import java.time.format.DateTimeParseException
 
@@ -20,15 +23,16 @@ fun <T> catchingCall(left: ServiceError, func: () -> T) = runCatching { func() }
 fun <T> receiveCatching(func: suspend () -> T) = runCatching { runBlocking { func() } }
     .fold({ it.right() }, {
         when (it) {
-            is JsonDecodingException -> RequestError.MangledRequestBody(it.message!!).left()
-            is DateTimeParseException -> RequestError.MangledRequestBody(it.message!!).left()
+            is JsonDecodingException,
+            is DateTimeParseException -> ValidationError.InputError(it.message!!).left()
             else -> ServiceError().left()
         }
     })
 
 fun generateResponse(result: Either<ServiceError, Any>) = when (result) {
     is Either.Left -> when (result.a) {
-        is ValidationError, is RequestError -> Pair(HttpStatusCode.UnprocessableEntity, result.a.message)
+        is ValidationError.InputError -> Pair(HttpStatusCode.BadRequest, result.a.message)
+        is ValidationError.Unprocessable -> Pair(HttpStatusCode.UnprocessableEntity, result.a.message)
         is AuthorizationError -> Pair(HttpStatusCode.Unauthorized, result.a.message)
 
         is RepositoryError.NoRowsFound,

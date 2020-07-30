@@ -23,14 +23,14 @@ import ombruk.backend.shared.api.Authorization
 import ombruk.backend.shared.api.Roles
 import ombruk.backend.shared.api.generateResponse
 import ombruk.backend.shared.api.receiveCatching
-import ombruk.backend.shared.error.RequestError
+import ombruk.backend.shared.error.ValidationError
 
 @KtorExperimentalLocationsAPI
 fun Routing.events(eventService: IEventService) {
 
     get("/events/{event_id}") {
         runCatching { call.parameters["event_id"]?.toInt()!! }
-            .fold({ it.right() }, { RequestError.InvalidIdError().left() })
+            .fold({ it.right() }, { ValidationError.InputError("Failed to parse event id").left() })
             .flatMap { eventService.getEventByID(it) }
             .run { generateResponse(this) }
             .also { (code, response) -> call.respond(code, response) }
