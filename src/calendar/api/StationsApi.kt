@@ -13,8 +13,7 @@ import ombruk.backend.calendar.form.StationPostForm
 import ombruk.backend.calendar.form.StationUpdateForm
 import ombruk.backend.calendar.service.IStationService
 import ombruk.backend.shared.api.*
-import ombruk.backend.shared.error.RequestError
-import org.slf4j.LoggerFactory
+import ombruk.backend.shared.error.ValidationError
 
 fun Routing.stations(stationService: IStationService) {
 
@@ -22,7 +21,7 @@ fun Routing.stations(stationService: IStationService) {
 
         get("/{id}") {
             runCatching { call.parameters["id"]!!.toInt() }
-                .fold({ it.right() }, { RequestError.InvalidIdError(call.parameters["id"] ?: "").left() })
+                .fold({ it.right() }, { ValidationError.InputError(call.parameters["id"] ?: "").left() })
                 .flatMap { stationService.getStationById(it) }
                 .run { generateResponse(this) }
                 .also { (code, response) -> call.respond(code, response) }
@@ -37,7 +36,7 @@ fun Routing.stations(stationService: IStationService) {
         authenticate {
             post {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
-                    .flatMap { catchingCall(RequestError.MangledRequestBody()) { runBlocking { call.receive<StationPostForm>() } } }
+                    .flatMap { receiveCatching { call.receive<StationPostForm>() } }
                     .flatMap { stationService.saveStation(it) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
@@ -47,7 +46,7 @@ fun Routing.stations(stationService: IStationService) {
         authenticate {
             patch {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
-                    .flatMap { catchingCall(RequestError.MangledRequestBody()) { runBlocking { call.receive<StationUpdateForm>() } } }
+                    .flatMap { receiveCatching { call.receive<StationUpdateForm>() } }
                     .flatMap { stationService.updateStation(it) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
@@ -58,7 +57,7 @@ fun Routing.stations(stationService: IStationService) {
             delete("/{id}") {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
                     .flatMap {
-                        catchingCall(RequestError.InvalidIdError(call.parameters["id"] ?: ""))
+                        catchingCall(ValidationError.InputError(call.parameters["id"] ?: ""))
                         { runBlocking { call.parameters["id"]!!.toInt() } }
                     }
                     .flatMap { stationService.deleteStationById(it) }
