@@ -1,25 +1,28 @@
 get:
   tags:
     #- everyone
-    - reports
-  summary: fetches a report
-  operationId: getReport
+    - events
+  summary: Get an event with the provided ID
+  operationId: getEvent
   parameters:
     - in: path
       name: id
       required: true
       schema:
         type: integer
+        format: int64
   responses:
     '200':
-      description: Report matching ID
+      description: Event matching ID
       content:
         application/json:
           schema:
-            $ref: '../api.yaml#/components/schemas/Report'
+            $ref: '../api.yaml#/components/schemas/Event'
     '400':
       description: Bad input parameter
     '404':
-      description: Report not found
+      description: Partner not found
+    '422':
+      description: Validation failed. Unprocessable entity.
     '500':
       description: Internal server error
