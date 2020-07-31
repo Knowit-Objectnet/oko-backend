@@ -1,5 +1,8 @@
 package ombruk.backend.pickup.service
 
+import arrow.core.Either
+import arrow.core.left
+import arrow.core.right
 import ombruk.backend.pickup.database.Pickups
 import ombruk.backend.pickup.database.Requests
 import ombruk.backend.calendar.database.Stations
@@ -8,6 +11,7 @@ import ombruk.backend.pickup.form.CreatePickupForm
 import ombruk.backend.pickup.model.Pickup
 import ombruk.backend.calendar.model.Station
 import ombruk.backend.pickup.form.GetPickupsForm
+import ombruk.backend.shared.error.ServiceError
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -36,51 +40,56 @@ object PickupService : IPickupService {
 
     // getPickups.
     // Note that the start- and end-times only look at the startTime of the pickup.
-    override fun getPickups(pickupQueryForm: GetPickupsForm): List<Pickup>{
-        return transaction{
+    override fun getPickups(pickupQueryForm: GetPickupsForm): Either<ServiceError, List<Pickup>> {
+        return runCatching {
+            transaction {
 
-            val query = (Pickups innerJoin Stations).selectAll()
+                val query = (Pickups innerJoin Stations).selectAll()
 
-            pickupQueryForm.stationId?.let{
-                query.andWhere { Pickups.stationID eq it }
+                pickupQueryForm.stationId?.let {
+                    query.andWhere { Pickups.stationID eq it }
+                }
+                pickupQueryForm.endTime?.let {
+                    query.andWhere { Pickups.startTime lessEq it }
+                }
+                pickupQueryForm.startTime?.let {
+                    query.andWhere { Pickups.startTime greaterEq it }
+                }
+                query.map { toPickup(it) }
             }
-            pickupQueryForm.endTime?.let {
-                query.andWhere { Pickups.startTime lessEq it }
-            }
-            pickupQueryForm.startTime?.let {
-                query.andWhere { Pickups.startTime greaterEq it }
-            }
-            query.map { toPickup(it) }
-
-        }
+        }.fold(
+            { it.right() },
+            { ServiceError("Database query failed").left() }
+        )
     }
 
-    override fun updatePickup(pickup: Pickup): Boolean{
-            return try {
-                var check = 0
-                check = transaction {
-                    Pickups.update({ Pickups.id eq pickup.id }) {
+    override fun updatePickup(pickup: Pickup): Boolean {
+        return try {
+            var check = 0
+            check = transaction {
+                Pickups.update({ Pickups.id eq pickup.id }) {
                     it[startTime] = pickup.startTime
                     it[endTime] = pickup.endTime
                     it[stationID] = pickup.station.id
-                }}
-                check>0
-            } catch(e: Exception){
-                false
+                }
             }
+            check > 0
+        } catch (e: Exception) {
+            false
+        }
     }
 
-    override fun deletePickup (pickupID: Int?, stationID: Int?): Boolean{
-        if (pickupID == null && stationID == null){
+    override fun deletePickup(pickupID: Int?, stationID: Int?): Boolean {
+        if (pickupID == null && stationID == null) {
             throw IllegalArgumentException("Must pass in an argument")
         }
 
         return try {
-            var count =0
+            var count = 0
             pickupID?.let {
                 count = transaction {
                     Requests.deleteWhere { Requests.pickupID eq pickupID }
-                    Pickups.deleteWhere { Pickups.id eq pickupID}
+                    Pickups.deleteWhere { Pickups.id eq pickupID }
                 }
             }
             stationID?.let {
@@ -90,12 +99,12 @@ object PickupService : IPickupService {
                 }
             }
             count > 0
-        } catch(e: Exception){
+        } catch (e: Exception) {
             false
         }
     }
 
-    private fun toPickup (row: ResultRow): Pickup {
+    private fun toPickup(row: ResultRow): Pickup {
         return Pickup(
             row[Pickups.id].value,
             row[Pickups.startTime],

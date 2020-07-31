@@ -1,5 +1,6 @@
 package pickup.service
 
+import arrow.core.Either
 import ombruk.backend.calendar.database.Stations
 import ombruk.backend.calendar.model.Station
 import ombruk.backend.partner.database.Partners
@@ -100,7 +101,9 @@ class PickupServiceDeleteTest {
         pickupService.deletePickup(pickupTodelete.id, null)
 
         val pickupsLeftAfterDelete = pickupService.getPickups()
-        assertEquals(pickupsNotToDelete, pickupsLeftAfterDelete)
+
+        require(pickupsLeftAfterDelete is Either.Right)
+        assertEquals(pickupsNotToDelete, pickupsLeftAfterDelete.b)
     }
 
     @Test
@@ -120,7 +123,8 @@ class PickupServiceDeleteTest {
         pickupService.deletePickup(null, testStation.id)
 
         val pickupsLeftAfterDelete = pickupService.getPickups()
-        assertEquals(pickupsNotToDelete, pickupsLeftAfterDelete)
+        require(pickupsLeftAfterDelete is Either.Right)
+        assertEquals(pickupsNotToDelete, pickupsLeftAfterDelete.b)
     }
 
 }

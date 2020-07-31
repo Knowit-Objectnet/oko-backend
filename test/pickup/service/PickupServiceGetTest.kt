@@ -1,5 +1,6 @@
 package pickup.service
 
+import arrow.core.Either
 import ombruk.backend.calendar.database.Stations
 import ombruk.backend.calendar.model.Station
 import ombruk.backend.partner.database.Partners
@@ -125,23 +126,33 @@ class PickupServiceGetTest {
         // 1. Give me all the pickups for this station.
         var form = GetPickupsForm(null,null,testStation.id)
 
-        val actualPickups = pickupService.getPickups(form)
-        assertEquals(expectedPickups, actualPickups)
+        var actualPickups = pickupService.getPickups(form)
+
+        require(actualPickups is Either.Right)
+        assertEquals(expectedPickups, actualPickups.b)
 
         // 2. Make sure that when we supply an invalid station we get an empty set back
 
         form = GetPickupsForm(null,null,testStation.id + 99999)
+        actualPickups = pickupService.getPickups(form)
         // This should be empty
-        assertEquals(listOf(), pickupService.getPickups(form) )
+        require(actualPickups is Either.Right)
+
+        assertEquals(listOf(), actualPickups.b )
 
         // 3. Let's see if we can supply invalid dates and get an empty set back.
 
         form = GetPickupsForm(start.plusDays(100),null,null)
-        assertEquals( listOf(), pickupService.getPickups(form) )
+        actualPickups = pickupService.getPickups(form)
+        require(actualPickups is Either.Right)
+        assertEquals( listOf(), actualPickups.b )
 
         // 4. Let's supply valid dates that would give us our one pickup back.
         form = GetPickupsForm(start.minusHours(1),end.plusHours(1),null)
-        assertEquals(actualPickups , pickupService.getPickups(form) )
+        actualPickups = pickupService.getPickups(form)
+        require(actualPickups is Either.Right)
+
+        assertEquals(expectedPickups , actualPickups.b )
 
 
     }

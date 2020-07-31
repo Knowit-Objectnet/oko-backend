@@ -6,6 +6,7 @@ import io.ktor.locations.get
 import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.*
+import kotlinx.coroutines.runBlocking
 import ombruk.backend.pickup.form.CreatePickupForm
 import ombruk.backend.pickup.form.GetPickupsForm
 import ombruk.backend.pickup.model.Pickup
@@ -55,12 +56,9 @@ fun Routing.pickup(pickupService: IPickupService) {
         }
         // Location is set in the form.
         get<GetPickupsForm> { form ->
-            try {
-                call.respond(pickupService.getPickups(form))
-            } catch (e: NumberFormatException) {
-                e.printStackTrace()
-                call.respond(HttpStatusCode.BadRequest)
-            }
+                pickupService.getPickups(form).map {
+                    runBlocking { call.respond(HttpStatusCode.OK, it)  }
+                }
         }
 
         get("/{pickup_id}") {
