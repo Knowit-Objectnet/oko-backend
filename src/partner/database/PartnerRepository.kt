@@ -1,6 +1,7 @@
 package ombruk.backend.partner.database
 
 import arrow.core.Either
+import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
 import ombruk.backend.partner.form.PartnerGetForm
@@ -34,12 +35,10 @@ object PartnerRepository : IPartnerRepository {
         }
     }
         .onFailure { logger.error("Failed to save partner to DB: ${it.message}") }
-
-        .fold({ Partner(it.value, partner.name, partner.description, partner.phone, partner.email).right() }, {
-            RepositoryError.InsertError(
-                "SQL error"
-            ).left()
-        })
+        .fold(
+            { Partner(it.value, partner.name, partner.description, partner.phone, partner.email).right() },
+            { RepositoryError.InsertError("SQL error").left() }
+        )
 
 
     override fun updatePartner(partner: PartnerUpdateForm) = runCatching {
@@ -53,8 +52,14 @@ object PartnerRepository : IPartnerRepository {
         .onFailure { logger.error("Failed to update partner to DB: ${it.message}") }
         .fold(
             //Return right if more than 1 partner has been updated. Else, return an Error
-            { Either.cond(it > 0, { Unit }, { RepositoryError.NoRowsFound("${partner.id} not found") }) },
+            {
+                Either.cond(
+                    it > 0,
+                    { getPartnerByID(partner.id) },
+                    { RepositoryError.NoRowsFound("${partner.id} not found") })
+            },
             { RepositoryError.UpdateError(it.message).left() })
+        .flatMap { it }
 
 
     override fun deletePartner(partnerID: Int) =
