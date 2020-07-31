@@ -1,6 +1,7 @@
 package ombruk.backend.partner.service
 
 import arrow.core.Either
+import ombruk.backend.partner.form.PartnerGetForm
 import ombruk.backend.partner.form.PartnerPostForm
 import ombruk.backend.partner.form.PartnerUpdateForm
 import ombruk.backend.partner.model.Partner
@@ -30,7 +31,7 @@ interface IPartnerService {
      *
      * @return An [Either] object consisting of [ServiceError] on failure or a [List] of [Partner] objects on success.
      */
-    fun getPartners(): Either<ServiceError, List<Partner>>
+    fun getPartners(partnerGetForm: PartnerGetForm): Either<ServiceError, List<Partner>>
 
     /**
      * Deletes the partner with the provided ID. If the ID does not exist, a [ServiceError] is returned.

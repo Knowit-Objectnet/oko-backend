@@ -1,4 +1,4 @@
-package ombruk.backend.calendar.form
+package ombruk.backend.calendar.form.event
 
 import arrow.core.Either
 import kotlinx.serialization.Serializable
@@ -13,6 +13,7 @@ import ombruk.backend.shared.model.serializer.LocalDateTimeSerializer
 import ombruk.backend.shared.utils.validation.isGreaterThanStartDateTime
 import ombruk.backend.shared.utils.validation.isInRepository
 import ombruk.backend.shared.utils.validation.runCatchingValidation
+import org.valiktor.functions.isGreaterThan
 import org.valiktor.functions.isGreaterThanOrEqualTo
 import org.valiktor.functions.isNotNull
 import org.valiktor.validate
@@ -34,6 +35,10 @@ data class EventPostForm(
     override fun validOrError(): Either<ValidationError, EventPostForm> = runCatchingValidation {
         validate(this) {
             validate(EventPostForm::endDateTime).isGreaterThanStartDateTime(startDateTime)
+
+            validate(EventPostForm::stationId).isGreaterThan(0)
+            validate(EventPostForm::partnerId).isGreaterThan(0)
+
             validate(EventPostForm::stationId).isInRepository(StationRepository)
             validate(EventPostForm::partnerId).isInRepository(PartnerRepository)
             recurrenceRule?.validateSelf(startDateTime)

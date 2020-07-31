@@ -3,9 +3,11 @@ package ombruk.backend.partner.service
 import arrow.core.Either
 import arrow.core.extensions.either.monad.flatMap
 import arrow.core.left
+import io.ktor.util.KtorExperimentalAPI
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 import ombruk.backend.partner.database.PartnerRepository
+import ombruk.backend.partner.form.PartnerGetForm
 import ombruk.backend.partner.form.PartnerPostForm
 import ombruk.backend.partner.form.PartnerUpdateForm
 import ombruk.backend.shared.error.ServiceError
@@ -29,9 +31,10 @@ class PartnerService : IPartnerService {
     override fun getPartnerById(id: Int) = transaction { PartnerRepository.getPartnerByID(id) }
 
 
-    override fun getPartners() = transaction { PartnerRepository.getPartners() }
+    override fun getPartners(partnerGetForm: PartnerGetForm) = transaction { PartnerRepository.getPartners(partnerGetForm) }
 
 
+    @KtorExperimentalAPI
     override fun deletePartnerById(id: Int): Either<ServiceError, Unit> = transaction {
         val partner = getPartnerById(id)
             .fold({ return@transaction it.left() }, { it })

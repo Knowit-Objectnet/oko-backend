@@ -1,17 +1,17 @@
-package ombruk.backend.calendar.form
+package ombruk.backend.calendar.form.event
 
 import arrow.core.Either
 import kotlinx.serialization.Serializable
 import ombruk.backend.calendar.database.EventRepository
 import ombruk.backend.shared.error.ValidationError
 import ombruk.backend.shared.form.IForm
+import ombruk.backend.shared.model.serializer.LocalDateTimeSerializer
 import ombruk.backend.shared.utils.validation.isGreaterThanStartDateTime
-import ombruk.backend.shared.utils.validation.isInRepository
 import ombruk.backend.shared.utils.validation.isLessThanEndDateTime
 import ombruk.backend.shared.utils.validation.runCatchingValidation
+import org.valiktor.functions.isGreaterThan
 import org.valiktor.functions.isNotNull
 import org.valiktor.validate
-import ombruk.backend.shared.model.serializer.LocalDateTimeSerializer
 import java.time.LocalDateTime
 
 @Serializable
@@ -22,8 +22,7 @@ data class EventUpdateForm(
 ) : IForm<EventUpdateForm> {
     override fun validOrError(): Either<ValidationError, EventUpdateForm> = runCatchingValidation {
         validate(this) {
-            validate(EventUpdateForm::id).isInRepository(EventRepository)
-
+            validate(EventUpdateForm::id).isGreaterThan(0)
             if (startDateTime == null) validate(EventUpdateForm::endDateTime).isNotNull()
             if (endDateTime == null) validate(EventUpdateForm::startDateTime).isNotNull()
 

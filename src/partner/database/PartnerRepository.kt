@@ -3,6 +3,7 @@ package ombruk.backend.partner.database
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
+import ombruk.backend.partner.form.PartnerGetForm
 
 import ombruk.backend.partner.form.PartnerPostForm
 import ombruk.backend.partner.form.PartnerUpdateForm
@@ -85,10 +86,11 @@ object PartnerRepository : IPartnerRepository {
             { RepositoryError.NoRowsFound(it.message).left() })
 
 
-    override fun getPartners(): Either<RepositoryError.SelectError, List<Partner>> =
+    override fun getPartners(partnerGetForm: PartnerGetForm): Either<RepositoryError.SelectError, List<Partner>> =
         runCatching {
-
-            Partners.selectAll().map { toPartner(it) }
+            val query = Partners.selectAll()
+            partnerGetForm.name?.let { query.andWhere { Partners.name eq it } }
+            query.mapNotNull { toPartner(it) }
         }
             .onFailure { logger.error(it.message) }
             .fold({ it.right() }, { RepositoryError.SelectError(it.message).left() })

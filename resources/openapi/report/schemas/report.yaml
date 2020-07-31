@@ -1,0 +1,33 @@
+type: object
+properties:
+  reportID:
+    type: integer
+    format: int64
+    example: 1
+  eventID:
+    type: integer
+    format: int64
+    example: 1
+  partnerID:
+    type: integer
+    format: int64
+    example: 2
+  stationID:
+    type: integer
+    format: int64
+    example: 4
+  startDateTime:
+    type: string
+    format: date-time
+    example: 2020-07-13T15:00:00Z
+  endDateTime:
+    type: string
+    format: date-time
+    example: 2020-07-13T17:00:00Z
+  weight:
+    type: integer
+    format: int64
+  reportedDateTime:
+    type: string
+    format: date-time
+    example: 2020-07-13T17:15:33Z

@@ -3,8 +3,8 @@ package calendar.service
 import arrow.core.Either
 import ombruk.backend.calendar.database.Events
 import ombruk.backend.calendar.database.Stations
-import ombruk.backend.calendar.form.EventPostForm
-import ombruk.backend.calendar.form.EventDeleteForm
+import ombruk.backend.calendar.form.event.EventPostForm
+import ombruk.backend.calendar.form.event.EventDeleteForm
 import ombruk.backend.calendar.model.RecurrenceRule
 import ombruk.backend.calendar.model.Station
 import ombruk.backend.calendar.service.EventService
@@ -179,7 +179,8 @@ class EventServiceDeleteTest {
         require(eventToDelete is Either.Right)
         require(eventNotToDelete is Either.Right)
 
-        val deleteForm = EventDeleteForm(recurrenceRuleId = eventToDelete.b.recurrenceRule!!.id)
+        val deleteForm =
+            EventDeleteForm(recurrenceRuleId = eventToDelete.b.recurrenceRule!!.id)
 
         assert(eventService.deleteEvent(deleteForm) is Either.Right)
 
@@ -210,7 +211,12 @@ class EventServiceDeleteTest {
 
         val eventNotToDelete = dateRange.map {
             eventService.saveEvent(
-                EventPostForm(it, it.plusHours(1), testStation.id, testPartner.id)
+                EventPostForm(
+                    it,
+                    it.plusHours(1),
+                    testStation.id,
+                    testPartner.id
+                )
             )
         }.map { require(it is Either.Right); it.b }
 

@@ -3,8 +3,10 @@ package ombruk.backend.calendar.database
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
-import ombruk.backend.calendar.form.StationPostForm
-import ombruk.backend.calendar.form.StationUpdateForm
+import io.ktor.locations.KtorExperimentalLocationsAPI
+import ombruk.backend.calendar.form.station.StationGetForm
+import ombruk.backend.calendar.form.station.StationPostForm
+import ombruk.backend.calendar.form.station.StationUpdateForm
 import ombruk.backend.calendar.model.Station
 import ombruk.backend.shared.error.RepositoryError
 import org.jetbrains.exposed.dao.id.IntIdTable
@@ -35,15 +37,20 @@ object StationRepository : IStationRepository {
     }
         .onFailure { logger.error("Failed to get station from db: ${it.message}") }
         .fold(
-            { Either.cond(it.isNotEmpty(), { it.first() }, { RepositoryError.NoRowsFound("No rows matchind $id") }) },
+            { Either.cond(it.isNotEmpty(), { it.first() }, { RepositoryError.NoRowsFound("No rows matching $id") }) },
             { RepositoryError.SelectError("Failed to get station").left() })
 
     /**
      * A list of all stations
      * @return Either a Throwable or the list of stations
      */
-    override fun getStations() = runCatching {
-        transaction { Stations.selectAll().map { toStation(it) } }
+    @KtorExperimentalLocationsAPI
+    override fun getStations(stationGetForm: StationGetForm) = runCatching {
+        transaction {
+            val query = Stations.selectAll()
+            stationGetForm.name?.let { query.andWhere { Stations.name eq it } }
+            query.mapNotNull { toStation(it) }
+        }
     }
         .onFailure { logger.error("Failed to get stations from db") }
         .fold({ it.right() }, { RepositoryError.SelectError("Failed to get stations").left() })
@@ -53,19 +60,20 @@ object StationRepository : IStationRepository {
      * @param stationPostForm The Station to insert
      * @return Either a Throwable or the Station with the correct id
      */
-    override fun insertStation(stationPostForm: StationPostForm) = runCatching {
+    override fun insertStation(stationPostForm: StationPostForm) =
         transaction {
-            Stations.insertAndGetId {
-                it[name] = stationPostForm.name
-                it[openingTime] = stationPostForm.openingTime.toString()
-                it[closingTime] = stationPostForm.closingTime.toString()
-            }.value
+            runCatching {
+                Stations.insertAndGetId {
+                    it[name] = stationPostForm.name
+                    it[openingTime] = stationPostForm.openingTime.toString()
+                    it[closingTime] = stationPostForm.closingTime.toString()
+                }.value
+            }
         }
-    }
-        .onFailure { logger.error("Failed to insert station to db") }
-        .fold(
-            { getStationById(it) },
-            { RepositoryError.InsertError("Failed to insert station $stationPostForm").left() })
+            .onFailure { logger.error("Failed to insert station to db: ${it.message}") }
+            .fold(
+                { getStationById(it) },
+                { RepositoryError.InsertError("Failed to insert station $stationPostForm").left() })
 
     /**
      * Update a given Station

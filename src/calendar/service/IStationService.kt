@@ -1,8 +1,9 @@
 package ombruk.backend.calendar.service
 
 import arrow.core.Either
-import ombruk.backend.calendar.form.StationPostForm
-import ombruk.backend.calendar.form.StationUpdateForm
+import ombruk.backend.calendar.form.station.StationGetForm
+import ombruk.backend.calendar.form.station.StationPostForm
+import ombruk.backend.calendar.form.station.StationUpdateForm
 import ombruk.backend.calendar.model.Station
 import ombruk.backend.shared.error.ServiceError
 
@@ -18,7 +19,7 @@ interface IStationService {
      * Gets all stations
      * @return Either a [ServiceError] or a list of [Station] objects. The list may be empty if there are no stations
      */
-    fun getStations(): Either<ServiceError, List<Station>>
+    fun getStations(stationGetForm: StationGetForm): Either<ServiceError, List<Station>>
     
     /**
      * Saves a station.

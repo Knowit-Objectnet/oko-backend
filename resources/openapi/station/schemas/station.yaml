@@ -1,0 +1,16 @@
+type: object
+properties:
+  id:
+    type: integer
+    format: int64
+  name:
+    type: string
+    example: Haraldrud
+  openingTime:
+    type: string
+    description: A string that conforms to the ISO8601 standard for displaying time. The format is HH:MM:SS
+    example: 09:00:00Z
+  closingTime:
+    type: string
+    description: A string that conforms to the ISO8601 standard for displaying time. The format is HH:MM:SS
+    example: 20:00:00Z
