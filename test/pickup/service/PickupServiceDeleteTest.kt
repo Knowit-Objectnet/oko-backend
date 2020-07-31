@@ -87,44 +87,48 @@ class PickupServiceDeleteTest {
     @Test
     fun testDeletePickupById() {
         val start = LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME)
-        val end = LocalDateTime.parse("2020-08-14T16:30:00", DateTimeFormatter.ISO_DATE_TIME)
-        val dateRange = start..end
+        val end = start.plusHours(1)
 
-        val pickupTodelete = pickupService.savePickup(CreatePickupForm(start, start.plusHours(1), testStation.id))
+        // Create a pickup to be deleted.
+        val pickupToDelete =
+            pickupService.savePickup(CreatePickupForm(start, end, testStation.id))
+        // This will barf if something goes wrong...
 
-        val pickupsNotToDelete = dateRange.map { startDate ->
-            pickupService.savePickup(
-                CreatePickupForm(startDate, startDate.plusHours(1), testStation.id)
-            )
-        }
+        require(pickupToDelete is Either.Right)
 
-        pickupService.deletePickup(pickupTodelete.id, null)
+        // Another one, identical, not to be deleted.
+        val pickupNotToDelete = pickupService.savePickup(
+                CreatePickupForm(start, end, testStation.id) )
+        require(pickupNotToDelete is Either.Right)
 
+        // Delete the first one. XXX: stationId makes no sense here:
+        pickupService.deletePickup(pickupToDelete.b.id, null)
+
+        // Fetch what is left
         val pickupsLeftAfterDelete = pickupService.getPickups()
 
         require(pickupsLeftAfterDelete is Either.Right)
-        assertEquals(pickupsNotToDelete, pickupsLeftAfterDelete.b)
+        // And compare.
+        assertEquals(pickupNotToDelete.b, pickupsLeftAfterDelete.b.first())
     }
 
     @Test
     fun testDeletePickupByStation() {
         val start = LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME)
-        val end = LocalDateTime.parse("2020-08-14T16:30:00", DateTimeFormatter.ISO_DATE_TIME)
-        val dateRange = start..end
+        val end = start.plusHours(1)
 
+        // Create a pickup (we don't need to save it
         pickupService.savePickup(CreatePickupForm(start, start.plusHours(1), testStation.id))
 
-        val pickupsNotToDelete = dateRange.map { startDate ->
-            pickupService.savePickup(
-                CreatePickupForm(startDate, startDate.plusHours(1), testStation2.id)
-            )
-        }
+        val pickupsNotToDelete = pickupService.savePickup(CreatePickupForm(start, end, testStation2.id))
 
+        // Delete all pickups for testStation
         pickupService.deletePickup(null, testStation.id)
 
         val pickupsLeftAfterDelete = pickupService.getPickups()
+        require(pickupsNotToDelete is Either.Right)
         require(pickupsLeftAfterDelete is Either.Right)
-        assertEquals(pickupsNotToDelete, pickupsLeftAfterDelete.b)
+        assertEquals(pickupsNotToDelete.b, pickupsLeftAfterDelete.b.first())
     }
 
 }

@@ -8,10 +8,9 @@ import ombruk.backend.shared.error.ServiceError
 
 
 interface IPickupService {
-    fun savePickup(pickupForm: CreatePickupForm): Pickup
-    // Allow getPickups to be called without parameters.
+    fun savePickup(pickupForm: CreatePickupForm): Either<ServiceError,Pickup>
     fun getPickups(pickupQueryForm: GetPickupsForm = GetPickupsForm()): Either<ServiceError,List<Pickup>>
-    fun getPickupById (id: Int): Pickup?
+    fun getPickupById (id: Int): Either<ServiceError,Pickup>
     fun deletePickup(pickupID: Int?, stationID: Int?): Boolean
     fun updatePickup(pickup: Pickup): Boolean
 }

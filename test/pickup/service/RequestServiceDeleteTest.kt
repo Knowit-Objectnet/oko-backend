@@ -1,5 +1,6 @@
 package pickup.service
 
+import arrow.core.Either
 import ombruk.backend.calendar.database.Stations
 import ombruk.backend.calendar.model.Station
 import ombruk.backend.partner.database.Partners
@@ -120,8 +121,8 @@ class RequestServiceTest {
         val start = LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME)
         val end = LocalDateTime.parse("2020-08-14T16:30:00", DateTimeFormatter.ISO_DATE_TIME)
         val pickup = PickupService.savePickup(CreatePickupForm(start, end, testStation.id))
-
-        val expectedRequest = Request(pickup.id, testPartner)
+        require(pickup is Either.Right)
+        val expectedRequest = Request(pickup.b.id, testPartner)
         requestService.addPartnersToPickup(expectedRequest)
 
         val actualRequests = requestService.getRequests(expectedRequest.pickupID, null)
@@ -134,15 +135,16 @@ class RequestServiceTest {
         val end = LocalDateTime.parse("2020-08-14T16:30:00", DateTimeFormatter.ISO_DATE_TIME)
         val pickup1 = PickupService.savePickup(CreatePickupForm(start, end, testStation.id))
         val pickup2 = PickupService.savePickup(CreatePickupForm(start, end, testStation.id))
+        require(pickup1 is Either.Right)
+        require(pickup2 is Either.Right)
 
-
-        val requestToDelete = Request(pickup1.id, testPartner)
-        val requestNotToDelete = Request(pickup2.id, testPartner)
+        val requestToDelete = Request(pickup1.b.id, testPartner)
+        val requestNotToDelete = Request(pickup2.b.id, testPartner)
 
         requestService.addPartnersToPickup(requestToDelete)
         requestService.addPartnersToPickup(requestNotToDelete)
 
-        requestService.deleteRequests(pickup1.id, null, null)
+        requestService.deleteRequests(pickup1.b.id, null, null)
         val requestsInRepositoryAfterDelete = requestService.getRequests(null, null)
 
         assert(!requestsInRepositoryAfterDelete.contains(requestToDelete))
@@ -155,9 +157,10 @@ class RequestServiceTest {
         val end = LocalDateTime.parse("2020-08-14T16:30:00", DateTimeFormatter.ISO_DATE_TIME)
         val pickup = PickupService.savePickup(CreatePickupForm(start, end, testStation.id))
 
+        require(pickup is Either.Right)
 
-        val requestToDelete = Request(pickup.id, testPartner)
-        val requestNotToDelete = Request(pickup.id, testPartner2)
+        val requestToDelete = Request(pickup.b.id, testPartner)
+        val requestNotToDelete = Request(pickup.b.id, testPartner2)
 
         requestService.addPartnersToPickup(requestToDelete)
         requestService.addPartnersToPickup(requestNotToDelete)
@@ -176,9 +179,11 @@ class RequestServiceTest {
         val pickup1 = PickupService.savePickup(CreatePickupForm(start, end, testStation.id))
         val pickup2 = PickupService.savePickup(CreatePickupForm(start, end, testStation2.id))
 
+        require(pickup1 is Either.Right)
+        require(pickup2 is Either.Right)
 
-        val requestToDelete = Request(pickup1.id, testPartner)
-        val requestNotToDelete = Request(pickup2.id, testPartner)
+        val requestToDelete = Request(pickup1.b.id, testPartner)
+        val requestNotToDelete = Request(pickup2.b.id, testPartner)
 
         requestService.addPartnersToPickup(requestToDelete)
         requestService.addPartnersToPickup(requestNotToDelete)
@@ -197,9 +202,11 @@ class RequestServiceTest {
         val pickup1 = PickupService.savePickup(CreatePickupForm(start, end, testStation.id))
         val pickup2 = PickupService.savePickup(CreatePickupForm(start, end, testStation2.id))
 
+        require(pickup1 is Either.Right)
+        require(pickup2 is Either.Right)
 
-        val requestToDelete = Request(pickup1.id, testPartner)
-        val requestNotToDelete = Request(pickup2.id, testPartner2)
+        val requestToDelete = Request(pickup1.b.id, testPartner)
+        val requestNotToDelete = Request(pickup2.b.id, testPartner2)
 
         requestService.addPartnersToPickup(requestToDelete)
         requestService.addPartnersToPickup(requestNotToDelete)
@@ -218,14 +225,16 @@ class RequestServiceTest {
         val pickup1 = PickupService.savePickup(CreatePickupForm(start, end, testStation.id))
         val pickup2 = PickupService.savePickup(CreatePickupForm(start, end, testStation2.id))
 
+        require(pickup1 is Either.Right)
+        require(pickup2 is Either.Right)
 
-        val requestToDelete = Request(pickup1.id, testPartner)
-        val requestNotToDelete = Request(pickup2.id, testPartner2)
+        val requestToDelete = Request(pickup1.b.id, testPartner)
+        val requestNotToDelete = Request(pickup2.b.id, testPartner2)
 
         requestService.addPartnersToPickup(requestToDelete)
         requestService.addPartnersToPickup(requestNotToDelete)
 
-        requestService.deleteRequests(pickup1.id, testPartner.id, testStation.id)
+        requestService.deleteRequests(pickup1.b.id, testPartner.id, testStation.id)
         val requestsInRepositoryAfterDelete = requestService.getRequests(null, null)
 
         assert(!requestsInRepositoryAfterDelete.contains(requestToDelete))

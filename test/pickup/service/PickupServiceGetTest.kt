@@ -1,6 +1,7 @@
 package pickup.service
 
 import arrow.core.Either
+import arrow.core.right
 import ombruk.backend.calendar.database.Stations
 import ombruk.backend.calendar.model.Station
 import ombruk.backend.partner.database.Partners
@@ -104,8 +105,10 @@ class PickupServiceGetTest {
         )
         val expectedPickup = pickupService.savePickup(createForm)
 
+        // Require a right so we can get to the ID below.
+        require(expectedPickup is Either.Right)
 
-        val actualPickup = pickupService.getPickupById(expectedPickup.id)
+        val actualPickup = pickupService.getPickupById(expectedPickup.b.id)
 
         assertEquals(expectedPickup, actualPickup)
     }
@@ -117,11 +120,17 @@ class PickupServiceGetTest {
         val end = LocalDateTime.parse("2020-08-14T16:30:00", DateTimeFormatter.ISO_DATE_TIME)
         val dateRange = start..end
 
+
+        // Create a bunch of pickups in the date range, (see utils for the progression)
+        // This will return a list of Eithers.
         val expectedPickups = dateRange.map { startDate ->
             pickupService.savePickup(
                 CreatePickupForm(startDate, startDate.plusHours(1), testStation.id)
-            )
-        }
+            ) // So we map through it and pick out the Pickups and return it
+        }.map {
+            require(it is Either.Right)
+            it.b
+        } // So expectedPickups is now a list of Pickups
 
         // 1. Give me all the pickups for this station.
         var form = GetPickupsForm(null,null,testStation.id)
@@ -129,6 +138,7 @@ class PickupServiceGetTest {
         var actualPickups = pickupService.getPickups(form)
 
         require(actualPickups is Either.Right)
+
         assertEquals(expectedPickups, actualPickups.b)
 
         // 2. Make sure that when we supply an invalid station we get an empty set back

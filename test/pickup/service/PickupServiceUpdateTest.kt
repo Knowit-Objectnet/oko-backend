@@ -1,5 +1,6 @@
 package pickup.service
 
+import arrow.core.Either
 import ombruk.backend.calendar.database.Stations
 import ombruk.backend.calendar.model.Station
 import ombruk.backend.partner.database.Partners
@@ -82,20 +83,25 @@ class PickupServiceUpdateTest {
 
     @Test
     fun testUpdatePickup() {
+        val startTime = LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME)
+        val endTime = startTime.plusHours(1)
+
         val initialPickup = pickupService.savePickup(
             CreatePickupForm(
-                LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME),
-                LocalDateTime.parse("2020-08-14T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
+                startTime, endTime,
                 testStation.id
             )
         )
+        require(initialPickup is Either.Right)
 
-        val expectedPickup = initialPickup.copy(station =  testStation2)
+        val expectedPickup = initialPickup.b.copy( station = testStation2 )
+
         pickupService.updatePickup(expectedPickup)
 
-        val actualPickup = pickupService.getPickupById(initialPickup.id)
+        val actualPickup = pickupService.getPickupById(initialPickup.b.id)
+        require(actualPickup is Either.Right)
 
-        assertEquals(expectedPickup, actualPickup)
+        assertEquals(expectedPickup, actualPickup.b)
     }
 
 }
