@@ -10,7 +10,7 @@ import org.valiktor.validate
 @KtorExperimentalLocationsAPI
 @Location("/")
 data class PartnerGetForm(
-    var name: String?
+    var name: String? = null
 ) : IForm<PartnerGetForm> {
     override fun validOrError() = runCatchingValidation {
         validate(this){
