@@ -11,7 +11,7 @@ get:
         type: integer
   responses:
     '200':
-      description: "Report matching ID"
+      description: Report matching ID
       content:
         application/json:
           schema:

@@ -5,15 +5,15 @@ properties:
     format: int64
   name:
     type: string
-    example: "Fretex"
+    example: Fretex
   description:
     type: string
-    example: "Lorem Ipsum..."
+    example: Lorem Ipsum...
   phone:
     type: string
-    example: "+47 12345678"
+    example: +47 12345678
   email:
     type: string
-    example: "example@example.com"
+    example: example@example.com
 required:
   - id

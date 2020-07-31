@@ -39,7 +39,7 @@ get:
       schema:
         type: string
         format: date-time
-        example: "2020-07-10T13:17:39Z"
+        example: 2020-07-10T13:17:39Z
     - in: query
       name: to-date
       description: Get reports until the specified date and time.
@@ -47,7 +47,7 @@ get:
       schema:
         type: string
         format: date-time
-        example: "2020-07-20T13:17:39Z"
+        example: 2020-07-20T13:17:39Z
   responses:
     '200':
       description: Returns all reports

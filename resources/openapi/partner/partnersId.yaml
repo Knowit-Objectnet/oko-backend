@@ -11,7 +11,7 @@ get:
         type: integer
   responses:
     '200':
-      description: "Partner matching ID"
+      description: Partner matching ID
       content:
         application/json:
           schema:

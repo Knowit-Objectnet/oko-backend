@@ -311,7 +311,7 @@ paths:
           schema:
             type: string
             format: date-time
-            example: '2020-07-10T13:17:39Z'
+            example: 2020-07-10T13:17:39.000Z
         - in: query
           name: to-date
           description: Get reports until the specified date and time.
@@ -319,7 +319,7 @@ paths:
           schema:
             type: string
             format: date-time
-            example: '2020-07-20T13:17:39Z'
+            example: 2020-07-20T13:17:39.000Z
       responses:
         '200':
           description: Returns all reports
@@ -473,18 +473,18 @@ components:
         startDateTime:
           type: string
           format: date-time
-          example: '2020-07-13T15:00:00Z'
+          example: 2020-07-13T15:00:00.000Z
         endDateTime:
           type: string
           format: date-time
-          example: '2020-07-13T17:00:00Z'
+          example: 2020-07-13T17:00:00.000Z
         weight:
           type: integer
           format: int64
         reportedDateTime:
           type: string
           format: date-time
-          example: '2020-07-13T17:15:33Z'
+          example: 2020-07-13T17:15:33.000Z
     ReportPatch:
       type: object
       properties:

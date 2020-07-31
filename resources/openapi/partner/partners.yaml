@@ -31,7 +31,7 @@ post:
             format: int64
             description: The DB id of the stored partner
     '400':
-      description: 'Bad partner body'
+      description: Bad partner body
     '401':
       description: Unauthorized
     '403':

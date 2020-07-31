@@ -29,13 +29,13 @@ post:
           schema:
             $ref: '../api.yaml#/components/schemas/Station'
     '400':
-      description: 'Bad station body'
+      description: Bad station body
     '401':
       description: Unauthorized
     '403':
       description: Insufficient role privileges
     '409':
-      description: "Name conflict"
+      description: Name conflict
     '500':
       description: Internal server error
   requestBody:

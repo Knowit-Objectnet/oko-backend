@@ -1,13 +1,13 @@
 openapi: 3.0.0
 info:
   description: API documentation for the OKO endpoints
-  version: "1.0.1"
+  version: 1.0.1
   title: OKO Partners
   contact:
     email: jonas.carlsen@knowit.no
   license:
     name: Apache 2.0
-    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
 servers:
   - description: Actual API
     url: https://tcuk58u5ge.execute-api.eu-central-1.amazonaws.com/staging/backend
