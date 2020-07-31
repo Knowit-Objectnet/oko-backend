@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  description: API documentation for the OKO partners endpoint
+  description: API documentation for the OKO endpoints
   version: "1.0.1"
   title: OKO Partners
   contact:
