@@ -1,7 +1,7 @@
 get:
   tags:
     - everyone
-  summary: fetches partners
+  summary: Get a partner with the given id
   operationId: getPartner
   parameters:
     - in: path
@@ -17,7 +17,7 @@ get:
           schema:
             $ref: '../api.yaml#/components/schemas/Partner'
     '400':
-      description: bad input parameter
+      description: Bad input parameter
     '404':
       description: Partner not found
     '500':
