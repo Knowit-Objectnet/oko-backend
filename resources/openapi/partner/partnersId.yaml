@@ -1,7 +1,7 @@
 get:
   tags:
     - everyone
-  summary: fetches partners
+  summary: Get a partner with the given id
   operationId: getPartner
   parameters:
     - in: path
