@@ -60,8 +60,6 @@ fun Routing.pickup(pickupService: IPickupService) {
         }
         // Location is set in the form.
         get<GetPickupsForm> { form ->
-            println("XXX: Dumping form")
-            println(form)
             try {
                 call.respond(pickupService.getPickups(form))
             } catch (e: NumberFormatException) {
