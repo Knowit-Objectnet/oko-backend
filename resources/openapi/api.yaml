@@ -29,7 +29,7 @@ tags:
 #  - name: everyone
 #    description: Calls available for unauthorized users
 paths:
-  /partners{id}:
+  /partners/{id}:
     $ref: "./partner/partnersId.yaml"
   /partners:
     $ref: "./partner/partners.yaml"
@@ -43,7 +43,7 @@ paths:
     $ref: "./report/reportsId.yaml"
   /events:
     $ref: "./calendar/events.yaml"
-  /events{id}:
+  /events/{id}:
     $ref: "./calendar/eventsId.yaml"
 
 components:

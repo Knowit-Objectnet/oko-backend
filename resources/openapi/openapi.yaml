@@ -21,7 +21,7 @@ tags:
   - name: stations
     description: Calls available in the /stations/ endpoint
 paths:
-  '/partners{id}':
+  '/partners/{id}':
     get:
       tags:
         - partners
@@ -569,7 +569,7 @@ paths:
           description: Unprocessable request body. Validation of request body failed
         '500':
           description: Internal server error
-  '/events{id}':
+  '/events/{id}':
     get:
       tags:
         - events
