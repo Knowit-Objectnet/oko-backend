@@ -1,6 +1,7 @@
 get:
   tags:
-    - everyone
+    #- everyone
+    - stations
   summary: Gets all stations
   operationId: getStations
   responses:
@@ -17,7 +18,8 @@ get:
 
 post:
   tags:
-    - reg-admin
+    #- reg-admin
+    - stations
   summary: Adds a station
   operationId: addStation
   description: Adds a station to the database. Name must be unique. The stored Station object is returned if request is valid.
@@ -46,7 +48,8 @@ post:
 
 patch:
   tags:
-    - reg-admin
+    #- reg-admin
+    - stations
   summary: Updates a station
   operationId: patchStation
   description:

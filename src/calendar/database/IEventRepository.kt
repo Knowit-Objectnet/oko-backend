@@ -12,41 +12,42 @@ import ombruk.backend.calendar.form.event.EventGetForm
 
 interface IEventRepository : IRepository{
     /**
-     * Inserts an [Event] into the database. The ID passed in the [Event] will be overriden, and a serial
-     * ID will be used instead.
+     * Inserts an [Event] into the database.
      *
-     * @param form An [Event]
-     * @return An [Either] object consisting of a [RepositoryError] on failure and the saved [Event] on success.
-     * The recurrence rule will be returned instead of an individual ID if the event is recurring.
+     * @param eventPostForm A [EventPostForm]
+     * @return An [Either] object consisting of a [RepositoryError] on failure and the saved [Event] on success. The
+     * returned [Event] is equal to the one stored in the database. If the posted [Event] is recurring, the first
+     * occurence will be returned.
      */
-    fun insertEvent(from: EventPostForm): Either<RepositoryError, Event>
+    fun insertEvent(eventPostForm: EventPostForm): Either<RepositoryError, Event>
 
     /**
      * Updates a stored Event. The id passed in the [Event] must already exist in the database.
      *
-     * @param event An [Event] object containing the information that should be updated. ID cannot be altered.
-     * @return An [Either] object consisting of a [RepositoryError] on failure an [Event] with the updated values on success.
+     * @param event A [EventUpdateForm] object containing the information that should be updated. ID cannot be altered.
+     * @return An [Either] object consisting of a [RepositoryError] on failure or an [Event] with the updated values on success.
      */
     fun updateEvent(event: EventUpdateForm): Either<RepositoryError, Event>
 
     /**
-     * Deletes a Event from the database with the specified EventID.
+     * Deletes one or several [Event] objects from the database. The events to be deleted are chosen through the use
+     * of parameters in the [EventDeleteForm].
      *
-     * @param eventID The ID of the Event to be deleted.
-     * @return An [Either] object consisting of a [RepositoryError] on failure and [List] of deleted [Event] on success.
+     * @param eventDeleteForm A [EventDeleteForm] containing the query constraints.
+     * @return An [Either] object consisting of a [RepositoryError] on failure and [List] of deleted [Event] objects on success.
      */
     fun deleteEvent(eventDeleteForm: EventDeleteForm): Either<RepositoryError, List<Event>>
 
     /**
-     * Fetches a specific Event.
+     * Fetches a specific [Event].
      *
-     * @param eventID The Event that should be fetched.
+     * @param eventID The id of the [Event] that should be fetched.
      * @return An [Either] object consisting of a [RepositoryError] on failure and a [Event] on success.
      */
     fun getEventByID(eventID: Int): Either<RepositoryError, Event>
 
     /**
-     * Fetches all events.
+     * Fetches a set of events that are specified by query parameters in a [EventGetForm]. If null, all events are returned.
      *
      * @return An [Either] object consisting of a [RepositoryError] on failure and a [List] of [Event] objects on success.
      */
