@@ -1,4 +1,4 @@
-package ombruk.backend.calendar.form
+package ombruk.backend.calendar.form.event
 
 import arrow.core.Either
 import kotlinx.serialization.Serializable

@@ -2,7 +2,7 @@ package calendar
 
 import calendar.utils.everyWeekDay
 import calendar.utils.everyday
-import ombruk.backend.calendar.form.EventPostForm
+import ombruk.backend.calendar.form.event.EventPostForm
 import ombruk.backend.calendar.model.RecurrenceRule
 import ombruk.backend.calendar.model.Station
 import ombruk.backend.partner.model.Partner

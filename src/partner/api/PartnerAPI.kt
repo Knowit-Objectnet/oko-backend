@@ -1,32 +1,38 @@
 package ombruk.backend.partner.api
 
 import arrow.core.flatMap
-import arrow.core.left
-import arrow.core.right
 import io.ktor.application.call
 import io.ktor.auth.authenticate
+import io.ktor.locations.KtorExperimentalLocationsAPI
+import io.ktor.locations.delete
+import io.ktor.locations.get
 import io.ktor.request.receive
 import io.ktor.response.respond
-import io.ktor.routing.*
-import ombruk.backend.partner.form.PartnerPostForm
-import ombruk.backend.partner.form.PartnerUpdateForm
+import io.ktor.routing.Routing
+import io.ktor.routing.patch
+import io.ktor.routing.post
+import io.ktor.routing.route
+import ombruk.backend.partner.form.*
 import ombruk.backend.partner.service.IPartnerService
-import ombruk.backend.shared.api.*
-import ombruk.backend.shared.error.ValidationError
+import ombruk.backend.shared.api.Authorization
+import ombruk.backend.shared.api.Roles
+import ombruk.backend.shared.api.generateResponse
+import ombruk.backend.shared.api.receiveCatching
 
+@KtorExperimentalLocationsAPI
 fun Routing.partners(partnerService: IPartnerService) {
 
     route("/partners") {
-        get("/{id}") {
-            runCatching { call.parameters["id"]!!.toInt() }
-                .fold({ it.right() }, { ValidationError.InputError("Failed to parse id").left() })
-                .flatMap { partnerService.getPartnerById(it) }
+        get<PartnerGetByIdForm> {form ->
+            form.validOrError()
+                .flatMap { partnerService.getPartnerById(it.id) }
                 .run { generateResponse(this) }
                 .also { (code, response) -> call.respond(code, response) }
         }
 
-        get {
-            partnerService.getPartners()
+        get<PartnerGetForm> { form ->
+            form.validOrError()
+                .flatMap { partnerService.getPartners(it) }
                 .run { generateResponse(this) }
                 .also { (code, response) -> call.respond(code, response) }
         }
@@ -35,6 +41,7 @@ fun Routing.partners(partnerService: IPartnerService) {
             patch {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
                     .flatMap { receiveCatching { call.receive<PartnerUpdateForm>() } }
+                    .flatMap { it.validOrError() }
                     .flatMap { partnerService.updatePartner(it) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
@@ -45,6 +52,7 @@ fun Routing.partners(partnerService: IPartnerService) {
             post {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
                     .flatMap { receiveCatching { call.receive<PartnerPostForm>() } }
+                    .flatMap { it.validOrError() }
                     .flatMap { partnerService.savePartner(it) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
@@ -52,12 +60,10 @@ fun Routing.partners(partnerService: IPartnerService) {
         }
 
         authenticate {
-            delete("/{id}") {
+            delete<PartnerDeleteForm> { form ->
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
-                    .flatMap {
-                        catchingCall(ValidationError.InputError("Failed to parse id")) { call.parameters["id"]!!.toInt() }
-                    }
-                    .flatMap { partnerService.deletePartnerById(it) }
+                    .flatMap {form.validOrError() }
+                    .flatMap { partnerService.deletePartnerById(it.id) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }

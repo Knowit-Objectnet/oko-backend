@@ -14,6 +14,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
+import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.locations.Locations
 import io.ktor.response.respond
 import io.ktor.routing.get
@@ -52,6 +53,7 @@ var debug: Boolean = appConfig.property("ktor.oko.debug").getString().toBoolean(
 var keycloakUrl = appConfig.property("ktor.keycloak.keycloakUrl").getString()
 var keycloakRealm = appConfig.property("ktor.keycloak.keycloakRealm").getString()
 
+@KtorExperimentalLocationsAPI
 @KtorExperimentalAPI
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads

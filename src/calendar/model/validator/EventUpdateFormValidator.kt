@@ -1,6 +1,6 @@
 package ombruk.backend.calendar.model.validator
 
-import ombruk.backend.calendar.form.EventUpdateForm
+import ombruk.backend.calendar.form.event.EventUpdateForm
 import java.time.DayOfWeek
 
 object EventUpdateFormValidator :

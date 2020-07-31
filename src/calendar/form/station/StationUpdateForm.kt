@@ -1,4 +1,4 @@
-package ombruk.backend.calendar.form
+package ombruk.backend.calendar.form.station
 
 import kotlinx.serialization.Serializable
 import ombruk.backend.calendar.database.StationRepository

@@ -1,4 +1,4 @@
-package calendar.form
+package ombruk.backend.calendar.form.event
 
 import arrow.core.Either
 import io.ktor.locations.KtorExperimentalLocationsAPI
@@ -16,7 +16,7 @@ import java.time.LocalDateTime
 
 
 @KtorExperimentalLocationsAPI
-@Location("/events/")
+@Location("/")
 data class EventGetForm(
     val eventId: Int? = null,
     val stationId: Int? = null,

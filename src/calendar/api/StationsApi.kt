@@ -1,34 +1,39 @@
 package ombruk.backend.calendar.api
 
 import arrow.core.flatMap
-import arrow.core.left
-import arrow.core.right
 import io.ktor.application.call
 import io.ktor.auth.authenticate
+import io.ktor.locations.KtorExperimentalLocationsAPI
+import io.ktor.locations.delete
+import io.ktor.locations.get
 import io.ktor.request.receive
 import io.ktor.response.respond
-import io.ktor.routing.*
-import kotlinx.coroutines.runBlocking
-import ombruk.backend.calendar.form.StationPostForm
-import ombruk.backend.calendar.form.StationUpdateForm
+import io.ktor.routing.Routing
+import io.ktor.routing.patch
+import io.ktor.routing.post
+import io.ktor.routing.route
+import ombruk.backend.calendar.form.station.*
 import ombruk.backend.calendar.service.IStationService
-import ombruk.backend.shared.api.*
-import ombruk.backend.shared.error.ValidationError
+import ombruk.backend.shared.api.Authorization
+import ombruk.backend.shared.api.Roles
+import ombruk.backend.shared.api.generateResponse
+import ombruk.backend.shared.api.receiveCatching
 
+@KtorExperimentalLocationsAPI
 fun Routing.stations(stationService: IStationService) {
 
     route("/stations") {
 
-        get("/{id}") {
-            runCatching { call.parameters["id"]!!.toInt() }
-                .fold({ it.right() }, { ValidationError.InputError(call.parameters["id"] ?: "").left() })
-                .flatMap { stationService.getStationById(it) }
+        get<StationGetByIdForm> { form ->
+            form.validOrError()
+                .flatMap { stationService.getStationById(it.id) }
                 .run { generateResponse(this) }
                 .also { (code, response) -> call.respond(code, response) }
         }
 
-        get {
-            stationService.getStations()
+        get<StationGetForm> { form ->
+            form.validOrError()
+                .flatMap { stationService.getStations(it) }
                 .run { generateResponse(this) }
                 .also { (code, response) -> call.respond(code, response) }
         }
@@ -54,13 +59,11 @@ fun Routing.stations(stationService: IStationService) {
         }
 
         authenticate {
-            delete("/{id}") {
+            delete<StationDeleteForm> { form ->
+
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
-                    .flatMap {
-                        catchingCall(ValidationError.InputError(call.parameters["id"] ?: ""))
-                        { runBlocking { call.parameters["id"]!!.toInt() } }
-                    }
-                    .flatMap { stationService.deleteStationById(it) }
+                    .flatMap { form.validOrError() }
+                    .flatMap { stationService.deleteStationById(it.id) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }

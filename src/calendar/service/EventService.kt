@@ -6,14 +6,14 @@ import arrow.core.left
 import arrow.core.right
 import ombruk.backend.calendar.database.EventRepository
 import ombruk.backend.calendar.database.RecurrenceRules
-import ombruk.backend.calendar.form.EventPostForm
-import ombruk.backend.calendar.form.EventDeleteForm
-import ombruk.backend.calendar.form.EventUpdateForm
+import ombruk.backend.calendar.form.event.EventPostForm
+import ombruk.backend.calendar.form.event.EventDeleteForm
+import ombruk.backend.calendar.form.event.EventUpdateForm
 import ombruk.backend.calendar.model.Event
 import ombruk.backend.calendar.model.EventType
 import ombruk.backend.reporting.service.IReportService
 import ombruk.backend.shared.error.ServiceError
-import calendar.form.EventGetForm
+import ombruk.backend.calendar.form.event.EventGetForm
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class EventService(private val reportingService: IReportService) : IEventService {

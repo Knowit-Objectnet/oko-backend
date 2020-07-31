@@ -1,6 +1,6 @@
 package ombruk.backend.calendar.utils
 
-import ombruk.backend.calendar.form.EventPostForm
+import ombruk.backend.calendar.form.event.EventPostForm
 import ombruk.backend.calendar.model.RecurrenceRule
 import java.time.temporal.TemporalAdjusters
 
