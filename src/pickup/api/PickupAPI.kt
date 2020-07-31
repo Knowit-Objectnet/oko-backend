@@ -58,7 +58,7 @@ fun Routing.pickup(pickupService: IPickupService) {
             val result = pickupService.savePickup(form)
             call.respond(HttpStatusCode.Created, result)
         }
-
+        // Location is set in the form.
         get<GetPickupsForm> { form ->
             println("XXX: Dumping form")
             println(form)

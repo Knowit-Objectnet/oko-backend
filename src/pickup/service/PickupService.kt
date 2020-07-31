@@ -34,13 +34,24 @@ object PickupService : IPickupService {
         }
     }
 
+    // getPickups.
+    // Note that the start- and end-times only look at the startTime of the pickup.
     override fun getPickups(pickupQueryForm: GetPickupsForm): List<Pickup>{
         return transaction{
+
             val query = (Pickups innerJoin Stations).selectAll()
-            /* pickupQueryForm.stationId.let{
+
+            pickupQueryForm.stationId?.let{
                 query.andWhere { Pickups.stationID eq it }
-            }*/
+            }
+            pickupQueryForm.endTime?.let {
+                query.andWhere { Pickups.startTime lessEq it }
+            }
+            pickupQueryForm.startTime?.let {
+                query.andWhere { Pickups.startTime greaterEq it }
+            }
             query.map { toPickup(it) }
+
         }
     }
 

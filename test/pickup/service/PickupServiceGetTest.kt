@@ -7,6 +7,7 @@ import ombruk.backend.pickup.database.Pickups
 import ombruk.backend.pickup.database.Requests
 import ombruk.backend.pickup.form.CreatePickupForm
 import ombruk.backend.pickup.form.GetPickupsForm
+import ombruk.backend.pickup.model.Pickup
 import ombruk.backend.pickup.service.PickupService
 import ombruk.backend.shared.database.initDB
 import ombruk.backend.shared.utils.rangeTo
@@ -120,9 +121,29 @@ class PickupServiceGetTest {
                 CreatePickupForm(startDate, startDate.plusHours(1), testStation.id)
             )
         }
-        val form = GetPickupsForm(null,null,null)
-        val actualPickups = pickupService.getPickups(form)
 
+        // 1. Give me all the pickups for this station.
+        var form = GetPickupsForm(null,null,testStation.id)
+
+        val actualPickups = pickupService.getPickups(form)
         assertEquals(expectedPickups, actualPickups)
+
+        // 2. Make sure that when we supply an invalid station we get an empty set back
+
+        form = GetPickupsForm(null,null,testStation.id + 99999)
+        // This should be empty
+        assertEquals(listOf(), pickupService.getPickups(form) )
+
+        // 3. Let's see if we can supply invalid dates and get an empty set back.
+
+        form = GetPickupsForm(start.plusDays(100),null,null)
+        assertEquals( listOf(), pickupService.getPickups(form) )
+
+        // 4. Let's supply valid dates that would give us our one pickup back.
+        form = GetPickupsForm(start.minusHours(1),end.plusHours(1),null)
+        assertEquals(actualPickups , pickupService.getPickups(form) )
+
+
     }
+
 }
