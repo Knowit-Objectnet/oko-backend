@@ -1,6 +1,7 @@
 get:
   tags:
-    - everyone
+    #- everyone
+    - stations
   summary: fetches stations
   operationId: getStation
   parameters:
@@ -25,7 +26,8 @@ get:
 
 delete:
   tags:
-    - reg-admin
+    #- reg-admin
+    - stations
   summary: Deletes a station
   operationId: deleteStation
   parameters:

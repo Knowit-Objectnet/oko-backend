@@ -1,6 +1,7 @@
 get:
   tags:
-    - everyone
+    #- everyone
+    - partners
   summary: Gets all partners
   operationId: getPartners
   responses:
@@ -17,7 +18,8 @@ get:
 
 post:
   tags:
-    - reg-admin
+    #- reg-admin
+    - partners
   summary: adds a partner
   operationId: addPartner
   description: Adds a partner to the database and to keycloak. Name must be unique.
@@ -50,8 +52,9 @@ post:
 
 patch:
   tags:
-    - reg-admin
-    - partner
+    #- reg-admin
+    #- partner
+    - partners
   summary: Updates a partner both in the database and in keycloak
   operationId: patchpartner
   description: |

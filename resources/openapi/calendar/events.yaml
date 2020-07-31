@@ -1,0 +1,190 @@
+get:
+  tags:
+    #- everyone
+    - events
+  summary: Gets events
+  operationId: getEvents
+  parameters:
+    - in: query
+      name: eventId
+      schema:
+        type: integer
+        format: int64
+      example: 1
+    - in: query
+      name: recurrenceRuleId
+      schema:
+        type: integer
+        format: int64
+      example: 1
+    - in: query
+      name: fromDate
+      schema:
+        type: string
+        format: date-time
+      example: 2020-07-13T15:00:00Z
+    - in: query
+      name: toDate
+      schema:
+        type: string
+        format: date-time
+      example: 2020-07-20T15:00:00Z
+    - in: query
+      name: partnerId
+      schema:
+        type: integer
+        format: int64
+      example: 1
+    - in: query
+      name: stationId
+      schema:
+        type: integer
+        format: int64
+      example: 1
+  responses:
+    '200':
+      description: Returns an array of all the events that matched the query.
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../api.yaml#/components/schemas/Event'
+    '500':
+      description: Internal server error
+
+post:
+  tags:
+    #- reg-admin
+    - events
+  summary: adds one or more events to the database.
+  operationId: addEvents
+  description: Adds one or more events to the database. This also creates corresponding weight reports with nulled weight.
+  responses:
+    '200':
+      description: item created. Returns the created event. If recurring, the first event is returned.
+      content:
+        application/json:
+          schema:
+            $ref: '../api.yaml#/components/schemas/Event'
+    '400':
+      description: Bad request body
+    '401':
+      description: Unauthorized
+    '403':
+      description: Insufficient role privileges
+    '422':
+      description: Validation of request body failed. Unprocessable entity
+    '500':
+      description: Internal server error
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: '../api.yaml#/components/schemas/EventPost'
+
+patch:
+  tags:
+    #- reg-admin
+    #- reuse-station
+    - events
+  summary: Updates an event
+  operationId: patchEvent
+  description: |
+    Updates a singular event in the database.
+  responses:
+    '200':
+      description: Updated event
+      content:
+        application/json:
+          schema:
+            $ref: '../api.yaml#/components/schemas/Event'
+    '400':
+      description: Bad request body
+    '401':
+      description: Unauthorized
+    '403':
+      description: Forbidden. Insufficient role permissions.
+    '404':
+      description: ID not found
+    '422':
+      description: Unprocessable request body. Validation of request body failed
+    '500':
+      description: Internal server error
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: '../api.yaml#/components/schemas/EventPatch'
+
+delete:
+  tags:
+#    - reg-admin
+#    - reuse-station
+#    - partner
+    - events
+  summary: Deletes events
+  operationId: deleteEvents
+  description: |
+    Deletes one or several events from the database. Deletion can be specified through the use of query parameters.
+    Reuse station workers and REG admin will be able to delete any event, whilst a partner only has permission to delete
+    their own events.
+  parameters:
+    - in: query
+      name: eventId
+      schema:
+        type: integer
+        format: int64
+      example: 1
+    - in: query
+      name: recurrenceRuleId
+      schema:
+        type: integer
+        format: int64
+      example: 1
+    - in: query
+      name: fromDate
+      schema:
+        type: string
+        format: date-time
+      example: 2020-07-13T15:00:00Z
+    - in: query
+      name: toDate
+      schema:
+        type: string
+        format: date-time
+      example: 2020-07-20T15:00:00Z
+    - in: query
+      name: partnerId
+      schema:
+        type: integer
+        format: int64
+      example: 1
+    - in: query
+      name: stationId
+      schema:
+        type: integer
+        format: int64
+      example: 1
+  responses:
+    '200':
+      description: Event(s) deleted
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../api.yaml#/components/schemas/Event'
+            description: A list of deleted events
+    '400':
+      description: Bad request body
+    '401':
+      description: Unauthorized
+    '403':
+      description: Forbidden. Insufficient role permissions.
+    '404':
+      description: ID not found
+    '422':
+      description: Unprocessable request body. Validation of request body failed
+    '500':
+      description: Internal server error

@@ -1,6 +1,7 @@
 get:
   tags:
-    - everyone
+    #- everyone
+    - partners
   summary: Get a partner with the given id
   operationId: getPartner
   parameters:
@@ -25,7 +26,8 @@ get:
 
 delete:
   tags:
-    - reg-admin
+    #- reg-admin
+    - partners
   summary: Deletes a partner
   operationId: deletePartner
   parameters:

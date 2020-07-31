@@ -1,6 +1,7 @@
 get:
   tags:
-    - everyone
+    #- everyone
+    - reports
   summary: Gets all reports
   operationId: getReports
   description: |
@@ -62,9 +63,10 @@ get:
 
 patch:
   tags:
-    - reg-admin
-    - reuse-station
-    - partner
+    #- reg-admin
+    #- reuse-station
+    #- partner
+    - reports
   summary: Sets the weight of a report
   operationId: patchWeight
   description: |
