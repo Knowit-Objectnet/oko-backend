@@ -1,0 +1,82 @@
+get:
+  tags:
+    - everyone
+  summary: Gets all partners
+  operationId: getPartners
+  responses:
+    '200':
+      description: Returns all partners
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../api.yaml#/components/schemas/Partner'
+    '500':
+      description: Internal server error
+
+post:
+  tags:
+    - reg-admin
+  summary: adds a partner
+  operationId: addPartner
+  description: Adds a partner to the database and to keycloak. Name must be unique.
+  responses:
+    '200':
+      description: item created
+      content:
+        application/json:
+          schema:
+            type: integer
+            format: int64
+            description: The DB id of the stored partner
+    '400':
+      description: Bad partner body
+    '401':
+      description: Unauthorized
+    '403':
+      description: Insufficient role privileges
+    '409':
+      description: A partner with that name already exists
+    '422':
+      description: Validation of partner body failed. Unprocessable entity
+    '500':
+      description: Internal server error
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: '../api.yaml#/components/schemas/PartnerPost'
+
+patch:
+  tags:
+    - reg-admin
+    - partner
+  summary: Updates a partner both in the database and in keycloak
+  operationId: patchpartner
+  description: |
+    Updates a partner in both the database and in keycloak. ID cannot be
+    changed and must correspond with an existing partner. Name must be unique.
+    Partners can only update their own information.
+  responses:
+    '200':
+      description: Partner updated
+    '400':
+      description: Bad request body
+    '401':
+      description: Unauthorized
+    '403':
+      description: Forbidden. Insufficient role permissions.
+    '404':
+      description: ID not found
+    '409':
+      description: A partner with that name already exists
+    '422':
+      description: Unprocessable request body. Validation of request body failed
+    '500':
+      description: Internal server error
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: '../api.yaml#/components/schemas/PartnerPatch'

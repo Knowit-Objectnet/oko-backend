@@ -1,0 +1,97 @@
+get:
+  tags:
+    - everyone
+  summary: Gets all reports
+  operationId: getReports
+  description: |
+    Get functionality that allows for getting reports. If called without parameters, all reports are returned.
+    Each parameter that is passed will be used to filter the output. For instance, one can GET reports within
+    a range by specifying from-date and to-date.
+  parameters:
+    - in: query
+      name: event-id
+      description: Get the report that corresponds to the specified event ID.
+      required: false
+      schema:
+        type: integer
+        format: int64
+      example: 1
+    - in: query
+      name: station-id
+      description: Only get reports belonging at the specified Station ID.
+      required: false
+      schema:
+        type: integer
+        format: int64
+        example: 2
+    - in: query
+      name: partner-id
+      description: Only get reports belonging to specified partner ID.
+      required: false
+      schema:
+        type: integer
+        format: int64
+        example: 3
+    - in: query
+      name: from-date
+      description: Get reports from the specified date and time.
+      required: false
+      schema:
+        type: string
+        format: date-time
+        example: 2020-07-10T13:17:39Z
+    - in: query
+      name: to-date
+      description: Get reports until the specified date and time.
+      required: false
+      schema:
+        type: string
+        format: date-time
+        example: 2020-07-20T13:17:39Z
+  responses:
+    '200':
+      description: Returns all reports
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../api.yaml#/components/schemas/Report'
+    '500':
+      description: Internal server error
+
+patch:
+  tags:
+    - reg-admin
+    - reuse-station
+    - partner
+  summary: Sets the weight of a report
+  operationId: patchWeight
+  description: |
+    Updates the weight of a report. When weight is updated, it's reportedDateTime field is also updated.
+    Although partners can call this endpoint, they are only able to update reports that belong to their corresponding
+    partner ID.
+  responses:
+    '200':
+      description: Partner updated
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../api.yaml#/components/schemas/Report'
+    '400':
+      description: Bad request body
+    '401':
+      description: Unauthorized
+    '403':
+      description: Insufficient privileges. Is returned when a partner attempts to alter resources that they do not own.
+    '404':
+      description: ID not found
+    '500':
+      description: Internal server error
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: '../api.yaml#/components/schemas/ReportPatch'

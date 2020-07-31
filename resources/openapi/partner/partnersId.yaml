@@ -1,0 +1,45 @@
+get:
+  tags:
+    - everyone
+  summary: Get a partner with the given id
+  operationId: getPartner
+  parameters:
+    - in: path
+      name: id
+      required: true
+      schema:
+        type: integer
+  responses:
+    '200':
+      description: Partner matching ID
+      content:
+        application/json:
+          schema:
+            $ref: '../api.yaml#/components/schemas/Partner'
+    '400':
+      description: Bad input parameter
+    '404':
+      description: Partner not found
+    '500':
+      description: Internal server error
+
+delete:
+  tags:
+    - reg-admin
+  summary: Deletes a partner
+  operationId: deletePartner
+  parameters:
+    - in: path
+      name: id
+      required: true
+      schema:
+        type: integer
+  responses:
+    '200':
+      description: Partner deleted successfully
+    '400':
+      description: Bad input parameter
+    '500':
+      description: Internal server error
+    '404':
+      description: ID not found

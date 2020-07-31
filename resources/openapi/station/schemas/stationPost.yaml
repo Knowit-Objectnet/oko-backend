@@ -1,0 +1,18 @@
+type: object
+properties:
+  name:
+    type: string
+    description: Must be unique
+    example: Ryen
+  openingTime:
+    type: string
+    description: A string that conforms to the ISO8601 standard for displaying time. The format is HH:MM:SS
+    example: 08:00:00Z
+  closingTime:
+    type: string
+    description: A string that conforms to the ISO8601 standard for displaying time. The format is HH:MM:SS
+    example: 21:00:00Z
+required:
+  - name
+  - openingTime
+  - closingTime
