@@ -17,12 +17,7 @@ fun Routing.pickup(pickupService: IPickupService) {
     }
 
     route("/pickups") {
-
-
-        get("/health_check/") {
-            call.respond(HttpStatusCode.OK)
-        }
-
+        
         delete("/") {
             val params = call.request.queryParameters
             try {
