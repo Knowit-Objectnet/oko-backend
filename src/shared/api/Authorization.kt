@@ -46,7 +46,7 @@ object Authorization {
         .flatMap {
             if (role.first == Roles.Partner && it.any { event -> event.partner.id != role.second }) {
                 AuthorizationError.AccessViolationError().left()
-            } else Unit.right()
+            } else role.right()
         }
 
     fun authorizeReportPatchByPartnerId(role: Pair<Roles, Int>, reportFunc: () -> Either<ServiceError, Report>) = reportFunc()
@@ -54,6 +54,6 @@ object Authorization {
             if(role.first == Roles.Partner && it.partnerID != role.second){
                 AuthorizationError.AccessViolationError().left()
             }
-            else Unit.right()
+            else role.right()
         }
 }
