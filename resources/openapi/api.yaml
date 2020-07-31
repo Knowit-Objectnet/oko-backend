@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   description: API documentation for the OKO endpoints
   version: 1.0.1
-  title: OKO Partners
+  title: OKO API
   contact:
     email: jonas.carlsen@knowit.no
   license:
