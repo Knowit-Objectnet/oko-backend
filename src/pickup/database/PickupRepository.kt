@@ -17,6 +17,8 @@ import org.jetbrains.exposed.sql.`java-time`.datetime
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 
+
+// This is still used by the old code. Delete when refactored.
 object Pickups : IntIdTable("pickups") {
     val startTime = datetime("start_time")
     val endTime = datetime("end_time")
@@ -32,7 +34,7 @@ object PickupRepository {
         val stationID = integer("station_id").references(Stations.id)
     }
 
-    fun savePickup(pickupForm: CreatePickupForm): Either<ServiceError, Pickup> = runCatching {
+    fun savePickup(pickupForm: CreatePickupForm): Either<RepositoryError, Pickup> = runCatching {
         Pickups.insertAndGetId {
             it[stationID] = pickupForm.stationId
             it[startTime] = pickupForm.startTime
