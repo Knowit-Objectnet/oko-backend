@@ -7,6 +7,7 @@ import ombruk.backend.calendar.database.Stations
 import ombruk.backend.calendar.database.toStation
 import ombruk.backend.pickup.form.CreatePickupForm
 import ombruk.backend.pickup.form.GetPickupsForm
+import ombruk.backend.pickup.form.PatchPickupForm
 import ombruk.backend.pickup.model.Pickup
 import ombruk.backend.shared.error.RepositoryError
 import ombruk.backend.shared.error.ServiceError
@@ -44,7 +45,7 @@ object PickupRepository {
         { RepositoryError.InsertError("SQL error").left() }
     )
 
-    fun getPickupById(id: Int): Either<ServiceError, Pickup> = runCatching {
+    fun getPickupById(id: Int): Either<RepositoryError, Pickup> = runCatching {
         transaction {
             (Pickups innerJoin Stations).select { Pickups.id eq id }
                 .map { toPickup(it) }.firstOrNull()
@@ -77,9 +78,30 @@ object PickupRepository {
             }
         }.fold(
             { it.right() },
-            { ServiceError("Database query failed").left() }
+            { RepositoryError.SelectError("Database query failed").left() }
         )
     }
+
+    fun updatePickup(patchPickupForm: PatchPickupForm): Either<RepositoryError, Pickup> =
+        runCatching {
+            transaction {
+                Pickups.update( { Pickups.id eq patchPickupForm.id } ) { row ->
+                    patchPickupForm.startTime?.let {
+                        row[startTime] = it
+                    }
+                    patchPickupForm.endTime?.let {
+                        row[endTime] = it
+                    }
+                }
+            }
+        }
+            .onFailure {
+                logger.error(it.message)
+            }
+            .fold(
+                { getPickupById(patchPickupForm.id) },
+                { RepositoryError.UpdateError("Failed to update pickup $patchPickupForm").left() }
+            )
 
     private fun toPickup(row: ResultRow): Pickup {
         return Pickup(

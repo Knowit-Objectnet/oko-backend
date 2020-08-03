@@ -5,6 +5,7 @@ import ombruk.backend.pickup.form.CreatePickupForm
 import ombruk.backend.pickup.model.Pickup
 import ombruk.backend.pickup.database.PickupRepository
 import ombruk.backend.pickup.form.GetPickupsForm
+import ombruk.backend.pickup.form.PatchPickupForm
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -26,21 +27,9 @@ object PickupService : IPickupService {
     }
 
 
-    override fun updatePickup(pickup: Pickup): Boolean {
-        return try {
-            var check = 0
-            check = transaction {
-                PickupRepository.Pickups.update({ PickupRepository.Pickups.id eq pickup.id }) {
-                    it[startTime] = pickup.startTime
-                    it[endTime] = pickup.endTime
-                    it[stationID] = pickup.station.id
-                }
-            }
-            check > 0
-        } catch (e: Exception) {
-            false
-        }
-    }
+    override fun updatePickup(patchPickupForm: PatchPickupForm) =
+        PickupRepository.updatePickup(patchPickupForm)
+
 
     override fun deletePickup(pickupID: Int?, stationID: Int?): Boolean {
         if (pickupID == null && stationID == null) {

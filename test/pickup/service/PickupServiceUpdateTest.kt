@@ -6,6 +6,7 @@ import ombruk.backend.calendar.model.Station
 import ombruk.backend.partner.database.Partners
 import ombruk.backend.pickup.database.Pickups
 import ombruk.backend.pickup.form.CreatePickupForm
+import ombruk.backend.pickup.form.PatchPickupForm
 import ombruk.backend.pickup.service.PickupService
 import ombruk.backend.shared.database.initDB
 import org.jetbrains.exposed.sql.deleteAll
@@ -94,9 +95,12 @@ class PickupServiceUpdateTest {
         )
         require(initialPickup is Either.Right)
 
-        val expectedPickup = initialPickup.b.copy( station = testStation2 )
 
-        pickupService.updatePickup(expectedPickup)
+        // Update the pickup to last one hour longer.
+        val expectedPickup = initialPickup.b.copy( endTime = endTime.plusHours(1) )
+
+        val form = PatchPickupForm( expectedPickup.id, expectedPickup.startTime, expectedPickup.endTime )
+        pickupService.updatePickup(form)
 
         val actualPickup = pickupService.getPickupById(initialPickup.b.id)
         require(actualPickup is Either.Right)
