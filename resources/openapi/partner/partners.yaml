@@ -64,6 +64,10 @@ patch:
   responses:
     '200':
       description: Partner updated
+      content:
+        application/json:
+          schema:
+            $ref: '../api.yaml#/components/schemas/Partner'
     '400':
       description: Bad request body
     '401':

@@ -23,9 +23,9 @@ interface IPartnerRepository : IRepository{
      * Updates a stored partner. The id passed in the [PartnerPostForm] must already exist in the database.
      *
      * @param partner A [PartnerPostForm] object containing the information that should be updated. ID cannot be altered.
-     * @return An [Either] object consisting of a [RepositoryError] on failure and [Unit] on success.
+     * @return An [Either] object consisting of a [RepositoryError] on failure and the updated [Partner] on success.
      */
-    fun updatePartner(partner: PartnerUpdateForm): Either<RepositoryError, Unit>
+    fun updatePartner(partner: PartnerUpdateForm): Either<RepositoryError, Partner>
 
     /**
      * Deletes a partner from the database with the specified partnerID.

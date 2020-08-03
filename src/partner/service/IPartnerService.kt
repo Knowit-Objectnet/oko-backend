@@ -44,6 +44,7 @@ interface IPartnerService {
      * an existing user ID. If it does not, a [ServiceError] will be returned.
      *
      * @param partnerForm The information that should be updated. ID cannot be updated and must correspond to an existing user.
+     * @return A [ServiceError] on failure and the updated [Partner] on success.
      */
-    fun updatePartner(partnerForm: PartnerUpdateForm): Either<ServiceError, Unit>
+    fun updatePartner(partnerForm: PartnerUpdateForm): Either<ServiceError, Partner>
 }
