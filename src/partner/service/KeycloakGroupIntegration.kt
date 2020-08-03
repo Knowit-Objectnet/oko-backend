@@ -213,7 +213,7 @@ object KeycloakGroupIntegration {
                 )
                 accept(ContentType.Application.Json)
                 contentType(ContentType.Application.Json)
-                body = "{\"name\": \"$name\", \"attributes\": {\"id\": [$id]}}"
+                body = "{\"name\": \"$name\", \"attributes\": {\"GroupID\": [$id]}}"
             }
         }
     }
