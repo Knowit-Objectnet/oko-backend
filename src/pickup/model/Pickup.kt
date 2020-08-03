@@ -8,7 +8,7 @@ import java.time.LocalDateTime
 @Serializable
 data class Pickup(
     val id: Int,
-    @Serializable(with = LocalDateTimeSerializer::class) var startTime: LocalDateTime,
-    @Serializable(with = LocalDateTimeSerializer::class) var endTime: LocalDateTime,
+    @Serializable(with = LocalDateTimeSerializer::class) var startDateTime: LocalDateTime,
+    @Serializable(with = LocalDateTimeSerializer::class) var endDateTime: LocalDateTime,
     val station: Station
 )

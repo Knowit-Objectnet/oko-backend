@@ -5,8 +5,9 @@ import ombruk.backend.calendar.database.Stations
 import ombruk.backend.calendar.model.Station
 import ombruk.backend.partner.database.Partners
 import ombruk.backend.pickup.database.Pickups
-import ombruk.backend.pickup.form.CreatePickupForm
-import ombruk.backend.pickup.form.PatchPickupForm
+import ombruk.backend.pickup.form.pickup.PickupGetByIdForm
+import ombruk.backend.pickup.form.pickup.PickupPostForm
+import ombruk.backend.pickup.form.pickup.PickupUpdateForm
 import ombruk.backend.pickup.service.PickupService
 import ombruk.backend.shared.database.initDB
 import org.jetbrains.exposed.sql.deleteAll
@@ -66,7 +67,7 @@ class PickupServiceUpdateTest {
 
         @AfterClass
         @JvmStatic
-        fun cleanPartnersAndStationsFromDB(){
+        fun cleanPartnersAndStationsFromDB() {
             transaction {
                 Partners.deleteAll()
                 Stations.deleteAll()
@@ -88,21 +89,22 @@ class PickupServiceUpdateTest {
         val endTime = startTime.plusHours(1)
 
         val initialPickup = pickupService.savePickup(
-            CreatePickupForm(
-                startTime, endTime,
-                testStation.id
-            )
+            PickupPostForm(startTime, endTime, null, testStation.id)
         )
         require(initialPickup is Either.Right)
 
 
         // Update the pickup to last one hour longer.
-        val expectedPickup = initialPickup.b.copy( endTime = endTime.plusHours(1) )
+        val expectedPickup = initialPickup.b.copy(endDateTime = endTime.plusHours(1))
 
-        val form = PatchPickupForm( expectedPickup.id, expectedPickup.startTime, expectedPickup.endTime )
+        val form = PickupUpdateForm(
+            expectedPickup.id,
+            expectedPickup.startDateTime,
+            expectedPickup.endDateTime
+        )
         pickupService.updatePickup(form)
 
-        val actualPickup = pickupService.getPickupById(initialPickup.b.id)
+        val actualPickup = pickupService.getPickupById(PickupGetByIdForm(initialPickup.b.id))
         require(actualPickup is Either.Right)
 
         assertEquals(expectedPickup, actualPickup.b)

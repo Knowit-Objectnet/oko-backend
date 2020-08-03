@@ -1,15 +1,14 @@
 package pickup.service
 
 import arrow.core.Either
-import arrow.core.right
 import ombruk.backend.calendar.database.Stations
 import ombruk.backend.calendar.model.Station
 import ombruk.backend.partner.database.Partners
 import ombruk.backend.pickup.database.Pickups
 import ombruk.backend.pickup.database.Requests
-import ombruk.backend.pickup.form.CreatePickupForm
-import ombruk.backend.pickup.form.GetPickupsForm
-import ombruk.backend.pickup.model.Pickup
+import ombruk.backend.pickup.form.pickup.PickupGetByIdForm
+import ombruk.backend.pickup.form.pickup.PickupPostForm
+import ombruk.backend.pickup.form.pickup.PickupGetForm
 import ombruk.backend.pickup.service.PickupService
 import ombruk.backend.shared.database.initDB
 import ombruk.backend.shared.utils.rangeTo
@@ -98,17 +97,17 @@ class PickupServiceGetTest {
     @Test
     fun testGetPickupById() {
 
-        val createForm = CreatePickupForm(
+        val createForm = PickupPostForm(
             LocalDateTime.parse("2020-07-20T15:45:00", DateTimeFormatter.ISO_DATE_TIME),
             LocalDateTime.parse("2020-07-20T16:45:00", DateTimeFormatter.ISO_DATE_TIME),
+            null,
             testStation.id
         )
         val expectedPickup = pickupService.savePickup(createForm)
 
         // Require a right so we can get to the ID below.
         require(expectedPickup is Either.Right)
-
-        val actualPickup = pickupService.getPickupById(expectedPickup.b.id)
+        val actualPickup = pickupService.getPickupById(PickupGetByIdForm(expectedPickup.b.id))
 
         assertEquals(expectedPickup, actualPickup)
     }
@@ -125,7 +124,12 @@ class PickupServiceGetTest {
         // This will return a list of Eithers.
         val expectedPickups = dateRange.map { startDate ->
             pickupService.savePickup(
-                CreatePickupForm(startDate, startDate.plusHours(1), testStation.id)
+                PickupPostForm(
+                    startDate,
+                    startDate.plusHours(1),
+                    null,
+                    testStation.id
+                )
             ) // So we map through it and pick out the Pickups and return it
         }.map {
             require(it is Either.Right)
@@ -133,7 +137,7 @@ class PickupServiceGetTest {
         } // So expectedPickups is now a list of Pickups
 
         // 1. Give me all the pickups for this station.
-        var form = GetPickupsForm(null,null,testStation.id)
+        var form = PickupGetForm(null, null, testStation.id)
 
         var actualPickups = pickupService.getPickups(form)
 
@@ -143,7 +147,7 @@ class PickupServiceGetTest {
 
         // 2. Make sure that when we supply an invalid station we get an empty set back
 
-        form = GetPickupsForm(null,null,testStation.id + 99999)
+        form = PickupGetForm(null, null, testStation.id + 99999)
         actualPickups = pickupService.getPickups(form)
         // This should be empty
         require(actualPickups is Either.Right)
@@ -152,13 +156,17 @@ class PickupServiceGetTest {
 
         // 3. Let's see if we can supply invalid dates and get an empty set back.
 
-        form = GetPickupsForm(start.plusDays(100),null,null)
+        form = PickupGetForm(start.plusDays(100), null, null)
         actualPickups = pickupService.getPickups(form)
         require(actualPickups is Either.Right)
         assertEquals( listOf(), actualPickups.b )
 
         // 4. Let's supply valid dates that would give us our one pickup back.
-        form = GetPickupsForm(start.minusHours(1),end.plusHours(1),null)
+        form = PickupGetForm(
+            start.minusHours(1),
+            end.plusHours(1),
+            null
+        )
         actualPickups = pickupService.getPickups(form)
         require(actualPickups is Either.Right)
 

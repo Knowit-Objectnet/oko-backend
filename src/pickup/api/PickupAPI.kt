@@ -2,17 +2,17 @@ package ombruk.backend.pickup.api
 
 import arrow.core.flatMap
 import io.ktor.application.call
-import io.ktor.http.HttpStatusCode
+import io.ktor.auth.Authentication
+import io.ktor.auth.authenticate
+import io.ktor.locations.delete
 import io.ktor.locations.get
 import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.*
-import kotlinx.coroutines.runBlocking
-import ombruk.backend.pickup.form.CreatePickupForm
-import ombruk.backend.pickup.form.GetPickupsForm
-import ombruk.backend.pickup.form.PatchPickupForm
-import ombruk.backend.pickup.model.Pickup
+import ombruk.backend.pickup.form.pickup.*
 import ombruk.backend.pickup.service.IPickupService
+import ombruk.backend.shared.api.Authorization
+import ombruk.backend.shared.api.Roles
 import ombruk.backend.shared.api.generateResponse
 import ombruk.backend.shared.api.receiveCatching
 
@@ -20,45 +20,51 @@ fun Routing.pickup(pickupService: IPickupService) {
 
     route("/pickups") {
 
-        delete("/") {
-            val params = call.request.queryParameters
-            try {
-                when (pickupService.deletePickup(params["pickupID"]?.toInt(), params["stationID"]?.toInt())) {
-                    true -> call.respond(HttpStatusCode.OK)
-                    else -> call.respond(HttpStatusCode.NotFound)
-                }
-            } catch (e: NumberFormatException) {
-                e.printStackTrace()
-                call.respond(HttpStatusCode.BadRequest)
+        get<PickupGetForm> { form ->
+            form.validOrError()
+                .flatMap { pickupService.getPickups(form) }
+                .run { generateResponse(this) }
+                .also { (code, response) -> call.respond(code, response) }
+        }
+
+        get<PickupGetByIdForm> { form ->
+            form.validOrError()
+                .flatMap { pickupService.getPickupById(form) }
+                .run { generateResponse(this) }
+                .also { (code, response) -> call.respond(code, response) }
+        }
+
+        authenticate {
+            post {
+                Authorization.authorizeRole(listOf(Roles.ReuseStation, Roles.RegEmployee), call)
+                    .flatMap { receiveCatching { call.receive<PickupPostForm>() } }
+                    .flatMap { it.validOrError() }
+                    .flatMap { (pickupService.savePickup(it)) }
+                    .run { generateResponse(this) }
+                    .also { (code, response) -> call.respond(code, response) }
             }
-        }
 
-        patch("/") {
-            receiveCatching { call.receive<PatchPickupForm>() }
-                .flatMap { pickupService.updatePickup(it) }
-                .run { generateResponse(this) }
-                .also { (code, response) -> call.respond(code, response) }
-        }
 
-        post("/") {
-            receiveCatching { call.receive<CreatePickupForm>() }
-                .flatMap { pickupService.savePickup(it) }
-                .run { generateResponse(this) }
-                .also { (code, response) -> call.respond(code, response) }
-        }
-        // Location is set in the form.
-        get<GetPickupsForm> { form ->
-            pickupService.getPickups(form)
-                .run { generateResponse(this) }
-                .also { (code, response) -> call.respond(code, response) }
+            authenticate {
+                patch {
+                    Authorization.authorizeRole(listOf(Roles.ReuseStation, Roles.RegEmployee), call)
+                        .flatMap { receiveCatching { call.receive<PickupUpdateForm>() } }
+                        .flatMap { it.validOrError() }
+                        .flatMap { pickupService.updatePickup(it) }
+                        .run { generateResponse(this) }
+                        .also { (code, response) -> call.respond(code, response) }
+                }
+            }
 
-        }
 
-        get("/{pickup_id}") {
-            val id = call.parameters["pickup_id"]?.toInt() ?: throw IllegalArgumentException("Invalid pickup id")
-            when (val pickup = pickupService.getPickupById(id)) {
-                null -> call.respond(HttpStatusCode.NotFound, "Pickup id not found")
-                else -> call.respond(HttpStatusCode.OK, pickup)
+            authenticate {
+                delete<PickupDeleteForm> { form ->
+                    Authorization.authorizeRole(listOf(Roles.ReuseStation, Roles.RegEmployee), call)
+                        .flatMap { form.validOrError() }
+                        .flatMap { pickupService.deletePickup(form) }
+                        .run { generateResponse(this) }
+                        .also { (code, response) -> call.respond(code, response) }
+                }
             }
         }
     }

@@ -1,46 +1,58 @@
 package ombruk.backend.pickup.api
 
+import arrow.core.flatMap
 import io.ktor.application.call
-import io.ktor.http.HttpStatusCode
+import io.ktor.auth.authenticate
+import io.ktor.locations.KtorExperimentalLocationsAPI
+import io.ktor.locations.delete
+import io.ktor.locations.get
 import io.ktor.request.receive
 import io.ktor.response.respond
-import io.ktor.routing.Routing
-import io.ktor.routing.delete
-import io.ktor.routing.get
-import io.ktor.routing.post
-import ombruk.backend.pickup.model.Request
+import io.ktor.routing.*
+import ombruk.backend.pickup.form.request.RequestDeleteForm
+import ombruk.backend.pickup.form.request.RequestGetForm
+import ombruk.backend.pickup.form.request.RequestPostForm
 import ombruk.backend.pickup.service.IRequestService
+import ombruk.backend.shared.api.Authorization
+import ombruk.backend.shared.api.Roles
+import ombruk.backend.shared.api.generateResponse
+import ombruk.backend.shared.api.receiveCatching
 
 
+@KtorExperimentalLocationsAPI
 fun Routing.request(requestService: IRequestService) {
 
-    post("/requests/") {
-        val body = runCatching { call.receive<Request>() }.onFailure {
-            call.respond(HttpStatusCode.InternalServerError, "Failed to add request") }.getOrThrow()
-        val result = requestService.addPartnersToPickup(body)
-        call.respond(HttpStatusCode.Created, result)
-    }
+    route("/pickups") {
 
-    get("/requests/") {
-        val params = call.request.queryParameters
-        try {
-            call.respond(requestService.getRequests(params["pickupID"]?.toInt(), params["partnerID"]?.toInt()))
-        } catch (e: NumberFormatException) {
-            e.printStackTrace()
-            call.respond(HttpStatusCode.BadRequest)
-        }
-    }
-
-    delete("/requests/") {
-        val params = call.request.queryParameters
-        try {
-            when(requestService.deleteRequests(params["pickupID"]?.toInt(), params["partnerID"]?.toInt(), params["stationID"]?.toInt())) {
-                true -> call.respond(HttpStatusCode.OK)
-                else -> call.respond(HttpStatusCode.NotFound)
+        authenticate {
+            post {
+                receiveCatching { call.receive<RequestPostForm>() }.flatMap { form ->
+                    Authorization.authorizeRole(listOf(Roles.Partner), call)
+                        .flatMap { Authorization.authorizeRequestId(it, form.partnerId) }
+                        .flatMap { form.validOrError() }
+                        .flatMap { requestService.saveRequest(it) }
+                }
+                    .run { generateResponse(this) }
+                    .also { (code, response) -> call.respond(code, response) }
             }
-        } catch (e: NumberFormatException) {
-            e.printStackTrace()
-            call.respond(HttpStatusCode.BadRequest)
+        }
+
+        get<RequestGetForm> { form ->
+            form.validOrError()
+                .flatMap { requestService.getRequests(form) }
+                .run { generateResponse(this) }
+                .also { (code, response) -> call.respond(code, response) }
+        }
+
+        authenticate {
+            delete<RequestDeleteForm> { form ->
+                Authorization.authorizeRole(listOf(Roles.Partner), call)
+                    .flatMap { Authorization.authorizeRequestId(it, form.partnerId) }
+                    .flatMap { form.validOrError() }
+                    .flatMap { requestService.deleteRequest(form) }
+                    .run { generateResponse(this) }
+                    .also { (code, response) -> call.respond(code, response) }
+            }
         }
     }
 }
