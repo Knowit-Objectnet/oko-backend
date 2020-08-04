@@ -5,6 +5,7 @@ import arrow.core.left
 import arrow.core.right
 import ombruk.backend.calendar.database.Events
 import ombruk.backend.calendar.database.Stations
+import ombruk.backend.calendar.database.toStation
 import ombruk.backend.calendar.model.Event
 import ombruk.backend.shared.error.RepositoryError
 import ombruk.backend.reporting.model.Report
@@ -72,7 +73,7 @@ object ReportRepository : IReportRepository {
 
 
     override fun getReportByID(reportID: Int): Either<RepositoryError.NoRowsFound, Report> = transaction {
-        runCatching { Reports.select { Reports.id eq reportID }.map { toReport(it) }.firstOrNull() }
+        runCatching { (Reports innerJoin Stations).select { Reports.id eq reportID }.map { toReport(it) }.firstOrNull() }
             .onFailure { logger.error(it.message) }
             .fold(
                 { Either.cond(it != null, { it!! }, { RepositoryError.NoRowsFound("ID $reportID does not exist!") }) },
@@ -83,7 +84,7 @@ object ReportRepository : IReportRepository {
 
     override fun getReports(reportGetForm: ReportGetForm?): Either<RepositoryError, List<Report>> = transaction {
         runCatching {
-            val query = Reports.selectAll()
+            val query = (Reports innerJoin Stations).selectAll()
             if (reportGetForm != null) {
                 reportGetForm.eventID?.let { query.andWhere { Reports.eventID eq it } }
                 reportGetForm.stationID?.let { query.andWhere { Reports.stationID eq it } }
@@ -103,7 +104,7 @@ object ReportRepository : IReportRepository {
             resultRow[Reports.id].value,
             resultRow[Reports.eventID],
             resultRow[Reports.partnerID],
-            resultRow[Reports.stationID],
+            toStation(resultRow),
             resultRow[Reports.startDateTime],
             resultRow[Reports.endDateTime],
             resultRow[Reports.weight],

@@ -930,10 +930,8 @@ components:
           type: integer
           format: int64
           example: 2
-        stationID:
-          type: integer
-          format: int64
-          example: 4
+        station:
+          $ref: '#/components/schemas/Station'
         startDateTime:
           type: string
           format: date-time
