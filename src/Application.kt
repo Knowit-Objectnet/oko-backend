@@ -162,8 +162,8 @@ fun Application.module(testing: Boolean = false) {
     }
 
     routing {
-        events(EventService(ReportService))
-        partners(PartnerService())
+        events(EventService)
+        partners(PartnerService)
         report(ReportService)
         pickup(PickupService)
         stations(StationService)
