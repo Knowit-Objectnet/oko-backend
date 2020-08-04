@@ -20,7 +20,6 @@ object RequestService : IRequestService {
                 it[pickupID] = data.pickupID
                 it[partnerID] = data.partner.id
             }
-
         }
     }
 
