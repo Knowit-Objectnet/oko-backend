@@ -19,16 +19,26 @@ object PickupService : IPickupService {
 
     override fun getPickups(pickupQueryForm: PickupGetForm) = PickupRepository.getPickups(pickupQueryForm)
 
-    override fun updatePickup(pickupUpdateForm: PickupUpdateForm) = transaction{
+    override fun updatePickup(pickupUpdateForm: PickupUpdateForm) = transaction {
+        // if we have a partner....
         pickupUpdateForm.chosenPartnerId?.let {
             var pickup: Pickup? = null
             PickupRepository.updatePickup(pickupUpdateForm)
                 .map {
                     pickup = it
-                    val eventPostForm = EventPostForm(it.startDateTime, it.endDateTime, it.station.id, it.chosenPartner!!.id)
+                    val eventPostForm = EventPostForm(
+                        it.startDateTime, it.endDateTime,
+                        it.station.id,
+                        // chosePartner is always set or we wouldn't be here.
+                        it.chosenPartner!!.id
+                    )
                     EventService.saveEvent(eventPostForm)
                 }
-                .fold({rollback(); it.left()}, {pickup!!.right()})
+                .fold(
+                    // failure, we rollback and set a left.
+                    { rollback(); it.left() },
+                    { pickup!!.right() }
+                )
         } ?: PickupRepository.updatePickup(pickupUpdateForm)
     }
 
