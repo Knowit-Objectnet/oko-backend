@@ -14,6 +14,3 @@ properties:
     example: example@example.com
 required:
   - name
-  - description
-  - phone
-  - email

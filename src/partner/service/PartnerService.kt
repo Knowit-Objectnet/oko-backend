@@ -37,11 +37,10 @@ object PartnerService : IPartnerService {
     }
 
 
-    override fun getPartnerById(id: Int) = transaction { PartnerRepository.getPartnerByID(id) }
+    override fun getPartnerById(id: Int) = PartnerRepository.getPartnerByID(id)
 
 
-    override fun getPartners(partnerGetForm: PartnerGetForm) =
-        transaction { PartnerRepository.getPartners(partnerGetForm) }
+    override fun getPartners(partnerGetForm: PartnerGetForm) = PartnerRepository.getPartners(partnerGetForm)
 
 
     @KtorExperimentalAPI
