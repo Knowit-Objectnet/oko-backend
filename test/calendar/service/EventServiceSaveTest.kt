@@ -27,7 +27,6 @@ import kotlin.test.assertEquals
 
 class EventServiceSaveTest {
     companion object {
-        lateinit var eventService: EventService
         lateinit var testPartner: Partner
         lateinit var testPartner2: Partner
         lateinit var testStation: Station
@@ -97,7 +96,6 @@ class EventServiceSaveTest {
                 )
             }
 
-            eventService = EventService(ReportService)
         }
         @AfterClass
         @JvmStatic
@@ -121,7 +119,7 @@ class EventServiceSaveTest {
 
     @Test
     fun testSaveEvent() {
-        val expectedEvent = eventService.saveEvent(
+        val expectedEvent = EventService.saveEvent(
             EventPostForm(
                 startDateTime = LocalDateTime.parse("2020-07-06T15:48:06", DateTimeFormatter.ISO_DATE_TIME),
                 endDateTime = LocalDateTime.parse("2020-07-06T16:48:06", DateTimeFormatter.ISO_DATE_TIME),
@@ -131,7 +129,7 @@ class EventServiceSaveTest {
         )
         require(expectedEvent is Either.Right)
 
-        val actualEvent = eventService.getEventByID(expectedEvent.b.id)
+        val actualEvent = EventService.getEventByID(expectedEvent.b.id)
 
         assertEquals(expectedEvent, actualEvent)
     }
@@ -150,9 +148,9 @@ class EventServiceSaveTest {
             )
         )
 
-        eventService.saveEvent(createForm)
+        EventService.saveEvent(createForm)
 
-        val actualEvents = eventService.getEvents()
+        val actualEvents = EventService.getEvents()
         require(actualEvents is Either.Right)
 
         val firstId = actualEvents.b.first().id
