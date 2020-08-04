@@ -18,9 +18,9 @@ import org.slf4j.LoggerFactory
 
 object Partners : IntIdTable("partners") {
     val name = varchar("name", 100)
-    val description = varchar("description", 100)
-    val phone = varchar("phone", 20)
-    val email = varchar("email", 30)
+    val description = varchar("description", 100).nullable()
+    val phone = varchar("phone", 20).nullable()
+    val email = varchar("email", 30).nullable()
 }
 
 object PartnerRepository : IPartnerRepository {
@@ -77,7 +77,7 @@ object PartnerRepository : IPartnerRepository {
 
 
     override fun getPartnerByID(partnerID: Int): Either<RepositoryError.NoRowsFound, Partner> = runCatching {
-        Partners.select { Partners.id eq partnerID }.map { toPartner(it) }
+        transaction { Partners.select { Partners.id eq partnerID }.map { toPartner(it) } }
     }
         .onFailure { logger.error(it.message) }
         .fold(
@@ -93,9 +93,11 @@ object PartnerRepository : IPartnerRepository {
 
     override fun getPartners(partnerGetForm: PartnerGetForm): Either<RepositoryError.SelectError, List<Partner>> =
         runCatching {
-            val query = Partners.selectAll()
-            partnerGetForm.name?.let { query.andWhere { Partners.name eq it } }
-            query.mapNotNull { toPartner(it) }
+            transaction {
+                val query = Partners.selectAll()
+                partnerGetForm.name?.let { query.andWhere { Partners.name eq it } }
+                query.mapNotNull { toPartner(it) }
+            }
         }
             .onFailure { logger.error(it.message) }
             .fold({ it.right() }, { RepositoryError.SelectError(it.message).left() })

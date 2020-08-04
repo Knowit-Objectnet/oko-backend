@@ -80,6 +80,12 @@ paths:
         - partners
       summary: Gets all partners
       operationId: getPartners
+      parameters:
+        - in: query
+          name: name
+          schema:
+            type: string
+            example: Fretex
       responses:
         '200':
           description: Returns all partners
@@ -874,9 +880,6 @@ components:
           example: example@example.com
       required:
         - name
-        - description
-        - phone
-        - email
     Partner:
       type: object
       properties:
