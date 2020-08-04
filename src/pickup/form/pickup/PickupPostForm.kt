@@ -8,6 +8,7 @@ import ombruk.backend.shared.form.IForm
 import ombruk.backend.shared.model.serializer.LocalDateTimeSerializer
 import ombruk.backend.shared.utils.validation.isGreaterThanStartDateTime
 import ombruk.backend.shared.utils.validation.isInRepository
+import ombruk.backend.shared.utils.validation.isLessThanEndDateTime
 import ombruk.backend.shared.utils.validation.runCatchingValidation
 import org.valiktor.functions.isGreaterThan
 import org.valiktor.validate
@@ -25,7 +26,7 @@ data class PickupPostForm (
         validate(this) {
             validate(PickupPostForm::stationId).isGreaterThan(0)
             validate(PickupPostForm::stationId).isInRepository(StationRepository)
-            validate(PickupPostForm::startDateTime).isGreaterThanStartDateTime(endDateTime)
+            validate(PickupPostForm::startDateTime).isLessThanEndDateTime(endDateTime)
         }
         }
     }

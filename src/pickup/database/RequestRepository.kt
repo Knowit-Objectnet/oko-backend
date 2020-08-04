@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import io.ktor.locations.KtorExperimentalLocationsAPI
+import ombruk.backend.calendar.database.Stations
 import ombruk.backend.partner.database.Partners
 import ombruk.backend.partner.database.toPartner
 import ombruk.backend.pickup.form.request.RequestDeleteForm
@@ -20,17 +21,20 @@ object Requests : Table("requests") {
     val partnerID = integer("partner_id").references(Partners.id)
 }
 
-object RequestRepository: IRequestRepository {
+object RequestRepository : IRequestRepository {
 
     private val logger = LoggerFactory.getLogger("ombruk.backend.service.RequestRepository")
 
     @KtorExperimentalLocationsAPI
     override fun getRequests(requestGetForm: RequestGetForm?) = runCatching {
         transaction {
-            val query = (Requests innerJoin Partners innerJoin Pickups).selectAll()
+            val query = (Requests innerJoin Partners)
+                .innerJoin(Pickups, { Requests.pickupID }, { Pickups.id })
+                .innerJoin(Stations)
+                .selectAll()
             if (requestGetForm != null) {
-                requestGetForm.pickupId?.let { query.andWhere { Requests.partnerID eq it } }
-                requestGetForm.partnerId?.let { query.andWhere { Requests.pickupID eq it } }
+                requestGetForm.pickupId?.let { query.andWhere { Requests.pickupID eq it } }
+                requestGetForm.partnerId?.let { query.andWhere { Requests.partnerID eq it } }
             }
             query.map { toRequest(it) }
         }
@@ -41,10 +45,14 @@ object RequestRepository: IRequestRepository {
 
     @KtorExperimentalLocationsAPI
     private fun getSinglePickup(pickupId: Int, partnerId: Int) = getRequests(RequestGetForm(pickupId, partnerId))
-        .map { it.firstOrNull() }
         .fold(
             { it.left() },
-            { Either.cond(it != null, { it!! }, { RepositoryError.SelectError("Failed to find request") }) }
+            {
+                println(it.isEmpty()); Either.cond(
+                it.isNotEmpty(),
+                { it.first() },
+                { RepositoryError.SelectError("Failed to find request") })
+            }
         )
 
 
@@ -74,6 +82,8 @@ object RequestRepository: IRequestRepository {
 }
 
 fun toRequest(row: ResultRow): Request {
+    println("HELLO HI THERE")
+    println(row)
     return Request(
         toPickup(row),
         toPartner(row)

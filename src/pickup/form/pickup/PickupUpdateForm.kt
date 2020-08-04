@@ -28,8 +28,6 @@ data class PickupUpdateForm (
     override fun validOrError(): Either<ValidationError, PickupUpdateForm> = runCatchingValidation {
         validate(this) {
             validate(PickupUpdateForm::id).isGreaterThan(0)
-            if (startDateTime == null) validate(PickupUpdateForm::endDateTime).isNotNull()
-            if (endDateTime == null) validate(PickupUpdateForm::startDateTime).isNotNull()
 
             chosenPartnerID?.let {
                 validate(PickupUpdateForm::chosenPartnerID).isGreaterThan(0)

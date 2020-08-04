@@ -22,7 +22,7 @@ import ombruk.backend.shared.api.receiveCatching
 @KtorExperimentalLocationsAPI
 fun Routing.request(requestService: IRequestService) {
 
-    route("/pickups") {
+    route("/requests") {
 
         authenticate {
             post {
@@ -36,6 +36,7 @@ fun Routing.request(requestService: IRequestService) {
                     .also { (code, response) -> call.respond(code, response) }
             }
         }
+
 
         get<RequestGetForm> { form ->
             form.validOrError()

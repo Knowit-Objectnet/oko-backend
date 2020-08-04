@@ -61,12 +61,14 @@ object Authorization {
                 } else role.right()
             }
 
-    fun authorizeRequestId(role: Pair<Roles, Int>, partnerId: Int) =
-        when (partnerId == role.second) {
+    fun authorizeRequestId(role: Pair<Roles, Int>, partnerId: Int): Either<AuthorizationError, Pair<Roles, Int>> {
+        println("hello")
+        return when (partnerId == role.second) {
             true -> role.right()
             else -> AuthorizationError.AccessViolationError("Provided ID $partnerId does not match your ID ${role.second}")
                 .left()
         }
+    }
 
     fun authorizePickupId(role: Pair<Roles, Int>, partnerId: Int) = if (role.first == Roles.Partner) {
         when (role.second == partnerId) {

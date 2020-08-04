@@ -7,6 +7,7 @@ import io.ktor.locations.KtorExperimentalLocationsAPI
 import ombruk.backend.calendar.database.Stations
 import ombruk.backend.calendar.database.toStation
 import ombruk.backend.partner.database.Partners
+import ombruk.backend.partner.database.toPartner
 import ombruk.backend.pickup.form.pickup.PickupPostForm
 import ombruk.backend.pickup.form.pickup.PickupGetForm
 import ombruk.backend.pickup.form.pickup.PickupUpdateForm
@@ -47,7 +48,10 @@ object PickupRepository : IRepository {
 
 
     fun getPickupById(id: Int): Either<RepositoryError, Pickup> = runCatching {
-        transaction { (Pickups innerJoin Stations).select { Pickups.id eq id }.map { toPickup(it) }.firstOrNull() }
+        transaction {
+            (Pickups innerJoin Stations leftJoin Partners).select { Pickups.id eq id }.map { toPickup(it) }
+                .firstOrNull()
+        }
     }
         .onFailure { logger.error(it.message) }
         .fold(
@@ -63,7 +67,7 @@ object PickupRepository : IRepository {
             pickupQueryForm.stationId?.let { query.andWhere { Pickups.stationID eq it } }
             pickupQueryForm.endDateTime?.let { query.andWhere { Pickups.startTime lessEq it } }
             pickupQueryForm.startDateTime?.let { query.andWhere { Pickups.startTime greaterEq it } }
-            pickupQueryForm.partnerId?.let {query.andWhere { Pickups.chosenPartnerId eq it }}
+            pickupQueryForm.partnerId?.let { query.andWhere { Pickups.chosenPartnerId eq it } }
             query.map { toPickup(it) }
         }
     }
@@ -101,6 +105,7 @@ fun toPickup(row: ResultRow): Pickup {
         row[Pickups.id].value,
         row[Pickups.startTime],
         row[Pickups.endTime],
-        toStation(row)
+        toStation(row),
+        row[Pickups.chosenPartnerId]?.let { toPartner(row) }
     )
 }
