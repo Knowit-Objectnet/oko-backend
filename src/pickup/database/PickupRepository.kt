@@ -14,7 +14,6 @@ import ombruk.backend.pickup.form.pickup.PickupUpdateForm
 import ombruk.backend.pickup.model.Pickup
 import ombruk.backend.shared.database.IRepository
 import ombruk.backend.shared.error.RepositoryError
-import ombruk.backend.shared.error.ServiceError
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.`java-time`.datetime
@@ -32,7 +31,7 @@ object Pickups : IntIdTable("pickups") {
 object PickupRepository : IPickupRepository, IRepository {
     private val logger = LoggerFactory.getLogger("ombruk.backend.service.PickupRepository")
 
-    fun savePickup(pickupPostForm: PickupPostForm): Either<RepositoryError, Pickup> = runCatching {
+    override fun savePickup(pickupPostForm: PickupPostForm): Either<RepositoryError, Pickup> = runCatching {
         transaction {
             Pickups.insertAndGetId {
                 it[stationID] = pickupPostForm.stationId
@@ -48,7 +47,7 @@ object PickupRepository : IPickupRepository, IRepository {
             { RepositoryError.InsertError("SQL error").left() })
 
 
-    fun getPickupById(id: Int): Either<RepositoryError, Pickup> = runCatching {
+    override fun getPickupById(id: Int): Either<RepositoryError, Pickup> = runCatching {
         transaction {
             (Pickups innerJoin Stations leftJoin Partners)
                 .select { Pickups.id eq id }
@@ -68,14 +67,16 @@ object PickupRepository : IPickupRepository, IRepository {
 
     // Note that the start- and end-times only look at the startTime of the pickup.
     @KtorExperimentalLocationsAPI
-    fun getPickups(pickupQueryForm: PickupGetForm): Either<ServiceError, List<Pickup>> =
+    override fun getPickups(pickupGetForm: PickupGetForm?) =
         runCatching {
             transaction {
                 val query = (Pickups innerJoin Stations leftJoin Partners).selectAll()
-                pickupQueryForm.stationId?.let { query.andWhere { Pickups.stationID eq it } }
-                pickupQueryForm.endDateTime?.let { query.andWhere { Pickups.startTime lessEq it } }
-                pickupQueryForm.startDateTime?.let { query.andWhere { Pickups.startTime greaterEq it } }
-                pickupQueryForm.partnerId?.let { query.andWhere { Pickups.chosenPartnerId eq it } }
+                pickupGetForm?.let {
+                    pickupGetForm.stationId?.let { query.andWhere { Pickups.stationID eq it } }
+                    pickupGetForm.endDateTime?.let { query.andWhere { Pickups.startTime lessEq it } }
+                    pickupGetForm.startDateTime?.let { query.andWhere { Pickups.startTime greaterEq it } }
+                    pickupGetForm.partnerId?.let { query.andWhere { Pickups.chosenPartnerId eq it } }
+                }
                 query.map { toPickup(it) }
             }
         }
@@ -88,7 +89,7 @@ object PickupRepository : IPickupRepository, IRepository {
             )
 
 
-    fun updatePickup(pickupUpdateForm: PickupUpdateForm): Either<RepositoryError, Pickup> =
+    override fun updatePickup(pickupUpdateForm: PickupUpdateForm): Either<RepositoryError, Pickup> =
         runCatching {
             transaction {
                 Pickups.update({ Pickups.id eq pickupUpdateForm.id }) { row ->
@@ -106,7 +107,7 @@ object PickupRepository : IPickupRepository, IRepository {
             )
 
 
-    fun deletePickup(id: Int) = runCatching {
+    override fun deletePickup(id: Int) = runCatching {
         transaction {
             Pickups.deleteWhere { Pickups.id eq id }
         }
@@ -116,6 +117,7 @@ object PickupRepository : IPickupRepository, IRepository {
             { id.right() },
             { RepositoryError.DeleteError("Failed to delete pickup with ID $id").left() }
         )
+
 
     override fun exists(id: Int) = transaction {
         Pickups.select { Pickups.id eq id }.count() >= 1

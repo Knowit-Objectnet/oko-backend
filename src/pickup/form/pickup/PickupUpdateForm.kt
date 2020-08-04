@@ -32,7 +32,8 @@ data class PickupUpdateForm (
                 validate(PickupUpdateForm::chosenPartnerId).isGreaterThan(0)
                 validate(PickupUpdateForm::chosenPartnerId).isInRepository(PartnerRepository)
             }
-            if(startDateTime != null || endDateTime != null) {
+            if(startDateTime != null || endDateTime != null) {      // Only do this db call if there's a chance of updating.
+                // This essentially ensures that the db won't throw an exception due to broken date constraints (start > end etc).
                 PickupRepository.getPickupById(id).map { pickup ->
                     val newStartDateTime = startDateTime ?: pickup.startDateTime
                     val newEndDateTime = endDateTime ?: pickup.endDateTime

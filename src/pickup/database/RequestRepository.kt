@@ -17,7 +17,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 
 /*
-    A request is just a pickup that has been assigned a partner.
+    Requests are associated to a specific pickup. Each request is a specific partner that wants to perform the pickup.
  */
 
 object Requests : Table("requests") {
@@ -34,10 +34,10 @@ object RequestRepository : IRequestRepository {
         runCatching {
             transaction {
                 val query = (Requests innerJoin Partners)
-                    .innerJoin(Pickups, { Requests.pickupID }, { Pickups.id })
+                    .innerJoin(Pickups, { Requests.pickupID }, { Pickups.id })  // have to specify keys for this join, Exposed messes it up.
                     .innerJoin(Stations)
                     .selectAll()
-                if (requestGetForm != null) {
+                requestGetForm?.let {   // add constraints if needed.
                     requestGetForm.pickupId?.let { query.andWhere { Requests.pickupID eq it } }
                     requestGetForm.partnerId?.let { query.andWhere { Requests.partnerID eq it } }
                 }
@@ -55,6 +55,7 @@ object RequestRepository : IRequestRepository {
         getRequests(RequestGetForm(pickupId, partnerId))
             .fold(
                 { it.left() },
+                // If result is empty array, return 404.
                 { Either.cond(it.isNotEmpty(), { it.first() },
                     { RepositoryError.NoRowsFound("Failed to find request") })
                 }

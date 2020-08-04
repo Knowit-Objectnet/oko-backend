@@ -13,5 +13,5 @@ data class Pickup(
     @Serializable(with = LocalDateTimeSerializer::class) var endDateTime: LocalDateTime,
     val description: String? = null,
     val station: Station,
-    val chosenPartner: Partner? = null
+    val chosenPartner: Partner? = null  // if not null, the pickup has been "fulfilled".
 )

@@ -12,8 +12,9 @@ import org.valiktor.validate
 @KtorExperimentalLocationsAPI
 @Location("/")
 data class RequestGetForm (
-    val pickupId: Int? = null,
-    val partnerId: Int? = null
+    // if none are set, get all requests.
+    val pickupId: Int? = null,  // if set, get all requests for a pickup.
+    val partnerId: Int? = null  // if set, get all requests for a partner
 ) : IForm<RequestGetForm> {
     override fun validOrError(): Either<ValidationError, RequestGetForm> = runCatchingValidation{
         validate(this) {

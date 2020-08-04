@@ -14,33 +14,35 @@ object PickupService : IPickupService {
 
     override fun savePickup(pickupPostForm: PickupPostForm) = PickupRepository.savePickup(pickupPostForm)
 
+
     override fun getPickupById(pickupGetByIdForm: PickupGetByIdForm) =
         PickupRepository.getPickupById(pickupGetByIdForm.id)
 
-    override fun getPickups(pickupQueryForm: PickupGetForm) = PickupRepository.getPickups(pickupQueryForm)
+
+    override fun getPickups(pickupQueryForm: PickupGetForm?) = PickupRepository.getPickups(pickupQueryForm)
+
 
     override fun updatePickup(pickupUpdateForm: PickupUpdateForm) = transaction {
-        // if we have a partner....
-        pickupUpdateForm.chosenPartnerId?.let {
-            var pickup: Pickup? = null
+        pickupUpdateForm.chosenPartnerId?.let { // partner has been chosen and pickup has been filled. Create event.
+            var pickup: Pickup? = null      // used for temp storage
             PickupRepository.updatePickup(pickupUpdateForm)
                 .map {
                     pickup = it
                     val eventPostForm = EventPostForm(
                         it.startDateTime, it.endDateTime,
                         it.station.id,
-                        // chosePartner is always set or we wouldn't be here.
-                        it.chosenPartner!!.id
+                        it.chosenPartner!!.id // chosePartner is always set or we wouldn't be here.
                     )
-                    EventService.saveEvent(eventPostForm)
+                    EventService.saveEvent(eventPostForm)   //Creates the event
                 }
                 .fold(
                     // failure, we rollback and set a left.
                     { rollback(); it.left() },
-                    { pickup!!.right() }
+                    { pickup!!.right() }    // is never null on right.
                 )
-        } ?: PickupRepository.updatePickup(pickupUpdateForm)
+        } ?: PickupRepository.updatePickup(pickupUpdateForm)    // pickup is not fulfilled, only updated.
     }
+
 
     override fun deletePickup(pickupDeleteForm: PickupDeleteForm) = PickupRepository.deletePickup(pickupDeleteForm.id)
 
