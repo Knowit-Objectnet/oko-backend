@@ -22,13 +22,13 @@ get:
       schema:
         type: string
         format: date-time
-      example: 2020-07-13T15:00:00Z
+      example: "2020-07-13T15:00:00Z"
     - in: query
       name: toDate
       schema:
         type: string
         format: date-time
-      example: 2020-07-20T15:00:00Z
+      example: "2020-07-20T15:00:00Z"
     - in: query
       name: partnerId
       schema:
@@ -147,13 +147,13 @@ delete:
       schema:
         type: string
         format: date-time
-      example: 2020-07-13T15:00:00Z
+      example: "2020-07-13T15:00:00Z"
     - in: query
       name: toDate
       schema:
         type: string
         format: date-time
-      example: 2020-07-20T15:00:00Z
+      example: "2020-07-20T15:00:00Z"
     - in: query
       name: partnerId
       schema:

@@ -1,0 +1,21 @@
+type: object
+properties:
+  id:
+    type: integer
+    format: int64
+    example: 5
+  startDateTime:
+    type: string
+    format: date-time
+    example: "2020-07-13T15:00:00Z"
+  endDateTime:
+    type: string
+    format: date-time
+    example: "2020-07-20T15:00:00Z"
+  description:
+    type: string
+    example: Hey come pick up some furniture
+  station:
+    $ref: "../../api.yaml#/components/schemas/Station"
+  partner:
+    $ref: "../../api.yaml#/components/schemas/Partner"

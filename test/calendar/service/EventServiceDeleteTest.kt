@@ -28,7 +28,6 @@ import kotlin.test.assertEquals
 
 class EventServiceDeleteTest {
     companion object {
-        lateinit var eventService: EventService
         lateinit var testPartner: Partner
         lateinit var testPartner2: Partner
         lateinit var testStation: Station
@@ -98,7 +97,6 @@ class EventServiceDeleteTest {
                 )
             }
 
-            eventService = EventService(ReportService)
         }
         @AfterClass
         @JvmStatic
@@ -122,7 +120,7 @@ class EventServiceDeleteTest {
     @Test
     fun testDeleteEventByid() {
 
-        val eventToDelete = eventService.saveEvent(
+        val eventToDelete = EventService.saveEvent(
             EventPostForm(
                 LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-07-27T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
@@ -131,7 +129,7 @@ class EventServiceDeleteTest {
             )
         )
 
-        val eventNotToDelete = eventService.saveEvent(
+        val eventNotToDelete = EventService.saveEvent(
             EventPostForm(
                 LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-07-27T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
@@ -145,9 +143,9 @@ class EventServiceDeleteTest {
 
         val deleteForm = EventDeleteForm(eventToDelete.b.id)
 
-        assert(eventService.deleteEvent(deleteForm) is Either.Right)
+        assert(EventService.deleteEvent(deleteForm) is Either.Right)
 
-        val eventLeftAfterDelete = eventService.getEvents()
+        val eventLeftAfterDelete = EventService.getEvents()
         require(eventLeftAfterDelete is Either.Right)
 
         assertEquals(eventNotToDelete.b, eventLeftAfterDelete.b.first())
@@ -157,7 +155,7 @@ class EventServiceDeleteTest {
     @Test
     fun testDeleteEventByRecurrenceRuleId() {
 
-        val eventToDelete = eventService.saveEvent(
+        val eventToDelete = EventService.saveEvent(
             EventPostForm(
                 LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-07-27T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
@@ -167,7 +165,7 @@ class EventServiceDeleteTest {
             )
         )
 
-        val eventNotToDelete = eventService.saveEvent(
+        val eventNotToDelete = EventService.saveEvent(
             EventPostForm(
                 LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-07-27T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
@@ -182,9 +180,9 @@ class EventServiceDeleteTest {
         val deleteForm =
             EventDeleteForm(recurrenceRuleId = eventToDelete.b.recurrenceRule!!.id)
 
-        assert(eventService.deleteEvent(deleteForm) is Either.Right)
+        assert(EventService.deleteEvent(deleteForm) is Either.Right)
 
-        val eventLeftAfterDelete = eventService.getEvents()
+        val eventLeftAfterDelete = EventService.getEvents()
         require(eventLeftAfterDelete is Either.Right)
 
         assertEquals(eventNotToDelete.b, eventLeftAfterDelete.b.first())
@@ -206,11 +204,11 @@ class EventServiceDeleteTest {
             RecurrenceRule(count = 7)
         )
 
-        val recurrenceRuleId = eventService.saveEvent(createForm).map { it.recurrenceRule!!.id }
+        val recurrenceRuleId = EventService.saveEvent(createForm).map { it.recurrenceRule!!.id }
         require(recurrenceRuleId is Either.Right)
 
         val eventNotToDelete = dateRange.map {
-            eventService.saveEvent(
+            EventService.saveEvent(
                 EventPostForm(
                     it,
                     it.plusHours(1),
@@ -227,9 +225,9 @@ class EventServiceDeleteTest {
             recurrenceRuleId = recurrenceRuleId.b
         )
 
-        assert(eventService.deleteEvent(deleteForm) is Either.Right)
+        assert(EventService.deleteEvent(deleteForm) is Either.Right)
 
-        val eventsLeftAfterDelete = eventService.getEvents()
+        val eventsLeftAfterDelete = EventService.getEvents()
         require(eventsLeftAfterDelete is Either.Right)
 
         assertEquals(eventNotToDelete, eventsLeftAfterDelete.b)

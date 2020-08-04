@@ -3,11 +3,11 @@ properties:
   startDateTime:
     type: string
     format: date-time
-    example: 2020-07-13T15:00:00Z
+    example: "2020-07-13T15:00:00Z"
   endDateTime:
     type: string
     format: date-time
-    example: 2020-07-20T15:00:00Z
+    example: "2020-07-20T15:00:00Z"
   partnerId:
     type: integer
     format: int64

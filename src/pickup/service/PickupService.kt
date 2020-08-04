@@ -1,94 +1,50 @@
 package ombruk.backend.pickup.service
 
-import ombruk.backend.pickup.database.Pickups
-import ombruk.backend.pickup.database.Requests
-import ombruk.backend.calendar.database.Stations
-import ombruk.backend.calendar.database.toStation
-import ombruk.backend.pickup.form.CreatePickupForm
+import arrow.core.left
+import arrow.core.right
+import ombruk.backend.calendar.form.event.EventPostForm
+import ombruk.backend.calendar.service.EventService
+import ombruk.backend.pickup.database.PickupRepository
+import ombruk.backend.pickup.form.pickup.*
 import ombruk.backend.pickup.model.Pickup
-import ombruk.backend.calendar.model.Station
-import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 
 
 object PickupService : IPickupService {
 
-    override fun savePickup(form: CreatePickupForm): Pickup {
-        val id = transaction {
-            Pickups.insertAndGetId {
-                it[stationID] = form.stationId
-                it[startTime] = form.startTime
-                it[endTime] = form.endTime
-            }
-        }.value
+    override fun savePickup(pickupPostForm: PickupPostForm) = PickupRepository.savePickup(pickupPostForm)
 
-        return getPickupById(id)!!
-    }
 
-    override fun getPickupById(id: Int): Pickup? {
-        return transaction {
-            (Pickups innerJoin Stations).select {
-                Pickups.id eq id
-            }.map { toPickup(it) }.firstOrNull()
-        }
-    }
+    override fun getPickupById(pickupGetByIdForm: PickupGetByIdForm) =
+        PickupRepository.getPickupById(pickupGetByIdForm.id)
 
-    override fun getPickups(stationID: Int?): List<Pickup>{
-        return transaction{
-            val query = (Pickups innerJoin Stations).selectAll()
-            stationID?.let{
-                query.andWhere { Pickups.stationID eq it }
-            }
-            query.map { toPickup(it) }
-        }
-    }
 
-    override fun updatePickup(pickup: Pickup): Boolean{
-            return try {
-                var check = 0
-                check = transaction {
-                    Pickups.update({ Pickups.id eq pickup.id }) {
-                    it[startTime] = pickup.startTime
-                    it[endTime] = pickup.endTime
-                    it[stationID] = pickup.station.id
-                }}
-                check>0
-            } catch(e: Exception){
-                false
-            }
-    }
+    override fun getPickups(pickupQueryForm: PickupGetForm?) = PickupRepository.getPickups(pickupQueryForm)
 
-    override fun deletePickup (pickupID: Int?, stationID: Int?): Boolean{
-        if (pickupID == null && stationID == null){
-            throw IllegalArgumentException("Must pass in an argument")
-        }
 
-        return try {
-            var count =0
-            pickupID?.let {
-                count = transaction {
-                    Requests.deleteWhere { Requests.pickupID eq pickupID }
-                    Pickups.deleteWhere { Pickups.id eq pickupID}
+    override fun updatePickup(pickupUpdateForm: PickupUpdateForm) = transaction {
+        pickupUpdateForm.chosenPartnerId?.let { // partner has been chosen and pickup has been filled. Create event.
+            var pickup: Pickup? = null      // used for temp storage
+            PickupRepository.updatePickup(pickupUpdateForm)
+                .map {
+                    pickup = it
+                    val eventPostForm = EventPostForm(
+                        it.startDateTime, it.endDateTime,
+                        it.station.id,
+                        it.chosenPartner!!.id // chosePartner is always set or we wouldn't be here.
+                    )
+                    EventService.saveEvent(eventPostForm)   //Creates the event
                 }
-            }
-            stationID?.let {
-                count = transaction {
-                    RequestService.deleteRequests(null, null, stationID)
-                    Pickups.deleteWhere { Pickups.stationID eq stationID }
-                }
-            }
-            count > 0
-        } catch(e: Exception){
-            false
-        }
+                .fold(
+                    // failure, we rollback and set a left.
+                    { rollback(); it.left() },
+                    { pickup!!.right() }    // is never null on right.
+                )
+        } ?: PickupRepository.updatePickup(pickupUpdateForm)    // pickup is not fulfilled, only updated.
     }
 
-    private fun toPickup (row: ResultRow): Pickup {
-        return Pickup(
-            row[Pickups.id].value,
-            row[Pickups.startTime],
-            row[Pickups.endTime],
-            toStation(row)
-        )
-    }
+
+    override fun deletePickup(pickupDeleteForm: PickupDeleteForm) = PickupRepository.deletePickup(pickupDeleteForm.id)
+
+
 }
