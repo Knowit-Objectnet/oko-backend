@@ -12,9 +12,7 @@ object RequestService : IRequestService {
     override fun addPartnersToPickup(data: Request) {
         val check =
             getRequests(data.pickupID, data.partner.id)
-        if (check.isNotEmpty()) {
-            throw IllegalArgumentException("This request already exists")
-        }
+        if (check.isNotEmpty()) { throw IllegalArgumentException("This request already exists") }
         return transaction {
             Requests.insert {
                 it[pickupID] = data.pickupID
