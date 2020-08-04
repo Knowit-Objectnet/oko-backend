@@ -8,18 +8,14 @@ properties:
     type: string
     format: date-time
     example: "2020-07-20T15:00:00Z"
-  partnerId:
-    type: integer
-    format: int64
-    example: 1
+  description:
+    type: string
+    example: Hey come pick up some furniture
   stationId:
     type: integer
     format: int64
     example: 1
-  recurrenceRule:
-    $ref: '../../api.yaml#/components/schemas/RecurrenceRulePost'
 required:
   - startDateTime
   - endDateTime
-  - partnerId
   - stationId

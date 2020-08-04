@@ -11,6 +11,7 @@ data class Pickup(
     val id: Int,
     @Serializable(with = LocalDateTimeSerializer::class) var startDateTime: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class) var endDateTime: LocalDateTime,
+    val description: String? = null,
     val station: Station,
     val chosenPartner: Partner? = null
 )

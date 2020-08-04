@@ -30,7 +30,7 @@ data class EventUpdateForm(
                 val newStartDateTime = startDateTime ?: event.startDateTime
                 val newEndDateTime = endDateTime ?: event.endDateTime
                 validate(EventUpdateForm::startDateTime).isLessThanEndDateTime(newEndDateTime)
-                validate(EventUpdateForm::startDateTime).isGreaterThanStartDateTime(newStartDateTime)
+                validate(EventUpdateForm::endDateTime).isGreaterThanStartDateTime(newStartDateTime)
             }
         }
     }

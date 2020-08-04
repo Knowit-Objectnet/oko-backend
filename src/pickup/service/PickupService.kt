@@ -20,7 +20,7 @@ object PickupService : IPickupService {
     override fun getPickups(pickupQueryForm: PickupGetForm) = PickupRepository.getPickups(pickupQueryForm)
 
     override fun updatePickup(pickupUpdateForm: PickupUpdateForm) = transaction{
-        pickupUpdateForm.chosenPartnerID?.let {
+        pickupUpdateForm.chosenPartnerId?.let {
             var pickup: Pickup? = null
             PickupRepository.updatePickup(pickupUpdateForm)
                 .map {

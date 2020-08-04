@@ -3,7 +3,7 @@ properties:
   id:
     type: integer
     format: int64
-    example: 1
+    example: 5
   startDateTime:
     type: string
     format: date-time
@@ -12,9 +12,10 @@ properties:
     type: string
     format: date-time
     example: "2020-07-20T15:00:00Z"
-  partnerId:
-    $ref: '../../api.yaml#/components/schemas/Partner'
-  stationId:
-    $ref: '../../api.yaml#/components/schemas/Station'
-  recurrenceRule:
-    $ref: '../../api.yaml#/components/schemas/RecurrenceRule'
+  description:
+    type: string
+    example: Hey come pick up some furniture
+  station:
+    $ref: "../../api.yaml#/components/schemas/Station"
+  partner:
+    $ref: "../../api.yaml#/components/schemas/Partner"

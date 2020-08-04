@@ -1,5 +1,9 @@
 type: object
 properties:
+  id:
+    type: integer
+    format: int64
+    example: 5
   startDateTime:
     type: string
     format: date-time
@@ -8,18 +12,12 @@ properties:
     type: string
     format: date-time
     example: "2020-07-20T15:00:00Z"
-  partnerId:
+  description:
+    type: string
+    example: Hey come pick up some furniture
+  chosenPartnerId:
     type: integer
     format: int64
     example: 1
-  stationId:
-    type: integer
-    format: int64
-    example: 1
-  recurrenceRule:
-    $ref: '../../api.yaml#/components/schemas/RecurrenceRulePost'
 required:
-  - startDateTime
-  - endDateTime
-  - partnerId
-  - stationId
+  - id

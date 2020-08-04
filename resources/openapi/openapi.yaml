@@ -20,6 +20,10 @@ tags:
     description: Calls available in the /reports/ endpoint
   - name: stations
     description: Calls available in the /stations/ endpoint
+  - name: pickups
+    description: Calls available in the /pickups/ endpoint
+  - name: requests
+    description: Calls available in the /requests/ endpoint
 paths:
   '/partners/{id}':
     get:
@@ -127,6 +131,10 @@ paths:
       responses:
         '200':
           description: Partner updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Partner'
         '400':
           description: Bad request body
         '401':
@@ -310,7 +318,7 @@ paths:
           schema:
             type: string
             format: date-time
-            example: 2020-07-10T13:17:39.000Z
+            example: '2020-07-10T13:17:39Z'
         - in: query
           name: to-date
           description: Get reports until the specified date and time.
@@ -318,7 +326,7 @@ paths:
           schema:
             type: string
             format: date-time
-            example: 2020-07-20T13:17:39.000Z
+            example: '2020-07-20T13:17:39Z'
       responses:
         '200':
           description: Returns all reports
@@ -412,13 +420,13 @@ paths:
           schema:
             type: string
             format: date-time
-          example: 2020-07-13T15:00:00.000Z
+          example: '2020-07-13T15:00:00Z'
         - in: query
           name: toDate
           schema:
             type: string
             format: date-time
-          example: 2020-07-20T15:00:00.000Z
+          example: '2020-07-20T15:00:00Z'
         - in: query
           name: partnerId
           schema:
@@ -528,13 +536,13 @@ paths:
           schema:
             type: string
             format: date-time
-          example: 2020-07-13T15:00:00.000Z
+          example: '2020-07-13T15:00:00Z'
         - in: query
           name: toDate
           schema:
             type: string
             format: date-time
-          example: 2020-07-20T15:00:00.000Z
+          example: '2020-07-20T15:00:00Z'
         - in: query
           name: partnerId
           schema:
@@ -595,6 +603,244 @@ paths:
           description: Partner not found
         '422':
           description: Validation failed. Unprocessable entity.
+        '500':
+          description: Internal server error
+  /pickups/:
+    get:
+      tags:
+        - pickups
+      summary: Gets pickups
+      operationId: getPickups
+      parameters:
+        - in: query
+          name: startDateTime
+          schema:
+            type: string
+            format: date-time
+          example: '2020-07-13T15:00:00Z'
+        - in: query
+          name: endDateTime
+          schema:
+            type: string
+            format: date-time
+          example: '2020-07-15T15:00:00Z'
+        - in: query
+          name: partnerId
+          schema:
+            type: integer
+            format: int64
+          example: 1
+        - in: query
+          name: stationId
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      responses:
+        '200':
+          description: Returns an array of all the pickups that matched the query.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pickup'
+        '422':
+          description: Validation of request body failed. Unprocessable entity
+        '500':
+          description: Internal server error
+    post:
+      tags:
+        - pickups
+      summary: Adds a pickup to the database
+      operationId: postPickup
+      description: Adds a pickup to the database.
+      responses:
+        '200':
+          description: item created. Returns the created pickup.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pickup'
+        '400':
+          description: Bad request body
+        '401':
+          description: Unauthorized
+        '403':
+          description: Insufficient role privileges
+        '422':
+          description: Validation of request body failed. Unprocessable entity
+        '500':
+          description: Internal server error
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PickupPost'
+    patch:
+      tags:
+        - pickups
+      summary: Updates a pickup
+      operationId: patchPickup
+      description: 'Updates a pickup. If chosenPartnerId is updated, an event is created and the pickup is "closed".'
+      responses:
+        '200':
+          description: Updated pickup
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pickup'
+        '400':
+          description: Bad request body
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden. Insufficient role permissions.
+        '404':
+          description: ID not found
+        '422':
+          description: Unprocessable request body. Validation of request body failed
+        '500':
+          description: Internal server error
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PickupPatch'
+  '/pickups/{id}':
+    get:
+      tags:
+        - pickups
+      summary: Get a pickup with the given id
+      operationId: getPickup
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Pickup matching ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pickup'
+        '400':
+          description: Bad input parameter
+        '404':
+          description: Pickup not found
+        '500':
+          description: Internal server error
+    delete:
+      tags:
+        - pickups
+      summary: Deletes a Pickup
+      operationId: deletePickup
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Pickup deleted successfully
+        '400':
+          description: Bad input parameter
+        '404':
+          description: ID not found
+        '422':
+          description: Unprocessable entity. Validation failed.
+        '500':
+          description: Internal server error
+  /requests/:
+    get:
+      tags:
+        - requests
+      summary: Gets requests
+      operationId: getRequests
+      parameters:
+        - in: query
+          name: pickupId
+          schema:
+            type: integer
+            format: int64
+          example: 1
+          required: true
+        - in: query
+          name: partnerId
+          schema:
+            type: integer
+            format: int64
+          example: 1
+          required: true
+      responses:
+        '200':
+          description: Returns an array of all the requests that matched the query.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Request'
+        '422':
+          description: Validation of request body failed. Unprocessable entity
+        '500':
+          description: Internal server error
+    post:
+      tags:
+        - requests
+      summary: Adds a request to a pickup
+      operationId: postRequest
+      description: Adds a request to a pickup.
+      responses:
+        '200':
+          description: item created. Returns the created pickup.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Request'
+        '400':
+          description: Bad request body
+        '401':
+          description: Unauthorized
+        '403':
+          description: Insufficient role privileges
+        '422':
+          description: Validation of request body failed. Unprocessable entity
+        '500':
+          description: Internal server error
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestPost'
+    delete:
+      tags:
+        - requests
+      summary: Deletes a request
+      operationId: deleteRequest
+      parameters:
+        - in: query
+          name: pickupId
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: partnerId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Request deleted successfully
+        '400':
+          description: Bad input parameter
+        '404':
+          description: ID not found
+        '422':
+          description: Unprocessable entity. Validation failed.
         '500':
           description: Internal server error
 components:
@@ -679,18 +925,18 @@ components:
         startDateTime:
           type: string
           format: date-time
-          example: 2020-07-13T15:00:00.000Z
+          example: '2020-07-13T15:00:00Z'
         endDateTime:
           type: string
           format: date-time
-          example: 2020-07-13T17:00:00.000Z
+          example: '2020-07-13T17:00:00Z'
         weight:
           type: integer
           format: int64
         reportedDateTime:
           type: string
           format: date-time
-          example: 2020-07-13T17:15:33.000Z
+          example: '2020-07-13T17:15:33Z'
     ReportPatch:
       type: object
       properties:
@@ -771,11 +1017,11 @@ components:
         startDateTime:
           type: string
           format: date-time
-          example: 2020-07-13T15:00:00.000Z
+          example: '2020-07-13T15:00:00Z'
         endDateTime:
           type: string
           format: date-time
-          example: 2020-07-20T15:00:00.000Z
+          example: '2020-07-20T15:00:00Z'
         partnerId:
           $ref: '#/components/schemas/Partner'
         stationId:
@@ -792,11 +1038,11 @@ components:
         startDateTime:
           type: string
           format: date-time
-          example: 2020-07-13T15:00:00.000Z
+          example: '2020-07-13T15:00:00Z'
         endDateTime:
           type: string
           format: date-time
-          example: 2020-07-20T15:00:00.000Z
+          example: '2020-07-20T15:00:00Z'
       required:
         - id
     EventPost:
@@ -805,11 +1051,11 @@ components:
         startDateTime:
           type: string
           format: date-time
-          example: 2020-07-13T15:00:00.000Z
+          example: '2020-07-13T15:00:00Z'
         endDateTime:
           type: string
           format: date-time
-          example: 2020-07-20T15:00:00.000Z
+          example: '2020-07-20T15:00:00Z'
         partnerId:
           type: integer
           format: int64
@@ -835,7 +1081,7 @@ components:
         until:
           type: string
           format: date-time
-          example: 2020-07-13T15:00:00.000Z
+          example: '2020-07-13T15:00:00Z'
         days:
           type: array
           items:
@@ -866,7 +1112,7 @@ components:
           format: date-time
           description: Create events until the specified date.
           default: null
-          example: 2020-07-13T15:00:00.000Z
+          example: '2020-07-13T15:00:00Z'
         days:
           type: array
           items:
@@ -895,3 +1141,92 @@ components:
           description: 'Amount of times the event should recur. If interval is 1, a value of 5 would mean repeat for 5 weeks.'
           default: null
           example: 5
+    PickupPost:
+      type: object
+      properties:
+        startDateTime:
+          type: string
+          format: date-time
+          example: '2020-07-13T15:00:00Z'
+        endDateTime:
+          type: string
+          format: date-time
+          example: '2020-07-20T15:00:00Z'
+        description:
+          type: string
+          example: Hey come pick up some furniture
+        stationId:
+          type: integer
+          format: int64
+          example: 1
+      required:
+        - startDateTime
+        - endDateTime
+        - stationId
+    PickupPatch:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 5
+        startDateTime:
+          type: string
+          format: date-time
+          example: '2020-07-13T15:00:00Z'
+        endDateTime:
+          type: string
+          format: date-time
+          example: '2020-07-20T15:00:00Z'
+        description:
+          type: string
+          example: Hey come pick up some furniture
+        chosenPartnerId:
+          type: integer
+          format: int64
+          example: 1
+      required:
+        - id
+    Pickup:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 5
+        startDateTime:
+          type: string
+          format: date-time
+          example: '2020-07-13T15:00:00Z'
+        endDateTime:
+          type: string
+          format: date-time
+          example: '2020-07-20T15:00:00Z'
+        description:
+          type: string
+          example: Hey come pick up some furniture
+        station:
+          $ref: '#/components/schemas/Station'
+        partner:
+          $ref: '#/components/schemas/Partner'
+    RequestPost:
+      type: object
+      properties:
+        pickupId:
+          type: integer
+          format: int64
+          example: 1
+        partnerId:
+          type: integer
+          format: int64
+          example: 1
+      required:
+        - pickupId
+        - partnerId
+    Request:
+      type: object
+      properties:
+        pickup:
+          $ref: '#/components/schemas/Pickup'
+        partner:
+          $ref: '#/components/schemas/Partner'

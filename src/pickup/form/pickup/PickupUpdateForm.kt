@@ -12,7 +12,6 @@ import ombruk.backend.shared.utils.validation.isInRepository
 import ombruk.backend.shared.utils.validation.isLessThanEndDateTime
 import ombruk.backend.shared.utils.validation.runCatchingValidation
 import org.valiktor.functions.isGreaterThan
-import org.valiktor.functions.isNotNull
 import org.valiktor.validate
 import java.time.LocalDateTime
 
@@ -23,22 +22,23 @@ data class PickupUpdateForm (
     @Serializable(with = LocalDateTimeSerializer::class) var startDateTime: LocalDateTime? = null,
     @Serializable(with = LocalDateTimeSerializer::class) var endDateTime: LocalDateTime? = null,
     val description: String? = null,
-    val chosenPartnerID: Int? = null
+    val chosenPartnerId: Int? = null
 ) : IForm<PickupUpdateForm> {
     override fun validOrError(): Either<ValidationError, PickupUpdateForm> = runCatchingValidation {
         validate(this) {
             validate(PickupUpdateForm::id).isGreaterThan(0)
 
-            chosenPartnerID?.let {
-                validate(PickupUpdateForm::chosenPartnerID).isGreaterThan(0)
-                validate(PickupUpdateForm::chosenPartnerID).isInRepository(PartnerRepository)
+            chosenPartnerId?.let {
+                validate(PickupUpdateForm::chosenPartnerId).isGreaterThan(0)
+                validate(PickupUpdateForm::chosenPartnerId).isInRepository(PartnerRepository)
             }
-
-            PickupRepository.getPickupById(id).map { pickup ->
-                val newStartDateTime = startDateTime ?: pickup.startDateTime
-                val newEndDateTime = endDateTime ?: pickup.endDateTime
-                validate(PickupUpdateForm::startDateTime).isLessThanEndDateTime(newStartDateTime)
-                validate(PickupUpdateForm::endDateTime).isGreaterThanStartDateTime(newEndDateTime)
+            if(startDateTime != null || endDateTime != null) {
+                PickupRepository.getPickupById(id).map { pickup ->
+                    val newStartDateTime = startDateTime ?: pickup.startDateTime
+                    val newEndDateTime = endDateTime ?: pickup.endDateTime
+                    validate(PickupUpdateForm::startDateTime).isLessThanEndDateTime(newEndDateTime)
+                    validate(PickupUpdateForm::endDateTime).isGreaterThanStartDateTime(newStartDateTime)
+                }
             }
         }
     }

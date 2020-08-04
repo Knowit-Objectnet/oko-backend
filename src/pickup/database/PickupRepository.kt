@@ -80,7 +80,7 @@ object PickupRepository : IRepository {
                 pickupUpdateForm.startDateTime?.let { row[startTime] = it }
                 pickupUpdateForm.endDateTime?.let { row[endTime] = it }
                 pickupUpdateForm.description?.let { row[description] = it }
-                pickupUpdateForm.chosenPartnerID?.let { row[chosenPartnerId] = it }
+                pickupUpdateForm.chosenPartnerId?.let { row[chosenPartnerId] = it }
             }
         }
     }
@@ -105,6 +105,7 @@ fun toPickup(row: ResultRow): Pickup {
         row[Pickups.id].value,
         row[Pickups.startTime],
         row[Pickups.endTime],
+        row[Pickups.description],
         toStation(row),
         row[Pickups.chosenPartnerId]?.let { toPartner(row) }
     )
