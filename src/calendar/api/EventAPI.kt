@@ -54,10 +54,10 @@ fun Routing.events(eventService: IEventService) {
 
         authenticate {
             patch("/") {
-                receiveCatching { call.receive<EventUpdateForm>() }.map { form ->
+                receiveCatching { call.receive<EventUpdateForm>() }.flatMap { form ->
                     Authorization.authorizeRole(listOf(Roles.ReuseStation, Roles.RegEmployee), call)
                         .flatMap { form.validOrError() }
-                        .map { eventService.updateEvent(it) }
+                        .flatMap { eventService.updateEvent(it) }
                 }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }

@@ -31,7 +31,6 @@ import kotlin.test.assertEquals
 
 class EventServiceGetEventTest {
     companion object {
-        lateinit var eventService: EventService
         lateinit var testPartner: Partner
         lateinit var testPartner2: Partner
         lateinit var testStation: Station
@@ -102,7 +101,6 @@ class EventServiceGetEventTest {
                 )
             }
 
-            eventService = EventService(ReportService)
         }
 
         @AfterClass
@@ -137,7 +135,7 @@ class EventServiceGetEventTest {
         }
         require(expectedEvent is Either.Right)
 
-        val actualEvent = eventService.getEventByID(expectedEvent.b.id)
+        val actualEvent = EventService.getEventByID(expectedEvent.b.id)
         require(actualEvent is Either.Right)
 
         assertEquals(expectedEvent.b, actualEvent.b)
@@ -151,7 +149,7 @@ class EventServiceGetEventTest {
 
         //Create and save expected events
         val expectedEvents = dateRange.map {
-            eventService.saveEvent(
+            EventService.saveEvent(
                 EventPostForm(
                     it,
                     it.plusHours(1),
@@ -165,7 +163,7 @@ class EventServiceGetEventTest {
         }
 
 
-        val actualEvents = eventService.getEvents()
+        val actualEvents = EventService.getEvents()
         require(actualEvents is Either.Right)
         assertEquals(expectedEvents, actualEvents.b)
     }
@@ -178,7 +176,7 @@ class EventServiceGetEventTest {
 
         //Create and save expected events
         val expectedEvents = dateRange.map {
-            eventService.saveEvent(
+            EventService.saveEvent(
                 EventPostForm(
                     it,
                     it.plusHours(1),
@@ -193,7 +191,7 @@ class EventServiceGetEventTest {
 
         //Save unexpected events
         dateRange.forEach {
-            eventService.saveEvent(
+            EventService.saveEvent(
                 EventPostForm(
                     it,
                     it.plusHours(1),
@@ -205,7 +203,7 @@ class EventServiceGetEventTest {
 
         val getForm = EventGetForm(stationId = testStation.id)
 
-        val actualEvents = eventService.getEvents(getForm)
+        val actualEvents = EventService.getEvents(getForm)
         require(actualEvents is Either.Right)
 
         assertEquals(expectedEvents, actualEvents.b)
@@ -219,7 +217,7 @@ class EventServiceGetEventTest {
 
         //Create and save expected events
         val expectedEvents = dateRange.map {
-            eventService.saveEvent(
+            EventService.saveEvent(
                 EventPostForm(
                     it,
                     it.plusHours(1),
@@ -234,7 +232,7 @@ class EventServiceGetEventTest {
 
         //Save unexpected events
         dateRange.forEach {
-            eventService.saveEvent(
+            EventService.saveEvent(
                 EventPostForm(
                     it,
                     it.plusHours(1),
@@ -247,7 +245,7 @@ class EventServiceGetEventTest {
 
         val getForm = EventGetForm(partnerId = testPartner.id)
 
-        val actualEvents = eventService.getEvents(getForm)
+        val actualEvents = EventService.getEvents(getForm)
         require(actualEvents is Either.Right)
 
         assertEquals(expectedEvents, actualEvents.b)
@@ -262,7 +260,7 @@ class EventServiceGetEventTest {
 
         //Create and save expected events
         val expectedEvents = dateRange.map {
-            eventService.saveEvent(
+            EventService.saveEvent(
                 EventPostForm(
                     it,
                     it.plusHours(1),
@@ -277,7 +275,7 @@ class EventServiceGetEventTest {
 
         //Save unexpected events
         dateRange.forEach {
-            eventService.saveEvent(
+            EventService.saveEvent(
                 EventPostForm(
                     it,
                     it.plusHours(1),
@@ -288,7 +286,7 @@ class EventServiceGetEventTest {
         }
 
         dateRange.forEach {
-            eventService.saveEvent(
+            EventService.saveEvent(
                 EventPostForm(
                     it,
                     it.plusHours(1),
@@ -303,7 +301,7 @@ class EventServiceGetEventTest {
             partnerId = testPartner.id
         )
 
-        val actualEvents = eventService.getEvents(getForm)
+        val actualEvents = EventService.getEvents(getForm)
         require(actualEvents is Either.Right)
 
         assertEquals(expectedEvents, actualEvents.b)
@@ -317,7 +315,7 @@ class EventServiceGetEventTest {
 
         //Create and save expected events
         val expectedEvents = dateRange.map {
-            eventService.saveEvent(
+            EventService.saveEvent(
                 EventPostForm(
                     it,
                     it.plusHours(5),
@@ -332,7 +330,7 @@ class EventServiceGetEventTest {
 
         //Save unexpected events
         dateRange.forEach {
-            eventService.saveEvent(
+            EventService.saveEvent(
                 EventPostForm(
                     it.plusYears(5),
                     it.plusYears(5).plusHours(1),
@@ -343,7 +341,7 @@ class EventServiceGetEventTest {
         }
 
         dateRange.forEach {
-            eventService.saveEvent(
+            EventService.saveEvent(
                 EventPostForm(
                     it.minusYears(5),
                     it.minusYears(5).plusHours(1),
@@ -358,7 +356,7 @@ class EventServiceGetEventTest {
             fromDate = LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME)
         )
 
-        val actualEvents = eventService.getEvents(getForm)
+        val actualEvents = EventService.getEvents(getForm)
         require(actualEvents is Either.Right)
 
         assertEquals(expectedEvents, actualEvents.b)
@@ -379,12 +377,12 @@ class EventServiceGetEventTest {
             RecurrenceRule(count = 7)
         )
 
-        val recurrenceRuleId = eventService.saveEvent(createForm).map { it.recurrenceRule!!.id }
+        val recurrenceRuleId = EventService.saveEvent(createForm).map { it.recurrenceRule!!.id }
         require(recurrenceRuleId is Either.Right)
 
         //Save unexpected events
         dateRange.forEach {
-            eventService.saveEvent(
+            EventService.saveEvent(
                 EventPostForm(
                     it,
                     it.plusHours(1),
@@ -398,7 +396,7 @@ class EventServiceGetEventTest {
         val getForm =
             EventGetForm(recurrenceRuleId = recurrenceRuleId.b)
 
-        val actualEvents = eventService.getEvents(getForm)
+        val actualEvents = EventService.getEvents(getForm)
         require(actualEvents is Either.Right)
 
         val firstId = actualEvents.b.first().id
@@ -425,7 +423,7 @@ class EventServiceGetEventTest {
 
         //Create and save expected events
         val expectedEvents = dateRange.map {
-            eventService.saveEvent(
+            EventService.saveEvent(
                 EventPostForm(
                     it,
                     it.plusHours(1),
@@ -440,7 +438,7 @@ class EventServiceGetEventTest {
 
         //Save unexpected events
         dateRange.forEach {
-            eventService.saveEvent(
+            EventService.saveEvent(
                 EventPostForm(
                     it,
                     it.plusHours(1),
@@ -451,7 +449,7 @@ class EventServiceGetEventTest {
             )
         }
 
-        val actualEvents = eventService.getEvents(eventType = EventType.SINGLE)
+        val actualEvents = EventService.getEvents(eventType = EventType.SINGLE)
         require(actualEvents is Either.Right)
 
         assertEquals(expectedEvents, actualEvents.b)
@@ -472,12 +470,12 @@ class EventServiceGetEventTest {
             RecurrenceRule(count = 7)
         )
 
-        eventService.saveEvent(createForm)
+        EventService.saveEvent(createForm)
 
 
         //Save unexpected events
         dateRange.forEach {
-            eventService.saveEvent(
+            EventService.saveEvent(
                 EventPostForm(
                     it,
                     it.plusHours(1),
@@ -487,7 +485,7 @@ class EventServiceGetEventTest {
             )
         }
 
-        val actualEvents = eventService.getEvents(eventType = EventType.RECURRING)
+        val actualEvents = EventService.getEvents(eventType = EventType.RECURRING)
         require(actualEvents is Either.Right)
 
         val firstId = actualEvents.b.first().id

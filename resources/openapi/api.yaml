@@ -20,6 +20,10 @@ tags:
     description: Calls available in the /reports/ endpoint
   - name: stations
     description: Calls available in the /stations/ endpoint
+  - name: pickups
+    description: Calls available in the /pickups/ endpoint
+  - name: requests
+    description: Calls available in the /requests/ endpoint
 #  - name: reg-admin
 #    description: Calls available for reg admins
 #  - name: reuse-station
@@ -45,6 +49,12 @@ paths:
     $ref: "./calendar/events.yaml"
   /events/{id}:
     $ref: "./calendar/eventsId.yaml"
+  /pickups/:
+    $ref: "./pickup/pickups.yaml"
+  /pickups/{id}:
+    $ref: "./pickup/pickupsId.yaml"
+  /requests/:
+    $ref: "./request/requests.yaml"
 
 components:
   schemas:
@@ -74,3 +84,13 @@ components:
       $ref: "./calendar/schemas/recurrenceRule.yaml"
     RecurrenceRulePost:
       $ref: "./calendar/schemas/recurrenceRulePost.yaml"
+    PickupPost:
+      $ref: "./pickup/schemas/pickupPost.yaml"
+    PickupPatch:
+      $ref: "./pickup/schemas/pickupPatch.yaml"
+    Pickup:
+      $ref: "./pickup/schemas/pickup.yaml"
+    RequestPost:
+      $ref: "./request/schemas/requestPost.yaml"
+    Request:
+      $ref: "./request/schemas/request.yaml"

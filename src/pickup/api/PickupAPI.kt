@@ -1,72 +1,71 @@
 package ombruk.backend.pickup.api
 
+import arrow.core.flatMap
 import io.ktor.application.call
-import io.ktor.http.HttpStatusCode
+import io.ktor.auth.Authentication
+import io.ktor.auth.authenticate
+import io.ktor.locations.delete
+import io.ktor.locations.get
 import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.*
-import ombruk.backend.pickup.form.CreatePickupForm
-import ombruk.backend.pickup.model.Pickup
+import ombruk.backend.pickup.form.pickup.*
 import ombruk.backend.pickup.service.IPickupService
+import ombruk.backend.shared.api.Authorization
+import ombruk.backend.shared.api.Roles
+import ombruk.backend.shared.api.generateResponse
+import ombruk.backend.shared.api.receiveCatching
 
 fun Routing.pickup(pickupService: IPickupService) {
-    get("/") {
-        call.respond("Ombruk er kult")
-    }
 
-    get("/health_check/"){
-        call.respond(HttpStatusCode.OK)
-    }
+    route("/pickups") {
 
-    delete("/pickups/") {
-        val params = call.request.queryParameters
-        try {
-            when(pickupService.deletePickup(params["pickupID"]?.toInt(), params["stationID"]?.toInt())){
-                true -> call.respond(HttpStatusCode.OK)
-                else -> call.respond(HttpStatusCode.NotFound)
+        get<PickupGetForm> { form ->
+            form.validOrError()
+                .flatMap { pickupService.getPickups(form) }
+                .run { generateResponse(this) }
+                .also { (code, response) -> call.respond(code, response) }
+        }
+
+        get<PickupGetByIdForm> { form ->
+            form.validOrError()
+                .flatMap { pickupService.getPickupById(form) }
+                .run { generateResponse(this) }
+                .also { (code, response) -> call.respond(code, response) }
+        }
+
+        authenticate {
+            post {
+                Authorization.authorizeRole(listOf(Roles.ReuseStation, Roles.RegEmployee), call)
+                    .flatMap { receiveCatching { call.receive<PickupPostForm>() } }
+                    .flatMap { it.validOrError() }
+                    .flatMap { (pickupService.savePickup(it)) }
+                    .run { generateResponse(this) }
+                    .also { (code, response) -> call.respond(code, response) }
             }
-        } catch (e: NumberFormatException) {
-            e.printStackTrace()
-            call.respond(HttpStatusCode.BadRequest)
-        }
-    }
 
-    patch("/pickups/") {
-        val body = runCatching { call.receive<Pickup>() }.onFailure {
-            call.respond(HttpStatusCode.InternalServerError, "Failed to update pickup") }.getOrThrow()
-        try {
-            when(pickupService.updatePickup(body)){
-                true -> call.respond(HttpStatusCode.OK)
-                else -> call.respond(HttpStatusCode.NotFound)
+
+            authenticate {
+                patch {
+                    Authorization.authorizeRole(listOf(Roles.ReuseStation, Roles.RegEmployee), call)
+                        .flatMap { receiveCatching { call.receive<PickupUpdateForm>() } }
+                        .flatMap { it.validOrError() }
+                        .flatMap { pickupService.updatePickup(it) }
+                        .run { generateResponse(this) }
+                        .also { (code, response) -> call.respond(code, response) }
+                }
             }
-        } catch (e: NumberFormatException) {
-            e.printStackTrace()
-            call.respond(HttpStatusCode.BadRequest)
-        }
-    }
 
-    post("/pickups/") {
-        val form = runCatching { call.receive<CreatePickupForm>() }.onFailure {
-            call.respond(HttpStatusCode.InternalServerError, "Failed to create pickup") }.getOrThrow()
-        val result = pickupService.savePickup(form)
-        call.respond(HttpStatusCode.Created, result)
-    }
 
-    get("/pickups/") {
-        val params = call.request.queryParameters
-        try {
-            call.respond(pickupService.getPickups(params["stationID"]?.toInt()))
-        } catch (e: NumberFormatException) {
-            e.printStackTrace()
-            call.respond(HttpStatusCode.BadRequest)
-        }
-    }
-
-    get("/pickups/{pickup_id}") {
-        val id = call.parameters["pickup_id"]?.toInt() ?: throw IllegalArgumentException("Invalid pickup id")
-        when (val pickup = pickupService.getPickupById(id)) {
-            null -> call.respond(HttpStatusCode.NotFound, "Pickup id not found")
-            else -> call.respond(HttpStatusCode.OK, pickup)
+            authenticate {
+                delete<PickupDeleteForm> { form ->
+                    Authorization.authorizeRole(listOf(Roles.ReuseStation, Roles.RegEmployee), call)
+                        .flatMap { form.validOrError() }
+                        .flatMap { pickupService.deletePickup(form) }
+                        .run { generateResponse(this) }
+                        .also { (code, response) -> call.respond(code, response) }
+                }
+            }
         }
     }
 }

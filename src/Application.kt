@@ -31,7 +31,9 @@ import ombruk.backend.calendar.service.StationService
 import ombruk.backend.partner.api.partners
 import ombruk.backend.partner.service.PartnerService
 import ombruk.backend.pickup.api.pickup
+import ombruk.backend.pickup.api.request
 import ombruk.backend.pickup.service.PickupService
+import ombruk.backend.pickup.service.RequestService
 import ombruk.backend.reporting.api.report
 import ombruk.backend.reporting.service.ReportService
 import ombruk.backend.shared.api.Authorization
@@ -160,11 +162,12 @@ fun Application.module(testing: Boolean = false) {
     }
 
     routing {
-        events(EventService(ReportService))
-        partners(PartnerService())
+        events(EventService)
+        partners(PartnerService)
         report(ReportService)
         pickup(PickupService)
         stations(StationService)
+        request(RequestService)
         get("/health_check") {
             call.respond(HttpStatusCode.OK)
         }

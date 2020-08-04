@@ -17,7 +17,7 @@ import ombruk.backend.partner.model.Partner
 import ombruk.backend.shared.error.ServiceError
 import org.jetbrains.exposed.sql.transactions.transaction
 
-class PartnerService : IPartnerService {
+object PartnerService : IPartnerService {
     private val json = Json(JsonConfiguration.Stable)
 
     private val appConfig = HoconApplicationConfig(ConfigFactory.load())

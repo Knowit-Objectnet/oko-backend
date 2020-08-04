@@ -1,10 +1,13 @@
 package pickup.service
 
+import arrow.core.Either
 import ombruk.backend.calendar.database.Stations
 import ombruk.backend.calendar.model.Station
 import ombruk.backend.partner.database.Partners
 import ombruk.backend.pickup.database.Pickups
-import ombruk.backend.pickup.form.CreatePickupForm
+import ombruk.backend.pickup.form.pickup.PickupGetByIdForm
+import ombruk.backend.pickup.form.pickup.PickupPostForm
+import ombruk.backend.pickup.form.pickup.PickupUpdateForm
 import ombruk.backend.pickup.service.PickupService
 import ombruk.backend.shared.database.initDB
 import org.jetbrains.exposed.sql.deleteAll
@@ -64,7 +67,7 @@ class PickupServiceUpdateTest {
 
         @AfterClass
         @JvmStatic
-        fun cleanPartnersAndStationsFromDB(){
+        fun cleanPartnersAndStationsFromDB() {
             transaction {
                 Partners.deleteAll()
                 Stations.deleteAll()
@@ -82,20 +85,29 @@ class PickupServiceUpdateTest {
 
     @Test
     fun testUpdatePickup() {
+        val startTime = LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME)
+        val endTime = startTime.plusHours(1)
+
         val initialPickup = pickupService.savePickup(
-            CreatePickupForm(
-                LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME),
-                LocalDateTime.parse("2020-08-14T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
-                testStation.id
-            )
+            PickupPostForm(startTime, endTime, null, testStation.id)
         )
+        require(initialPickup is Either.Right)
 
-        val expectedPickup = initialPickup.copy(station =  testStation2)
-        pickupService.updatePickup(expectedPickup)
 
-        val actualPickup = pickupService.getPickupById(initialPickup.id)
+        // Update the pickup to last one hour longer.
+        val expectedPickup = initialPickup.b.copy(endDateTime = endTime.plusHours(1))
 
-        assertEquals(expectedPickup, actualPickup)
+        val form = PickupUpdateForm(
+            expectedPickup.id,
+            expectedPickup.startDateTime,
+            expectedPickup.endDateTime
+        )
+        pickupService.updatePickup(form)
+
+        val actualPickup = pickupService.getPickupById(PickupGetByIdForm(initialPickup.b.id))
+        require(actualPickup is Either.Right)
+
+        assertEquals(expectedPickup, actualPickup.b)
     }
 
 }

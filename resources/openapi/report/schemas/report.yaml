@@ -19,15 +19,15 @@ properties:
   startDateTime:
     type: string
     format: date-time
-    example: 2020-07-13T15:00:00Z
+    example: "2020-07-13T15:00:00Z"
   endDateTime:
     type: string
     format: date-time
-    example: 2020-07-13T17:00:00Z
+    example: "2020-07-13T17:00:00Z"
   weight:
     type: integer
     format: int64
   reportedDateTime:
     type: string
     format: date-time
-    example: 2020-07-13T17:15:33Z
+    example: "2020-07-13T17:15:33Z"
