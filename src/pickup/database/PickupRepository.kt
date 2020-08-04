@@ -29,7 +29,7 @@ object Pickups : IntIdTable("pickups") {
     val chosenPartnerId = integer("chosen_partner_id").references(Partners.id).nullable()
 }
 
-object PickupRepository : IRepository {
+object PickupRepository : IPickupRepository, IRepository {
     private val logger = LoggerFactory.getLogger("ombruk.backend.service.PickupRepository")
 
     fun savePickup(pickupPostForm: PickupPostForm): Either<RepositoryError, Pickup> = runCatching {
