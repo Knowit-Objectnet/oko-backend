@@ -140,8 +140,8 @@ object RequestRepository : IRequestRepository {
             row[alias[Partners.id]].value,
             row[alias[Partners.name]],
             row[alias[Partners.description]],
-            row[alias[Partners.email]],
-            row[alias[Partners.phone]]
+            row[alias[Partners.phone]],
+            row[alias[Partners.email]]
         )
     }
 }
