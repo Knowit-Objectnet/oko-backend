@@ -6,11 +6,25 @@ properties:
   name:
     type: string
     example: Haraldrud
-  openingTime:
-    type: string
-    description: A string that conforms to the ISO8601 standard for displaying time. The format is HH:MM:SS
-    example: "09:00:00Z"
-  closingTime:
-    type: string
-    description: A string that conforms to the ISO8601 standard for displaying time. The format is HH:MM:SS
-    example: "20:00:00Z"
+  hours:
+    type: object
+    description: "Keys must be one or several of: MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY"
+    additionalProperties:
+      type: array
+      items:
+        type: string
+    example: {"MONDAY": ["09:00:00Z", "20:00:00Z"],
+              "TUESDAY": ["08:00:00Z", "21:00:00Z"],
+              "WEDNESDAY": ["09:00:00Z", "20:00:00Z"],
+              "THURSDAY": ["09:00:00Z", "20:00:00Z"],
+              "FRIDAY": ["09:00:00Z", "20:00:00Z"]}
+#      properties:
+#        code:
+#          type: string
+#          enum: [MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY]
+#        value:
+#          type: array
+#          description: Must contain exactly two strings, the first being the opening time and the second being the closing time.
+#          items:
+#            type: string
+#          example: ["09:00:00Z", "20:00:00Z"]

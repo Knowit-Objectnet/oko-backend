@@ -18,11 +18,19 @@ class EventPostFormIteratorTest {
     companion object {
         val testPartner =
             Partner(10, "TestPartner 1", "Description of TestPartner 1", "+47 2381931", "example@gmail.com")
+        var opensAt = LocalTime.parse("09:00:00Z", DateTimeFormatter.ISO_TIME)!!
+        var closesAt = LocalTime.parse("21:00:00Z", DateTimeFormatter.ISO_TIME)!!
+        var hours = mapOf(
+            Pair(DayOfWeek.MONDAY, listOf(opensAt, closesAt)),
+            Pair(DayOfWeek.TUESDAY, listOf(opensAt, closesAt)),
+            Pair(DayOfWeek.WEDNESDAY, listOf(opensAt, closesAt)),
+            Pair(DayOfWeek.THURSDAY, listOf(opensAt, closesAt)),
+            Pair(DayOfWeek.FRIDAY, listOf(opensAt, closesAt))
+        )
         val testStation = Station(
             10,
             "Test Station 1",
-            LocalTime.parse("09:00:00", DateTimeFormatter.ISO_TIME),
-            LocalTime.parse("21:00:00", DateTimeFormatter.ISO_TIME)
+            hours
         )
     }
 
