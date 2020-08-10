@@ -146,10 +146,17 @@ fun Application.module(testing: Boolean = false) {
         method(HttpMethod.Delete)
         method(HttpMethod.Patch)
         header(HttpHeaders.Authorization)
+        header(HttpHeaders.Origin)
         header(HttpHeaders.AccessControlAllowCredentials)
-        //anyHost() // @TODO: Don't do this in production if possible. Try to limit it.
-        host("0.0.0.0:8080")
-        host("staging.oko.knowit.no")
+        host(
+            host = "oko.knowit.no",
+            schemes = listOf("http", "https"),
+            subDomains = listOf("staging")
+        )
+        host(
+            host = "0.0.0.0:8080",
+            schemes = listOf("http", "https")
+        )
         allowCredentials = true
         allowNonSimpleContentTypes = true
     }
