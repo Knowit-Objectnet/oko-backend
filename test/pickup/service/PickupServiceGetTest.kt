@@ -7,34 +7,31 @@ import ombruk.backend.partner.database.Partners
 import ombruk.backend.pickup.database.Pickups
 import ombruk.backend.pickup.database.Requests
 import ombruk.backend.pickup.form.pickup.PickupGetByIdForm
-import ombruk.backend.pickup.form.pickup.PickupPostForm
 import ombruk.backend.pickup.form.pickup.PickupGetForm
+import ombruk.backend.pickup.form.pickup.PickupPostForm
+import ombruk.backend.pickup.model.Pickup
 import ombruk.backend.pickup.service.PickupService
 import ombruk.backend.shared.database.initDB
 import ombruk.backend.shared.utils.rangeTo
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.junit.After
-import org.junit.AfterClass
-import org.junit.BeforeClass
-import org.junit.Test
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import kotlin.test.assertEquals
 
-
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PickupServiceGetTest {
-    companion object {
-        lateinit var pickupService: PickupService
         lateinit var testStation: Station
         lateinit var testStation2: Station
 
 
-        @BeforeClass
-        @JvmStatic
-        fun setup() {
+        init {
             initDB()
             // Clear the database in order to get to a known state.
             // Note that order matter (db constraints)
@@ -73,20 +70,17 @@ class PickupServiceGetTest {
                 )
 
             }
-
-            pickupService = PickupService
         }
-        @AfterClass
-        @JvmStatic
+
+        @AfterAll
         fun cleanPartnersAndStationsFromDB(){
             transaction {
                 Partners.deleteAll()
                 Stations.deleteAll()
             }
         }
-    }
 
-    @After
+    @AfterEach
     fun cleanEventsFromDB() {
         transaction {
             Pickups.deleteAll()
@@ -103,11 +97,11 @@ class PickupServiceGetTest {
             null,
             testStation.id
         )
-        val expectedPickup = pickupService.savePickup(createForm)
+        val expectedPickup = PickupService.savePickup(createForm)
 
         // Require a right so we can get to the ID below.
         require(expectedPickup is Either.Right)
-        val actualPickup = pickupService.getPickupById(PickupGetByIdForm(expectedPickup.b.id))
+        val actualPickup = PickupService.getPickupById(PickupGetByIdForm(expectedPickup.b.id))
 
         assertEquals(expectedPickup, actualPickup)
     }
@@ -123,7 +117,7 @@ class PickupServiceGetTest {
         // Create a bunch of pickups in the date range, (see utils for the progression)
         // This will return a list of Eithers.
         val expectedPickups = dateRange.map { startDate ->
-            pickupService.savePickup(
+            PickupService.savePickup(
                 PickupPostForm(
                     startDate,
                     startDate.plusHours(1),
@@ -139,7 +133,7 @@ class PickupServiceGetTest {
         // 1. Give me all the pickups for this station.
         var form = PickupGetForm(null, null, testStation.id)
 
-        var actualPickups = pickupService.getPickups(form)
+        var actualPickups = PickupService.getPickups(form)
 
         require(actualPickups is Either.Right)
 
@@ -148,18 +142,18 @@ class PickupServiceGetTest {
         // 2. Make sure that when we supply an invalid station we get an empty set back
 
         form = PickupGetForm(null, null, testStation.id + 99999)
-        actualPickups = pickupService.getPickups(form)
+        actualPickups = PickupService.getPickups(form)
         // This should be empty
         require(actualPickups is Either.Right)
 
-        assertEquals(listOf(), actualPickups.b )
+        assertEquals(listOf<Pickup>(), actualPickups.b )
 
         // 3. Let's see if we can supply invalid dates and get an empty set back.
 
         form = PickupGetForm(start.plusDays(100), null, null)
-        actualPickups = pickupService.getPickups(form)
+        actualPickups = PickupService.getPickups(form)
         require(actualPickups is Either.Right)
-        assertEquals( listOf(), actualPickups.b )
+        assertEquals( listOf<Pickup>(), actualPickups.b )
 
         // 4. Let's supply valid dates that would give us our one pickup back.
         form = PickupGetForm(
@@ -167,7 +161,7 @@ class PickupServiceGetTest {
             end.plusHours(1),
             null
         )
-        actualPickups = pickupService.getPickups(form)
+        actualPickups = PickupService.getPickups(form)
         require(actualPickups is Either.Right)
 
         assertEquals(expectedPickups , actualPickups.b )

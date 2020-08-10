@@ -18,27 +18,23 @@ import ombruk.backend.shared.database.initDB
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.junit.After
-import org.junit.AfterClass
-import org.junit.BeforeClass
-import org.junit.Test
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import kotlin.test.assertEquals
 
-
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class RequestServiceTest {
-    companion object {
-        lateinit var requestService: RequestService
         lateinit var testPartner: Partner
         lateinit var testPartner2: Partner
         lateinit var testStation: Station
         lateinit var testStation2: Station
 
-        @BeforeClass
-        @JvmStatic
-        fun setup() {
+        init {
             initDB()
             transaction {
                 val testPartnerId = Partners.insertAndGetId {
@@ -99,19 +95,17 @@ class RequestServiceTest {
                 )
             }
 
-            requestService = RequestService
+
         }
-        @AfterClass
-        @JvmStatic
+        @AfterAll
         fun cleanPartnersAndStationsFromDB(){
             transaction {
                 Partners.deleteAll()
                 Stations.deleteAll()
             }
         }
-    }
 
-    @After
+    @AfterEach
     fun cleanEventsFromDB() {
         transaction {
             Requests.deleteAll()
@@ -133,11 +127,11 @@ class RequestServiceTest {
         )
         require(pickup is Either.Right)
         val expectedRequest = Request(pickup.b, testPartner)
-        val request = requestService.saveRequest(RequestPostForm(pickup.b.id, testPartner.id))
+        val request = RequestService.saveRequest(RequestPostForm(pickup.b.id, testPartner.id))
         require(request is Either.Right)
         println(request.b)
 
-        val actualRequests = requestService.getRequests(RequestGetForm())
+        val actualRequests = RequestService.getRequests(RequestGetForm())
         require(actualRequests is Either.Right)
         assertEquals(expectedRequest, actualRequests.b.first())
     }
@@ -168,11 +162,11 @@ class RequestServiceTest {
         val requestToDelete = Request(pickup1.b, testPartner)
         val requestNotToDelete = Request(pickup2.b, testPartner2)
 
-        requestService.saveRequest(RequestPostForm(requestToDelete.pickup.id, requestToDelete.partner.id))
-        requestService.saveRequest(RequestPostForm(requestNotToDelete.pickup.id, requestNotToDelete.partner.id))
+        RequestService.saveRequest(RequestPostForm(requestToDelete.pickup.id, requestToDelete.partner.id))
+        RequestService.saveRequest(RequestPostForm(requestNotToDelete.pickup.id, requestNotToDelete.partner.id))
 
-        requestService.deleteRequest(RequestDeleteForm(pickup1.b.id, testPartner.id))
-        val requestsInRepositoryAfterDelete = requestService.getRequests(RequestGetForm())
+        RequestService.deleteRequest(RequestDeleteForm(pickup1.b.id, testPartner.id))
+        val requestsInRepositoryAfterDelete = RequestService.getRequests(RequestGetForm())
         require(requestsInRepositoryAfterDelete is Either.Right)
         assert(!requestsInRepositoryAfterDelete.b.contains(requestToDelete))
         assert(requestsInRepositoryAfterDelete.b.contains(requestNotToDelete))
@@ -195,11 +189,11 @@ class RequestServiceTest {
 //        val requestToDelete = Request(pickup.b.id, testPartner)
 //        val requestNotToDelete = Request(pickup.b.id, testPartner2)
 //
-//        requestService.addPartnersToPickup(requestToDelete)
-//        requestService.addPartnersToPickup(requestNotToDelete)
+//        RequestService.addPartnersToPickup(requestToDelete)
+//        RequestService.addPartnersToPickup(requestNotToDelete)
 //
-//        requestService.deleteRequests(null, testPartner.id, null)
-//        val requestsInRepositoryAfterDelete = requestService.getRequests(null, null)
+//        RequestService.deleteRequests(null, testPartner.id, null)
+//        val requestsInRepositoryAfterDelete = RequestService.getRequests(null, null)
 //
 //        assert(!requestsInRepositoryAfterDelete.contains(requestToDelete))
 //        assert(requestsInRepositoryAfterDelete.contains(requestNotToDelete))
@@ -230,11 +224,11 @@ class RequestServiceTest {
 //        val requestToDelete = Request(pickup1.b.id, testPartner)
 //        val requestNotToDelete = Request(pickup2.b.id, testPartner)
 //
-//        requestService.addPartnersToPickup(requestToDelete)
-//        requestService.addPartnersToPickup(requestNotToDelete)
+//        RequestService.addPartnersToPickup(requestToDelete)
+//        RequestService.addPartnersToPickup(requestNotToDelete)
 //
-//        requestService.deleteRequests(null, null, testStation.id)
-//        val requestsInRepositoryAfterDelete = requestService.getRequests(null, null)
+//        RequestService.deleteRequests(null, null, testStation.id)
+//        val requestsInRepositoryAfterDelete = RequestService.getRequests(null, null)
 //
 //        assert(!requestsInRepositoryAfterDelete.contains(requestToDelete))
 //        assert(requestsInRepositoryAfterDelete.contains(requestNotToDelete))
@@ -265,11 +259,11 @@ class RequestServiceTest {
 //        val requestToDelete = Request(pickup1.b.id, testPartner)
 //        val requestNotToDelete = Request(pickup2.b.id, testPartner2)
 //
-//        requestService.addPartnersToPickup(requestToDelete)
-//        requestService.addPartnersToPickup(requestNotToDelete)
+//        RequestService.addPartnersToPickup(requestToDelete)
+//        RequestService.addPartnersToPickup(requestNotToDelete)
 //
-//        requestService.deleteRequests(null, testPartner.id, testStation.id)
-//        val requestsInRepositoryAfterDelete = requestService.getRequests(null, null)
+//        RequestService.deleteRequests(null, testPartner.id, testStation.id)
+//        val requestsInRepositoryAfterDelete = RequestService.getRequests(null, null)
 //
 //        assert(!requestsInRepositoryAfterDelete.contains(requestToDelete))
 //        assert(requestsInRepositoryAfterDelete.contains(requestNotToDelete))
@@ -300,13 +294,13 @@ class RequestServiceTest {
 //        val requestToDelete = Request(pickup1.b, testPartner)
 //        val requestNotToDelete = Request(pickup2.b, testPartner2)
 //
-//        requestService.saveRequest(RequestPostForm(requestToDelete.pickup.id, requestToDelete.partner.id))
-//        requestService.saveRequest(RequestPostForm(requestNotToDelete.pickup.id, requestNotToDelete.partner.id))
+//        RequestService.saveRequest(RequestPostForm(requestToDelete.pickup.id, requestToDelete.partner.id))
+//        RequestService.saveRequest(RequestPostForm(requestNotToDelete.pickup.id, requestNotToDelete.partner.id))
 //
-//        requestService.deleteRequest(RequestDeleteForm(pickup1.b.id, testPartner.id))
+//        RequestService.deleteRequest(RequestDeleteForm(pickup1.b.id, testPartner.id))
 //
-//        requestService.deleteRequests(pickup1.b.id, testPartner.id, testStation.id)
-//        val requestsInRepositoryAfterDelete = requestService.getRequests(null, null)
+//        RequestService.deleteRequests(pickup1.b.id, testPartner.id, testStation.id)
+//        val requestsInRepositoryAfterDelete = RequestService.getRequests(null, null)
 //
 //        assert(!requestsInRepositoryAfterDelete.contains(requestToDelete))
 //        assert(requestsInRepositoryAfterDelete.contains(requestNotToDelete))
