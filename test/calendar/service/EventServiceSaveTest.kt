@@ -1,6 +1,11 @@
 package calendar.service
 
 import arrow.core.Either
+import io.ktor.util.KtorExperimentalAPI
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonConfiguration
 import ombruk.backend.calendar.database.Events
 import ombruk.backend.calendar.database.Stations
 import ombruk.backend.calendar.form.event.EventPostForm
@@ -11,6 +16,8 @@ import ombruk.backend.calendar.service.EventService
 import ombruk.backend.partner.database.Partners
 import ombruk.backend.partner.model.Partner
 import ombruk.backend.shared.database.initDB
+import ombruk.backend.shared.model.serializer.DayOfWeekSerializer
+import ombruk.backend.shared.model.serializer.LocalTimeSerializer
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -24,12 +31,13 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
+@KtorExperimentalAPI
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class EventServiceSaveTest {
-    private lateinit var testPartner: Partner
-    private lateinit var testPartner2: Partner
-    private lateinit var testStation: Station
-    private lateinit var testStation2: Station
+    lateinit var testPartner: Partner
+    lateinit var testPartner2: Partner
+    lateinit var testStation: Station
+    lateinit var testStation2: Station
 
     init {
         initDB()
@@ -67,29 +75,55 @@ class EventServiceSaveTest {
                 )
 
 
+            var opensAt = LocalTime.parse("09:00:00Z", DateTimeFormatter.ISO_TIME)!!
+            var closesAt = LocalTime.parse("21:00:00Z", DateTimeFormatter.ISO_TIME)!!
+            var hours = mapOf(
+                Pair(DayOfWeek.MONDAY, listOf(opensAt, closesAt)),
+                Pair(DayOfWeek.TUESDAY, listOf(opensAt, closesAt)),
+                Pair(DayOfWeek.WEDNESDAY, listOf(opensAt, closesAt)),
+                Pair(DayOfWeek.THURSDAY, listOf(opensAt, closesAt)),
+                Pair(DayOfWeek.FRIDAY, listOf(opensAt, closesAt))
+            )
+            val json = Json(JsonConfiguration.Stable)
+
             val testStationId = Stations.insertAndGetId {
                 it[name] = "Test Station 1"
-                it[openingTime] = "09:00:00"
-                it[closingTime] = "21:00:00"
+                it[Stations.hours] =
+                    json.toJson(MapSerializer(DayOfWeekSerializer, ListSerializer(LocalTimeSerializer)), hours)
+                        .toString()
             }.value
 
             testStation = Station(
                 testStationId,
                 "Test Station 1",
-                LocalTime.parse("09:00:00", DateTimeFormatter.ISO_TIME),
-                LocalTime.parse("21:00:00", DateTimeFormatter.ISO_TIME)
+                hours
+            )
+
+            opensAt = LocalTime.parse("08:00:00", DateTimeFormatter.ISO_TIME)
+            closesAt = LocalTime.parse("20:00:00", DateTimeFormatter.ISO_TIME)
+            hours = mapOf(
+                Pair(DayOfWeek.MONDAY, listOf(opensAt, closesAt)),
+                Pair(DayOfWeek.TUESDAY, listOf(opensAt, closesAt)),
+                Pair(DayOfWeek.WEDNESDAY, listOf(opensAt, closesAt)),
+                Pair(DayOfWeek.THURSDAY, listOf(opensAt, closesAt)),
+                Pair(DayOfWeek.FRIDAY, listOf(opensAt, closesAt))
             )
 
             val testStationId2 = Stations.insertAndGetId {
                 it[name] = "Test Station 2"
-                it[openingTime] = "08:00:00"
-                it[closingTime] = "20:00:00"
+                it[Stations.hours] = json.toJson(
+                    MapSerializer(
+                        DayOfWeekSerializer, ListSerializer(
+                            LocalTimeSerializer
+                        )
+                    ), hours
+                )
+                    .toString()
             }.value
             testStation2 = Station(
                 testStationId2,
                 "Test Station 2",
-                LocalTime.parse("08:00:00", DateTimeFormatter.ISO_TIME),
-                LocalTime.parse("20:00:00", DateTimeFormatter.ISO_TIME)
+                hours
             )
         }
     }

@@ -4,26 +4,30 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import io.ktor.locations.KtorExperimentalLocationsAPI
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonConfiguration
 import ombruk.backend.calendar.form.station.StationGetForm
 import ombruk.backend.calendar.form.station.StationPostForm
 import ombruk.backend.calendar.form.station.StationUpdateForm
 import ombruk.backend.calendar.model.Station
 import ombruk.backend.shared.error.RepositoryError
+import ombruk.backend.shared.model.serializer.DayOfWeekSerializer
+import ombruk.backend.shared.model.serializer.LocalTimeSerializer
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
-import java.time.LocalTime
-import java.time.format.DateTimeFormatter
 
 private val logger = LoggerFactory.getLogger("ombruk.backend.database.StationRepository")
+val json = Json(JsonConfiguration.Stable)
 
 object Stations : IntIdTable("stations") {
     val name = varchar("name", 200)
 
     //The following strings are supposed to represent a time on the format "HH:MM:SS", followed by an optional "Z" for UTC.
-    val openingTime = varchar("opening_time", 20)
-    val closingTime = varchar("closing_time", 20)
+    val hours = varchar("hours", 400).nullable()
 }
 
 object StationRepository : IStationRepository {
@@ -54,8 +58,10 @@ object StationRepository : IStationRepository {
             runCatching {
                 Stations.insertAndGetId {
                     it[name] = stationPostForm.name
-                    it[openingTime] = stationPostForm.openingTime.toString()
-                    it[closingTime] = stationPostForm.closingTime.toString()
+                    it[hours] = stationPostForm.hours?.let { hours ->
+                        json.toJson(MapSerializer(DayOfWeekSerializer, ListSerializer(LocalTimeSerializer)), hours)
+                            .toString()
+                    }
                 }.value
             }
         }
@@ -70,8 +76,11 @@ object StationRepository : IStationRepository {
         transaction {
             Stations.update({ Stations.id eq stationUpdateForm.id }) { row ->
                 stationUpdateForm.name?.let { row[name] = stationUpdateForm.name }
-                stationUpdateForm.openingTime?.let { row[openingTime] = stationUpdateForm.openingTime.toString() }
-                stationUpdateForm.closingTime?.let { row[closingTime] = stationUpdateForm.closingTime.toString() }
+                stationUpdateForm.hours?.let {
+                    row[hours] =
+                        json.toJson(MapSerializer(DayOfWeekSerializer, ListSerializer(LocalTimeSerializer)), it)
+                            .toString()
+                }
             }
         }
     }
@@ -100,8 +109,9 @@ fun toStation(row: ResultRow): Station {
     return Station(
         row[Stations.id].value,
         row[Stations.name],
-        LocalTime.parse(row[Stations.openingTime], DateTimeFormatter.ISO_TIME),
-        LocalTime.parse(row[Stations.closingTime], DateTimeFormatter.ISO_TIME)
+        row[Stations.hours]?.let {
+            json.parse(MapSerializer(DayOfWeekSerializer, ListSerializer(LocalTimeSerializer)), it)
+        }
     )
 
 }

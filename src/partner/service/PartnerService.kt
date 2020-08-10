@@ -14,6 +14,7 @@ import ombruk.backend.partner.form.PartnerGetForm
 import ombruk.backend.partner.form.PartnerPostForm
 import ombruk.backend.partner.form.PartnerUpdateForm
 import ombruk.backend.partner.model.Partner
+import ombruk.backend.shared.api.KeycloakGroupIntegration
 import ombruk.backend.shared.error.ServiceError
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -62,16 +63,16 @@ object PartnerService : IPartnerService {
             is Either.Left -> partner.a.left()
             is Either.Right -> {
                 PartnerRepository.updatePartner(partnerForm)
-                    .flatMap {
+                    .flatMap {newPartner ->
                         partnerForm.name?.let {
                             when (isDebug) {
                                 true -> partner.b.right()
                                 else -> {
                                     KeycloakGroupIntegration.updateGroup(partner.b.name, partnerForm.name!!)
-                                        .fold({ it.left() }, { partner.b.right() })
+                                        .fold({ it.left() }, { newPartner.right() })
                                 }
                             }
-                        } ?: partner.b.right()
+                        } ?: newPartner.right()
                     }
                     .bimap({ rollback(); it }, { it })
             }

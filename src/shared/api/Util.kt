@@ -6,7 +6,7 @@ import arrow.core.right
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.JsonDecodingException
-import ombruk.backend.partner.service.KeycloakIntegrationError
+import ombruk.backend.shared.error.KeycloakIntegrationError
 import ombruk.backend.shared.error.AuthorizationError
 import ombruk.backend.shared.error.RepositoryError
 import ombruk.backend.shared.error.ServiceError
