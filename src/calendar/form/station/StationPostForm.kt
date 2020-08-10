@@ -20,7 +20,7 @@ data class StationPostForm(
     override fun validOrError()= runCatchingValidation {
         validate(this) {
             validate(StationPostForm::name).isNotBlank()
-            hours?.let { validate(StationPostForm::hours).isValid() }
+            validate(StationPostForm::hours).isValid()
             validate(StationPostForm::name).isStationUnique(StationRepository)
         }
     }

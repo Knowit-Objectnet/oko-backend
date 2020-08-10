@@ -20,7 +20,7 @@ data class StationUpdateForm(
         validate(this) {
             validate(StationUpdateForm::id).isGreaterThan(0)
             validate(StationUpdateForm::name).isNotBlank()
-            hours?.let { validate(StationUpdateForm::hours).isValid() }
+            validate(StationUpdateForm::hours).isValid()
 
         }
     }

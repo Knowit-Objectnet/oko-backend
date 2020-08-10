@@ -9,5 +9,5 @@ data class OpenHoursIsValid(val hours: Map<DayOfWeek, List<LocalTime>>?) : Const
 
 fun <E> Validator<E>.Property<Map<DayOfWeek, List<LocalTime>>?>.isValid() =
     this.validate(OpenHoursIsValid(null)) {
-        it?.all { it.key.value in 1..5 && it.value.size == 2 && it.value[0] < it.value[1] } ?: true
+        it == null || it.all { it.key.value in 1..5 && it.value.size == 2 && it.value[0] < it.value[1] }
     }
