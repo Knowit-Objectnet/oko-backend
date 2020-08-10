@@ -1,6 +1,4 @@
-package ombruk.backend.partner.service
-
-import ombruk.backend.shared.error.ServiceError
+package ombruk.backend.shared.error
 
 sealed class KeycloakIntegrationError(msg: String = "") : ServiceError(msg){
     data class ConflictError(val reason: String = ""): KeycloakIntegrationError("A group with that name already exists in keycloak, $reason")

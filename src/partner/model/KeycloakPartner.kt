@@ -1,9 +1,9 @@
-package ombruk.backend.partner.form
+package ombruk.backend.partner.model
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class KeycloakPartnerForm(
+data class KeycloakPartner(
     val id: String,
     val name: String,
     val path: String,

@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
+import io.ktor.locations.KtorExperimentalLocationsAPI
 import ombruk.backend.partner.form.PartnerGetForm
 
 import ombruk.backend.partner.form.PartnerPostForm
@@ -53,8 +54,7 @@ object PartnerRepository : IPartnerRepository {
         .fold(
             //Return right if more than 1 partner has been updated. Else, return an Error
             {
-                Either.cond(
-                    it > 0,
+                Either.cond(it > 0,
                     { getPartnerByID(partner.id) },
                     { RepositoryError.NoRowsFound("${partner.id} not found") })
             },
@@ -67,30 +67,27 @@ object PartnerRepository : IPartnerRepository {
             .onFailure { logger.error("Failed to delete partner in DB: ${it.message}") }
             .fold(
                 {
-                    Either.cond(it > 0, { Unit }) {
-                        RepositoryError.NoRowsFound(
-                            "$partnerID not found"
-                        )
-                    }
+                    Either.cond(it > 0,
+                        { Unit },
+                        { RepositoryError.NoRowsFound("$partnerID not found") })
                 },
                 { RepositoryError.DeleteError(it.message).left() })
 
 
-    override fun getPartnerByID(partnerID: Int): Either<RepositoryError.NoRowsFound, Partner> = runCatching {
-        transaction { Partners.select { Partners.id eq partnerID }.map { toPartner(it) } }
-    }
-        .onFailure { logger.error(it.message) }
-        .fold(
-            {
-                Either.cond(it.isNotEmpty(), { it.first() }, {
-                    RepositoryError.NoRowsFound(
-                        "$partnerID not found"
+    override fun getPartnerByID(partnerID: Int): Either<RepositoryError.NoRowsFound, Partner> =
+        runCatching { transaction { Partners.select { Partners.id eq partnerID }.map { toPartner(it) } } }
+            .onFailure { logger.error(it.message) }
+            .fold(
+                {
+                    Either.cond(it.isNotEmpty(),
+                        { it.first() },
+                        { RepositoryError.NoRowsFound("$partnerID not found") }
                     )
-                })
-            },
-            { RepositoryError.NoRowsFound(it.message).left() })
+                },
+                { RepositoryError.NoRowsFound(it.message).left() })
 
 
+    @KtorExperimentalLocationsAPI
     override fun getPartners(partnerGetForm: PartnerGetForm): Either<RepositoryError.SelectError, List<Partner>> =
         runCatching {
             transaction {
@@ -100,9 +97,13 @@ object PartnerRepository : IPartnerRepository {
             }
         }
             .onFailure { logger.error(it.message) }
-            .fold({ it.right() }, { RepositoryError.SelectError(it.message).left() })
+            .fold(
+                { it.right() },
+                { RepositoryError.SelectError(it.message).left() }
+            )
 
     override fun exists(id: Int) = transaction { Partners.select { Partners.id eq id }.count() >= 1 }
+
 }
 
 
