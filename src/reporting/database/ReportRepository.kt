@@ -7,11 +7,11 @@ import ombruk.backend.calendar.database.Events
 import ombruk.backend.calendar.database.Stations
 import ombruk.backend.calendar.database.toStation
 import ombruk.backend.calendar.model.Event
-import ombruk.backend.shared.error.RepositoryError
-import ombruk.backend.reporting.model.Report
 import ombruk.backend.partner.database.Partners
 import ombruk.backend.reporting.form.ReportGetForm
 import ombruk.backend.reporting.form.ReportUpdateForm
+import ombruk.backend.reporting.model.Report
+import ombruk.backend.shared.error.RepositoryError
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.`java-time`.datetime
@@ -73,7 +73,9 @@ object ReportRepository : IReportRepository {
 
 
     override fun getReportByID(reportID: Int): Either<RepositoryError.NoRowsFound, Report> = transaction {
-        runCatching { (Reports innerJoin Stations).select { Reports.id eq reportID }.map { toReport(it) }.firstOrNull() }
+        runCatching {
+            (Reports innerJoin Stations).select { Reports.id eq reportID }.map { toReport(it) }.firstOrNull()
+        }
             .onFailure { logger.error(it.message) }
             .fold(
                 { Either.cond(it != null, { it!! }, { RepositoryError.NoRowsFound("ID $reportID does not exist!") }) },

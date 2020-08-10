@@ -23,7 +23,7 @@ import ombruk.backend.shared.api.receiveCatching
 fun Routing.partners(partnerService: IPartnerService) {
 
     route("/partners") {
-        get<PartnerGetByIdForm> {form ->
+        get<PartnerGetByIdForm> { form ->
             form.validOrError()
                 .flatMap { partnerService.getPartnerById(it.id) }
                 .run { generateResponse(this) }
@@ -62,7 +62,7 @@ fun Routing.partners(partnerService: IPartnerService) {
         authenticate {
             delete<PartnerDeleteForm> { form ->
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
-                    .flatMap {form.validOrError() }
+                    .flatMap { form.validOrError() }
                     .flatMap { partnerService.deletePartnerById(it.id) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }

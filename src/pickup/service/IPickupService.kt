@@ -14,7 +14,7 @@ interface IPickupService {
      * @param pickupPostForm A valid [PickupPostForm]
      * @return A [ServiceError] on failure and the stored [Pickup] on success.
      */
-    fun savePickup(pickupPostForm: PickupPostForm): Either<ServiceError,Pickup>
+    fun savePickup(pickupPostForm: PickupPostForm): Either<ServiceError, Pickup>
 
     /**
      * Gets a [List] of [Pickup] objects filtered based on what properties are set in the [PickupGetForm].
@@ -22,7 +22,7 @@ interface IPickupService {
      * @param pickupGetForm a [PickupGetForm] specifying what constraints should be applied to a query.
      * @return A [ServiceError] on failure and a [List] of [Pickup] objects on success.
      */
-    fun getPickups(pickupGetForm: PickupGetForm? = null): Either<ServiceError,List<Pickup>>
+    fun getPickups(pickupGetForm: PickupGetForm? = null): Either<ServiceError, List<Pickup>>
 
     /**
      * Gets a [Pickup] by its ID
@@ -30,7 +30,7 @@ interface IPickupService {
      * @param pickupGetByIdForm A [PickupGetByIdForm] that contains a valid [Pickup.id]
      * @return A [ServiceError] on failure and a [Pickup] on success.
      */
-    fun getPickupById (pickupGetByIdForm: PickupGetByIdForm): Either<ServiceError,Pickup>
+    fun getPickupById(pickupGetByIdForm: PickupGetByIdForm): Either<ServiceError, Pickup>
 
     /**
      * Deletes a [Pickup] based on its ID.
@@ -46,5 +46,5 @@ interface IPickupService {
      * @param pickupUpdateForm a [PickupUpdateForm] that specifies what should be updated.
      * @return A [ServiceError] on failure and a [Pickup] on success.
      */
-    fun updatePickup(pickupUpdateForm: PickupUpdateForm): Either<ServiceError,Pickup>
+    fun updatePickup(pickupUpdateForm: PickupUpdateForm): Either<ServiceError, Pickup>
 }

@@ -20,7 +20,7 @@ interface IStationService {
      * @return Either a [ServiceError] or a [List] of [Station] objects. The list may be empty if there are no stations
      */
     fun getStations(stationGetForm: StationGetForm): Either<ServiceError, List<Station>>
-    
+
     /**
      * Saves a station.
      * @param stationPostForm Station to save

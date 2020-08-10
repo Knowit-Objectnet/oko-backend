@@ -68,9 +68,9 @@ object KeycloakGroupIntegration {
         var result: Either<KeycloakIntegrationError, T>? = null
         kotlin.runCatching { function() }
             .onFailure {
-                if(it is ClientRequestException){
+                if (it is ClientRequestException) {
                     logger.warn(it.response.status.value.toString())
-                    result =  when (it.response.status.value) {
+                    result = when (it.response.status.value) {
                         HttpStatusCode.Conflict.value -> Left(KeycloakIntegrationError.ConflictError())
                         else -> Left(KeycloakIntegrationError.KeycloakError("Failed to connect to Keycloak"))
                     }
@@ -125,8 +125,11 @@ object KeycloakGroupIntegration {
                     accept(ContentType.Application.Json)
                 }
             }
-        }.bimap({ it }, { json.parse(
-            KeycloakPartnerForm.serializer().list, it) })
+        }.bimap({ it }, {
+            json.parse(
+                KeycloakPartnerForm.serializer().list, it
+            )
+        })
 
     /**
      * Helper function for getting a group based on its name. Keycloak only supports fetching groups by their ID, so a solution

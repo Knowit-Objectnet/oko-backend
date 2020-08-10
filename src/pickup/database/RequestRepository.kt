@@ -34,7 +34,10 @@ object RequestRepository : IRequestRepository {
         runCatching {
             transaction {
                 val query = (Requests innerJoin Partners)
-                    .innerJoin(Pickups, { Requests.pickupID }, { Pickups.id })  // have to specify keys for this join, Exposed messes it up.
+                    .innerJoin(
+                        Pickups,
+                        { Requests.pickupID },
+                        { Pickups.id })  // have to specify keys for this join, Exposed messes it up.
                     .innerJoin(Stations)
                     .selectAll()
                 requestGetForm?.let {   // add constraints if needed.
@@ -56,8 +59,9 @@ object RequestRepository : IRequestRepository {
             .fold(
                 { it.left() },
                 // If result is empty array, return 404.
-                { Either.cond(it.isNotEmpty(), { it.first() },
-                    { RepositoryError.NoRowsFound("Failed to find request") })
+                {
+                    Either.cond(it.isNotEmpty(), { it.first() },
+                        { RepositoryError.NoRowsFound("Failed to find request") })
                 }
             )
 

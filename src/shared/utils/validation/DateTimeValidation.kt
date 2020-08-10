@@ -15,7 +15,7 @@ data class LessThanEndDateTime(val endDateTime: LocalDateTime?) : Constraint
 
 fun <E> Validator<E>.Property<LocalDateTime?>.isLessThanEndDateTime(endDateTime: LocalDateTime?) =
     this.validate(LessThanEndDateTime(endDateTime)) {
-        it == null || endDateTime == null ||it < endDateTime
+        it == null || endDateTime == null || it < endDateTime
     }
 
 

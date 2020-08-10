@@ -17,7 +17,7 @@ data class StationPostForm(
     @Serializable(with = LocalTimeSerializer::class) val openingTime: LocalTime,
     @Serializable(with = LocalTimeSerializer::class) val closingTime: LocalTime
 ) : IForm<StationPostForm> {
-    override fun validOrError()= runCatchingValidation {
+    override fun validOrError() = runCatchingValidation {
         validate(this) {
             validate(StationPostForm::name).isNotBlank()
             validate(StationPostForm::openingTime).isLessThanClosingTime(closingTime)

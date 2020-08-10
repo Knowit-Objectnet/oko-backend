@@ -24,49 +24,48 @@ import java.time.format.DateTimeFormatter
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PickupServiceDeleteTest {
-        lateinit var testStation: Station
-        lateinit var testStation2: Station
+    lateinit var testStation: Station
+    lateinit var testStation2: Station
 
 
-        init{
-            initDB()
-            transaction {
-                val testStationId = Stations.insertAndGetId {
-                    it[name] = "Test Station 1"
-                    it[openingTime] = "09:00:00"
-                    it[closingTime] = "21:00:00"
-                }.value
+    init {
+        initDB()
+        transaction {
+            val testStationId = Stations.insertAndGetId {
+                it[name] = "Test Station 1"
+                it[openingTime] = "09:00:00"
+                it[closingTime] = "21:00:00"
+            }.value
 
-                testStation = Station(
-                    testStationId,
-                    "Test Station 1",
-                    LocalTime.parse("09:00:00", DateTimeFormatter.ISO_TIME),
-                    LocalTime.parse("21:00:00", DateTimeFormatter.ISO_TIME)
-                )
+            testStation = Station(
+                testStationId,
+                "Test Station 1",
+                LocalTime.parse("09:00:00", DateTimeFormatter.ISO_TIME),
+                LocalTime.parse("21:00:00", DateTimeFormatter.ISO_TIME)
+            )
 
-                val testStationId2 = Stations.insertAndGetId {
-                    it[name] = "Test Station 2"
-                    it[openingTime] = "08:00:00"
-                    it[closingTime] = "20:00:00"
-                }.value
-                testStation2 = Station(
-                    testStationId2,
-                    "Test Station 2",
-                    LocalTime.parse("08:00:00", DateTimeFormatter.ISO_TIME),
-                    LocalTime.parse("20:00:00", DateTimeFormatter.ISO_TIME)
-                )
+            val testStationId2 = Stations.insertAndGetId {
+                it[name] = "Test Station 2"
+                it[openingTime] = "08:00:00"
+                it[closingTime] = "20:00:00"
+            }.value
+            testStation2 = Station(
+                testStationId2,
+                "Test Station 2",
+                LocalTime.parse("08:00:00", DateTimeFormatter.ISO_TIME),
+                LocalTime.parse("20:00:00", DateTimeFormatter.ISO_TIME)
+            )
 
-            }
         }
-        @AfterAll
-        fun cleanPartnersAndStationsFromDB(){
-            transaction {
-                Partners.deleteAll()
-                Stations.deleteAll()
-            }
+    }
+
+    @AfterAll
+    fun cleanPartnersAndStationsFromDB() {
+        transaction {
+            Partners.deleteAll()
+            Stations.deleteAll()
         }
-
-
+    }
 
 
     @AfterEach
@@ -84,12 +83,12 @@ class PickupServiceDeleteTest {
 
         // Create a pickup to be deleted.
         val pickupToDelete = PickupService.savePickup(
-                PickupPostForm(
-                    startDateTime = start,
-                    endDateTime = end,
-                    stationId = testStation.id
-                )
+            PickupPostForm(
+                startDateTime = start,
+                endDateTime = end,
+                stationId = testStation.id
             )
+        )
         // This will barf if something goes wrong...
 
         require(pickupToDelete is Either.Right)

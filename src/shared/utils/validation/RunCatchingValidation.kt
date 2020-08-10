@@ -15,7 +15,8 @@ fun <T> runCatchingValidation(func: () -> T): Either<ValidationError, T> {
     return try {
         func().right()
     } catch (e: ConstraintViolationException) {
-        val msg = e.constraintViolations.mapToMessage("messages", Locale.ENGLISH).joinToString { "${it.property}: ${it.message}" }
+        val msg = e.constraintViolations.mapToMessage("messages", Locale.ENGLISH)
+            .joinToString { "${it.property}: ${it.message}" }
         ValidationError.Unprocessable(msg).left()
     }
 }

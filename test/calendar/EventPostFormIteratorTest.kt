@@ -10,7 +10,7 @@ import java.time.DayOfWeek
 import java.time.LocalDateTime
 
 class EventPostFormIteratorTest {
-    
+
     @Test
     fun testEverydayStartingSameAsRecurrenceRuleDay() {
         val recurrenceRule = RecurrenceRule(count = 1, days = everyday())

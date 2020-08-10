@@ -19,7 +19,7 @@ data class StationUpdateForm(
     @Serializable(with = LocalTimeSerializer::class) val openingTime: LocalTime?,
     @Serializable(with = LocalTimeSerializer::class) val closingTime: LocalTime?
 ) : IForm<StationUpdateForm> {
-    override fun validOrError()= runCatchingValidation {
+    override fun validOrError() = runCatchingValidation {
         validate(this) {
             validate(StationUpdateForm::id).isGreaterThan(0)
             validate(StationUpdateForm::name).isNotBlank()
