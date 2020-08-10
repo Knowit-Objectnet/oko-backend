@@ -19,16 +19,17 @@ interface IPartnerService {
     fun savePartner(partnerForm: PartnerPostForm): Either<ServiceError, Partner>
 
     /**
-     * Gets a partner by its ID. Returns an error if the provided ID does not exist.
+     * Gets a partner by its ID.´
      *
      * @param id The ID of the user to get.
-     * @return An [Either] object consisting of [ServiceError] on failure or the requested partner on success.
+     * @return An [Either] object consisting of a [ServiceError] on failure or the requested [Partner] on success.
      */
     fun getPartnerById(id: Int): Either<ServiceError, Partner>
 
     /**
-     * Fetches all partners stored in the database.
+     * Fetches partners constrained by non-null values in the [PartnerGetForm].
      *
+     * @param partnerGetForm A [PartnerGetForm], where each non-null property will constrain the search.
      * @return An [Either] object consisting of [ServiceError] on failure or a [List] of [Partner] objects on success.
      */
     fun getPartners(partnerGetForm: PartnerGetForm): Either<ServiceError, List<Partner>>
