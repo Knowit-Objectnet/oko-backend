@@ -1,4 +1,3 @@
-
 /*package calendar.repository
 
 import arrow.core.Either
@@ -98,7 +97,6 @@ class EventRepositoryTestTest {
                 )
             }
 
-            eventService = EventService(ReportService)
         }
 
         @AfterClass
@@ -120,6 +118,7 @@ class EventRepositoryTestTest {
 
 
     @Test
+<<<<<<< HEAD:test/calendar/repository/EventRepositoryTest.kt
     fun testGetEventById() {
         val expectedEvent = Event(
             1,
@@ -127,12 +126,31 @@ class EventRepositoryTestTest {
             LocalDateTime.parse("2020-07-06T16:48:06", DateTimeFormatter.ISO_DATE_TIME),
             testStation,
             testPartner
+=======
+    fun testUpdateEvent() {
+        val start = LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME)
+        val end = LocalDateTime.parse("2020-08-14T16:30:00", DateTimeFormatter.ISO_DATE_TIME)
+
+        val initialEvent = EventService.saveEvent(
+            EventPostForm(
+                start,
+                end,
+                testStation.id,
+                testPartner.id
+            )
+>>>>>>> master:test/calendar/service/EvetServiceUpdateEventTest.kt
         )
 
         every { EventRepository.getEventByID(expectedEvent.id) } returns expectedEvent.right()
 
+<<<<<<< HEAD:test/calendar/repository/EventRepositoryTest.kt
 
         val actualEvent = eventService.getEventByID(expectedEvent.id)
+=======
+        EventService.updateEvent(updateForm)
+
+        val actualEvent = EventService.getEventByID(initialEvent.b.id)
+>>>>>>> master:test/calendar/service/EvetServiceUpdateEventTest.kt
         require(actualEvent is Either.Right)
 
         assertEquals(expectedEvent, actualEvent.b)

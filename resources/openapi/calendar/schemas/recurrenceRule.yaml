@@ -1,0 +1,24 @@
+type: object
+properties:
+  id:
+    type: integer
+    format: int64
+    example: 1
+  until:
+    type: string
+    format: date-time
+    example: "2020-07-13T15:00:00Z"
+  days:
+    type: array
+    items:
+      type: string
+      enum: [MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY]
+    example: ["MONDAY", "TUESDAY", "FRIDAY"]
+  interval:
+    type: integer
+    format: int64
+    example: 1
+  count:
+    type: integer
+    format: int64
+    example: 5

@@ -20,18 +20,14 @@ private val logger = LoggerFactory.getLogger("ombruk.backend.database.StationRep
 
 object Stations : IntIdTable("stations") {
     val name = varchar("name", 200)
+
+    //The following strings are supposed to represent a time on the format "HH:MM:SS", followed by an optional "Z" for UTC.
     val openingTime = varchar("opening_time", 20)
     val closingTime = varchar("closing_time", 20)
 }
 
 object StationRepository : IStationRepository {
 
-
-    /**
-     * Get a Station by id or null if it doesn't exist.
-     * @param id Id of the station to get
-     * @return Either a Throwable or the Station
-     */
     override fun getStationById(id: Int) = runCatching {
         transaction { Stations.select { Stations.id eq id }.map { toStation(it) } }
     }
@@ -40,10 +36,7 @@ object StationRepository : IStationRepository {
             { Either.cond(it.isNotEmpty(), { it.first() }, { RepositoryError.NoRowsFound("No rows matching $id") }) },
             { RepositoryError.SelectError("Failed to get station").left() })
 
-    /**
-     * A list of all stations
-     * @return Either a Throwable or the list of stations
-     */
+
     @KtorExperimentalLocationsAPI
     override fun getStations(stationGetForm: StationGetForm) = runCatching {
         transaction {
@@ -55,11 +48,7 @@ object StationRepository : IStationRepository {
         .onFailure { logger.error("Failed to get stations from db") }
         .fold({ it.right() }, { RepositoryError.SelectError("Failed to get stations").left() })
 
-    /**
-     * Insert a Station to the db
-     * @param stationPostForm The Station to insert
-     * @return Either a Throwable or the Station with the correct id
-     */
+
     override fun insertStation(stationPostForm: StationPostForm) =
         transaction {
             runCatching {
@@ -73,13 +62,10 @@ object StationRepository : IStationRepository {
             .onFailure { logger.error("Failed to insert station to db: ${it.message}") }
             .fold(
                 { getStationById(it) },
-                { RepositoryError.InsertError("Failed to insert station $stationPostForm").left() })
+                { RepositoryError.InsertError("Failed to insert station $stationPostForm").left() }
+            )
 
-    /**
-     * Update a given Station
-     * @param station The Station to update
-     * @return Either a Throwable or the updated Station
-     */
+
     override fun updateStation(stationUpdateForm: StationUpdateForm) = runCatching {
         transaction {
             Stations.update({ Stations.id eq stationUpdateForm.id }) { row ->
@@ -94,11 +80,7 @@ object StationRepository : IStationRepository {
             { getStationById(stationUpdateForm.id) },
             { RepositoryError.UpdateError("Failed to update station $stationUpdateForm").left() })
 
-    /**
-     * Delete a given station from the DB.
-     * @param station The Station to delete
-     * @return Either a Throwable or the deleted Station
-     */
+
     override fun deleteStation(id: Int) = runCatching {
         transaction { Stations.deleteWhere { Stations.id eq id } }
     }
@@ -109,6 +91,11 @@ object StationRepository : IStationRepository {
 
 }
 
+/**
+ * Helper function used for converting a [ResultRow] from a query to a [Station] object.
+ * @param row A [ResultRow]
+ * @return A [Station] object
+ */
 fun toStation(row: ResultRow): Station {
     return Station(
         row[Stations.id].value,

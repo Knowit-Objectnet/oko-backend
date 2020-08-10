@@ -27,8 +27,6 @@ import java.time.format.DateTimeFormatter
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class EventServiceSaveTest {
-    private val eventService = EventService(ReportService)
-
     private lateinit var testPartner: Partner
     private lateinit var testPartner2: Partner
     private lateinit var testStation: Station
@@ -95,7 +93,6 @@ class EventServiceSaveTest {
                 LocalTime.parse("20:00:00", DateTimeFormatter.ISO_TIME)
             )
         }
-
     }
 
     @AfterAll
@@ -115,7 +112,7 @@ class EventServiceSaveTest {
 
     @Test
     fun testSaveEvent() {
-        val expectedEvent = eventService.saveEvent(
+        val expectedEvent = EventService.saveEvent(
             EventPostForm(
                 startDateTime = LocalDateTime.parse("2020-07-06T15:48:06", DateTimeFormatter.ISO_DATE_TIME),
                 endDateTime = LocalDateTime.parse("2020-07-06T16:48:06", DateTimeFormatter.ISO_DATE_TIME),
@@ -125,7 +122,7 @@ class EventServiceSaveTest {
         )
         require(expectedEvent is Either.Right)
 
-        val actualEvent = eventService.getEventByID(expectedEvent.b.id)
+        val actualEvent = EventService.getEventByID(expectedEvent.b.id)
 
         assertEquals(expectedEvent, actualEvent)
     }
@@ -144,9 +141,9 @@ class EventServiceSaveTest {
             )
         )
 
-        eventService.saveEvent(createForm)
+        EventService.saveEvent(createForm)
 
-        val actualEvents = eventService.getEvents()
+        val actualEvents = EventService.getEvents()
         require(actualEvents is Either.Right)
 
         val firstId = actualEvents.b.first().id

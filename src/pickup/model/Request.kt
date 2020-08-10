@@ -5,6 +5,6 @@ import ombruk.backend.partner.model.Partner
 
 @Serializable
 data class Request(
-    val pickupID: Int,
+    val pickup: Pickup,
     val partner: Partner
 )

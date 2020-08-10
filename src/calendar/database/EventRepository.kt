@@ -20,6 +20,7 @@ import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.`java-time`.datetime
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
+import kotlin.reflect.full.memberProperties
 
 object Events : IntIdTable("events") {
     val startDateTime = datetime("start_date_time")
@@ -70,20 +71,14 @@ object EventRepository : IEventRepository {
     override fun deleteEvent(eventDeleteForm: EventDeleteForm): Either<RepositoryError, List<Event>> =
         runCatching {
             transaction {
-                var statement = eventDeleteForm.eventId?.let { Op.build { Events.id eq eventDeleteForm.eventId } }
-                    ?: Op.build { Events.recurrenceRuleID eq eventDeleteForm.recurrenceRuleId }
-                eventDeleteForm.fromDate?.let {
-                    statement =
-                        AndOp(
-                            listOf(
-                                statement,
-                                Op.build { Events.startDateTime.greaterEq(eventDeleteForm.fromDate!!) })
-                        )
-                }
-                eventDeleteForm.toDate?.let {
-                    statement =
-                        AndOp(listOf(statement, Op.build { Events.endDateTime.lessEq(eventDeleteForm.toDate!!) }))
-                }
+                val statements = mutableListOf<Op<Boolean>>()
+                eventDeleteForm.eventId?.let { statements.add(Op.build { Events.id eq it }) }
+                eventDeleteForm.recurrenceRuleId?.let { statements.add(Op.build { Events.recurrenceRuleID eq it }) }
+                eventDeleteForm.fromDate?.let { statements.add(Op.build { Events.startDateTime.greaterEq(it) }) }
+                eventDeleteForm.toDate?.let { statements.add(Op.build { Events.endDateTime.lessEq(it) }) }
+                eventDeleteForm.partnerId?.let { statements.add(Op.build { Events.partnerID eq it }) }
+                eventDeleteForm.stationId?.let { statements.add(Op.build { Events.stationID eq it }) }
+                val statement = AndOp(statements)
 
                 val eventsToDelete =
                     (Events innerJoin Stations innerJoin Partners leftJoin RecurrenceRules).select { statement }
@@ -135,7 +130,7 @@ object EventRepository : IEventRepository {
             .onFailure { logger.error(it.message) }
             .fold({ it.right() }, { RepositoryError.SelectError(it.message).left() })
 
-    override fun exists(id: Int) = transaction { Events.select{Events.id eq id}.count() >= 1 }
+    override fun exists(id: Int) = transaction { Events.select { Events.id eq id }.count() >= 1 }
 
 
     private fun toEvent(row: ResultRow?): Event? {

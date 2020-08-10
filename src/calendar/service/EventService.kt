@@ -6,23 +6,23 @@ import arrow.core.left
 import arrow.core.right
 import ombruk.backend.calendar.database.EventRepository
 import ombruk.backend.calendar.database.RecurrenceRules
-import ombruk.backend.calendar.form.event.EventPostForm
 import ombruk.backend.calendar.form.event.EventDeleteForm
+import ombruk.backend.calendar.form.event.EventGetForm
+import ombruk.backend.calendar.form.event.EventPostForm
 import ombruk.backend.calendar.form.event.EventUpdateForm
 import ombruk.backend.calendar.model.Event
 import ombruk.backend.calendar.model.EventType
-import ombruk.backend.reporting.service.IReportService
+import ombruk.backend.reporting.service.ReportService
 import ombruk.backend.shared.error.ServiceError
-import ombruk.backend.calendar.form.event.EventGetForm
 import org.jetbrains.exposed.sql.transactions.transaction
 
-class EventService(private val reportingService: IReportService) : IEventService {
+object EventService : IEventService {
 
     private fun saveRecurring(eventPostForm: EventPostForm) = transaction {
         eventPostForm.map { form ->
             EventRepository.insertEvent(form)
                 .flatMap { event ->
-                    reportingService.saveReport(event).fold({ rollback(); it.left() }, { event.right() })
+                    ReportService.saveReport(event).fold({ rollback(); it.left() }, { event.right() })
                 }
         }.first()
     }
@@ -48,7 +48,7 @@ class EventService(private val reportingService: IReportService) : IEventService
     override fun updateEvent(eventUpdate: EventUpdateForm) = transaction {
         EventRepository.updateEvent(eventUpdate)
             .flatMap { event ->
-                reportingService.updateReport(event)
+                ReportService.updateReport(event)
                     .fold({ rollback(); it.left() }, { event.right() })
             }
     }

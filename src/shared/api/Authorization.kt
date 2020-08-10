@@ -10,6 +10,7 @@ import io.ktor.auth.jwt.JWTPrincipal
 import io.ktor.auth.principal
 import io.ktor.config.HoconApplicationConfig
 import ombruk.backend.calendar.model.Event
+import ombruk.backend.pickup.form.request.RequestPostForm
 import ombruk.backend.reporting.model.Report
 import ombruk.backend.shared.error.AuthorizationError
 import ombruk.backend.shared.error.ServiceError
@@ -30,15 +31,18 @@ object Authorization {
         val principal = runCatching { call.principal<JWTPrincipal>()!! }.onFailure {
             return AuthorizationError.InvalidPrincipal().left()
         }.getOrElse { return AuthorizationError.InvalidPrincipal().left() }
-        val claimRoles = when(debug || testing){
-            true -> {principal.payload.claims["roles"]?.asList(String::class.java)} //Have to do this because our JWT library doesn't support
+        val claimRoles = when (debug || testing) {
+            true -> {
+                principal.payload.claims["roles"]?.asList(String::class.java)
+            } //Have to do this because our JWT library doesn't support
             //objects within a claim
             else -> principal.payload.claims["realm_access"]?.asMap()?.get("roles") as List<String>?
         } ?: return AuthorizationError.MissingRolesError().left()
         val role = allowedRoles.firstOrNull { role -> println(role); claimRoles.any { it == role.value } }
             ?: return AuthorizationError.InsufficientRoleError().left()
-        val groupID = principal.payload.claims["GroupID"]?.asInt() //-1 serves as a placeholder value for stations and REG admin
-            ?: if (role != Roles.Partner) -1 else return AuthorizationError.MissingGroupIDError().left()
+        val groupID =
+            principal.payload.claims["GroupID"]?.asInt() //-1 serves as a placeholder value for stations and REG admin
+                ?: if (role != Roles.Partner) -1 else return AuthorizationError.MissingGroupIDError().left()
         return Pair(role, groupID).right()
     }
 
@@ -46,14 +50,33 @@ object Authorization {
         .flatMap {
             if (role.first == Roles.Partner && it.any { event -> event.partner.id != role.second }) {
                 AuthorizationError.AccessViolationError().left()
-            } else Unit.right()
+            } else role.right()
         }
 
-    fun authorizeReportPatchByPartnerId(role: Pair<Roles, Int>, reportFunc: () -> Either<ServiceError, Report>) = reportFunc()
-        .flatMap {
-            if(role.first == Roles.Partner && it.partnerID != role.second){
-                AuthorizationError.AccessViolationError().left()
+    fun authorizeReportPatchByPartnerId(role: Pair<Roles, Int>, reportFunc: () -> Either<ServiceError, Report>) =
+        reportFunc()
+            .flatMap {
+                if (role.first == Roles.Partner && it.partnerID != role.second) {
+                    AuthorizationError.AccessViolationError().left()
+                } else role.right()
             }
-            else Unit.right()
+
+    fun authorizeRequestId(role: Pair<Roles, Int>, partnerId: Int): Either<AuthorizationError, Pair<Roles, Int>> {
+        println("hello")
+        return when (partnerId == role.second) {
+            true -> role.right()
+            else -> AuthorizationError.AccessViolationError("Provided ID $partnerId does not match your ID ${role.second}")
+                .left()
         }
+    }
+
+    fun authorizePickupId(role: Pair<Roles, Int>, partnerId: Int) = if (role.first == Roles.Partner) {
+        when (role.second == partnerId) {
+            true -> role.right()
+            else -> AuthorizationError.AccessViolationError("Provided id $partnerId does not match your ID ${role.second}")
+                .left()
+        }
+    } else {
+        role.right()
+    }
 }

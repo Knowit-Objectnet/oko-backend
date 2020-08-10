@@ -1,8 +1,15 @@
 get:
   tags:
-    - everyone
+    #- everyone
+    - partners
   summary: Gets all partners
   operationId: getPartners
+  parameters:
+    - in: query
+      name: name
+      schema:
+        type: string
+        example: Fretex
   responses:
     '200':
       description: Returns all partners
@@ -17,7 +24,8 @@ get:
 
 post:
   tags:
-    - reg-admin
+    #- reg-admin
+    - partners
   summary: adds a partner
   operationId: addPartner
   description: Adds a partner to the database and to keycloak. Name must be unique.
@@ -50,8 +58,9 @@ post:
 
 patch:
   tags:
-    - reg-admin
-    - partner
+    #- reg-admin
+    #- partner
+    - partners
   summary: Updates a partner both in the database and in keycloak
   operationId: patchpartner
   description: |
@@ -61,6 +70,10 @@ patch:
   responses:
     '200':
       description: Partner updated
+      content:
+        application/json:
+          schema:
+            $ref: '../api.yaml#/components/schemas/Partner'
     '400':
       description: Bad request body
     '401':

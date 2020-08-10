@@ -10,7 +10,6 @@ import ombruk.backend.calendar.model.Station
 import ombruk.backend.calendar.service.EventService
 import ombruk.backend.partner.database.Partners
 import ombruk.backend.partner.model.Partner
-import ombruk.backend.reporting.service.ReportService
 import ombruk.backend.shared.database.initDB
 import ombruk.backend.shared.utils.rangeTo
 import org.jetbrains.exposed.sql.deleteAll
@@ -18,17 +17,16 @@ import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.time.DayOfWeek
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import kotlin.test.assertEquals
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class EventServiceDeleteTest {
-    private val eventService = EventService(ReportService)
     private lateinit var testPartner: Partner
     private lateinit var testPartner2: Partner
     private lateinit var testStation: Station
@@ -44,14 +42,13 @@ class EventServiceDeleteTest {
                 it[email] = "example@gmail.com"
             }.value
 
-            testPartner =
-                Partner(
-                    testPartnerId,
-                    "TestPartner 1",
-                    "Description of TestPartner 1",
-                    "+47 2381931",
-                    "example@gmail.com"
-                )
+            testPartner = Partner(
+                testPartnerId,
+                "TestPartner 1",
+                "Description of TestPartner 1",
+                "+47 2381931",
+                "example@gmail.com"
+            )
 
             val testPartnerId2 = Partners.insertAndGetId {
                 it[name] = "TestPartner 2"
@@ -68,7 +65,6 @@ class EventServiceDeleteTest {
                     "911",
                     "example@gmail.com"
                 )
-
 
             val testStationId = Stations.insertAndGetId {
                 it[name] = "Test Station 1"
@@ -88,6 +84,7 @@ class EventServiceDeleteTest {
                 it[openingTime] = "08:00:00"
                 it[closingTime] = "20:00:00"
             }.value
+
             testStation2 = Station(
                 testStationId2,
                 "Test Station 2",
@@ -96,7 +93,7 @@ class EventServiceDeleteTest {
             )
         }
     }
-    
+
     @AfterAll
     fun cleanPartnersAndStationsFromDB() {
         transaction {
@@ -116,7 +113,7 @@ class EventServiceDeleteTest {
     @Test
     fun testDeleteEventByid() {
 
-        val eventToDelete = eventService.saveEvent(
+        val eventToDelete = EventService.saveEvent(
             EventPostForm(
                 LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-07-27T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
@@ -125,7 +122,7 @@ class EventServiceDeleteTest {
             )
         )
 
-        val eventNotToDelete = eventService.saveEvent(
+        val eventNotToDelete = EventService.saveEvent(
             EventPostForm(
                 LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-07-27T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
@@ -139,9 +136,9 @@ class EventServiceDeleteTest {
 
         val deleteForm = EventDeleteForm(eventToDelete.b.id)
 
-        assert(eventService.deleteEvent(deleteForm) is Either.Right)
+        assert(EventService.deleteEvent(deleteForm) is Either.Right)
 
-        val eventLeftAfterDelete = eventService.getEvents()
+        val eventLeftAfterDelete = EventService.getEvents()
         require(eventLeftAfterDelete is Either.Right)
 
         assertEquals(eventNotToDelete.b, eventLeftAfterDelete.b.first())
@@ -151,7 +148,7 @@ class EventServiceDeleteTest {
     @Test
     fun testDeleteEventByRecurrenceRuleId() {
 
-        val eventToDelete = eventService.saveEvent(
+        val eventToDelete = EventService.saveEvent(
             EventPostForm(
                 LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-07-27T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
@@ -161,7 +158,7 @@ class EventServiceDeleteTest {
             )
         )
 
-        val eventNotToDelete = eventService.saveEvent(
+        val eventNotToDelete = EventService.saveEvent(
             EventPostForm(
                 LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-07-27T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
@@ -173,12 +170,11 @@ class EventServiceDeleteTest {
         require(eventToDelete is Either.Right)
         require(eventNotToDelete is Either.Right)
 
-        val deleteForm =
-            EventDeleteForm(recurrenceRuleId = eventToDelete.b.recurrenceRule!!.id)
+        val deleteForm = EventDeleteForm(recurrenceRuleId = eventToDelete.b.recurrenceRule!!.id)
 
-        assert(eventService.deleteEvent(deleteForm) is Either.Right)
+        assert(EventService.deleteEvent(deleteForm) is Either.Right)
 
-        val eventLeftAfterDelete = eventService.getEvents()
+        val eventLeftAfterDelete = EventService.getEvents()
         require(eventLeftAfterDelete is Either.Right)
 
         assertEquals(eventNotToDelete.b, eventLeftAfterDelete.b.first())
@@ -200,11 +196,11 @@ class EventServiceDeleteTest {
             RecurrenceRule(count = 7)
         )
 
-        val recurrenceRuleId = eventService.saveEvent(createForm).map { it.recurrenceRule!!.id }
+        val recurrenceRuleId = EventService.saveEvent(createForm).map { it.recurrenceRule!!.id }
         require(recurrenceRuleId is Either.Right)
 
         val eventNotToDelete = dateRange.map {
-            eventService.saveEvent(
+            EventService.saveEvent(
                 EventPostForm(
                     it,
                     it.plusHours(1),
@@ -221,9 +217,9 @@ class EventServiceDeleteTest {
             recurrenceRuleId = recurrenceRuleId.b
         )
 
-        assert(eventService.deleteEvent(deleteForm) is Either.Right)
+        assert(EventService.deleteEvent(deleteForm) is Either.Right)
 
-        val eventsLeftAfterDelete = eventService.getEvents()
+        val eventsLeftAfterDelete = EventService.getEvents()
         require(eventsLeftAfterDelete is Either.Right)
 
         assertEquals(eventNotToDelete, eventsLeftAfterDelete.b)

@@ -1,6 +1,7 @@
 get:
   tags:
-    - everyone
+    #- everyone
+    - reports
   summary: fetches a report
   operationId: getReport
   parameters:

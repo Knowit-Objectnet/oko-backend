@@ -1,55 +1,36 @@
 package ombruk.backend.reporting.form
 
-import arrow.core.Either
-import arrow.core.left
-import arrow.core.right
-import io.ktor.http.Parameters
-import ombruk.backend.shared.error.ValidationError
+import io.ktor.locations.Location
+import ombruk.backend.shared.form.IForm
+import ombruk.backend.shared.utils.validation.isLessThanEndDateTime
+import ombruk.backend.shared.utils.validation.runCatchingValidation
+import org.valiktor.functions.isGreaterThan
+import org.valiktor.functions.isNull
+import org.valiktor.validate
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
-class ReportGetForm private constructor(
+@Location("/")
+class ReportGetForm(
     var eventID: Int? = null,
     var stationID: Int? = null,
     var partnerID: Int? = null,
     var fromDate: LocalDateTime? = null,
     var toDate: LocalDateTime? = null
-) {
-    companion object {
-        fun create(params: Parameters): Either<ValidationError, ReportGetForm> {
-            val report = ReportGetForm()
-            params["event-id"]?.let { param ->
-                kotlin.runCatching { param.toInt() }
-                    .onSuccess { report.eventID = it }
-                    .onFailure { return ValidationError.InputError("station-id must be an Int, is: $param").left() }
+) : IForm<ReportGetForm> {
+    override fun validOrError() = runCatchingValidation {
+        validate(this) {
+            validate(ReportGetForm::eventID).isGreaterThan(0)
+            validate(ReportGetForm::stationID).isGreaterThan(0)
+            validate(ReportGetForm::partnerID).isGreaterThan(0)
+
+            validate(ReportGetForm::fromDate).isLessThanEndDateTime(toDate)
+
+            if (eventID != null) {
+                validate(ReportGetForm::stationID).isNull()
+                validate(ReportGetForm::partnerID).isNull()
+                validate(ReportGetForm::fromDate).isNull()
+                validate(ReportGetForm::toDate).isNull()
             }
-            params["station-id"]?.let { param ->
-                kotlin.runCatching { param.toInt() }
-                    .onSuccess { report.stationID = it }
-                    .onFailure { return ValidationError.InputError("station-id must be an Int, is: $param").left() }
-            }
-            params["partner-id"]?.let { param ->
-                kotlin.runCatching { param.toInt() }
-                    .onSuccess { report.partnerID = it }
-                    .onFailure { return ValidationError.InputError("partner-id must be an Int, is: $param").left() }
-            }
-            params["from-date"]?.let { param ->
-                kotlin.runCatching { LocalDateTime.parse(param, DateTimeFormatter.ISO_DATE_TIME) }
-                    .onFailure {
-                        return ValidationError.InputError("Invalid from-date: must be a ISO-compliant string, is: $param")
-                            .left()
-                    }
-                    .onSuccess { report.fromDate = it }
-            }
-            params["to-date"]?.let { param ->
-                kotlin.runCatching { LocalDateTime.parse(param, DateTimeFormatter.ISO_DATE_TIME) }
-                    .onFailure {
-                        return ValidationError.InputError("Invalid to-date: must be a ISO-compliant string, is: $param")
-                            .left()
-                    }
-                    .onSuccess { report.toDate = it }
-            }
-            return report.right()
         }
     }
 }

@@ -31,7 +31,9 @@ import ombruk.backend.calendar.service.StationService
 import ombruk.backend.partner.api.partners
 import ombruk.backend.partner.service.PartnerService
 import ombruk.backend.pickup.api.pickup
+import ombruk.backend.pickup.api.request
 import ombruk.backend.pickup.service.PickupService
+import ombruk.backend.pickup.service.RequestService
 import ombruk.backend.reporting.api.report
 import ombruk.backend.reporting.service.ReportService
 import ombruk.backend.shared.api.Authorization
@@ -144,10 +146,17 @@ fun Application.module(testing: Boolean = false) {
         method(HttpMethod.Delete)
         method(HttpMethod.Patch)
         header(HttpHeaders.Authorization)
+        header(HttpHeaders.Origin)
         header(HttpHeaders.AccessControlAllowCredentials)
-        //anyHost() // @TODO: Don't do this in production if possible. Try to limit it.
-        host("0.0.0.0:8080")
-        host("staging.oko.knowit.no")
+        host(
+            host = "oko.knowit.no",
+            schemes = listOf("http", "https"),
+            subDomains = listOf("staging")
+        )
+        host(
+            host = "0.0.0.0:8080",
+            schemes = listOf("http", "https")
+        )
         allowCredentials = true
         allowNonSimpleContentTypes = true
     }
@@ -160,11 +169,12 @@ fun Application.module(testing: Boolean = false) {
     }
 
     routing {
-        events(EventService(ReportService))
-        partners(PartnerService())
+        events(EventService)
+        partners(PartnerService)
         report(ReportService)
         pickup(PickupService)
         stations(StationService)
+        request(RequestService)
         get("/health_check") {
             call.respond(HttpStatusCode.OK)
         }

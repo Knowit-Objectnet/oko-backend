@@ -1,0 +1,21 @@
+type: object
+properties:
+  startDateTime:
+    type: string
+    format: date-time
+    example: "2020-07-13T15:00:00Z"
+  endDateTime:
+    type: string
+    format: date-time
+    example: "2020-07-20T15:00:00Z"
+  description:
+    type: string
+    example: Hey come pick up some furniture
+  stationId:
+    type: integer
+    format: int64
+    example: 1
+required:
+  - startDateTime
+  - endDateTime
+  - stationId

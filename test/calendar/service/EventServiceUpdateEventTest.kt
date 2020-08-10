@@ -8,7 +8,6 @@ import ombruk.backend.calendar.model.Station
 import ombruk.backend.calendar.service.EventService
 import ombruk.backend.partner.database.Partners
 import ombruk.backend.partner.model.Partner
-import ombruk.backend.reporting.service.ReportService
 import ombruk.backend.shared.database.initDB
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.insertAndGetId
@@ -27,8 +26,6 @@ class EventServiceUpdateEventTest {
     private lateinit var testPartner2: Partner
     private lateinit var testStation: Station
     private lateinit var testStation2: Station
-
-    private val eventService = EventService(ReportService)
 
     init {
         initDB()
@@ -107,7 +104,7 @@ class EventServiceUpdateEventTest {
         val start = LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME)
         val end = LocalDateTime.parse("2020-08-14T16:30:00", DateTimeFormatter.ISO_DATE_TIME)
 
-        val initialEvent = eventService.saveEvent(
+        val initialEvent = EventService.saveEvent(
             EventPostForm(
                 start,
                 end,
@@ -125,9 +122,9 @@ class EventServiceUpdateEventTest {
             end.plusHours(1)
         )
 
-        eventService.updateEvent(updateForm)
+        EventService.updateEvent(updateForm)
 
-        val actualEvent = eventService.getEventByID(initialEvent.b.id)
+        val actualEvent = EventService.getEventByID(initialEvent.b.id)
         require(actualEvent is Either.Right)
         assertEquals(expectedEvent, actualEvent.b)
     }

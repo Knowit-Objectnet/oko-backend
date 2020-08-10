@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   description: API documentation for the OKO endpoints
   version: 1.0.1
-  title: OKO Partners
+  title: OKO API
   contact:
     email: jonas.carlsen@knowit.no
   license:
@@ -12,20 +12,24 @@ servers:
   - description: Actual API
     url: 'https://tcuk58u5ge.execute-api.eu-central-1.amazonaws.com/staging/backend'
 tags:
-  - name: reg-admin
-    description: Calls available for reg admins
-  - name: reuse-station
-    description: Calls available for reuse station workers.
-  - name: partner
-    description: Calls available for partners. Can only access reports that belong to said partner.
-  - name: everyone
-    description: Calls available for unauthorized users
+  - name: partners
+    description: Calls available in  the /partners/ endpoint
+  - name: events
+    description: Calls available in the /events/ endpoint
+  - name: reports
+    description: Calls available in the /reports/ endpoint
+  - name: stations
+    description: Calls available in the /stations/ endpoint
+  - name: pickups
+    description: Calls available in the /pickups/ endpoint
+  - name: requests
+    description: Calls available in the /requests/ endpoint
 paths:
-  '/partners{id}':
+  '/partners/{id}':
     get:
       tags:
-        - everyone
-      summary: fetches partners
+        - partners
+      summary: Get a partner with the given id
       operationId: getPartner
       parameters:
         - in: path
@@ -41,14 +45,14 @@ paths:
               schema:
                 $ref: '#/components/schemas/Partner'
         '400':
-          description: bad input parameter
+          description: Bad input parameter
         '404':
           description: Partner not found
         '500':
           description: Internal server error
     delete:
       tags:
-        - reg-admin
+        - partners
       summary: Deletes a partner
       operationId: deletePartner
       parameters:
@@ -62,6 +66,10 @@ paths:
           description: Partner deleted successfully
         '400':
           description: Bad input parameter
+        '401':
+          description: Unauthorized
+        '403':
+          description: Insufficient role privileges
         '404':
           description: ID not found
         '500':
@@ -69,9 +77,15 @@ paths:
   /partners:
     get:
       tags:
-        - everyone
+        - partners
       summary: Gets all partners
       operationId: getPartners
+      parameters:
+        - in: query
+          name: name
+          schema:
+            type: string
+            example: Fretex
       responses:
         '200':
           description: Returns all partners
@@ -85,7 +99,7 @@ paths:
           description: Internal server error
     post:
       tags:
-        - reg-admin
+        - partners
       summary: adds a partner
       operationId: addPartner
       description: Adds a partner to the database and to keycloak. Name must be unique.
@@ -117,8 +131,7 @@ paths:
               $ref: '#/components/schemas/PartnerPost'
     patch:
       tags:
-        - reg-admin
-        - partner
+        - partners
       summary: Updates a partner both in the database and in keycloak
       operationId: patchpartner
       description: |
@@ -128,6 +141,10 @@ paths:
       responses:
         '200':
           description: Partner updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Partner'
         '400':
           description: Bad request body
         '401':
@@ -150,7 +167,7 @@ paths:
   /stations:
     get:
       tags:
-        - everyone
+        - stations
       summary: Gets all stations
       operationId: getStations
       responses:
@@ -166,7 +183,7 @@ paths:
           description: Internal server error
     post:
       tags:
-        - reg-admin
+        - stations
       summary: Adds a station
       operationId: addStation
       description: Adds a station to the database. Name must be unique. The stored Station object is returned if request is valid.
@@ -194,7 +211,7 @@ paths:
               $ref: '#/components/schemas/StationPost'
     patch:
       tags:
-        - reg-admin
+        - stations
       summary: Updates a station
       operationId: patchStation
       description: |
@@ -223,7 +240,7 @@ paths:
   '/stations{id}':
     get:
       tags:
-        - everyone
+        - stations
       summary: fetches stations
       operationId: getStation
       parameters:
@@ -247,7 +264,7 @@ paths:
           description: Internal server error
     delete:
       tags:
-        - reg-admin
+        - stations
       summary: Deletes a station
       operationId: deleteStation
       parameters:
@@ -272,7 +289,7 @@ paths:
   /reports:
     get:
       tags:
-        - everyone
+        - reports
       summary: Gets all reports
       operationId: getReports
       description: |
@@ -311,7 +328,7 @@ paths:
           schema:
             type: string
             format: date-time
-            example: 2020-07-10T13:17:39.000Z
+            example: '2020-07-10T13:17:39Z'
         - in: query
           name: to-date
           description: Get reports until the specified date and time.
@@ -319,7 +336,7 @@ paths:
           schema:
             type: string
             format: date-time
-            example: 2020-07-20T13:17:39.000Z
+            example: '2020-07-20T13:17:39Z'
       responses:
         '200':
           description: Returns all reports
@@ -333,9 +350,7 @@ paths:
           description: Internal server error
     patch:
       tags:
-        - reg-admin
-        - reuse-station
-        - partner
+        - reports
       summary: Sets the weight of a report
       operationId: patchWeight
       description: |
@@ -369,7 +384,7 @@ paths:
   '/reports{id}':
     get:
       tags:
-        - everyone
+        - reports
       summary: fetches a report
       operationId: getReport
       parameters:
@@ -391,6 +406,461 @@ paths:
           description: Report not found
         '500':
           description: Internal server error
+  /events:
+    get:
+      tags:
+        - events
+      summary: Gets events
+      operationId: getEvents
+      parameters:
+        - in: query
+          name: eventId
+          schema:
+            type: integer
+            format: int64
+          example: 1
+        - in: query
+          name: recurrenceRuleId
+          schema:
+            type: integer
+            format: int64
+          example: 1
+        - in: query
+          name: fromDate
+          schema:
+            type: string
+            format: date-time
+          example: '2020-07-13T15:00:00Z'
+        - in: query
+          name: toDate
+          schema:
+            type: string
+            format: date-time
+          example: '2020-07-20T15:00:00Z'
+        - in: query
+          name: partnerId
+          schema:
+            type: integer
+            format: int64
+          example: 1
+        - in: query
+          name: stationId
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      responses:
+        '200':
+          description: Returns an array of all the events that matched the query.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+        '500':
+          description: Internal server error
+    post:
+      tags:
+        - events
+      summary: adds one or more events to the database.
+      operationId: addEvents
+      description: Adds one or more events to the database. This also creates corresponding weight reports with nulled weight.
+      responses:
+        '200':
+          description: 'item created. Returns the created event. If recurring, the first event is returned.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '400':
+          description: Bad request body
+        '401':
+          description: Unauthorized
+        '403':
+          description: Insufficient role privileges
+        '422':
+          description: Validation of request body failed. Unprocessable entity
+        '500':
+          description: Internal server error
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventPost'
+    patch:
+      tags:
+        - events
+      summary: Updates an event
+      operationId: patchEvent
+      description: |
+        Updates a singular event in the database.
+      responses:
+        '200':
+          description: Updated event
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '400':
+          description: Bad request body
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden. Insufficient role permissions.
+        '404':
+          description: ID not found
+        '422':
+          description: Unprocessable request body. Validation of request body failed
+        '500':
+          description: Internal server error
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventPatch'
+    delete:
+      tags:
+        - events
+      summary: Deletes events
+      operationId: deleteEvents
+      description: |
+        Deletes one or several events from the database. Deletion can be specified through the use of query parameters.
+        Reuse station workers and REG admin will be able to delete any event, whilst a partner only has permission to delete
+        their own events.
+      parameters:
+        - in: query
+          name: eventId
+          schema:
+            type: integer
+            format: int64
+          example: 1
+        - in: query
+          name: recurrenceRuleId
+          schema:
+            type: integer
+            format: int64
+          example: 1
+        - in: query
+          name: fromDate
+          schema:
+            type: string
+            format: date-time
+          example: '2020-07-13T15:00:00Z'
+        - in: query
+          name: toDate
+          schema:
+            type: string
+            format: date-time
+          example: '2020-07-20T15:00:00Z'
+        - in: query
+          name: partnerId
+          schema:
+            type: integer
+            format: int64
+          example: 1
+        - in: query
+          name: stationId
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      responses:
+        '200':
+          description: Event(s) deleted
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+                description: A list of deleted events
+        '400':
+          description: Bad request body
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden. Insufficient role permissions.
+        '404':
+          description: ID not found
+        '422':
+          description: Unprocessable request body. Validation of request body failed
+        '500':
+          description: Internal server error
+  '/events/{id}':
+    get:
+      tags:
+        - events
+      summary: Get an event with the provided ID
+      operationId: getEvent
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Event matching ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '400':
+          description: Bad input parameter
+        '404':
+          description: Partner not found
+        '422':
+          description: Validation failed. Unprocessable entity.
+        '500':
+          description: Internal server error
+  /pickups/:
+    get:
+      tags:
+        - pickups
+      summary: Gets pickups
+      operationId: getPickups
+      parameters:
+        - in: query
+          name: startDateTime
+          schema:
+            type: string
+            format: date-time
+          example: '2020-07-13T15:00:00Z'
+        - in: query
+          name: endDateTime
+          schema:
+            type: string
+            format: date-time
+          example: '2020-07-15T15:00:00Z'
+        - in: query
+          name: partnerId
+          schema:
+            type: integer
+            format: int64
+          example: 1
+        - in: query
+          name: stationId
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      responses:
+        '200':
+          description: Returns an array of all the pickups that matched the query.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pickup'
+        '422':
+          description: Validation of request body failed. Unprocessable entity
+        '500':
+          description: Internal server error
+    post:
+      tags:
+        - pickups
+      summary: Adds a pickup to the database
+      operationId: postPickup
+      description: Adds a pickup to the database.
+      responses:
+        '200':
+          description: item created. Returns the created pickup.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pickup'
+        '400':
+          description: Bad request body
+        '401':
+          description: Unauthorized
+        '403':
+          description: Insufficient role privileges
+        '422':
+          description: Validation of request body failed. Unprocessable entity
+        '500':
+          description: Internal server error
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PickupPost'
+    patch:
+      tags:
+        - pickups
+      summary: Updates a pickup
+      operationId: patchPickup
+      description: 'Updates a pickup. If chosenPartnerId is updated, an event is created and the pickup is "closed".'
+      responses:
+        '200':
+          description: Updated pickup
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pickup'
+        '400':
+          description: Bad request body
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden. Insufficient role permissions.
+        '404':
+          description: ID not found
+        '422':
+          description: Unprocessable request body. Validation of request body failed
+        '500':
+          description: Internal server error
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PickupPatch'
+  '/pickups/{id}':
+    get:
+      tags:
+        - pickups
+      summary: Get a pickup with the given id
+      operationId: getPickup
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Pickup matching ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pickup'
+        '400':
+          description: Bad input parameter
+        '404':
+          description: Pickup not found
+        '500':
+          description: Internal server error
+    delete:
+      tags:
+        - pickups
+      summary: Deletes a Pickup
+      operationId: deletePickup
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Pickup deleted successfully
+        '400':
+          description: Bad input parameter
+        '401':
+          description: Unauthorized
+        '403':
+          description: Insufficient role privileges
+        '404':
+          description: ID not found
+        '422':
+          description: Unprocessable entity. Validation failed.
+        '500':
+          description: Internal server error
+  /requests/:
+    get:
+      tags:
+        - requests
+      summary: Gets requests
+      operationId: getRequests
+      parameters:
+        - in: query
+          name: pickupId
+          schema:
+            type: integer
+            format: int64
+          example: 1
+          required: true
+        - in: query
+          name: partnerId
+          schema:
+            type: integer
+            format: int64
+          example: 1
+          required: true
+      responses:
+        '200':
+          description: Returns an array of all the requests that matched the query.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Request'
+        '422':
+          description: Validation of request body failed. Unprocessable entity
+        '500':
+          description: Internal server error
+    post:
+      tags:
+        - requests
+      summary: Adds a request to a pickup
+      operationId: postRequest
+      description: Adds a request to a pickup.
+      responses:
+        '200':
+          description: item created. Returns the created pickup.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Request'
+        '400':
+          description: Bad request body
+        '401':
+          description: Unauthorized
+        '403':
+          description: Insufficient role privileges
+        '422':
+          description: Validation of request body failed. Unprocessable entity
+        '500':
+          description: Internal server error
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestPost'
+    delete:
+      tags:
+        - requests
+      summary: Deletes a request
+      operationId: deleteRequest
+      parameters:
+        - in: query
+          name: pickupId
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: partnerId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Request deleted successfully
+        '400':
+          description: Bad input parameter
+        '401':
+          description: Unauthorized
+        '403':
+          description: Insufficient role privileges
+        '404':
+          description: ID not found
+        '422':
+          description: Unprocessable entity. Validation failed.
+        '500':
+          description: Internal server error
 components:
   schemas:
     PartnerPost:
@@ -410,9 +880,6 @@ components:
           example: example@example.com
       required:
         - name
-        - description
-        - phone
-        - email
     Partner:
       type: object
       properties:
@@ -466,25 +933,23 @@ components:
           type: integer
           format: int64
           example: 2
-        stationID:
-          type: integer
-          format: int64
-          example: 4
+        station:
+          $ref: '#/components/schemas/Station'
         startDateTime:
           type: string
           format: date-time
-          example: 2020-07-13T15:00:00.000Z
+          example: '2020-07-13T15:00:00Z'
         endDateTime:
           type: string
           format: date-time
-          example: 2020-07-13T17:00:00.000Z
+          example: '2020-07-13T17:00:00Z'
         weight:
           type: integer
           format: int64
         reportedDateTime:
           type: string
           format: date-time
-          example: 2020-07-13T17:15:33.000Z
+          example: '2020-07-13T17:15:33Z'
     ReportPatch:
       type: object
       properties:
@@ -555,3 +1020,226 @@ components:
           example: '21:00:00Z'
       required:
         - id
+    Event:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        startDateTime:
+          type: string
+          format: date-time
+          example: '2020-07-13T15:00:00Z'
+        endDateTime:
+          type: string
+          format: date-time
+          example: '2020-07-20T15:00:00Z'
+        partnerId:
+          $ref: '#/components/schemas/Partner'
+        stationId:
+          $ref: '#/components/schemas/Station'
+        recurrenceRule:
+          $ref: '#/components/schemas/RecurrenceRule'
+    EventPatch:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        startDateTime:
+          type: string
+          format: date-time
+          example: '2020-07-13T15:00:00Z'
+        endDateTime:
+          type: string
+          format: date-time
+          example: '2020-07-20T15:00:00Z'
+      required:
+        - id
+    EventPost:
+      type: object
+      properties:
+        startDateTime:
+          type: string
+          format: date-time
+          example: '2020-07-13T15:00:00Z'
+        endDateTime:
+          type: string
+          format: date-time
+          example: '2020-07-20T15:00:00Z'
+        partnerId:
+          type: integer
+          format: int64
+          example: 1
+        stationId:
+          type: integer
+          format: int64
+          example: 1
+        recurrenceRule:
+          $ref: '#/components/schemas/RecurrenceRulePost'
+      required:
+        - startDateTime
+        - endDateTime
+        - partnerId
+        - stationId
+    RecurrenceRule:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        until:
+          type: string
+          format: date-time
+          example: '2020-07-13T15:00:00Z'
+        days:
+          type: array
+          items:
+            type: string
+            enum:
+              - MONDAY
+              - TUESDAY
+              - WEDNESDAY
+              - THURSDAY
+              - FRIDAY
+          example:
+            - MONDAY
+            - TUESDAY
+            - FRIDAY
+        interval:
+          type: integer
+          format: int64
+          example: 1
+        count:
+          type: integer
+          format: int64
+          example: 5
+    RecurrenceRulePost:
+      type: object
+      properties:
+        until:
+          type: string
+          format: date-time
+          description: Create events until the specified date.
+          default: null
+          example: '2020-07-13T15:00:00Z'
+        days:
+          type: array
+          items:
+            type: string
+            enum:
+              - MONDAY
+              - TUESDAY
+              - WEDNESDAY
+              - THURSDAY
+              - FRIDAY
+          description: What days the specified event should occur on.
+          default: null
+          example:
+            - MONDAY
+            - TUESDAY
+            - FRIDAY
+        interval:
+          description: 'Describes at what interval an event should occur. Default is 1, which would mean every week.'
+          default: 1
+          type: integer
+          format: int64
+          example: 1
+        count:
+          type: integer
+          format: int64
+          description: 'Amount of times the event should recur. If interval is 1, a value of 5 would mean repeat for 5 weeks.'
+          default: null
+          example: 5
+    PickupPost:
+      type: object
+      properties:
+        startDateTime:
+          type: string
+          format: date-time
+          example: '2020-07-13T15:00:00Z'
+        endDateTime:
+          type: string
+          format: date-time
+          example: '2020-07-20T15:00:00Z'
+        description:
+          type: string
+          example: Hey come pick up some furniture
+        stationId:
+          type: integer
+          format: int64
+          example: 1
+      required:
+        - startDateTime
+        - endDateTime
+        - stationId
+    PickupPatch:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 5
+        startDateTime:
+          type: string
+          format: date-time
+          example: '2020-07-13T15:00:00Z'
+        endDateTime:
+          type: string
+          format: date-time
+          example: '2020-07-20T15:00:00Z'
+        description:
+          type: string
+          example: Hey come pick up some furniture
+        chosenPartnerId:
+          type: integer
+          format: int64
+          example: 1
+      required:
+        - id
+    Pickup:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 5
+        startDateTime:
+          type: string
+          format: date-time
+          example: '2020-07-13T15:00:00Z'
+        endDateTime:
+          type: string
+          format: date-time
+          example: '2020-07-20T15:00:00Z'
+        description:
+          type: string
+          example: Hey come pick up some furniture
+        station:
+          $ref: '#/components/schemas/Station'
+        partner:
+          $ref: '#/components/schemas/Partner'
+    RequestPost:
+      type: object
+      properties:
+        pickupId:
+          type: integer
+          format: int64
+          example: 1
+        partnerId:
+          type: integer
+          format: int64
+          example: 1
+      required:
+        - pickupId
+        - partnerId
+    Request:
+      type: object
+      properties:
+        pickup:
+          $ref: '#/components/schemas/Pickup'
+        partner:
+          $ref: '#/components/schemas/Partner'

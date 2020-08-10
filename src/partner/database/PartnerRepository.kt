@@ -1,6 +1,7 @@
 package ombruk.backend.partner.database
 
 import arrow.core.Either
+import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
 import ombruk.backend.partner.form.PartnerGetForm
@@ -17,9 +18,9 @@ import org.slf4j.LoggerFactory
 
 object Partners : IntIdTable("partners") {
     val name = varchar("name", 100)
-    val description = varchar("description", 100)
-    val phone = varchar("phone", 20)
-    val email = varchar("email", 30)
+    val description = varchar("description", 100).nullable()
+    val phone = varchar("phone", 20).nullable()
+    val email = varchar("email", 30).nullable()
 }
 
 object PartnerRepository : IPartnerRepository {
@@ -34,12 +35,10 @@ object PartnerRepository : IPartnerRepository {
         }
     }
         .onFailure { logger.error("Failed to save partner to DB: ${it.message}") }
-
-        .fold({ Partner(it.value, partner.name, partner.description, partner.phone, partner.email).right() }, {
-            RepositoryError.InsertError(
-                "SQL error"
-            ).left()
-        })
+        .fold(
+            { Partner(it.value, partner.name, partner.description, partner.phone, partner.email).right() },
+            { RepositoryError.InsertError("SQL error").left() }
+        )
 
 
     override fun updatePartner(partner: PartnerUpdateForm) = runCatching {
@@ -53,8 +52,14 @@ object PartnerRepository : IPartnerRepository {
         .onFailure { logger.error("Failed to update partner to DB: ${it.message}") }
         .fold(
             //Return right if more than 1 partner has been updated. Else, return an Error
-            { Either.cond(it > 0, { Unit }, { RepositoryError.NoRowsFound("${partner.id} not found") }) },
+            {
+                Either.cond(
+                    it > 0,
+                    { getPartnerByID(partner.id) },
+                    { RepositoryError.NoRowsFound("${partner.id} not found") })
+            },
             { RepositoryError.UpdateError(it.message).left() })
+        .flatMap { it }
 
 
     override fun deletePartner(partnerID: Int) =
@@ -72,7 +77,7 @@ object PartnerRepository : IPartnerRepository {
 
 
     override fun getPartnerByID(partnerID: Int): Either<RepositoryError.NoRowsFound, Partner> = runCatching {
-        Partners.select { Partners.id eq partnerID }.map { toPartner(it) }
+        transaction { Partners.select { Partners.id eq partnerID }.map { toPartner(it) } }
     }
         .onFailure { logger.error(it.message) }
         .fold(
@@ -88,9 +93,11 @@ object PartnerRepository : IPartnerRepository {
 
     override fun getPartners(partnerGetForm: PartnerGetForm): Either<RepositoryError.SelectError, List<Partner>> =
         runCatching {
-            val query = Partners.selectAll()
-            partnerGetForm.name?.let { query.andWhere { Partners.name eq it } }
-            query.mapNotNull { toPartner(it) }
+            transaction {
+                val query = Partners.selectAll()
+                partnerGetForm.name?.let { query.andWhere { Partners.name eq it } }
+                query.mapNotNull { toPartner(it) }
+            }
         }
             .onFailure { logger.error(it.message) }
             .fold({ it.right() }, { RepositoryError.SelectError(it.message).left() })
