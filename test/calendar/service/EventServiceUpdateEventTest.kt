@@ -1,7 +1,6 @@
 package calendar.service
 
 import arrow.core.Either
-import ombruk.backend.calendar.database.Events
 import ombruk.backend.calendar.database.Stations
 import ombruk.backend.calendar.form.event.EventPostForm
 import ombruk.backend.calendar.form.event.EventUpdateForm
@@ -11,30 +10,25 @@ import ombruk.backend.partner.database.Partners
 import ombruk.backend.partner.model.Partner
 import ombruk.backend.reporting.service.ReportService
 import ombruk.backend.shared.database.initDB
-import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.junit.After
-import org.junit.AfterClass
-import org.junit.BeforeClass
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import kotlin.test.assertEquals
 
 
-class EvetServiceUpdateEventTest {
+class EventServiceUpdateEventTest {
     companion object {
-        lateinit var eventService: EventService
-        lateinit var testPartner: Partner
-        lateinit var testPartner2: Partner
-        lateinit var testStation: Station
-        lateinit var testStation2: Station
+        private lateinit var testPartner: Partner
+        private lateinit var testPartner2: Partner
+        private lateinit var testStation: Station
+        private lateinit var testStation2: Station
 
-        @BeforeClass
-        @JvmStatic
-        fun setup() {
+        private val eventService = EventService(ReportService)
+
+        init {
             initDB()
             transaction {
                 val testPartnerId = Partners.insertAndGetId {
@@ -95,26 +89,8 @@ class EvetServiceUpdateEventTest {
                     LocalTime.parse("20:00:00", DateTimeFormatter.ISO_TIME)
                 )
             }
-
-            eventService = EventService(ReportService)
-        }
-        @AfterClass
-        @JvmStatic
-        fun cleanPartnersAndStationsFromDB(){
-            transaction {
-                Partners.deleteAll()
-                Stations.deleteAll()
-            }
         }
     }
-
-    @After
-    fun cleanEventsFromDB() {
-        transaction {
-            Events.deleteAll()
-        }
-    }
-
 
 
     @Test

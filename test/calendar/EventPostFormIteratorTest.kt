@@ -4,36 +4,21 @@ import calendar.utils.everyWeekDay
 import calendar.utils.everyday
 import ombruk.backend.calendar.form.event.EventPostForm
 import ombruk.backend.calendar.model.RecurrenceRule
-import ombruk.backend.calendar.model.Station
-import ombruk.backend.partner.model.Partner
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 import java.time.DayOfWeek
 import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.format.DateTimeFormatter
-import kotlin.test.assertEquals
 
 class EventPostFormIteratorTest {
-
-    companion object {
-        val testPartner =
-            Partner(10, "TestPartner 1", "Description of TestPartner 1", "+47 2381931", "example@gmail.com")
-        val testStation = Station(
-            10,
-            "Test Station 1",
-            LocalTime.parse("09:00:00", DateTimeFormatter.ISO_TIME),
-            LocalTime.parse("21:00:00", DateTimeFormatter.ISO_TIME)
-        )
-    }
-
+    
     @Test
     fun testEverydayStartingSameAsRecurrenceRuleDay() {
         val recurrenceRule = RecurrenceRule(count = 1, days = everyday())
         val recurringForm = EventPostForm(
             LocalDateTime.parse("2020-07-13T15:00:00"),
             LocalDateTime.parse("2020-07-13T15:00:00"),
-            testStation.id,
-            testPartner.id,
+            1,
+            1,
             recurrenceRule
 
         )
@@ -59,8 +44,8 @@ class EventPostFormIteratorTest {
         val recurringForm = EventPostForm(
             LocalDateTime.parse("2020-07-13T15:00:00"),
             LocalDateTime.parse("2020-07-13T15:00:00"),
-            testStation.id,
-            testPartner.id,
+            1,
+            1,
             recurrenceRule
 
         )
@@ -89,8 +74,8 @@ class EventPostFormIteratorTest {
         val recurringForm = EventPostForm(
             LocalDateTime.parse("2020-07-13T15:00:00"),
             LocalDateTime.parse("2020-07-13T15:00:00"),
-            testStation.id,
-            testPartner.id,
+            1,
+            1,
             recurrenceRule
 
         )
@@ -120,8 +105,8 @@ class EventPostFormIteratorTest {
         val recurringForm = EventPostForm(
             LocalDateTime.parse("2020-07-14T15:00:00"),
             LocalDateTime.parse("2020-07-14T15:00:00"),
-            testStation.id,
-            testPartner.id,
+            1,
+            1,
             recurrenceRule
 
         )
@@ -147,8 +132,8 @@ class EventPostFormIteratorTest {
         val recurringForm = EventPostForm(
             LocalDateTime.parse("2020-07-12T15:00:00"),
             LocalDateTime.parse("2020-07-12T15:00:00"),
-            testStation.id,
-            testPartner.id,
+            1,
+            1,
             recurrenceRule
 
         )
@@ -174,8 +159,8 @@ class EventPostFormIteratorTest {
         val recurringForm = EventPostForm(
             LocalDateTime.parse("2020-07-13T15:00:00"),
             LocalDateTime.parse("2020-07-13T15:00:00"),
-            testStation.id,
-            testPartner.id,
+            1,
+            1,
             recurrenceRule
 
         )
@@ -200,8 +185,8 @@ class EventPostFormIteratorTest {
         val recurringForm = EventPostForm(
             LocalDateTime.parse("2020-07-13T15:00:00"),
             LocalDateTime.parse("2020-07-13T15:00:00"),
-            testStation.id,
-            testPartner.id,
+            1,
+            1,
             recurrenceRule
 
         )
@@ -229,8 +214,8 @@ class EventPostFormIteratorTest {
         val recurringForm = EventPostForm(
             LocalDateTime.parse("2020-07-13T15:00:00"),
             LocalDateTime.parse("2020-07-13T15:00:00"),
-            testStation.id,
-            testPartner.id,
+            1,
+            1,
             recurrenceRule
 
         )
@@ -261,8 +246,8 @@ class EventPostFormIteratorTest {
         val recurringForm = EventPostForm(
             LocalDateTime.parse("2020-07-13T15:00:00"),
             LocalDateTime.parse("2020-07-13T15:00:00"),
-            testStation.id,
-            testPartner.id,
+            1,
+            1,
             recurrenceRule
 
         )
@@ -293,8 +278,8 @@ class EventPostFormIteratorTest {
         val recurringForm = EventPostForm(
             LocalDateTime.parse("2020-07-13T15:00:00"),
             LocalDateTime.parse("2020-07-13T15:00:00"),
-            testStation.id,
-            testPartner.id,
+            1,
+            1,
             recurrenceRule
 
         )
@@ -323,8 +308,8 @@ class EventPostFormIteratorTest {
         val nonRecurringForm = EventPostForm(
             LocalDateTime.parse("2020-07-12T15:00:00"),
             LocalDateTime.parse("2020-07-12T15:00:00"),
-            testStation.id,
-            testPartner.id
+            1,
+            1
         )
 
         // Iterate over recurringEvent and check that it matches the expected event.
