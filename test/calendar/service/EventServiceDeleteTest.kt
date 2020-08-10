@@ -3,118 +3,111 @@ package calendar.service
 import arrow.core.Either
 import ombruk.backend.calendar.database.Events
 import ombruk.backend.calendar.database.Stations
-import ombruk.backend.calendar.form.event.EventPostForm
 import ombruk.backend.calendar.form.event.EventDeleteForm
+import ombruk.backend.calendar.form.event.EventPostForm
 import ombruk.backend.calendar.model.RecurrenceRule
 import ombruk.backend.calendar.model.Station
 import ombruk.backend.calendar.service.EventService
 import ombruk.backend.partner.database.Partners
 import ombruk.backend.partner.model.Partner
-import ombruk.backend.reporting.service.ReportService
 import ombruk.backend.shared.database.initDB
 import ombruk.backend.shared.utils.rangeTo
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.junit.After
-import org.junit.AfterClass
-import org.junit.BeforeClass
-import org.junit.Test
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import java.time.DayOfWeek
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import kotlin.test.assertEquals
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class EventServiceDeleteTest {
-    companion object {
-        lateinit var testPartner: Partner
-        lateinit var testPartner2: Partner
-        lateinit var testStation: Station
-        lateinit var testStation2: Station
+    private lateinit var testPartner: Partner
+    private lateinit var testPartner2: Partner
+    private lateinit var testStation: Station
+    private lateinit var testStation2: Station
 
-        @BeforeClass
-        @JvmStatic
-        fun setup() {
-            initDB()
-            transaction {
-                val testPartnerId = Partners.insertAndGetId {
-                    it[name] = "TestPartner 1"
-                    it[description] = "Description of TestPartner 1"
-                    it[phone] = "+47 2381931"
-                    it[email] = "example@gmail.com"
-                }.value
+    init {
+        initDB()
+        transaction {
+            val testPartnerId = Partners.insertAndGetId {
+                it[name] = "TestPartner 1"
+                it[description] = "Description of TestPartner 1"
+                it[phone] = "+47 2381931"
+                it[email] = "example@gmail.com"
+            }.value
 
-                testPartner =
-                    Partner(
-                        testPartnerId,
-                        "TestPartner 1",
-                        "Description of TestPartner 1",
-                        "+47 2381931",
-                        "example@gmail.com"
-                    )
+            testPartner = Partner(
+                testPartnerId,
+                "TestPartner 1",
+                "Description of TestPartner 1",
+                "+47 2381931",
+                "example@gmail.com"
+            )
 
-                val testPartnerId2 = Partners.insertAndGetId {
-                    it[name] = "TestPartner 2"
-                    it[description] = "Description of TestPartner 2"
-                    it[phone] = "911"
-                    it[email] = "example@gmail.com"
-                }.value
+            val testPartnerId2 = Partners.insertAndGetId {
+                it[name] = "TestPartner 2"
+                it[description] = "Description of TestPartner 2"
+                it[phone] = "911"
+                it[email] = "example@gmail.com"
+            }.value
 
-                testPartner2 =
-                    Partner(
-                        testPartnerId2,
-                        "TestPartner 2",
-                        "Description of TestPartner 2",
-                        "911",
-                        "example@gmail.com"
-                    )
-
-
-                val testStationId = Stations.insertAndGetId {
-                    it[name] = "Test Station 1"
-                    it[openingTime] = "09:00:00"
-                    it[closingTime] = "21:00:00"
-                }.value
-
-                testStation = Station(
-                    testStationId,
-                    "Test Station 1",
-                    LocalTime.parse("09:00:00", DateTimeFormatter.ISO_TIME),
-                    LocalTime.parse("21:00:00", DateTimeFormatter.ISO_TIME)
+            testPartner2 =
+                Partner(
+                    testPartnerId2,
+                    "TestPartner 2",
+                    "Description of TestPartner 2",
+                    "911",
+                    "example@gmail.com"
                 )
 
-                val testStationId2 = Stations.insertAndGetId {
-                    it[name] = "Test Station 2"
-                    it[openingTime] = "08:00:00"
-                    it[closingTime] = "20:00:00"
-                }.value
-                testStation2 = Station(
-                    testStationId2,
-                    "Test Station 2",
-                    LocalTime.parse("08:00:00", DateTimeFormatter.ISO_TIME),
-                    LocalTime.parse("20:00:00", DateTimeFormatter.ISO_TIME)
-                )
-            }
+            val testStationId = Stations.insertAndGetId {
+                it[name] = "Test Station 1"
+                it[openingTime] = "09:00:00"
+                it[closingTime] = "21:00:00"
+            }.value
 
-        }
-        @AfterClass
-        @JvmStatic
-        fun cleanPartnersAndStationsFromDB(){
-            transaction {
-                Partners.deleteAll()
-                Stations.deleteAll()
-            }
+            testStation = Station(
+                testStationId,
+                "Test Station 1",
+                LocalTime.parse("09:00:00", DateTimeFormatter.ISO_TIME),
+                LocalTime.parse("21:00:00", DateTimeFormatter.ISO_TIME)
+            )
+
+            val testStationId2 = Stations.insertAndGetId {
+                it[name] = "Test Station 2"
+                it[openingTime] = "08:00:00"
+                it[closingTime] = "20:00:00"
+            }.value
+
+            testStation2 = Station(
+                testStationId2,
+                "Test Station 2",
+                LocalTime.parse("08:00:00", DateTimeFormatter.ISO_TIME),
+                LocalTime.parse("20:00:00", DateTimeFormatter.ISO_TIME)
+            )
         }
     }
 
-    @After
+    @AfterAll
+    fun cleanPartnersAndStationsFromDB() {
+        transaction {
+            Partners.deleteAll()
+            Stations.deleteAll()
+        }
+    }
+
+    @AfterEach
     fun cleanEventsFromDB() {
         transaction {
             Events.deleteAll()
         }
     }
-
 
 
     @Test
@@ -177,8 +170,7 @@ class EventServiceDeleteTest {
         require(eventToDelete is Either.Right)
         require(eventNotToDelete is Either.Right)
 
-        val deleteForm =
-            EventDeleteForm(recurrenceRuleId = eventToDelete.b.recurrenceRule!!.id)
+        val deleteForm = EventDeleteForm(recurrenceRuleId = eventToDelete.b.recurrenceRule!!.id)
 
         assert(EventService.deleteEvent(deleteForm) is Either.Right)
 

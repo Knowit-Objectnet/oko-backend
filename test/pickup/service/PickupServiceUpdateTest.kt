@@ -13,69 +13,62 @@ import ombruk.backend.shared.database.initDB
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.junit.After
-import org.junit.AfterClass
-import org.junit.BeforeClass
-import org.junit.Test
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import kotlin.test.assertEquals
 
-
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PickupServiceUpdateTest {
-    companion object {
-        lateinit var pickupService: PickupService
-        lateinit var testStation: Station
-        lateinit var testStation2: Station
+
+    lateinit var testStation: Station
+    lateinit var testStation2: Station
 
 
-        @BeforeClass
-        @JvmStatic
-        fun setup() {
-            initDB()
-            transaction {
-                val testStationId = Stations.insertAndGetId {
-                    it[name] = "Test Station 1"
-                    it[openingTime] = "09:00:00"
-                    it[closingTime] = "21:00:00"
-                }.value
+    init {
+        initDB()
+        transaction {
+            val testStationId = Stations.insertAndGetId {
+                it[name] = "Test Station 1"
+                it[openingTime] = "09:00:00"
+                it[closingTime] = "21:00:00"
+            }.value
 
-                testStation = Station(
-                    testStationId,
-                    "Test Station 1",
-                    LocalTime.parse("09:00:00", DateTimeFormatter.ISO_TIME),
-                    LocalTime.parse("21:00:00", DateTimeFormatter.ISO_TIME)
-                )
+            testStation = Station(
+                testStationId,
+                "Test Station 1",
+                LocalTime.parse("09:00:00", DateTimeFormatter.ISO_TIME),
+                LocalTime.parse("21:00:00", DateTimeFormatter.ISO_TIME)
+            )
 
-                val testStationId2 = Stations.insertAndGetId {
-                    it[name] = "Test Station 2"
-                    it[openingTime] = "08:00:00"
-                    it[closingTime] = "20:00:00"
-                }.value
-                testStation2 = Station(
-                    testStationId2,
-                    "Test Station 2",
-                    LocalTime.parse("08:00:00", DateTimeFormatter.ISO_TIME),
-                    LocalTime.parse("20:00:00", DateTimeFormatter.ISO_TIME)
-                )
+            val testStationId2 = Stations.insertAndGetId {
+                it[name] = "Test Station 2"
+                it[openingTime] = "08:00:00"
+                it[closingTime] = "20:00:00"
+            }.value
+            testStation2 = Station(
+                testStationId2,
+                "Test Station 2",
+                LocalTime.parse("08:00:00", DateTimeFormatter.ISO_TIME),
+                LocalTime.parse("20:00:00", DateTimeFormatter.ISO_TIME)
+            )
 
-            }
-
-            pickupService = PickupService
-        }
-
-        @AfterClass
-        @JvmStatic
-        fun cleanPartnersAndStationsFromDB() {
-            transaction {
-                Partners.deleteAll()
-                Stations.deleteAll()
-            }
         }
     }
 
-    @After
+    @AfterAll
+    fun cleanPartnersAndStationsFromDB() {
+        transaction {
+            Partners.deleteAll()
+            Stations.deleteAll()
+        }
+    }
+
+    @AfterEach
     fun cleanEventsFromDB() {
         transaction {
             Pickups.deleteAll()
@@ -88,7 +81,7 @@ class PickupServiceUpdateTest {
         val startTime = LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME)
         val endTime = startTime.plusHours(1)
 
-        val initialPickup = pickupService.savePickup(
+        val initialPickup = PickupService.savePickup(
             PickupPostForm(startTime, endTime, null, testStation.id)
         )
         require(initialPickup is Either.Right)
@@ -102,9 +95,9 @@ class PickupServiceUpdateTest {
             expectedPickup.startDateTime,
             expectedPickup.endDateTime
         )
-        pickupService.updatePickup(form)
+        PickupService.updatePickup(form)
 
-        val actualPickup = pickupService.getPickupById(PickupGetByIdForm(initialPickup.b.id))
+        val actualPickup = PickupService.getPickupById(PickupGetByIdForm(initialPickup.b.id))
         require(actualPickup is Either.Right)
 
         assertEquals(expectedPickup, actualPickup.b)

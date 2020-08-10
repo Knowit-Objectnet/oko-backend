@@ -13,26 +13,22 @@ import ombruk.backend.shared.database.initDB
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.junit.After
-import org.junit.AfterClass
-import org.junit.BeforeClass
-import org.junit.Test
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import kotlin.test.assertEquals
 
-
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PickupServiceDeleteTest {
-    companion object {
-        lateinit var pickupService: PickupService
         lateinit var testStation: Station
         lateinit var testStation2: Station
 
 
-        @BeforeClass
-        @JvmStatic
-        fun setup() {
+        init{
             initDB()
             transaction {
                 val testStationId = Stations.insertAndGetId {
@@ -61,22 +57,19 @@ class PickupServiceDeleteTest {
                 )
 
             }
-
-            pickupService = PickupService
         }
-        @AfterClass
-        @JvmStatic
+        @AfterAll
         fun cleanPartnersAndStationsFromDB(){
             transaction {
                 Partners.deleteAll()
                 Stations.deleteAll()
             }
         }
-    }
 
 
 
-    @After
+
+    @AfterEach
     fun cleanEventsFromDB() {
         transaction {
             Pickups.deleteAll()
@@ -90,8 +83,7 @@ class PickupServiceDeleteTest {
         val end = start.plusHours(1)
 
         // Create a pickup to be deleted.
-        val pickupToDelete =
-            pickupService.savePickup(
+        val pickupToDelete = PickupService.savePickup(
                 PickupPostForm(
                     startDateTime = start,
                     endDateTime = end,
@@ -103,17 +95,17 @@ class PickupServiceDeleteTest {
         require(pickupToDelete is Either.Right)
 
         // Another one, identical, not to be deleted.
-        val pickupNotToDelete = pickupService.savePickup(
+        val pickupNotToDelete = PickupService.savePickup(
             PickupPostForm(start, end, null, testStation.id)
         )
         require(pickupNotToDelete is Either.Right)
 
         // Delete the first one. XXX: stationId makes no sense here:
         val deleteForm = PickupDeleteForm(pickupToDelete.b.id)
-        pickupService.deletePickup(deleteForm)
+        PickupService.deletePickup(deleteForm)
 
         // Fetch what is left
-        val pickupsLeftAfterDelete = pickupService.getPickups()
+        val pickupsLeftAfterDelete = PickupService.getPickups()
 
         require(pickupsLeftAfterDelete is Either.Right)
         // And compare.

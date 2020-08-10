@@ -1,40 +1,42 @@
-package calendar.service
+/*package calendar.repository
 
 import arrow.core.Either
+import arrow.core.right
+import io.mockk.every
+import ombruk.backend.calendar.database.EventRepository
 import ombruk.backend.calendar.database.Events
 import ombruk.backend.calendar.database.Stations
-import ombruk.backend.calendar.form.event.EventPostForm
-import ombruk.backend.calendar.form.event.EventUpdateForm
+import ombruk.backend.calendar.form.event.EventGetForm
+import ombruk.backend.calendar.model.Event
 import ombruk.backend.calendar.model.Station
 import ombruk.backend.calendar.service.EventService
 import ombruk.backend.partner.database.Partners
 import ombruk.backend.partner.model.Partner
 import ombruk.backend.reporting.service.ReportService
-import ombruk.backend.shared.database.initDB
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.After
 import org.junit.AfterClass
-import org.junit.BeforeClass
 import org.junit.Test
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import kotlin.test.assertEquals
 
-
-class EvetServiceUpdateEventTest {
+class EventRepositoryTestTest {
     companion object {
         lateinit var testPartner: Partner
         lateinit var testPartner2: Partner
         lateinit var testStation: Station
         lateinit var testStation2: Station
 
+        @KtorExperimentalAPI
         @BeforeClass
         @JvmStatic
         fun setup() {
             initDB()
+            mockkObject(EventRepository)
             transaction {
                 val testPartnerId = Partners.insertAndGetId {
                     it[name] = "TestPartner 1"
@@ -96,9 +98,10 @@ class EvetServiceUpdateEventTest {
             }
 
         }
+
         @AfterClass
         @JvmStatic
-        fun cleanPartnersAndStationsFromDB(){
+        fun cleanPartnersAndStationsFromDB() {
             transaction {
                 Partners.deleteAll()
                 Stations.deleteAll()
@@ -114,8 +117,16 @@ class EvetServiceUpdateEventTest {
     }
 
 
-
     @Test
+<<<<<<< HEAD:test/calendar/repository/EventRepositoryTest.kt
+    fun testGetEventById() {
+        val expectedEvent = Event(
+            1,
+            LocalDateTime.parse("2020-07-06T15:48:06", DateTimeFormatter.ISO_DATE_TIME),
+            LocalDateTime.parse("2020-07-06T16:48:06", DateTimeFormatter.ISO_DATE_TIME),
+            testStation,
+            testPartner
+=======
     fun testUpdateEvent() {
         val start = LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME)
         val end = LocalDateTime.parse("2020-08-14T16:30:00", DateTimeFormatter.ISO_DATE_TIME)
@@ -127,22 +138,43 @@ class EvetServiceUpdateEventTest {
                 testStation.id,
                 testPartner.id
             )
-        )
-        require(initialEvent is Either.Right)
-
-        val expectedEvent = initialEvent.b.copy(startDateTime = start.plusHours(1), endDateTime = end.plusHours(1))
-
-        val updateForm = EventUpdateForm(
-            initialEvent.b.id,
-            start.plusHours(1),
-            end.plusHours(1)
+>>>>>>> master:test/calendar/service/EvetServiceUpdateEventTest.kt
         )
 
+        every { EventRepository.getEventByID(expectedEvent.id) } returns expectedEvent.right()
+
+<<<<<<< HEAD:test/calendar/repository/EventRepositoryTest.kt
+
+        val actualEvent = eventService.getEventByID(expectedEvent.id)
+=======
         EventService.updateEvent(updateForm)
 
         val actualEvent = EventService.getEventByID(initialEvent.b.id)
+>>>>>>> master:test/calendar/service/EvetServiceUpdateEventTest.kt
         require(actualEvent is Either.Right)
+
         assertEquals(expectedEvent, actualEvent.b)
     }
 
+    @Test
+    fun testGetAllEvents() {
+
+        val expectedEvents = (0..10).map { id ->
+            Event(
+                id,
+                LocalDateTime.parse("2020-07-06T15:48:06", DateTimeFormatter.ISO_DATE_TIME),
+                LocalDateTime.parse("2020-07-06T16:48:06", DateTimeFormatter.ISO_DATE_TIME),
+                testStation,
+                testPartner
+            )
+        }
+
+        every { EventRepository.getEvents(null, null) } returns expectedEvents.right()
+
+        val actualEvents = eventService.getEvents()
+        require(actualEvents is Either.Right)
+        assertEquals(expectedEvents, actualEvents.b)
+    }
+
 }
+*/
