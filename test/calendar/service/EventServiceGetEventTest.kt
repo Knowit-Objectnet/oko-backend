@@ -1,6 +1,7 @@
 package calendar.service
 
 import arrow.core.Either
+import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.MapSerializer
@@ -25,126 +26,123 @@ import ombruk.backend.shared.utils.rangeTo
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.junit.After
-import org.junit.AfterClass
-import org.junit.BeforeClass
-import org.junit.Test
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import java.time.DayOfWeek
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import kotlin.test.assertEquals
 
+@KtorExperimentalAPI
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class EventServiceGetEventTest {
-    companion object {
-        lateinit var testPartner: Partner
-        lateinit var testPartner2: Partner
-        lateinit var testStation: Station
-        lateinit var testStation2: Station
+    lateinit var testPartner: Partner
+    lateinit var testPartner2: Partner
+    lateinit var testStation: Station
+    lateinit var testStation2: Station
 
-        @KtorExperimentalAPI
-        @BeforeClass
-        @JvmStatic
-        fun setup() {
-            initDB()
-            transaction {
-                val testPartnerId = Partners.insertAndGetId {
-                    it[name] = "TestPartner 1"
-                    it[description] = "Description of TestPartner 1"
-                    it[phone] = "+47 2381931"
-                    it[email] = "example@gmail.com"
-                }.value
+    init {
+        initDB()
+        transaction {
+            val testPartnerId = Partners.insertAndGetId {
+                it[name] = "TestPartner 1"
+                it[description] = "Description of TestPartner 1"
+                it[phone] = "+47 2381931"
+                it[email] = "example@gmail.com"
+            }.value
 
-                testPartner =
-                    Partner(
-                        testPartnerId,
-                        "TestPartner 1",
-                        "Description of TestPartner 1",
-                        "+47 2381931",
-                        "example@gmail.com"
-                    )
-
-                val testPartnerId2 = Partners.insertAndGetId {
-                    it[name] = "TestPartner 2"
-                    it[description] = "Description of TestPartner 2"
-                    it[phone] = "911"
-                    it[email] = "example@gmail.com"
-                }.value
-
-                testPartner2 =
-                    Partner(
-                        testPartnerId2,
-                        "TestPartner 2",
-                        "Description of TestPartner 2",
-                        "911",
-                        "example@gmail.com"
-                    )
-
-
-                var opensAt = LocalTime.parse("09:00:00Z", DateTimeFormatter.ISO_TIME)!!
-                var closesAt = LocalTime.parse("21:00:00Z", DateTimeFormatter.ISO_TIME)!!
-                var hours = mapOf(
-                    Pair(DayOfWeek.MONDAY, listOf(opensAt, closesAt)),
-                    Pair(DayOfWeek.TUESDAY, listOf(opensAt, closesAt)),
-                    Pair(DayOfWeek.WEDNESDAY, listOf(opensAt, closesAt)),
-                    Pair(DayOfWeek.THURSDAY, listOf(opensAt, closesAt)),
-                    Pair(DayOfWeek.FRIDAY, listOf(opensAt, closesAt))
-                )
-                val json = Json(JsonConfiguration.Stable)
-
-                val testStationId = Stations.insertAndGetId {
-                    it[name] = "Test Station 1"
-                    it[Stations.hours] =
-                        json.toJson(MapSerializer(DayOfWeekSerializer, ListSerializer(LocalTimeSerializer)), hours)
-                            .toString()
-                }.value
-
-                testStation = Station(
-                    testStationId,
-                    "Test Station 1",
-                    hours
+            testPartner =
+                Partner(
+                    testPartnerId,
+                    "TestPartner 1",
+                    "Description of TestPartner 1",
+                    "+47 2381931",
+                    "example@gmail.com"
                 )
 
-                opensAt = LocalTime.parse("08:00:00", DateTimeFormatter.ISO_TIME)
-                closesAt = LocalTime.parse("20:00:00", DateTimeFormatter.ISO_TIME)
-                hours = mapOf(
-                    Pair(DayOfWeek.MONDAY, listOf(opensAt, closesAt)),
-                    Pair(DayOfWeek.TUESDAY, listOf(opensAt, closesAt)),
-                    Pair(DayOfWeek.WEDNESDAY, listOf(opensAt, closesAt)),
-                    Pair(DayOfWeek.THURSDAY, listOf(opensAt, closesAt)),
-                    Pair(DayOfWeek.FRIDAY, listOf(opensAt, closesAt))
+            val testPartnerId2 = Partners.insertAndGetId {
+                it[name] = "TestPartner 2"
+                it[description] = "Description of TestPartner 2"
+                it[phone] = "911"
+                it[email] = "example@gmail.com"
+            }.value
+
+            testPartner2 =
+                Partner(
+                    testPartnerId2,
+                    "TestPartner 2",
+                    "Description of TestPartner 2",
+                    "911",
+                    "example@gmail.com"
                 )
 
-                val testStationId2 = Stations.insertAndGetId {
-                    it[name] = "Test Station 2"
-                    it[Stations.hours] = json.toJson(
-                        MapSerializer(
-                            DayOfWeekSerializer, ListSerializer(
-                                LocalTimeSerializer
-                            )
-                        ), hours)
+
+            var opensAt = LocalTime.parse("09:00:00Z", DateTimeFormatter.ISO_TIME)!!
+            var closesAt = LocalTime.parse("21:00:00Z", DateTimeFormatter.ISO_TIME)!!
+            var hours = mapOf(
+                Pair(DayOfWeek.MONDAY, listOf(opensAt, closesAt)),
+                Pair(DayOfWeek.TUESDAY, listOf(opensAt, closesAt)),
+                Pair(DayOfWeek.WEDNESDAY, listOf(opensAt, closesAt)),
+                Pair(DayOfWeek.THURSDAY, listOf(opensAt, closesAt)),
+                Pair(DayOfWeek.FRIDAY, listOf(opensAt, closesAt))
+            )
+            val json = Json(JsonConfiguration.Stable)
+
+            val testStationId = Stations.insertAndGetId {
+                it[name] = "Test Station 1"
+                it[Stations.hours] =
+                    json.toJson(MapSerializer(DayOfWeekSerializer, ListSerializer(LocalTimeSerializer)), hours)
                         .toString()
-                }.value
-                testStation2 = Station(
-                    testStationId2,
-                    "Test Station 2",
-                    hours
+            }.value
+
+            testStation = Station(
+                testStationId,
+                "Test Station 1",
+                hours
+            )
+
+            opensAt = LocalTime.parse("08:00:00", DateTimeFormatter.ISO_TIME)
+            closesAt = LocalTime.parse("20:00:00", DateTimeFormatter.ISO_TIME)
+            hours = mapOf(
+                Pair(DayOfWeek.MONDAY, listOf(opensAt, closesAt)),
+                Pair(DayOfWeek.TUESDAY, listOf(opensAt, closesAt)),
+                Pair(DayOfWeek.WEDNESDAY, listOf(opensAt, closesAt)),
+                Pair(DayOfWeek.THURSDAY, listOf(opensAt, closesAt)),
+                Pair(DayOfWeek.FRIDAY, listOf(opensAt, closesAt))
+            )
+
+            val testStationId2 = Stations.insertAndGetId {
+                it[name] = "Test Station 2"
+                it[Stations.hours] = json.toJson(
+                    MapSerializer(
+                        DayOfWeekSerializer, ListSerializer(
+                            LocalTimeSerializer
+                        )
+                    ), hours
                 )
-            }
-
-        }
-
-        @AfterClass
-        @JvmStatic
-        fun cleanPartnersAndStationsFromDB(){
-            transaction {
-                Partners.deleteAll()
-                Stations.deleteAll()
-            }
+                    .toString()
+            }.value
+            testStation2 = Station(
+                testStationId2,
+                "Test Station 2",
+                hours
+            )
         }
     }
 
-    @After
+    @AfterAll
+    fun cleanPartnersAndStationsFromDB() {
+        transaction {
+            Partners.deleteAll()
+            Stations.deleteAll()
+        }
+    }
+
+
+    @AfterEach
     fun cleanEventsFromDB() {
         transaction {
             Events.deleteAll()
@@ -199,6 +197,7 @@ class EventServiceGetEventTest {
         assertEquals(expectedEvents, actualEvents.b)
     }
 
+    @KtorExperimentalLocationsAPI
     @Test
     fun testGetEventsByStationID() {
         val start = LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME)
@@ -240,6 +239,7 @@ class EventServiceGetEventTest {
         assertEquals(expectedEvents, actualEvents.b)
     }
 
+    @KtorExperimentalLocationsAPI
     @Test
     fun testGetEventsByPartnerID() {
         val start = LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME)
@@ -283,6 +283,7 @@ class EventServiceGetEventTest {
     }
 
 
+    @KtorExperimentalLocationsAPI
     @Test
     fun testGetEventsByPartnerAndStationID() {
         val start = LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME)
@@ -338,6 +339,7 @@ class EventServiceGetEventTest {
         assertEquals(expectedEvents, actualEvents.b)
     }
 
+    @KtorExperimentalLocationsAPI
     @Test
     fun testGetDatesInRange() {
         val start = LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME)
@@ -393,6 +395,7 @@ class EventServiceGetEventTest {
         assertEquals(expectedEvents, actualEvents.b)
     }
 
+    @KtorExperimentalLocationsAPI
     @Test
     fun getEventsByRecurrenceRuleID() {
         val start = LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME)
@@ -534,6 +537,5 @@ class EventServiceGetEventTest {
 
         assertEquals(expectedEvents, actualEvents.b)
     }
-
-
 }
+

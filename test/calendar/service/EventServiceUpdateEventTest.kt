@@ -1,16 +1,13 @@
 package calendar.service
 
 import arrow.core.Either
-import io.ktor.util.KtorExperimentalAPI
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
-import ombruk.backend.calendar.database.Events
 import ombruk.backend.calendar.database.Stations
 import ombruk.backend.calendar.form.event.EventPostForm
-import ombruk.backend.calendar.model.Event
-import ombruk.backend.calendar.model.RecurrenceRule
+import ombruk.backend.calendar.form.event.EventUpdateForm
 import ombruk.backend.calendar.model.Station
 import ombruk.backend.calendar.service.EventService
 import ombruk.backend.partner.database.Partners
@@ -22,7 +19,6 @@ import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -31,13 +27,12 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
-@KtorExperimentalAPI
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class EventServiceSaveTest {
-    lateinit var testPartner: Partner
-    lateinit var testPartner2: Partner
-    lateinit var testStation: Station
-    lateinit var testStation2: Station
+class EventServiceUpdateEventTest {
+    private lateinit var testPartner: Partner
+    private lateinit var testPartner2: Partner
+    private lateinit var testStation: Station
+    private lateinit var testStation2: Station
 
     init {
         initDB()
@@ -136,61 +131,35 @@ class EventServiceSaveTest {
         }
     }
 
-    @AfterEach
-    fun cleanEventsFromDB() {
-        transaction {
-            Events.deleteAll()
-        }
-    }
 
     @Test
-    fun testSaveEvent() {
-        val expectedEvent = EventService.saveEvent(
+    fun testUpdateEvent() {
+        val start = LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME)
+        val end = LocalDateTime.parse("2020-08-14T16:30:00", DateTimeFormatter.ISO_DATE_TIME)
+
+        val initialEvent = EventService.saveEvent(
             EventPostForm(
-                startDateTime = LocalDateTime.parse("2020-07-06T15:48:06", DateTimeFormatter.ISO_DATE_TIME),
-                endDateTime = LocalDateTime.parse("2020-07-06T16:48:06", DateTimeFormatter.ISO_DATE_TIME),
-                partnerId = testPartner.id,
-                stationId = testStation.id
+                start,
+                end,
+                testStation.id,
+                testPartner.id
             )
         )
-        require(expectedEvent is Either.Right)
+        require(initialEvent is Either.Right)
 
-        val actualEvent = EventService.getEventByID(expectedEvent.b.id)
+        val expectedEvent = initialEvent.b.copy(startDateTime = start.plusHours(1), endDateTime = end.plusHours(1))
 
-        assertEquals(expectedEvent, actualEvent)
-    }
-
-    @Test
-    fun testSaveRecurringEvent() {
-
-        val createForm = EventPostForm(
-            startDateTime = LocalDateTime.parse("2020-07-06T15:48:06", DateTimeFormatter.ISO_DATE_TIME),
-            endDateTime = LocalDateTime.parse("2020-07-06T16:48:06", DateTimeFormatter.ISO_DATE_TIME),
-            partnerId = testPartner.id,
-            stationId = testStation.id,
-            recurrenceRule = RecurrenceRule(
-                count = 37,
-                days = listOf(DayOfWeek.MONDAY)
-            )
+        val updateForm = EventUpdateForm(
+            initialEvent.b.id,
+            start.plusHours(1),
+            end.plusHours(1)
         )
 
-        EventService.saveEvent(createForm)
+        EventService.updateEvent(updateForm)
 
-        val actualEvents = EventService.getEvents()
-        require(actualEvents is Either.Right)
-
-        val firstId = actualEvents.b.first().id
-        val expectedEvents = createForm.mapIndexed { index: Int, postForm: EventPostForm ->
-            Event(
-                firstId + index,
-                postForm.startDateTime,
-                postForm.endDateTime,
-                testStation,
-                testPartner,
-                postForm.recurrenceRule
-            )
-        }
-
-        assertEquals(expectedEvents, actualEvents.b)
+        val actualEvent = EventService.getEventByID(initialEvent.b.id)
+        require(actualEvent is Either.Right)
+        assertEquals(expectedEvent, actualEvent.b)
     }
+
 }
