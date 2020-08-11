@@ -64,6 +64,10 @@ paths:
       responses:
         '200':
           description: Partner deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Partner'
         '400':
           description: Bad input parameter
         '401':
@@ -109,9 +113,7 @@ paths:
           content:
             application/json:
               schema:
-                type: integer
-                format: int64
-                description: The DB id of the stored partner
+                $ref: '#/components/schemas/Partner'
         '400':
           description: Bad partner body
         '401':
@@ -220,6 +222,10 @@ paths:
       responses:
         '200':
           description: Station updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Station'
         '400':
           description: Bad request body
         '401':
@@ -276,6 +282,10 @@ paths:
       responses:
         '200':
           description: Station deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Station'
         '400':
           description: Bad input parameter
         '401':

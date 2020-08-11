@@ -33,14 +33,20 @@ import org.slf4j.LoggerFactory
 @KtorExperimentalAPI
 object KeycloakGroupIntegration {
 
+    @KtorExperimentalAPI
+    private val appConfig = HoconApplicationConfig(ConfigFactory.load())
+
+    @KtorExperimentalAPI
+    private val isDebug: Boolean = appConfig.property("ktor.oko.debug").getString().toBoolean()
+
     private val logger: Logger = LoggerFactory.getLogger("ombruk.partner.service.KeycloakGroupIntegration")
     private val client: HttpClient = HttpClient(Apache)
-    private val keycloakBaseUrl: String
-    private val tokenUrl: String
-    private val groupsUrl: String
+    private val keycloakBaseUrl = appConfig.property("ktor.keycloak.keycloakUrl").getString()
+    private val tokenUrl = keycloakBaseUrl + "realms/staging/protocol/openid-connect/token"
+    private val groupsUrl = keycloakBaseUrl + "admin/realms/staging/groups/"
     private const val grantType = "client_credentials"
     private const val clientID = "partner-microservice"
-    private val clientSecret: String
+    private val clientSecret = appConfig.property("ktor.keycloak.clientSecret").getString()
 
     private val json = Json(JsonConfiguration.Stable)
 
@@ -48,13 +54,7 @@ object KeycloakGroupIntegration {
 
 
     init {
-        logger.debug("Trying to initialize KeycloakGroupIntegration")
-        val appConfig = HoconApplicationConfig(ConfigFactory.load())
-        keycloakBaseUrl = appConfig.property("ktor.keycloak.keycloakUrl").getString()
-        clientSecret = appConfig.property("ktor.keycloak.clientSecret").getString()
-        tokenUrl = keycloakBaseUrl + "realms/staging/protocol/openid-connect/token"
-        groupsUrl = keycloakBaseUrl + "admin/realms/staging/groups/"
-        runBlocking { authenticate() }  // initialize token once before any calls are made.
+        if (!isDebug) runBlocking { authenticate() }  // initialize token once before any calls are made. Not needed for debug.
     }
 
 
@@ -89,6 +89,7 @@ object KeycloakGroupIntegration {
      */
     private fun sendRequest(requestBuilder: HttpRequestBuilder) =
         runCatching { runBlocking { client.request(requestBuilder) as String } }
+            .onFailure { logger.error(it.message) }
             .fold({ it.right() }, { handleRequestFailure(it) })
 
 
@@ -126,8 +127,10 @@ object KeycloakGroupIntegration {
             else -> KeycloakIntegrationError.KeycloakError("Failed to connect to Keycloak")
                 .left()
         }
-        else -> KeycloakIntegrationError.KeycloakError("Failed to perform Keycloak request")
-            .left()
+        else -> {
+            logger.error(e.message)
+            KeycloakIntegrationError.KeycloakError("Failed to perform Keycloak request").left()
+        }
     }
 
 
@@ -188,19 +191,17 @@ object KeycloakGroupIntegration {
      *
      * @return a [KeycloakIntegrationError] on failure and a [Unit] on success.
      */
-    fun updateGroup(oldName: String, newName: String) = getGroupByName(
-        oldName
-    )
-        .map {
-            performRequest(
-                method = HttpMethod.Put,
-                url = groupsUrl + it.id,
-                contentType = ContentType.Application.Json,
-                body = "{\"name\": \"$newName\"}"
-            )
-        }
-        .fold({ it.left() }, { Unit.right() })
-
+    fun updateGroup(oldName: String, newName: String?) = takeIf { isDebug || newName == null }?.let { Unit.right() }
+        ?: getGroupByName(oldName)
+            .flatMap {
+                performRequest(
+                    method = HttpMethod.Put,
+                    url = groupsUrl + it.id,
+                    contentType = ContentType.Application.Json,
+                    body = "{\"name\": \"$newName\"}"
+                )
+                    .fold({ it.left() }, { Unit.right() })
+            }
 
     /**
      * Deletes a group from keycloak. Returns an error if the provided group name does not exist.
@@ -208,16 +209,14 @@ object KeycloakGroupIntegration {
      * @param name The name of the group that should be deleted. The exact name passed in must exist in keycloak.
      * @return An [Either] object consisting of either a [KeycloakIntegrationError] on failure or [Unit] on success.
      */
-    fun deleteGroup(name: String) = getGroupByName(
-        name
-    )
-        .map {
-            performRequest(
-                method = HttpMethod.Delete,
-                url = groupsUrl + it.id
-            )
-        }
-        .fold({ it.left() }, { Unit.right() })
+    fun deleteGroup(name: String) = takeIf { isDebug }?.let { Unit.right() }
+        ?: getGroupByName(name)
+            .flatMap {
+                performRequest(
+                    method = HttpMethod.Delete,
+                    url = groupsUrl + it.id
+                )
+            }
 
 
     /**
@@ -230,12 +229,13 @@ object KeycloakGroupIntegration {
      * @param id The ID of the created group. Must match the ID the partner has in the database.
      * @return An [Either] object, consisting of a [KeycloakIntegrationError] on failure and a [String] on success.
      */
-    fun createGroup(name: String, id: Int) = runBlocking {
-        performRequest(
-            HttpMethod.Post,
-            url = groupsUrl,
-            contentType = ContentType.Application.Json,
-            body = "{\"name\": \"$name\", \"attributes\": {\"GroupID\": [$id]}}"
-        )
-    }
+    fun createGroup(name: String, id: Int) = takeIf { isDebug }?.let { Unit.right() }
+        ?: runBlocking {
+            performRequest(
+                HttpMethod.Post,
+                url = groupsUrl,
+                contentType = ContentType.Application.Json,
+                body = "{\"name\": \"$name\", \"attributes\": {\"GroupID\": [$id]}}"
+            )
+        }
 }

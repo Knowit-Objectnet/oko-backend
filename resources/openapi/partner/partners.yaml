@@ -35,9 +35,7 @@ post:
       content:
         application/json:
           schema:
-            type: integer
-            format: int64
-            description: The DB id of the stored partner
+            $ref: '../api.yaml#/components/schemas/Partner'
     '400':
       description: Bad partner body
     '401':

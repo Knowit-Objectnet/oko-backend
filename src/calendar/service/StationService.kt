@@ -1,10 +1,14 @@
 package ombruk.backend.calendar.service
 
+import arrow.core.flatMap
 import io.ktor.locations.KtorExperimentalLocationsAPI
+import io.ktor.util.KtorExperimentalAPI
 import ombruk.backend.calendar.database.StationRepository
 import ombruk.backend.calendar.form.station.StationGetForm
 import ombruk.backend.calendar.form.station.StationPostForm
 import ombruk.backend.calendar.form.station.StationUpdateForm
+import ombruk.backend.shared.api.KeycloakGroupIntegration
+import org.jetbrains.exposed.sql.transactions.transaction
 
 object StationService : IStationService {
 
@@ -13,11 +17,30 @@ object StationService : IStationService {
     @KtorExperimentalLocationsAPI
     override fun getStations(stationGetForm: StationGetForm) = StationRepository.getStations(stationGetForm)
 
-    override fun saveStation(stationPostForm: StationPostForm) = StationRepository.insertStation(stationPostForm)
+    @KtorExperimentalAPI
+    override fun saveStation(stationPostForm: StationPostForm) = transaction {
+        StationRepository.insertStation(stationPostForm).flatMap { station ->
+            KeycloakGroupIntegration.createGroup(station.name, station.id)
+                .bimap({ rollback(); it }, { station })
+        }
+    }
 
-    override fun updateStation(stationUpdateForm: StationUpdateForm) =
-        StationRepository.updateStation(stationUpdateForm)
+    @KtorExperimentalAPI
+    override fun updateStation(stationUpdateForm: StationUpdateForm) = transaction {
+        getStationById(stationUpdateForm.id).flatMap { station ->
+            StationRepository.updateStation(stationUpdateForm).flatMap { newStation ->
+                KeycloakGroupIntegration.updateGroup(station.name, newStation.name)
+                    .bimap({ rollback(); it }, { newStation })
+            }
+        }
+    }
 
-    override fun deleteStationById(id: Int) = StationRepository.deleteStation(id)
-
+    @KtorExperimentalAPI
+    override fun deleteStationById(id: Int) = transaction {
+        getStationById(id).flatMap { station ->
+            StationRepository.deleteStation(id)
+                .flatMap { KeycloakGroupIntegration.deleteGroup(station.name) }
+                .bimap({ rollback(); it }, { station })
+        }
+    }
 }

@@ -13,8 +13,8 @@ import java.time.LocalTime
 @Serializable
 data class StationUpdateForm(
     val id: Int,
-    val name: String?,
-    val hours: Map<DayOfWeek, List<@Serializable(with = LocalTimeSerializer::class) LocalTime>>?
+    val name: String? = null,
+    val hours: Map<DayOfWeek, List<@Serializable(with = LocalTimeSerializer::class) LocalTime>>? = null
 ) : IForm<StationUpdateForm> {
     override fun validOrError() = runCatchingValidation {
         validate(this) {

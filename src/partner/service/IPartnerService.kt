@@ -37,8 +37,9 @@ interface IPartnerService {
     /**
      * Deletes the partner with the provided ID. If the ID does not exist, a [ServiceError] is returned.
      * @param id The ID of the user that should be deleted.
+     * @return A [ServiceError] on failure and a [Partner] on success.
      */
-    fun deletePartnerById(id: Int): Either<ServiceError, Unit>
+    fun deletePartnerById(id: Int): Either<ServiceError, Partner>
 
     /**
      * Updates a partner through the use of a partner form (update object). The provided ID must correspond with

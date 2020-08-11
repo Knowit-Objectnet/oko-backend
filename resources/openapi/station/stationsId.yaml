@@ -39,6 +39,10 @@ delete:
   responses:
     '200':
       description: Station deleted successfully
+      content:
+        application/json:
+          schema:
+            $ref: '../api.yaml#/components/schemas/Station'
     '400':
       description: Bad input parameter
     '401':
