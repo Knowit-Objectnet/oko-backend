@@ -15,14 +15,18 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.mockkObject
 import kotlinx.serialization.builtins.list
 import kotlinx.serialization.json.Json
+import ombruk.backend.calendar.form.event.EventGetForm
 import ombruk.backend.calendar.model.Event
+import ombruk.backend.calendar.model.Station
 import ombruk.backend.calendar.service.EventService
 import ombruk.backend.module
+import ombruk.backend.partner.model.Partner
 import ombruk.backend.shared.database.initDB
 import ombruk.backend.shared.error.RepositoryError
 import ombruk.backend.shared.error.ServiceError
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
+import java.time.LocalDateTime
 import kotlin.test.assertEquals
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -88,14 +92,16 @@ class EventAPITest {
 
     @Nested
     inner class Get{
-        /**
-         * This is not a very good test, someone plz figure out how to fix.
-         * The relaxed mock will basically make expected an empty list, which is not ideal.
-         * We want a list with at least some mocked events. Serialization is what makes it difficult
-         */
         @Test
-        fun `get all events`(@MockK(relaxed = true) expected: List<Event>){
-            every { EventService.getEvents(null, null) } returns expected.right()
+        fun `get all events`(){
+            val s = Station(1, "test", null)
+            val p = Partner(1, "test")
+            val e1 = Event(1, LocalDateTime.now(), LocalDateTime.now(), s, p, null)
+            val e2 = e1.copy(2)
+            val e3 = e1.copy(3)
+            val expected = listOf(e1, e2, e3)
+            every { EventService.getEvents(EventGetForm(), null) } returns expected.right()
+
             testGet("/events") {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(json.stringify(Event.serializer().list, expected), response.content)
