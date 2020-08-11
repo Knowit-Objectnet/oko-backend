@@ -2,38 +2,35 @@ package calendar.api
 
 import arrow.core.left
 import arrow.core.right
-import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.DefaultJsonConfiguration
-import io.ktor.server.testing.TestApplicationCall
-import io.ktor.server.testing.handleRequest
-import io.ktor.server.testing.setBody
-import io.ktor.server.testing.withTestApplication
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkObject
 import kotlinx.serialization.builtins.list
 import kotlinx.serialization.json.Json
+import ombruk.backend.calendar.database.EventRepository
 import ombruk.backend.calendar.database.StationRepository
+import ombruk.backend.calendar.form.event.EventDeleteForm
 import ombruk.backend.calendar.form.event.EventGetForm
 import ombruk.backend.calendar.form.event.EventPostForm
+import ombruk.backend.calendar.form.event.EventUpdateForm
 import ombruk.backend.calendar.model.Event
 import ombruk.backend.calendar.model.Station
 import ombruk.backend.calendar.service.EventService
-import ombruk.backend.module
 import ombruk.backend.partner.database.PartnerRepository
 import ombruk.backend.partner.model.Partner
 import ombruk.backend.shared.api.Authorization
-import ombruk.backend.shared.api.JwtMockConfig
-import ombruk.backend.shared.api.Roles
 import ombruk.backend.shared.database.initDB
 import ombruk.backend.shared.error.RepositoryError
 import ombruk.backend.shared.error.ServiceError
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
+import testutils.testDelete
+import testutils.testGet
+import testutils.testPatch
+import testutils.testPost
 import java.time.LocalDateTime
 import kotlin.test.assertEquals
 
@@ -48,6 +45,7 @@ class EventAPITest {
 
     @BeforeEach
     fun setup() {
+        mockkObject(EventRepository)
         mockkObject(EventService)
         mockkObject(StationRepository)
         mockkObject(PartnerRepository)
@@ -132,21 +130,20 @@ class EventAPITest {
     }
 
     @Nested
-    inner class Post{
+    inner class Post {
 
         @Test
-        fun `post simple event`(){
+        fun `post simple event`() {
             val s = Station(1, "test")
             val p = Partner(1, "test")
             val form = EventPostForm(LocalDateTime.now(), LocalDateTime.now().plusDays(1), s.id, p.id)
             val expected = Event(1, form.startDateTime, form.endDateTime, s, p)
 
-            every{ EventService.saveEvent(form) } returns expected.right()
-            every{ PartnerRepository.exists(1) } returns true
-            every{ StationRepository.exists(1) } returns true
-            every{ Authorization.authorizeRole(any(), any()) } returns (Roles.RegEmployee to 1).right()
+            every { EventService.saveEvent(form) } returns expected.right()
+            every { PartnerRepository.exists(1) } returns true
+            every { StationRepository.exists(1) } returns true
 
-            testPost("/events", json.stringify(EventPostForm.serializer(), form)){
+            testPost("/events", json.stringify(EventPostForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(json.stringify(Event.serializer(), expected), response.content)
             }
@@ -154,22 +151,41 @@ class EventAPITest {
     }
 
     @Nested
-    inner class Patch
+    inner class Patch {
+
+        @Test
+        fun `patch simple event`() {
+            val s = Station(1, "test")
+            val p = Partner(1, "test")
+            val initial = Event(1, LocalDateTime.now().plusDays(2), LocalDateTime.now().plusDays(3), s, p)
+            val form = EventUpdateForm(1, LocalDateTime.now(), LocalDateTime.now().plusDays(1))
+            val expected = initial.copy(startDateTime = form.startDateTime!!, endDateTime = form.endDateTime!!)
+
+            every { EventService.updateEvent(form) } returns expected.right()
+            every { EventRepository.getEventByID(1) } returns initial.right()
+
+            testPatch("/events", json.stringify(EventUpdateForm.serializer(), form)) {
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals(json.stringify(Event.serializer(), expected), response.content)
+            }
+        }
+    }
 
     @Nested
-    inner class Delete
+    inner class Delete {
+
+        @Test
+        fun `simple delete event by id`() {
+            val s = Station(1, "test")
+            val p = Partner(1, "test")
+            val expected = listOf(Event(1, LocalDateTime.now(), LocalDateTime.now().plusDays(1), s, p))
+
+            every { EventService.deleteEvent(EventDeleteForm(1)) } returns expected.right()
+
+            testDelete("/events?eventId=1") {
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals(json.stringify(Event.serializer().list, expected), response.content)
+            }
+        }
+    }
 }
-
-fun testGet(path: String, func: TestApplicationCall.() -> Unit) =
-    withTestApplication({ module(true) }) {
-        handleRequest(HttpMethod.Get, path).apply(func)
-    }
-
-fun testPost(path: String, body: String, bearer: String = JwtMockConfig.regEmployeeBearer, func: TestApplicationCall.() -> Unit) =
-    withTestApplication({ module(true) }) {
-        handleRequest(HttpMethod.Post, path) {
-            addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-            addHeader(HttpHeaders.Authorization, "Bearer $bearer")
-            setBody(body)
-        }.apply(func)
-    }
