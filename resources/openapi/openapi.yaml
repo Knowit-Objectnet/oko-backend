@@ -218,7 +218,7 @@ paths:
       operationId: patchStation
       description: |
         Updates a partner. ID cannot be changed and must correspond with an existing station. Name must be unique.
-        The stored station object is returned if request is valid
+        The stored station object is returned if request is valid. WARNING: PATCHING HOURS WILL OVERWRITE PREVIOUS HOURS.
       responses:
         '200':
           description: Station updated
@@ -308,7 +308,7 @@ paths:
         a range by specifying from-date and to-date.
       parameters:
         - in: query
-          name: event-id
+          name: eventId
           description: Get the report that corresponds to the specified event ID.
           required: false
           schema:
@@ -316,7 +316,7 @@ paths:
             format: int64
           example: 1
         - in: query
-          name: station-id
+          name: stationId
           description: Only get reports belonging at the specified Station ID.
           required: false
           schema:
@@ -324,7 +324,7 @@ paths:
             format: int64
             example: 2
         - in: query
-          name: partner-id
+          name: partnerId
           description: Only get reports belonging to specified partner ID.
           required: false
           schema:
@@ -332,7 +332,7 @@ paths:
             format: int64
             example: 3
         - in: query
-          name: from-date
+          name: fromDate
           description: Get reports from the specified date and time.
           required: false
           schema:
@@ -340,7 +340,7 @@ paths:
             format: date-time
             example: '2020-07-10T13:17:39Z'
         - in: query
-          name: to-date
+          name: toDate
           description: Get reports until the specified date and time.
           required: false
           schema:
@@ -983,14 +983,29 @@ components:
         name:
           type: string
           example: Haraldrud
-        openingTime:
-          type: string
-          description: 'A string that conforms to the ISO8601 standard for displaying time. The format is HH:MM:SS'
-          example: '09:00:00Z'
-        closingTime:
-          type: string
-          description: 'A string that conforms to the ISO8601 standard for displaying time. The format is HH:MM:SS'
-          example: '20:00:00Z'
+        hours:
+          type: object
+          description: 'Keys must be one or several of: MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY'
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          example:
+            MONDAY:
+              - '09:00:00Z'
+              - '20:00:00Z'
+            TUESDAY:
+              - '08:00:00Z'
+              - '21:00:00Z'
+            WEDNESDAY:
+              - '09:00:00Z'
+              - '20:00:00Z'
+            THURSDAY:
+              - '09:00:00Z'
+              - '20:00:00Z'
+            FRIDAY:
+              - '09:00:00Z'
+              - '20:00:00Z'
     StationPost:
       type: object
       properties:
@@ -998,18 +1013,31 @@ components:
           type: string
           description: Must be unique
           example: Ryen
-        openingTime:
-          type: string
-          description: 'A string that conforms to the ISO8601 standard for displaying time. The format is HH:MM:SS'
-          example: '08:00:00Z'
-        closingTime:
-          type: string
-          description: 'A string that conforms to the ISO8601 standard for displaying time. The format is HH:MM:SS'
-          example: '21:00:00Z'
+        hours:
+          type: object
+          description: 'Keys must be one or several of: MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY'
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          example:
+            MONDAY:
+              - '09:00:00Z'
+              - '20:00:00Z'
+            TUESDAY:
+              - '08:00:00Z'
+              - '21:00:00Z'
+            WEDNESDAY:
+              - '09:00:00Z'
+              - '20:00:00Z'
+            THURSDAY:
+              - '09:00:00Z'
+              - '20:00:00Z'
+            FRIDAY:
+              - '09:00:00Z'
+              - '20:00:00Z'
       required:
         - name
-        - openingTime
-        - closingTime
     StationPatch:
       type: object
       properties:
@@ -1020,14 +1048,30 @@ components:
           type: string
           description: Must be unique
           example: Ryen
-        openingTime:
-          type: string
-          description: 'A string that conforms to the ISO8601 standard for displaying time. The format is HH:MM:SS'
-          example: '08:00:00Z'
-        closingTime:
-          type: string
-          description: 'A string that conforms to the ISO8601 standard for displaying time. The format is HH:MM:SS'
-          example: '21:00:00Z'
+        hours:
+          type: object
+          description: |
+            Keys must be one or several of: "MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY". WARNING: THIS WILL OVERWRITE PREVIOUS HOURS.
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          example:
+            MONDAY:
+              - '09:00:00Z'
+              - '20:00:00Z'
+            TUESDAY:
+              - '08:00:00Z'
+              - '21:00:00Z'
+            WEDNESDAY:
+              - '09:00:00Z'
+              - '20:00:00Z'
+            THURSDAY:
+              - '09:00:00Z'
+              - '20:00:00Z'
+            FRIDAY:
+              - '09:00:00Z'
+              - '20:00:00Z'
       required:
         - id
     Event:

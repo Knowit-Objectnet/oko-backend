@@ -9,7 +9,7 @@ import ombruk.backend.partner.model.Partner
 import ombruk.backend.shared.database.IRepository
 import ombruk.backend.shared.error.RepositoryError
 
-interface IPartnerRepository : IRepository{
+interface IPartnerRepository : IRepository {
 
     /**
      * Inserts a [Partner] into the database. The ID passed in the [PartnerPostForm] will be overriden, and a serial

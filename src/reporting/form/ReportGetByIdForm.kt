@@ -11,7 +11,7 @@ class ReportGetByIdForm(
     var id: Int
 ) : IForm<ReportGetByIdForm> {
     override fun validOrError() = runCatchingValidation {
-        validate(this){
+        validate(this) {
             validate(ReportGetByIdForm::id).isGreaterThan(0)
 
         }

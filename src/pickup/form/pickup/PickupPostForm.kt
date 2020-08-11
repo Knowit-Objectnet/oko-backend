@@ -6,7 +6,6 @@ import ombruk.backend.calendar.database.StationRepository
 import ombruk.backend.shared.error.ValidationError
 import ombruk.backend.shared.form.IForm
 import ombruk.backend.shared.model.serializer.LocalDateTimeSerializer
-import ombruk.backend.shared.utils.validation.isGreaterThanStartDateTime
 import ombruk.backend.shared.utils.validation.isInRepository
 import ombruk.backend.shared.utils.validation.isLessThanEndDateTime
 import ombruk.backend.shared.utils.validation.runCatchingValidation
@@ -16,7 +15,7 @@ import java.time.LocalDateTime
 
 
 @Serializable
-data class PickupPostForm (
+data class PickupPostForm(
     @Serializable(with = LocalDateTimeSerializer::class) var startDateTime: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class) var endDateTime: LocalDateTime,
     val description: String? = null,
@@ -28,5 +27,5 @@ data class PickupPostForm (
             validate(PickupPostForm::stationId).isInRepository(StationRepository)
             validate(PickupPostForm::startDateTime).isLessThanEndDateTime(endDateTime)
         }
-        }
     }
+}

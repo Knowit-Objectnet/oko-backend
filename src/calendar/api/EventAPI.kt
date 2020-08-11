@@ -1,7 +1,6 @@
 package ombruk.backend.calendar.api
 
 import arrow.core.flatMap
-import ombruk.backend.calendar.form.event.EventGetForm
 import io.ktor.application.call
 import io.ktor.auth.authenticate
 import io.ktor.locations.KtorExperimentalLocationsAPI
@@ -13,10 +12,7 @@ import io.ktor.routing.Routing
 import io.ktor.routing.patch
 import io.ktor.routing.post
 import io.ktor.routing.route
-import ombruk.backend.calendar.form.event.EventDeleteForm
-import ombruk.backend.calendar.form.event.EventGetByIdForm
-import ombruk.backend.calendar.form.event.EventPostForm
-import ombruk.backend.calendar.form.event.EventUpdateForm
+import ombruk.backend.calendar.form.event.*
 import ombruk.backend.calendar.service.IEventService
 import ombruk.backend.shared.api.Authorization
 import ombruk.backend.shared.api.Roles
@@ -67,7 +63,7 @@ fun Routing.events(eventService: IEventService) {
         authenticate {
             delete<EventDeleteForm> { form ->
                 Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.ReuseStation, Roles.Partner), call)
-                    .map { if(it.first == Roles.Partner) form.partnerId = it.second; it }
+                    .map { if (it.first == Roles.Partner) form.partnerId = it.second; it }
                     .flatMap { Authorization.authorizePartnerID(it) { eventService.getEvents(form.toGetForm()) } }
                     .flatMap { form.validOrError() }
                     .flatMap { eventService.deleteEvent(it) }
@@ -78,6 +74,8 @@ fun Routing.events(eventService: IEventService) {
     }
 }
 
+
+@KtorExperimentalLocationsAPI
 private fun EventDeleteForm.toGetForm() =
     EventGetForm(
         eventId,

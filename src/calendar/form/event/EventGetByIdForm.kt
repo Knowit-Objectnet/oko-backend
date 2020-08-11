@@ -11,7 +11,7 @@ import org.valiktor.validate
 @Location("/{id}")
 data class EventGetByIdForm(val id: Int) : IForm<EventGetByIdForm> {
     override fun validOrError() = runCatchingValidation {
-        validate(this){
+        validate(this) {
             validate(EventGetByIdForm::id).isGreaterThan(0)
         }
     }

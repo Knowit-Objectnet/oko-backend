@@ -35,7 +35,7 @@ fun migrate() {
     ).locations(
         appConfig.property("ktor.db.migrationsLocation").getString()
     ).baselineOnMigrate(true)
-    .load()
+        .load()
 
     flyway.migrate()
 }

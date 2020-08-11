@@ -10,7 +10,7 @@ get:
     a range by specifying from-date and to-date.
   parameters:
     - in: query
-      name: event-id
+      name: eventId
       description: Get the report that corresponds to the specified event ID.
       required: false
       schema:
@@ -18,7 +18,7 @@ get:
         format: int64
       example: 1
     - in: query
-      name: station-id
+      name: stationId
       description: Only get reports belonging at the specified Station ID.
       required: false
       schema:
@@ -26,7 +26,7 @@ get:
         format: int64
         example: 2
     - in: query
-      name: partner-id
+      name: partnerId
       description: Only get reports belonging to specified partner ID.
       required: false
       schema:
@@ -34,7 +34,7 @@ get:
         format: int64
         example: 3
     - in: query
-      name: from-date
+      name: fromDate
       description: Get reports from the specified date and time.
       required: false
       schema:
@@ -42,7 +42,7 @@ get:
         format: date-time
         example: "2020-07-10T13:17:39Z"
     - in: query
-      name: to-date
+      name: toDate
       description: Get reports until the specified date and time.
       required: false
       schema:

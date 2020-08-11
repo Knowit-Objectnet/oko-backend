@@ -1,6 +1,10 @@
 package pickup.service
 
 import arrow.core.Either
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonConfiguration
 import ombruk.backend.calendar.database.Stations
 import ombruk.backend.calendar.model.Station
 import ombruk.backend.partner.database.Partners
@@ -15,6 +19,8 @@ import ombruk.backend.pickup.model.Request
 import ombruk.backend.pickup.service.PickupService
 import ombruk.backend.pickup.service.RequestService
 import ombruk.backend.shared.database.initDB
+import ombruk.backend.shared.model.serializer.DayOfWeekSerializer
+import ombruk.backend.shared.model.serializer.LocalTimeSerializer
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -23,87 +29,115 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import java.time.DayOfWeek
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class RequestServiceTest {
-        lateinit var testPartner: Partner
-        lateinit var testPartner2: Partner
-        lateinit var testStation: Station
-        lateinit var testStation2: Station
+    lateinit var testPartner: Partner
+    lateinit var testPartner2: Partner
+    lateinit var testStation: Station
+    lateinit var testStation2: Station
 
-        init {
-            initDB()
-            transaction {
-                val testPartnerId = Partners.insertAndGetId {
-                    it[name] = "TestPartner 1"
-                    it[description] = "Description of TestPartner 1"
-                    it[phone] = "+47 2381931"
-                    it[email] = "example@gmail.com"
-                }.value
+    init {
+        initDB()
+        transaction {
+            val testPartnerId = Partners.insertAndGetId {
+                it[name] = "TestPartner 1"
+                it[description] = "Description of TestPartner 1"
+                it[phone] = "+47 2381931"
+                it[email] = "example@gmail.com"
+            }.value
 
-                testPartner =
-                    Partner(
-                        testPartnerId,
-                        "TestPartner 1",
-                        "Description of TestPartner 1",
-                        "+47 2381931",
-                        "example@gmail.com"
-                    )
-
-                val testPartnerId2 = Partners.insertAndGetId {
-                    it[name] = "TestPartner 2"
-                    it[description] = "Description of TestPartner 2"
-                    it[phone] = "911"
-                    it[email] = "example@gmail.com"
-                }.value
-
-                testPartner2 = Partner(
-                    testPartnerId2,
-                    "TestPartner 2",
-                    "Description of TestPartner 2",
-                    "911",
+            testPartner =
+                Partner(
+                    testPartnerId,
+                    "TestPartner 1",
+                    "Description of TestPartner 1",
+                    "+47 2381931",
                     "example@gmail.com"
                 )
 
+            val testPartnerId2 = Partners.insertAndGetId {
+                it[name] = "TestPartner 2"
+                it[description] = "Description of TestPartner 2"
+                it[phone] = "911"
+                it[email] = "example@gmail.com"
+            }.value
 
-                val testStationId = Stations.insertAndGetId {
-                    it[name] = "Test Station 1"
-                    it[openingTime] = "09:00:00"
-                    it[closingTime] = "21:00:00"
-                }.value
+            testPartner2 = Partner(
+                testPartnerId2,
+                "TestPartner 2",
+                "Description of TestPartner 2",
+                "911",
+                "example@gmail.com"
+            )
 
-                testStation = Station(
-                    testStationId,
-                    "Test Station 1",
-                    LocalTime.parse("09:00:00", DateTimeFormatter.ISO_TIME),
-                    LocalTime.parse("21:00:00", DateTimeFormatter.ISO_TIME)
+            var opensAt = LocalTime.parse("09:00:00Z", DateTimeFormatter.ISO_TIME)!!
+            var closesAt = LocalTime.parse("21:00:00Z", DateTimeFormatter.ISO_TIME)!!
+            var hours = mapOf(
+                Pair(DayOfWeek.MONDAY, listOf(opensAt, closesAt)),
+                Pair(DayOfWeek.TUESDAY, listOf(opensAt, closesAt)),
+                Pair(DayOfWeek.WEDNESDAY, listOf(opensAt, closesAt)),
+                Pair(DayOfWeek.THURSDAY, listOf(opensAt, closesAt)),
+                Pair(DayOfWeek.FRIDAY, listOf(opensAt, closesAt))
+            )
+            val json = Json(JsonConfiguration.Stable)
+
+            val testStationId = Stations.insertAndGetId {
+                it[name] = "Test Station 1"
+                it[Stations.hours] =
+                    json.toJson(MapSerializer(DayOfWeekSerializer, ListSerializer(LocalTimeSerializer)), hours)
+                        .toString()
+            }.value
+
+            testStation = Station(
+                testStationId,
+                "Test Station 1",
+                hours
+            )
+
+            opensAt = LocalTime.parse("08:00:00", DateTimeFormatter.ISO_TIME)
+            closesAt = LocalTime.parse("20:00:00", DateTimeFormatter.ISO_TIME)
+            hours = mapOf(
+                Pair(DayOfWeek.MONDAY, listOf(opensAt, closesAt)),
+                Pair(DayOfWeek.TUESDAY, listOf(opensAt, closesAt)),
+                Pair(DayOfWeek.WEDNESDAY, listOf(opensAt, closesAt)),
+                Pair(DayOfWeek.THURSDAY, listOf(opensAt, closesAt)),
+                Pair(DayOfWeek.FRIDAY, listOf(opensAt, closesAt))
+            )
+
+            val testStationId2 = Stations.insertAndGetId {
+                it[name] = "Test Station 2"
+                it[Stations.hours] = json.toJson(
+                    MapSerializer(
+                        DayOfWeekSerializer, ListSerializer(
+                            LocalTimeSerializer
+                        )
+                    ), hours
                 )
-
-                val testStationId2 = Stations.insertAndGetId {
-                    it[name] = "Test Station 2"
-                    it[openingTime] = "08:00:00"
-                    it[closingTime] = "20:00:00"
-                }.value
-                testStation2 = Station(
-                    testStationId2,
-                    "Test Station 2",
-                    LocalTime.parse("08:00:00", DateTimeFormatter.ISO_TIME),
-                    LocalTime.parse("20:00:00", DateTimeFormatter.ISO_TIME)
-                )
-            }
-
+                    .toString()
+            }.value
+            testStation2 = Station(
+                testStationId2,
+                "Test Station 2",
+                hours
+            )
 
         }
-        @AfterAll
-        fun cleanPartnersAndStationsFromDB(){
-            transaction {
-                Partners.deleteAll()
-                Stations.deleteAll()
-            }
+
+
+    }
+
+    @AfterAll
+    fun cleanPartnersAndStationsFromDB() {
+        transaction {
+            Partners.deleteAll()
+            Stations.deleteAll()
         }
+    }
 
     @AfterEach
     fun cleanEventsFromDB() {
