@@ -10,21 +10,23 @@ import io.ktor.server.testing.withTestApplication
 import ombruk.backend.module
 import ombruk.backend.shared.api.JwtMockConfig
 
-fun testGet(path: String, func: TestApplicationCall.() -> Unit) =
+fun testGet(path: String, bearer: String? = JwtMockConfig.regEmployeeBearer, func: TestApplicationCall.() -> Unit) =
     withTestApplication({ module(true) }) {
-        handleRequest(HttpMethod.Get, path).apply(func)
+        handleRequest(HttpMethod.Get, path) {
+            bearer?.let { addHeader(HttpHeaders.Authorization, "Bearer $it") }
+        }.apply(func)
     }
 
 fun testPost(
     path: String,
     body: String,
-    bearer: String = JwtMockConfig.regEmployeeBearer,
+    bearer: String? = JwtMockConfig.regEmployeeBearer,
     func: TestApplicationCall.() -> Unit
 ) =
     withTestApplication({ module(true) }) {
         handleRequest(HttpMethod.Post, path) {
             addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-            addHeader(HttpHeaders.Authorization, "Bearer $bearer")
+            bearer?.let { addHeader(HttpHeaders.Authorization, "Bearer $it") }
             setBody(body)
         }.apply(func)
     }
@@ -32,24 +34,24 @@ fun testPost(
 fun testPatch(
     path: String,
     body: String,
-    bearer: String = JwtMockConfig.regEmployeeBearer,
+    bearer: String? = JwtMockConfig.regEmployeeBearer,
     func: TestApplicationCall.() -> Unit
 ) =
     withTestApplication({ module(true) }) {
         handleRequest(HttpMethod.Patch, path) {
             addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-            addHeader(HttpHeaders.Authorization, "Bearer $bearer")
+            bearer?.let { addHeader(HttpHeaders.Authorization, "Bearer $it") }
             setBody(body)
         }.apply(func)
     }
 
 fun testDelete(
     path: String,
-    bearer: String = JwtMockConfig.regEmployeeBearer,
+    bearer: String? = JwtMockConfig.regEmployeeBearer,
     func: TestApplicationCall.() -> Unit
 ) =
     withTestApplication({ module(true) }) {
         handleRequest(HttpMethod.Delete, path) {
-            addHeader(HttpHeaders.Authorization, "Bearer $bearer")
+            bearer?.let { addHeader(HttpHeaders.Authorization, "Bearer $it") }
         }.apply(func)
     }
