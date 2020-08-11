@@ -119,7 +119,7 @@ class EventAPITest {
             val e3 = e1.copy(3)
             val expected = listOf(e1, e2, e3)
 
-            every { EventService.getEvents(EventGetForm(), null) } returns expected.right()
+            every { EventService.getEvents(EventGetForm()) } returns expected.right()
 
             testGet("/events") {
                 assertEquals(HttpStatusCode.OK, response.status())
@@ -129,7 +129,7 @@ class EventAPITest {
 
         @Test
         fun `get events 500`() {
-            every { EventService.getEvents(EventGetForm(), null) } returns ServiceError("test").left()
+            every { EventService.getEvents(EventGetForm()) } returns ServiceError("test").left()
 
             testGet("/events") {
                 assertEquals(HttpStatusCode.InternalServerError, response.status())
