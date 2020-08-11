@@ -167,7 +167,7 @@ class EventServiceTest {
 
             every { ReportService.saveReport(expectedEvent) } returns report.right()
             every { RecurrenceRules.insertRecurrenceRule(rRule) } returns rRule.right()
-            every { EventRepository.insertEvent(form) } returns expectedEvent.right()
+            every { EventRepository.insertEvent(any()) } returns expectedEvent.right()
 
             val actualEvent = EventService.saveEvent(form)
             require(actualEvent is Either.Right)
