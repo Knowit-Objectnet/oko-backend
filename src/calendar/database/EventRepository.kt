@@ -3,12 +3,12 @@ package ombruk.backend.calendar.database
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
+import io.ktor.locations.KtorExperimentalLocationsAPI
 import ombruk.backend.calendar.form.event.EventDeleteForm
 import ombruk.backend.calendar.form.event.EventGetForm
 import ombruk.backend.calendar.form.event.EventPostForm
 import ombruk.backend.calendar.form.event.EventUpdateForm
 import ombruk.backend.calendar.model.Event
-import ombruk.backend.calendar.model.EventType
 import ombruk.backend.calendar.model.RecurrenceRule
 import ombruk.backend.calendar.model.toWeekDayList
 import ombruk.backend.partner.database.Partners
@@ -33,22 +33,20 @@ object Events : IntIdTable("events") {
 object EventRepository : IEventRepository {
     private val logger = LoggerFactory.getLogger("ombruk.backend.service.EventRepository")
 
-    override fun insertEvent(postForm: EventPostForm): Either<RepositoryError, Event> {
-        val id = runCatching {
-            Events.insertAndGetId {
-                it[startDateTime] = postForm.startDateTime
-                it[endDateTime] = postForm.endDateTime
-                it[recurrenceRuleID] = postForm.recurrenceRule?.id
-                it[stationID] = postForm.stationId
-                it[partnerID] = postForm.partnerId
-            }.value
-        }.getOrElse {
-            logger.error("Failed to save event to DB: ${it.message}")
-            return@insertEvent RepositoryError.InsertError("SQL error").left()
-        }
-
-        return getEventByID(id)
+    override fun insertEvent(eventPostForm: EventPostForm): Either<RepositoryError, Event> = runCatching {
+        Events.insertAndGetId {
+            it[startDateTime] = eventPostForm.startDateTime
+            it[endDateTime] = eventPostForm.endDateTime
+            it[recurrenceRuleID] = eventPostForm.recurrenceRule?.id
+            it[stationID] = eventPostForm.stationId
+            it[partnerID] = eventPostForm.partnerId
+        }.value
     }
+        .onFailure { logger.error("Failed to save event to DB; ${it.message}") }
+        .fold(
+            { getEventByID(it) },
+            { RepositoryError.InsertError("SQL error").left() }
+        )
 
 
     override fun updateEvent(event: EventUpdateForm): Either<RepositoryError, Event> = runCatching {
@@ -60,16 +58,22 @@ object EventRepository : IEventRepository {
         }
     }
         .onFailure { logger.error(it.message) }
-        .fold({ getEventByID(event.id) }, {
-            RepositoryError.UpdateError(
-                it.message
-            ).left()
-        })
+        .fold(
+            { getEventByID(event.id) },
+            { RepositoryError.UpdateError(it.message).left() }
+        )
 
 
+    @KtorExperimentalLocationsAPI
     override fun deleteEvent(eventDeleteForm: EventDeleteForm): Either<RepositoryError, List<Event>> =
         runCatching {
             transaction {
+                /*
+                This is a conditional delete, and is somewhat special. Essentially, what's being done is building separate
+                operations for each value of the eventDeleteForm that's not null. These are then added to a list, which is
+                then combined to a full statement that can be ran. Op.build is a bit finicky as to what it accepts
+                as input, so you might have to use function (foo.lessEq(bar)) instead of DSL (foo eq bar) some places.
+                 */
                 val statements = mutableListOf<Op<Boolean>>()
                 eventDeleteForm.eventId?.let { statements.add(Op.build { Events.id eq it }) }
                 eventDeleteForm.recurrenceRuleId?.let { statements.add(Op.build { Events.recurrenceRuleID eq it }) }
@@ -79,12 +83,13 @@ object EventRepository : IEventRepository {
                 eventDeleteForm.stationId?.let { statements.add(Op.build { Events.stationID eq it }) }
                 val statement = AndOp(statements)
 
+                // Gather a list of events to delete.
                 val eventsToDelete =
                     (Events innerJoin Stations innerJoin Partners leftJoin RecurrenceRules).select { statement }
                         .mapNotNull { toEvent(it) }
 
                 Events.deleteWhere { statement }
-                return@transaction eventsToDelete
+                return@transaction eventsToDelete //return deleted events
             }
         }
             .onFailure { logger.error(it.message) }
@@ -95,6 +100,7 @@ object EventRepository : IEventRepository {
 
     override fun getEventByID(eventID: Int): Either<RepositoryError, Event> = runCatching {
         transaction {
+            // leftJoin RecurrenceRules because not all events are recurring.
             (Events innerJoin Stations innerJoin Partners leftJoin RecurrenceRules).select { Events.id eq eventID }
                 .map { toEvent(it) }.firstOrNull()
         }
@@ -105,16 +111,11 @@ object EventRepository : IEventRepository {
             { RepositoryError.SelectError(it.message).left() })
 
 
-    override fun getEvents(eventGetForm: EventGetForm?, eventType: EventType?): Either<RepositoryError, List<Event>> =
+    @KtorExperimentalLocationsAPI
+    override fun getEvents(eventGetForm: EventGetForm?): Either<RepositoryError, List<Event>> =
         runCatching {
             transaction {
                 val query = (Events innerJoin Stations innerJoin Partners leftJoin RecurrenceRules).selectAll()
-                eventType?.let {
-                    when (eventType) {
-                        EventType.SINGLE -> query.andWhere { Events.recurrenceRuleID.isNull() }
-                        EventType.RECURRING -> query.andWhere { Events.recurrenceRuleID.isNotNull() }
-                    }
-                }
                 if (eventGetForm != null) {
                     eventGetForm.eventId?.let { query.andWhere { Events.id eq it } }
                     eventGetForm.stationId?.let { query.andWhere { Events.stationID eq it } }
@@ -127,7 +128,10 @@ object EventRepository : IEventRepository {
             }
         }
             .onFailure { logger.error(it.message) }
-            .fold({ it.right() }, { RepositoryError.SelectError(it.message).left() })
+            .fold(
+                { it.right() },
+                { RepositoryError.SelectError(it.message).left() }
+            )
 
     override fun exists(id: Int) = transaction { Events.select { Events.id eq id }.count() >= 1 }
 

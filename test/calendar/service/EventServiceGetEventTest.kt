@@ -13,7 +13,6 @@ import ombruk.backend.calendar.database.Stations
 import ombruk.backend.calendar.form.event.EventGetForm
 import ombruk.backend.calendar.form.event.EventPostForm
 import ombruk.backend.calendar.model.Event
-import ombruk.backend.calendar.model.EventType
 import ombruk.backend.calendar.model.RecurrenceRule
 import ombruk.backend.calendar.model.Station
 import ombruk.backend.calendar.service.EventService
@@ -434,96 +433,6 @@ class EventServiceGetEventTest {
         require(actualEvents is Either.Right)
 
         val firstId = actualEvents.b.first().id
-        val expectedEvents = createForm.mapIndexed { index: Int, postForm: EventPostForm ->
-            Event(
-                firstId + index,
-                postForm.startDateTime,
-                postForm.endDateTime,
-                testStation,
-                testPartner,
-                postForm.recurrenceRule
-            )
-        }
-
-        assertEquals(expectedEvents, actualEvents.b)
-    }
-
-    @Test
-    fun testGetEventsByTypeSingular() {
-        val start = LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME)
-        val end = LocalDateTime.parse("2020-08-14T16:30:00", DateTimeFormatter.ISO_DATE_TIME)
-        val dateRange = start..end
-
-
-        //Create and save expected events
-        val expectedEvents = dateRange.map {
-            EventService.saveEvent(
-                EventPostForm(
-                    it,
-                    it.plusHours(1),
-                    testStation.id,
-                    testPartner.id
-                )
-            )
-        }.map {
-            require(it is Either.Right)
-            it.b
-        }
-
-        //Save unexpected events
-        dateRange.forEach {
-            EventService.saveEvent(
-                EventPostForm(
-                    it,
-                    it.plusHours(1),
-                    testStation.id,
-                    testPartner.id,
-                    RecurrenceRule(count = 7)
-                )
-            )
-        }
-
-        val actualEvents = EventService.getEvents(eventType = EventType.SINGLE)
-        require(actualEvents is Either.Right)
-
-        assertEquals(expectedEvents, actualEvents.b)
-    }
-
-    @Test
-    fun testGetEventsByTypeRecurring() {
-        val start = LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME)
-        val end = LocalDateTime.parse("2020-08-14T16:30:00", DateTimeFormatter.ISO_DATE_TIME)
-        val dateRange = start..end
-
-        // Save expected Events
-        val createForm = EventPostForm(
-            LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME),
-            LocalDateTime.parse("2020-07-27T16:30:00", DateTimeFormatter.ISO_DATE_TIME),
-            testStation.id,
-            testPartner.id,
-            RecurrenceRule(count = 7)
-        )
-
-        EventService.saveEvent(createForm)
-
-
-        //Save unexpected events
-        dateRange.forEach {
-            EventService.saveEvent(
-                EventPostForm(
-                    it,
-                    it.plusHours(1),
-                    testStation.id,
-                    testPartner.id
-                )
-            )
-        }
-
-        val actualEvents = EventService.getEvents(eventType = EventType.RECURRING)
-        require(actualEvents is Either.Right)
-
-        val firstId = actualEvents.b.first().id
-
         val expectedEvents = createForm.mapIndexed { index: Int, postForm: EventPostForm ->
             Event(
                 firstId + index,

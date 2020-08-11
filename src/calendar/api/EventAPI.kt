@@ -74,6 +74,8 @@ fun Routing.events(eventService: IEventService) {
     }
 }
 
+
+@KtorExperimentalLocationsAPI
 private fun EventDeleteForm.toGetForm() =
     EventGetForm(
         eventId,

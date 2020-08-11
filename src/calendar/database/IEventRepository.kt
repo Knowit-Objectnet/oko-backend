@@ -6,15 +6,14 @@ import ombruk.backend.calendar.form.event.EventGetForm
 import ombruk.backend.calendar.form.event.EventPostForm
 import ombruk.backend.calendar.form.event.EventUpdateForm
 import ombruk.backend.calendar.model.Event
-import ombruk.backend.calendar.model.EventType
 import ombruk.backend.shared.database.IRepository
 import ombruk.backend.shared.error.RepositoryError
 
 interface IEventRepository : IRepository {
     /**
-     * Inserts an [Event] into the database.
+     * Inserts one or several [Event] objects into the database.
      *
-     * @param eventPostForm A [EventPostForm]
+     * @param eventPostForm A [EventPostForm] describing the event(s) to be posted.
      * @return An [Either] object consisting of a [RepositoryError] on failure and the saved [Event] on success. The
      * returned [Event] is equal to the one stored in the database. If the posted [Event] is recurring, the first
      * occurence will be returned.
@@ -30,8 +29,8 @@ interface IEventRepository : IRepository {
     fun updateEvent(event: EventUpdateForm): Either<RepositoryError, Event>
 
     /**
-     * Deletes one or several [Event] objects from the database. The events to be deleted are chosen through the use
-     * of parameters in the [EventDeleteForm].
+     * Deletes one or several [Event] objects from the database. The events to be deleted are filtered through the use
+     * of non-null properties in the [EventDeleteForm].
      *
      * @param eventDeleteForm A [EventDeleteForm] containing the query constraints.
      * @return An [Either] object consisting of a [RepositoryError] on failure and [List] of deleted [Event] objects on success.
@@ -51,8 +50,5 @@ interface IEventRepository : IRepository {
      *
      * @return An [Either] object consisting of a [RepositoryError] on failure and a [List] of [Event] objects on success.
      */
-    fun getEvents(
-        eventGetForm: EventGetForm?,
-        eventType: EventType?
-    ): Either<RepositoryError, List<Event>>
+    fun getEvents(eventGetForm: EventGetForm?): Either<RepositoryError, List<Event>>
 }
