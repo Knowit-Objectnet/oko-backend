@@ -37,7 +37,7 @@ object EventService : IEventService {
         EventRepository.getEventByID(id)
     }
 
-    override fun getEvents(eventGetForm: EventGetForm?, eventType: EventType?) = transaction {
+    override fun getEvents(eventGetForm: EventGetForm?, eventType: EventType?): Either<ServiceError, List<Event>> = transaction {
         EventRepository.getEvents(eventGetForm, eventType)
     }
 

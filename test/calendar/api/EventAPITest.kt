@@ -98,6 +98,14 @@ class EventAPITest {
                 assertEquals("test", response.content)
             }
         }
+
+        @Test
+        fun `get single event 400`() {
+            testGet("/events/NaN") {
+                assertEquals(HttpStatusCode.BadRequest, response.status())
+                assertEquals("id could not be parsed.", response.content)
+            }
+        }
     }
 
     @Nested
@@ -110,6 +118,7 @@ class EventAPITest {
             val e2 = e1.copy(2)
             val e3 = e1.copy(3)
             val expected = listOf(e1, e2, e3)
+
             every { EventService.getEvents(EventGetForm(), null) } returns expected.right()
 
             testGet("/events") {
@@ -119,12 +128,28 @@ class EventAPITest {
         }
 
         @Test
-        fun `get events when there are none`() {
-            every { EventService.getEvents(null, null) } returns RepositoryError.NoRowsFound("Not found").left()
-            val expected = listOf<Event>()
+        fun `get events 500`() {
+            every { EventService.getEvents(EventGetForm(), null) } returns ServiceError("test").left()
+
             testGet("/events") {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Event.serializer().list, expected), response.content)
+                assertEquals(HttpStatusCode.InternalServerError, response.status())
+                assertEquals("test", response.content)
+            }
+        }
+
+        @Test
+        fun `get events 400`() {
+            testGet("/events?eventId=NaN") {
+                assertEquals(HttpStatusCode.BadRequest, response.status())
+                assertEquals("eventId could not be parsed.", response.content)
+            }
+        }
+
+        @Test
+        fun `get events invalid form`() {
+            testGet("/events?eventId=-1") {
+                assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
+                assertEquals("eventId: Must be greater than 0", response.content)
             }
         }
     }
