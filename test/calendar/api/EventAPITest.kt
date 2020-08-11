@@ -158,7 +158,7 @@ class EventAPITest {
     inner class Post {
 
         @Test
-        fun `post simple event`() {
+        fun `post event 200`() {
             val s = Station(1, "test")
             val p = Partner(1, "test")
             val form = EventPostForm(LocalDateTime.now(), LocalDateTime.now().plusDays(1), s.id, p.id)
@@ -173,13 +173,28 @@ class EventAPITest {
                 assertEquals(json.stringify(Event.serializer(), expected), response.content)
             }
         }
+
+        @Test
+        fun `post event 500`() {
+            val form = EventPostForm(LocalDateTime.now(), LocalDateTime.now().plusDays(1), 1, 1)
+
+            every { EventService.saveEvent(form) } returns ServiceError("test").left()
+            every { PartnerRepository.exists(1) } returns true
+            every { StationRepository.exists(1) } returns true
+
+            testPost("/events", json.stringify(EventPostForm.serializer(), form)) {
+                assertEquals(HttpStatusCode.InternalServerError, response.status())
+                assertEquals("test", response.content)
+            }
+        }
+
     }
 
     @Nested
     inner class Patch {
 
         @Test
-        fun `patch simple event`() {
+        fun `patch event 200`() {
             val s = Station(1, "test")
             val p = Partner(1, "test")
             val initial = Event(1, LocalDateTime.now().plusDays(2), LocalDateTime.now().plusDays(3), s, p)
@@ -200,21 +215,7 @@ class EventAPITest {
     inner class Delete {
 
         @Test
-        fun `delete event by id`() {
-            val s = Station(1, "test")
-            val p = Partner(1, "test")
-            val expected = listOf(Event(1, LocalDateTime.now(), LocalDateTime.now().plusDays(1), s, p))
-
-            every { EventService.deleteEvent(EventDeleteForm(1)) } returns expected.right()
-
-            testDelete("/events?eventId=1") {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Event.serializer().list, expected), response.content)
-            }
-        }
-
-        @Test
-        fun `delete all events`() {
+        fun `delete events 200`() {
             val s = Station(1, "test")
             val p = Partner(1, "test")
             val expected = listOf(Event(1, LocalDateTime.now(), LocalDateTime.now().plusDays(1), s, p))
@@ -226,5 +227,6 @@ class EventAPITest {
                 assertEquals(json.stringify(Event.serializer().list, expected), response.content)
             }
         }
+
     }
 }
