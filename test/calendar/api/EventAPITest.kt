@@ -422,12 +422,20 @@ class EventAPITest {
         }
 
         /**
-         * Check for 403 when we don't have the required role
+         * Check for 404 when there is no events that match our partner id. This is only "semi intended" behaviour
+         * Someone please fix later. @todo FIX this
          */
         @Test
-        fun `delete events 403`() {
+        fun `delete events 404`() {
+            val s = Station(1, "test")
+            val p = Partner(1, "test")
+            val expected = listOf(Event(1, LocalDateTime.now(), LocalDateTime.now().plusDays(1), s, p))
+
+            every { EventService.getEvents(EventGetForm()) } returns expected.right()
+            every { EventService.deleteEvent(EventDeleteForm()) } returns expected.right()
+
             testDelete("/events", JwtMockConfig.partnerBearer2) {
-                assertEquals(HttpStatusCode.Forbidden, response.status())
+                assertEquals(HttpStatusCode.NotFound, response.status())
             }
         }
 
