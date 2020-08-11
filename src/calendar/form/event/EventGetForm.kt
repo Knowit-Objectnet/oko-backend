@@ -35,7 +35,7 @@ data class EventGetForm(
 
             if (fromDate != null && toDate != null) validate(EventGetForm::fromDate).isLessThanEndDateTime(toDate)
 
-            if (eventId != null){
+            if (eventId != null) {
                 validate(EventGetForm::stationId).isNull()
                 validate(EventGetForm::partnerId).isNull()
                 validate(EventGetForm::recurrenceRuleId).isNull()

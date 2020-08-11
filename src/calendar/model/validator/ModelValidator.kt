@@ -4,6 +4,6 @@ interface ModelValidatorCode {
     val info: String?
 }
 
-interface ModelValidator <ModelType> {
+interface ModelValidator<ModelType> {
     fun validate(model: ModelType): ModelValidatorCode
 }

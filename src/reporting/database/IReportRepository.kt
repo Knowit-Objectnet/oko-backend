@@ -4,8 +4,8 @@ import arrow.core.Either
 import ombruk.backend.calendar.model.Event
 import ombruk.backend.reporting.form.ReportGetForm
 import ombruk.backend.reporting.form.ReportUpdateForm
-import ombruk.backend.shared.error.RepositoryError
 import ombruk.backend.reporting.model.Report
+import ombruk.backend.shared.error.RepositoryError
 
 interface IReportRepository {
 

@@ -1,7 +1,6 @@
 package pickup.service
 
 import arrow.core.Either
-import calendar.service.EventServiceDeleteTest
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.json.Json
@@ -35,83 +34,83 @@ import java.time.format.DateTimeFormatter
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PickupServiceGetTest {
-        lateinit var testStation: Station
-        lateinit var testStation2: Station
+    lateinit var testStation: Station
+    lateinit var testStation2: Station
 
 
-        init {
-            initDB()
-            // Clear the database in order to get to a known state.
-            // Note that order matter (db constraints)
-            transaction {
-                // Partners.deleteAll()
+    init {
+        initDB()
+        // Clear the database in order to get to a known state.
+        // Note that order matter (db constraints)
+        transaction {
+            // Partners.deleteAll()
 
-                Requests.deleteAll()
-                Pickups.deleteAll()
-                //Stations.deleteAll()
+            Requests.deleteAll()
+            Pickups.deleteAll()
+            //Stations.deleteAll()
 
-            }
-            transaction {
-                var opensAt = LocalTime.parse("09:00:00Z", DateTimeFormatter.ISO_TIME)!!
-                var closesAt = LocalTime.parse("21:00:00Z", DateTimeFormatter.ISO_TIME)!!
-                var hours = mapOf(
-                    Pair(DayOfWeek.MONDAY, listOf(opensAt, closesAt)),
-                    Pair(DayOfWeek.TUESDAY, listOf(opensAt, closesAt)),
-                    Pair(DayOfWeek.WEDNESDAY, listOf(opensAt, closesAt)),
-                    Pair(DayOfWeek.THURSDAY, listOf(opensAt, closesAt)),
-                    Pair(DayOfWeek.FRIDAY, listOf(opensAt, closesAt))
-                )
-                val json = Json(JsonConfiguration.Stable)
+        }
+        transaction {
+            var opensAt = LocalTime.parse("09:00:00Z", DateTimeFormatter.ISO_TIME)!!
+            var closesAt = LocalTime.parse("21:00:00Z", DateTimeFormatter.ISO_TIME)!!
+            var hours = mapOf(
+                Pair(DayOfWeek.MONDAY, listOf(opensAt, closesAt)),
+                Pair(DayOfWeek.TUESDAY, listOf(opensAt, closesAt)),
+                Pair(DayOfWeek.WEDNESDAY, listOf(opensAt, closesAt)),
+                Pair(DayOfWeek.THURSDAY, listOf(opensAt, closesAt)),
+                Pair(DayOfWeek.FRIDAY, listOf(opensAt, closesAt))
+            )
+            val json = Json(JsonConfiguration.Stable)
 
-                val testStationId = Stations.insertAndGetId {
-                    it[name] = "Test Station 1"
-                    it[Stations.hours] =
-                        json.toJson(MapSerializer(DayOfWeekSerializer, ListSerializer(LocalTimeSerializer)), hours)
-                            .toString()
-                }.value
-
-                testStation = Station(
-                    testStationId,
-                    "Test Station 1",
-                    hours
-                )
-
-                opensAt = LocalTime.parse("08:00:00", DateTimeFormatter.ISO_TIME)
-                closesAt = LocalTime.parse("20:00:00", DateTimeFormatter.ISO_TIME)
-                hours = mapOf(
-                    Pair(DayOfWeek.MONDAY, listOf(opensAt, closesAt)),
-                    Pair(DayOfWeek.TUESDAY, listOf(opensAt, closesAt)),
-                    Pair(DayOfWeek.WEDNESDAY, listOf(opensAt, closesAt)),
-                    Pair(DayOfWeek.THURSDAY, listOf(opensAt, closesAt)),
-                    Pair(DayOfWeek.FRIDAY, listOf(opensAt, closesAt))
-                )
-
-                val testStationId2 = Stations.insertAndGetId {
-                    it[name] = "Test Station 2"
-                    it[Stations.hours] = json.toJson(
-                        MapSerializer(
-                            DayOfWeekSerializer, ListSerializer(
-                                LocalTimeSerializer
-                            )
-                        ), hours)
+            val testStationId = Stations.insertAndGetId {
+                it[name] = "Test Station 1"
+                it[Stations.hours] =
+                    json.toJson(MapSerializer(DayOfWeekSerializer, ListSerializer(LocalTimeSerializer)), hours)
                         .toString()
-                }.value
-                testStation2 = Station(
-                    testStationId2,
-                    "Test Station 2",
-                    hours
+            }.value
+
+            testStation = Station(
+                testStationId,
+                "Test Station 1",
+                hours
+            )
+
+            opensAt = LocalTime.parse("08:00:00", DateTimeFormatter.ISO_TIME)
+            closesAt = LocalTime.parse("20:00:00", DateTimeFormatter.ISO_TIME)
+            hours = mapOf(
+                Pair(DayOfWeek.MONDAY, listOf(opensAt, closesAt)),
+                Pair(DayOfWeek.TUESDAY, listOf(opensAt, closesAt)),
+                Pair(DayOfWeek.WEDNESDAY, listOf(opensAt, closesAt)),
+                Pair(DayOfWeek.THURSDAY, listOf(opensAt, closesAt)),
+                Pair(DayOfWeek.FRIDAY, listOf(opensAt, closesAt))
+            )
+
+            val testStationId2 = Stations.insertAndGetId {
+                it[name] = "Test Station 2"
+                it[Stations.hours] = json.toJson(
+                    MapSerializer(
+                        DayOfWeekSerializer, ListSerializer(
+                            LocalTimeSerializer
+                        )
+                    ), hours
                 )
-
-            }
+                    .toString()
+            }.value
+            testStation2 = Station(
+                testStationId2,
+                "Test Station 2",
+                hours
+            )
         }
+    }
 
-        @AfterAll
-        fun cleanPartnersAndStationsFromDB(){
-            transaction {
-                Partners.deleteAll()
-                Stations.deleteAll()
-            }
+    @AfterAll
+    fun cleanPartnersAndStationsFromDB() {
+        transaction {
+            Partners.deleteAll()
+            Stations.deleteAll()
         }
+    }
 
     @AfterEach
     fun cleanEventsFromDB() {
@@ -179,14 +178,14 @@ class PickupServiceGetTest {
         // This should be empty
         require(actualPickups is Either.Right)
 
-        assertEquals(listOf<Pickup>(), actualPickups.b )
+        assertEquals(listOf<Pickup>(), actualPickups.b)
 
         // 3. Let's see if we can supply invalid dates and get an empty set back.
 
         form = PickupGetForm(start.plusDays(100), null, null)
         actualPickups = PickupService.getPickups(form)
         require(actualPickups is Either.Right)
-        assertEquals( listOf<Pickup>(), actualPickups.b )
+        assertEquals(listOf<Pickup>(), actualPickups.b)
 
         // 4. Let's supply valid dates that would give us our one pickup back.
         form = PickupGetForm(
@@ -197,7 +196,7 @@ class PickupServiceGetTest {
         actualPickups = PickupService.getPickups(form)
         require(actualPickups is Either.Right)
 
-        assertEquals(expectedPickups , actualPickups.b )
+        assertEquals(expectedPickups, actualPickups.b)
 
 
     }

@@ -20,7 +20,6 @@ import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.`java-time`.datetime
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
-import kotlin.reflect.full.memberProperties
 
 object Events : IntIdTable("events") {
     val startDateTime = datetime("start_date_time")

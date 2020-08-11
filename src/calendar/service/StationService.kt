@@ -15,7 +15,8 @@ object StationService : IStationService {
 
     override fun saveStation(stationPostForm: StationPostForm) = StationRepository.insertStation(stationPostForm)
 
-    override fun updateStation(stationUpdateForm: StationUpdateForm) = StationRepository.updateStation(stationUpdateForm)
+    override fun updateStation(stationUpdateForm: StationUpdateForm) =
+        StationRepository.updateStation(stationUpdateForm)
 
     override fun deleteStationById(id: Int) = StationRepository.deleteStation(id)
 

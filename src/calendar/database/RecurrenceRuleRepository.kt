@@ -29,7 +29,7 @@ object RecurrenceRules : IntIdTable("recurrence_rules") {
         .onFailure { logger.error(it.message) }
         .fold(
             {
-                rRule.id = it.value;
+                rRule.id = it.value
                 RecurrenceRule(
                     it.value,
                     rRule.until,

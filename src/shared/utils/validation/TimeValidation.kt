@@ -15,5 +15,5 @@ data class LessThanClosingTime(val closingTime: LocalTime?) : Constraint
 
 fun <E> Validator<E>.Property<LocalTime?>.isLessThanClosingTime(closingTime: LocalTime?) =
     this.validate(LessThanClosingTime(closingTime)) {
-        it == null || closingTime == null ||it < closingTime
+        it == null || closingTime == null || it < closingTime
     }
