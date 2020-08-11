@@ -6,9 +6,8 @@ import arrow.core.left
 import arrow.core.right
 import com.typesafe.config.ConfigFactory
 import io.ktor.config.HoconApplicationConfig
+import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.util.KtorExperimentalAPI
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
 import ombruk.backend.partner.database.PartnerRepository
 import ombruk.backend.partner.form.PartnerGetForm
 import ombruk.backend.partner.form.PartnerPostForm
@@ -19,63 +18,55 @@ import ombruk.backend.shared.error.ServiceError
 import org.jetbrains.exposed.sql.transactions.transaction
 
 object PartnerService : IPartnerService {
-    private val json = Json(JsonConfiguration.Stable)
 
+    @KtorExperimentalAPI
     private val appConfig = HoconApplicationConfig(ConfigFactory.load())
+
+    @KtorExperimentalAPI
     private val isDebug: Boolean = appConfig.property("ktor.oko.debug").getString().toBoolean()
 
+    @KtorExperimentalAPI
     override fun savePartner(partnerForm: PartnerPostForm) = transaction {
-        when (val partner = PartnerRepository.insertPartner(partnerForm)) {
-            is Either.Left -> partner.a.left()
-            is Either.Right -> {
-                when (isDebug) {
-                    true -> partner.b.right()
-                    else -> KeycloakGroupIntegration.createGroup(partnerForm.name, partner.b.id)
-                        .bimap({ rollback(); it }, { partner.b })
-                }
-            }
-        }
-    }
+        val partner = PartnerRepository.insertPartner(partnerForm)
+            .fold(
+                { return@transaction it.left() },
+                { it })     //return immediately if left, cast value to right if possible.
 
+        takeIf { !isDebug }?.let {  //only post to keycloak if not debugging.
+            KeycloakGroupIntegration.createGroup(partner.name, partner.id)
+                .bimap({ rollback(); it }, { partner })     //rollback entire transaction if keycloak fails.
+        } ?: partner.right()    //return partner if debugging.
+    }
 
     override fun getPartnerById(id: Int) = PartnerRepository.getPartnerByID(id)
 
-
+    @KtorExperimentalLocationsAPI
     override fun getPartners(partnerGetForm: PartnerGetForm) = PartnerRepository.getPartners(partnerGetForm)
-
 
     @KtorExperimentalAPI
     override fun deletePartnerById(id: Int): Either<ServiceError, Unit> = transaction {
         val partner = getPartnerById(id)
             .fold({ return@transaction it.left() }, { it })
 
-        when (isDebug) {
-            true -> PartnerRepository.deletePartner(id)
-            else -> PartnerRepository.deletePartner(id)
+        takeIf { !isDebug }?.let {
+            PartnerRepository.deletePartner(id)
                 .flatMap { KeycloakGroupIntegration.deleteGroup(partner.name) }
                 .bimap({ rollback(); it }, { Unit })
-        }
+        } ?: PartnerRepository.deletePartner(id)
     }
 
 
+    @KtorExperimentalAPI
     override fun updatePartner(partnerForm: PartnerUpdateForm): Either<ServiceError, Partner> = transaction {
-        when (val partner = getPartnerById(partnerForm.id)) {
-            is Either.Left -> partner.a.left()
-            is Either.Right -> {
-                PartnerRepository.updatePartner(partnerForm)
-                    .flatMap {newPartner ->
-                        partnerForm.name?.let {
-                            when (isDebug) {
-                                true -> partner.b.right()
-                                else -> {
-                                    KeycloakGroupIntegration.updateGroup(partner.b.name, partnerForm.name!!)
-                                        .fold({ it.left() }, { newPartner.right() })
-                                }
-                            }
-                        } ?: newPartner.right()
-                    }
-                    .bimap({ rollback(); it }, { it })
-            }
-        }
+        val partner = getPartnerById(partnerForm.id)
+            .fold({ return@transaction it.left() }, { it })
+
+        //Keycloak only needs to be updated when not in debug AND the name of a partner needs to be updated.
+        takeIf { isDebug || partnerForm.name == null }?.let { PartnerRepository.updatePartner(partnerForm) }
+            ?: PartnerRepository.updatePartner(partnerForm)
+                .flatMap { newPartner ->
+                    KeycloakGroupIntegration.updateGroup(partner.name, newPartner.name)
+                        .bimap({ rollback(); it }, { newPartner })
+                }
     }
 }

@@ -15,9 +15,9 @@ import java.time.LocalTime
 @Serializable
 data class StationUpdateForm(
     val id: Int,
-    val name: String?,
-    @Serializable(with = LocalTimeSerializer::class) val openingTime: LocalTime?,
-    @Serializable(with = LocalTimeSerializer::class) val closingTime: LocalTime?
+    val name: String? = null,
+    @Serializable(with = LocalTimeSerializer::class) val openingTime: LocalTime? = null,
+    @Serializable(with = LocalTimeSerializer::class) val closingTime: LocalTime? = null
 ) : IForm<StationUpdateForm> {
     override fun validOrError()= runCatchingValidation {
         validate(this) {

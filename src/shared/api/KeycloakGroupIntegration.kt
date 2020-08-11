@@ -89,6 +89,7 @@ object KeycloakGroupIntegration {
      */
     private fun sendRequest(requestBuilder: HttpRequestBuilder) =
         runCatching { runBlocking { client.request(requestBuilder) as String } }
+            .onFailure { logger.error(it.message) }
             .fold({ it.right() }, { handleRequestFailure(it) })
 
 
@@ -126,8 +127,10 @@ object KeycloakGroupIntegration {
             else -> KeycloakIntegrationError.KeycloakError("Failed to connect to Keycloak")
                 .left()
         }
-        else -> KeycloakIntegrationError.KeycloakError("Failed to perform Keycloak request")
-            .left()
+        else -> {
+            logger.error(e.message)
+            KeycloakIntegrationError.KeycloakError("Failed to perform Keycloak request").left()
+        }
     }
 
 
@@ -188,19 +191,16 @@ object KeycloakGroupIntegration {
      *
      * @return a [KeycloakIntegrationError] on failure and a [Unit] on success.
      */
-    fun updateGroup(oldName: String, newName: String) = getGroupByName(
-        oldName
-    )
-        .map {
+    fun updateGroup(oldName: String, newName: String) = getGroupByName(oldName)
+        .flatMap {
             performRequest(
                 method = HttpMethod.Put,
                 url = groupsUrl + it.id,
                 contentType = ContentType.Application.Json,
                 body = "{\"name\": \"$newName\"}"
             )
+                .fold({ it.left() }, { Unit.right() })
         }
-        .fold({ it.left() }, { Unit.right() })
-
 
     /**
      * Deletes a group from keycloak. Returns an error if the provided group name does not exist.
@@ -208,16 +208,13 @@ object KeycloakGroupIntegration {
      * @param name The name of the group that should be deleted. The exact name passed in must exist in keycloak.
      * @return An [Either] object consisting of either a [KeycloakIntegrationError] on failure or [Unit] on success.
      */
-    fun deleteGroup(name: String) = getGroupByName(
-        name
-    )
-        .map {
+    fun deleteGroup(name: String) = getGroupByName(name)
+        .flatMap {
             performRequest(
                 method = HttpMethod.Delete,
                 url = groupsUrl + it.id
             )
         }
-        .fold({ it.left() }, { Unit.right() })
 
 
     /**

@@ -38,7 +38,7 @@ interface IStationService {
     /**
      * Delete a station.
      * @param id ID of station to delete
-     * @return Either a [ServiceError] or the amount of [Station] objects that were deleted.
+     * @return A [ServiceError] on failure and the deleted [Station] on success.
      */
-    fun deleteStationById(id: Int): Either<ServiceError, Int>
+    fun deleteStationById(id: Int): Either<ServiceError, Station>
 }
