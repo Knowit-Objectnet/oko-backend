@@ -55,7 +55,7 @@ patch:
   description:
     |
     Updates a partner. ID cannot be changed and must correspond with an existing station. Name must be unique.
-    The stored station object is returned if request is valid
+    The stored station object is returned if request is valid. WARNING: PATCHING HOURS WILL OVERWRITE PREVIOUS HOURS.
   responses:
     '200':
       description: Station updated

@@ -2,12 +2,12 @@ package ombruk.backend.calendar.service
 
 import arrow.core.Either
 import io.ktor.locations.KtorExperimentalLocationsAPI
-import ombruk.backend.calendar.form.event.EventPostForm
 import ombruk.backend.calendar.form.event.EventDeleteForm
+import ombruk.backend.calendar.form.event.EventGetForm
+import ombruk.backend.calendar.form.event.EventPostForm
 import ombruk.backend.calendar.form.event.EventUpdateForm
 import ombruk.backend.calendar.model.Event
 import ombruk.backend.shared.error.ServiceError
-import ombruk.backend.calendar.form.event.EventGetForm
 
 interface IEventService {
     /**

@@ -22,7 +22,7 @@ interface IStationService {
      */
     @KtorExperimentalLocationsAPI
     fun getStations(stationGetForm: StationGetForm): Either<ServiceError, List<Station>>
-    
+
     /**
      * Saves a station.
      * @param stationPostForm Station to save

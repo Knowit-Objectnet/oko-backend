@@ -1,9 +1,9 @@
 package ombruk.backend.reporting.service
 
 import ombruk.backend.calendar.model.Event
-import ombruk.backend.reporting.form.ReportUpdateForm
 import ombruk.backend.reporting.database.ReportRepository
 import ombruk.backend.reporting.form.ReportGetForm
+import ombruk.backend.reporting.form.ReportUpdateForm
 
 object ReportService : IReportService {
 

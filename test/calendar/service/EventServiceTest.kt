@@ -145,8 +145,8 @@ class EventServiceTest {
             val rRule = RecurrenceRule(count = 3, days = listOf(DayOfWeek.MONDAY))
             val form = EventPostForm(LocalDateTime.now(), LocalDateTime.now(), 1, 1, recurrenceRule = rRule)
 
-            every { ReportService.saveReport(expectedEvent) } returns report.right()
             every { RecurrenceRules.insertRecurrenceRule(rRule) } returns rRule.right()
+            every { ReportService.saveReport(expectedEvent) } returns report.right()
             every { EventRepository.insertEvent(any()) } returns expectedEvent.right()
 
             val actualEvent = EventService.saveEvent(form)

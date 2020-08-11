@@ -2,12 +2,12 @@ package ombruk.backend.calendar.database
 
 import arrow.core.Either
 import ombruk.backend.calendar.form.event.EventDeleteForm
+import ombruk.backend.calendar.form.event.EventGetForm
 import ombruk.backend.calendar.form.event.EventPostForm
 import ombruk.backend.calendar.form.event.EventUpdateForm
 import ombruk.backend.calendar.model.Event
 import ombruk.backend.shared.database.IRepository
 import ombruk.backend.shared.error.RepositoryError
-import ombruk.backend.calendar.form.event.EventGetForm
 
 interface IEventRepository : IRepository {
     /**

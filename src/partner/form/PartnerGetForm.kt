@@ -13,7 +13,7 @@ data class PartnerGetForm(
     var name: String? = null
 ) : IForm<PartnerGetForm> {
     override fun validOrError() = runCatchingValidation {
-        validate(this){
+        validate(this) {
             validate(PartnerGetForm::name).isNotBlank()
         }
     }
