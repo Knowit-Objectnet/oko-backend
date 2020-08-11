@@ -5,9 +5,6 @@ import ombruk.backend.partner.model.Partner
 import ombruk.backend.shared.model.serializer.LocalDateTimeSerializer
 import java.time.LocalDateTime
 
-
-enum class EventType { SINGLE, RECURRING }
-
 @Serializable
 data class Event(
     val id: Int,

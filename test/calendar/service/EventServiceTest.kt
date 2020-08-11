@@ -15,7 +15,6 @@ import ombruk.backend.calendar.form.event.EventGetForm
 import ombruk.backend.calendar.form.event.EventPostForm
 import ombruk.backend.calendar.form.event.EventUpdateForm
 import ombruk.backend.calendar.model.Event
-import ombruk.backend.calendar.model.EventType
 import ombruk.backend.calendar.model.RecurrenceRule
 import ombruk.backend.calendar.service.EventService
 import ombruk.backend.reporting.model.Report
@@ -63,7 +62,7 @@ class EventServiceTest {
 
         @Test
         fun `get all`(@MockK expectedEvents: List<Event>) {
-            every { EventRepository.getEvents(null, null) } returns expectedEvents.right()
+            every { EventRepository.getEvents(null) } returns expectedEvents.right()
 
             val actualEvents = EventService.getEvents()
             require(actualEvents is Either.Right)
@@ -74,7 +73,7 @@ class EventServiceTest {
         @Test
         fun `get by station id`(@MockK expectedEvents: List<Event>) {
             val form = EventGetForm(stationId = 1)
-            every { EventRepository.getEvents(form, null) } returns expectedEvents.right()
+            every { EventRepository.getEvents(form) } returns expectedEvents.right()
 
             val actualEvents = EventService.getEvents(form)
             require(actualEvents is Either.Right)
@@ -84,7 +83,7 @@ class EventServiceTest {
         @Test
         fun `get by partner id`(@MockK expectedEvents: List<Event>) {
             val form = EventGetForm(partnerId = 1)
-            every { EventRepository.getEvents(form, null) } returns expectedEvents.right()
+            every { EventRepository.getEvents(form) } returns expectedEvents.right()
 
             val actualEvents = EventService.getEvents(form)
             require(actualEvents is Either.Right)
@@ -94,7 +93,7 @@ class EventServiceTest {
         @Test
         fun `get by partner and station id`(@MockK expectedEvents: List<Event>) {
             val form = EventGetForm(partnerId = 1, stationId = 1)
-            every { EventRepository.getEvents(form, null) } returns expectedEvents.right()
+            every { EventRepository.getEvents(form) } returns expectedEvents.right()
 
             val actualEvents = EventService.getEvents(form)
             require(actualEvents is Either.Right)
@@ -107,7 +106,7 @@ class EventServiceTest {
                 fromDate = LocalDateTime.parse("2020-08-15T15:30:00", DateTimeFormatter.ISO_DATE_TIME),
                 toDate = LocalDateTime.parse("2020-08-20T15:30:00", DateTimeFormatter.ISO_DATE_TIME)
             )
-            every { EventRepository.getEvents(form, null) } returns expectedEvents.right()
+            every { EventRepository.getEvents(form) } returns expectedEvents.right()
 
             val actualEvents = EventService.getEvents(form)
             require(actualEvents is Either.Right)
@@ -117,28 +116,9 @@ class EventServiceTest {
         @Test
         fun `get by recurrenceRule id`(@MockK expectedEvents: List<Event>) {
             val form = EventGetForm(recurrenceRuleId = 1)
-            every { EventRepository.getEvents(form, null) } returns expectedEvents.right()
+            every { EventRepository.getEvents(form) } returns expectedEvents.right()
 
             val actualEvents = EventService.getEvents(form)
-            require(actualEvents is Either.Right)
-            assertEquals(expectedEvents, actualEvents.b)
-        }
-
-
-        @Test
-        fun `get by event type single`(@MockK expectedEvents: List<Event>) {
-            every { EventRepository.getEvents(null, EventType.SINGLE) } returns expectedEvents.right()
-
-            val actualEvents = EventService.getEvents(eventType = EventType.SINGLE)
-            require(actualEvents is Either.Right)
-            assertEquals(expectedEvents, actualEvents.b)
-        }
-
-        @Test
-        fun `get by event type recurring`(@MockK expectedEvents: List<Event>) {
-            every { EventRepository.getEvents(null, EventType.RECURRING) } returns expectedEvents.right()
-
-            val actualEvents = EventService.getEvents(eventType = EventType.RECURRING)
             require(actualEvents is Either.Right)
             assertEquals(expectedEvents, actualEvents.b)
         }
@@ -167,7 +147,7 @@ class EventServiceTest {
 
             every { ReportService.saveReport(expectedEvent) } returns report.right()
             every { RecurrenceRules.insertRecurrenceRule(rRule) } returns rRule.right()
-            every { EventRepository.insertEvent(form) } returns expectedEvent.right()
+            every { EventRepository.insertEvent(any()) } returns expectedEvent.right()
 
             val actualEvent = EventService.saveEvent(form)
             require(actualEvent is Either.Right)

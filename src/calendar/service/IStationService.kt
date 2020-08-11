@@ -1,6 +1,7 @@
 package ombruk.backend.calendar.service
 
 import arrow.core.Either
+import io.ktor.locations.KtorExperimentalLocationsAPI
 import ombruk.backend.calendar.form.station.StationGetForm
 import ombruk.backend.calendar.form.station.StationPostForm
 import ombruk.backend.calendar.form.station.StationUpdateForm
@@ -19,6 +20,7 @@ interface IStationService {
      * Gets all stations
      * @return Either a [ServiceError] or a [List] of [Station] objects. The list may be empty if there are no stations
      */
+    @KtorExperimentalLocationsAPI
     fun getStations(stationGetForm: StationGetForm): Either<ServiceError, List<Station>>
     
     /**
