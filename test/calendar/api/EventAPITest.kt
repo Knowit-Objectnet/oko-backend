@@ -175,7 +175,7 @@ class EventAPITest {
     inner class Delete {
 
         @Test
-        fun `simple delete event by id`() {
+        fun `delete event by id`() {
             val s = Station(1, "test")
             val p = Partner(1, "test")
             val expected = listOf(Event(1, LocalDateTime.now(), LocalDateTime.now().plusDays(1), s, p))
@@ -183,6 +183,20 @@ class EventAPITest {
             every { EventService.deleteEvent(EventDeleteForm(1)) } returns expected.right()
 
             testDelete("/events?eventId=1") {
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals(json.stringify(Event.serializer().list, expected), response.content)
+            }
+        }
+
+        @Test
+        fun `delete all events`() {
+            val s = Station(1, "test")
+            val p = Partner(1, "test")
+            val expected = listOf(Event(1, LocalDateTime.now(), LocalDateTime.now().plusDays(1), s, p))
+
+            every { EventService.deleteEvent(EventDeleteForm()) } returns expected.right()
+
+            testDelete("/events") {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(json.stringify(Event.serializer().list, expected), response.content)
             }
