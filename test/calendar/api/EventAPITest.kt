@@ -22,6 +22,7 @@ import ombruk.backend.calendar.service.EventService
 import ombruk.backend.partner.database.PartnerRepository
 import ombruk.backend.partner.model.Partner
 import ombruk.backend.shared.api.Authorization
+import ombruk.backend.shared.api.JwtMockConfig
 import ombruk.backend.shared.database.initDB
 import ombruk.backend.shared.error.RepositoryError
 import ombruk.backend.shared.error.ServiceError
@@ -175,6 +176,30 @@ class EventAPITest {
         }
 
         @Test
+        fun `post event 401`() {
+            val form = EventPostForm(LocalDateTime.now(), LocalDateTime.now().plusDays(1), 1, 1)
+
+            every { PartnerRepository.exists(1) } returns true
+            every { StationRepository.exists(1) } returns true
+
+            testPost("/events", json.stringify(EventPostForm.serializer(), form), null) {
+                assertEquals(HttpStatusCode.Unauthorized, response.status())
+            }
+        }
+
+        @Test
+        fun `post event 403`() {
+            val form = EventPostForm(LocalDateTime.now(), LocalDateTime.now().plusDays(1), 1, 1)
+
+            every { PartnerRepository.exists(1) } returns true
+            every { StationRepository.exists(1) } returns true
+
+            testPost("/events", json.stringify(EventPostForm.serializer(), form), JwtMockConfig.partnerBearer2) {
+                assertEquals(HttpStatusCode.Forbidden, response.status())
+            }
+        }
+
+        @Test
         fun `post event 500`() {
             val form = EventPostForm(LocalDateTime.now(), LocalDateTime.now().plusDays(1), 1, 1)
 
@@ -185,6 +210,26 @@ class EventAPITest {
             testPost("/events", json.stringify(EventPostForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.InternalServerError, response.status())
                 assertEquals("test", response.content)
+            }
+        }
+
+        @Test
+        fun `post event 422`() {
+            val form = EventPostForm(LocalDateTime.now(), LocalDateTime.now().plusDays(1), 1, 1)
+
+            every { PartnerRepository.exists(1) } returns false
+            every { StationRepository.exists(1) } returns true
+
+            testPost("/events", json.stringify(EventPostForm.serializer(), form)) {
+                assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
+                assertEquals("partnerId: entity does not exist", response.content)
+            }
+        }
+
+        @Test
+        fun `post event 400`() {
+            testPost("/events", "") {
+                assertEquals(HttpStatusCode.BadRequest, response.status())
             }
         }
 
@@ -209,6 +254,65 @@ class EventAPITest {
                 assertEquals(json.stringify(Event.serializer(), expected), response.content)
             }
         }
+
+        @Test
+        fun `patch event 500`() {
+            val s = Station(1, "test")
+            val p = Partner(1, "test")
+            val initial = Event(1, LocalDateTime.now().plusDays(2), LocalDateTime.now().plusDays(3), s, p)
+            val form = EventUpdateForm(1, LocalDateTime.now(), LocalDateTime.now().plusDays(1))
+
+            every { EventService.updateEvent(form) } returns ServiceError("test").left()
+            every { EventRepository.getEventByID(1) } returns initial.right()
+
+            testPatch("/events", json.stringify(EventUpdateForm.serializer(), form)) {
+                assertEquals(HttpStatusCode.InternalServerError, response.status())
+            }
+        }
+
+        @Test
+        fun `patch event 401`() {
+            val form = EventUpdateForm(1, LocalDateTime.now(), LocalDateTime.now().plusDays(1))
+
+            testPatch("/events", json.stringify(EventUpdateForm.serializer(), form), null) {
+                assertEquals(HttpStatusCode.Unauthorized, response.status())
+            }
+        }
+
+        @Test
+        fun `patch event 403`() {
+            val form = EventUpdateForm(1, LocalDateTime.now(), LocalDateTime.now().plusDays(1))
+
+            testPatch("/events", json.stringify(EventUpdateForm.serializer(), form), JwtMockConfig.partnerBearer2) {
+                assertEquals(HttpStatusCode.Forbidden, response.status())
+            }
+        }
+
+
+        @Test
+        fun `patch event 422`() {
+            val s = Station(1, "test")
+            val p = Partner(1, "test")
+            val initial = Event(1, LocalDateTime.now().plusDays(2), LocalDateTime.now().plusDays(3), s, p)
+            val form = EventUpdateForm(-1, LocalDateTime.now(), LocalDateTime.now().plusDays(1))
+            val expected = initial.copy(startDateTime = form.startDateTime!!, endDateTime = form.endDateTime!!)
+
+            every { EventService.updateEvent(form) } returns expected.right()
+            every { EventRepository.getEventByID(1) } returns initial.right()
+
+            testPatch("/events", json.stringify(EventUpdateForm.serializer(), form)) {
+                assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
+                assertEquals("id: Must be greater than 0", response.content)
+
+            }
+        }
+
+        @Test
+        fun `patch event 400`() {
+            testPatch("/events", "") {
+                assertEquals(HttpStatusCode.BadRequest, response.status())
+            }
+        }
     }
 
     @Nested
@@ -228,5 +332,45 @@ class EventAPITest {
             }
         }
 
+        @Test
+        fun `delete events 500`() {
+            every { EventService.deleteEvent(EventDeleteForm()) } returns ServiceError("test").left()
+
+            testDelete("/events") {
+                assertEquals(HttpStatusCode.InternalServerError, response.status())
+            }
+        }
+
+        @Test
+        fun `delete events 401`() {
+            testDelete("/events", null) {
+                assertEquals(HttpStatusCode.Unauthorized, response.status())
+            }
+        }
+
+        @Test
+        fun `delete events 403`() {
+            testDelete("/events", JwtMockConfig.partnerBearer2) {
+                assertEquals(HttpStatusCode.Forbidden, response.status())
+            }
+        }
+
+        @Test
+        fun `delete event 422`() {
+            testDelete("/events?eventId=-1") {
+                assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
+                assertEquals("eventId: Must be greater than 0", response.content)
+
+            }
+        }
+
+        @Test
+        fun `delete event 400`() {
+            testDelete("/events?eventId=NaN") {
+                assertEquals(HttpStatusCode.BadRequest, response.status())
+                assertEquals("eventId could not be parsed.", response.content)
+
+            }
+        }
     }
 }

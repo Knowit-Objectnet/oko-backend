@@ -52,11 +52,11 @@ object EventService : IEventService {
     }
 
     @KtorExperimentalLocationsAPI
-    override fun deleteEvent(eventDeleteForm: EventDeleteForm) = transaction {
+    override fun deleteEvent(eventDeleteForm: EventDeleteForm): Either<ServiceError, List<Event>> = transaction {
         EventRepository.deleteEvent(eventDeleteForm)
     }
 
-    override fun updateEvent(eventUpdate: EventUpdateForm) = transaction {
+    override fun updateEvent(eventUpdate: EventUpdateForm): Either<ServiceError, Event> = transaction {
         EventRepository.updateEvent(eventUpdate)
             .flatMap { event ->
                 ReportService.updateReport(event)   // automatically update the report. Rollback if this fails.
