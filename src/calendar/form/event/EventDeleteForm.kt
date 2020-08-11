@@ -23,8 +23,6 @@ data class EventDeleteForm(
 ) : IForm<EventDeleteForm> {
     override fun validOrError(): Either<ValidationError, EventDeleteForm> = runCatchingValidation {
         validate(this) {
-//            if (eventId == null) validate(EventDeleteForm::recurrenceRuleId).isNotNull()
-//            else validate(EventDeleteForm::recurrenceRuleId).isNull()
 
             validate(EventDeleteForm::eventId).isGreaterThan(0)
             validate(EventDeleteForm::recurrenceRuleId).isGreaterThan(0)

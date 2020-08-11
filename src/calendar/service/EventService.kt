@@ -47,7 +47,7 @@ object EventService : IEventService {
     }
 
     @KtorExperimentalLocationsAPI
-    override fun getEvents(eventGetForm: EventGetForm?) = transaction {
+    override fun getEvents(eventGetForm: EventGetForm?): Either<ServiceError, List<Event>> = transaction {
         EventRepository.getEvents(eventGetForm)
     }
 
