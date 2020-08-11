@@ -60,7 +60,7 @@ class EventAPITest {
     @Nested
     inner class GetById {
         @Test
-        fun `get single event`() {
+        fun `get single event 200`() {
             val s = Station(1, "test")
             val p = Partner(1, "test")
             val expected = Event(1, LocalDateTime.now(), LocalDateTime.now(), s, p, null)
@@ -82,7 +82,7 @@ class EventAPITest {
         }
 
         @Test
-        fun `get single event invalid id`() {
+        fun `get single event 422`() {
             testGet("/events/0") {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
                 assertEquals("id: Must be greater than 0", response.content)
@@ -111,7 +111,7 @@ class EventAPITest {
     @Nested
     inner class Get {
         @Test
-        fun `get all events`() {
+        fun `get events 200`() {
             val s = Station(1, "test")
             val p = Partner(1, "test")
             val e1 = Event(1, LocalDateTime.now(), LocalDateTime.now(), s, p, null)
@@ -146,7 +146,7 @@ class EventAPITest {
         }
 
         @Test
-        fun `get events invalid form`() {
+        fun `get events 422`() {
             testGet("/events?eventId=-1") {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
                 assertEquals("eventId: Must be greater than 0", response.content)
