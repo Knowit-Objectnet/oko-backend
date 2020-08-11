@@ -10,7 +10,6 @@ import io.ktor.auth.jwt.JWTPrincipal
 import io.ktor.auth.principal
 import io.ktor.config.HoconApplicationConfig
 import ombruk.backend.calendar.model.Event
-import ombruk.backend.pickup.form.request.RequestPostForm
 import ombruk.backend.reporting.model.Report
 import ombruk.backend.shared.error.AuthorizationError
 import ombruk.backend.shared.error.ServiceError

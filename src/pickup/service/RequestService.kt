@@ -11,7 +11,8 @@ object RequestService : IRequestService {
 
     override fun getRequests(requestGetForm: RequestGetForm?) = RequestRepository.getRequests(requestGetForm)
 
-    override fun deleteRequest(requestDeleteForm: RequestDeleteForm) = RequestRepository.deleteRequest(requestDeleteForm)
+    override fun deleteRequest(requestDeleteForm: RequestDeleteForm) =
+        RequestRepository.deleteRequest(requestDeleteForm)
 
 
 }

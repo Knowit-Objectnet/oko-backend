@@ -42,6 +42,7 @@ fun Routing.stations(stationService: IStationService) {
             post {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
                     .flatMap { receiveCatching { call.receive<StationPostForm>() } }
+                    .flatMap { it.validOrError() }
                     .flatMap { stationService.saveStation(it) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
@@ -52,6 +53,7 @@ fun Routing.stations(stationService: IStationService) {
             patch {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
                     .flatMap { receiveCatching { call.receive<StationUpdateForm>() } }
+                    .flatMap { it.validOrError() }
                     .flatMap { stationService.updateStation(it) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }

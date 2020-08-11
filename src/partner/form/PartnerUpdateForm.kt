@@ -20,15 +20,15 @@ data class PartnerUpdateForm(
     var email: String? = null
 ) : IForm<PartnerUpdateForm> {
     override fun validOrError() = runCatchingValidation {
-        validate(this){
+        validate(this) {
             validate(PartnerUpdateForm::id).isGreaterThan(0)
             validate(PartnerUpdateForm::name).isNotBlank()
             validate(PartnerUpdateForm::description).isNotBlank()
             validate(PartnerUpdateForm::phone).isNotBlank().isNorwegianPhoneNumber()
             validate(PartnerUpdateForm::email).isNotBlank().isEmail()
 
-            PartnerRepository.getPartnerByID(id).map{
-                if(it.name != name) validate(PartnerUpdateForm::name).isPartnerUnique(PartnerRepository)
+            PartnerRepository.getPartnerByID(id).map {
+                if (it.name != name) validate(PartnerUpdateForm::name).isPartnerUnique(PartnerRepository)
             }
         }
     }

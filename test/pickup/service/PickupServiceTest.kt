@@ -33,12 +33,12 @@ class PickupServiceTest {
     }
 
     @BeforeEach
-    fun setup(){
+    fun setup() {
         mockkObject(PickupRepository)
     }
 
     @AfterEach
-    fun tearDown(){
+    fun tearDown() {
         clearAllMocks()
     }
 
@@ -46,7 +46,7 @@ class PickupServiceTest {
     inner class GetPickups {
 
         @Test
-        fun `get pickup by id`(@MockK expected: Pickup){
+        fun `get pickup by id`(@MockK expected: Pickup) {
             every { PickupRepository.getPickupById(1) } returns expected.right()
             val form = PickupGetByIdForm(1)
             val actual = PickupService.getPickupById(form)
@@ -56,7 +56,7 @@ class PickupServiceTest {
         }
 
         @Test
-        fun `get all pickups`(@MockK expected: List<Pickup>){
+        fun `get all pickups`(@MockK expected: List<Pickup>) {
             every { PickupRepository.getPickups(null) } returns expected.right()
             val actual = PickupService.getPickups()
 
@@ -69,16 +69,16 @@ class PickupServiceTest {
     inner class DeletePickups {
 
         @Test
-        fun `delete by id`(){
+        fun `delete by id`() {
             PickupService.deletePickup(PickupDeleteForm(1))
             verify { PickupRepository.deletePickup(1) }
         }
     }
 
     @Nested
-    inner class UpdatePickups  {
+    inner class UpdatePickups {
         @Test
-        fun `update pickup`(@MockK expected: Pickup){
+        fun `update pickup`(@MockK expected: Pickup) {
             val form = PickupUpdateForm(1, LocalDateTime.now(), LocalDateTime.now())
             every { PickupRepository.updatePickup(form) } returns expected.right()
 

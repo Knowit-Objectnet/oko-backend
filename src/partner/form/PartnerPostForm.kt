@@ -19,7 +19,7 @@ data class PartnerPostForm(
 ) : IForm<PartnerPostForm> {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
-            if(name.isNotBlank()) validate(PartnerPostForm::name).isPartnerUnique(PartnerRepository)
+            if (name.isNotBlank()) validate(PartnerPostForm::name).isPartnerUnique(PartnerRepository)
             validate(PartnerPostForm::name).isNotBlank().isPartnerUnique(PartnerRepository)
             description?.let { validate(PartnerPostForm::phone).isNotBlank().isNorwegianPhoneNumber() }
             email?.let { validate(PartnerPostForm::email).isNotBlank().isEmail() }
