@@ -17,7 +17,7 @@ data class StationPostForm(
     val name: String,
     val hours: Map<DayOfWeek, List<@Serializable(with = LocalTimeSerializer::class) LocalTime>>?
 ) : IForm<StationPostForm> {
-    override fun validOrError()= runCatchingValidation {
+    override fun validOrError() = runCatchingValidation {
         validate(this) {
             validate(StationPostForm::name).isNotBlank()
             validate(StationPostForm::hours).isValid()

@@ -14,11 +14,11 @@ import org.valiktor.validate
 
 @KtorExperimentalLocationsAPI
 @Location("/")
-data class RequestDeleteForm (
+data class RequestDeleteForm(
     val pickupId: Int,
     val partnerId: Int
 ) : IForm<RequestDeleteForm> {
-    override fun validOrError(): Either<ValidationError, RequestDeleteForm> = runCatchingValidation{
+    override fun validOrError(): Either<ValidationError, RequestDeleteForm> = runCatchingValidation {
         validate(this) {
             validate(RequestDeleteForm::pickupId).isGreaterThan(0)
             validate(RequestDeleteForm::partnerId).isGreaterThan(0)

@@ -6,7 +6,7 @@ import java.time.DayOfWeek
 object EventUpdateFormValidator :
     ModelValidator<EventUpdateForm> {
     override fun validate(eventUpdate: EventUpdateForm): ModelValidatorCode {
-        if(eventUpdate.startDateTime == null|| eventUpdate.endDateTime == null){
+        if (eventUpdate.startDateTime == null || eventUpdate.endDateTime == null) {
             return EventValidatorCode.OK
         }
         if (eventUpdate.startDateTime >= eventUpdate.endDateTime) {

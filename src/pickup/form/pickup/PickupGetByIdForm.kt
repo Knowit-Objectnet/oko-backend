@@ -11,7 +11,7 @@ import org.valiktor.validate
 @Location("/{id}")
 data class PickupGetByIdForm(val id: Int) : IForm<PickupGetByIdForm> {
     override fun validOrError() = runCatchingValidation {
-        validate(this){
+        validate(this) {
             validate(PickupGetByIdForm::id).isGreaterThan(0)
         }
     }

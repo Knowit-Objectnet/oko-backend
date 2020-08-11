@@ -8,7 +8,9 @@ import io.ktor.locations.delete
 import io.ktor.locations.get
 import io.ktor.request.receive
 import io.ktor.response.respond
-import io.ktor.routing.*
+import io.ktor.routing.Routing
+import io.ktor.routing.post
+import io.ktor.routing.route
 import ombruk.backend.pickup.form.request.RequestDeleteForm
 import ombruk.backend.pickup.form.request.RequestGetForm
 import ombruk.backend.pickup.form.request.RequestPostForm
