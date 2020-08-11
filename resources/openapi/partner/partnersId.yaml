@@ -39,6 +39,10 @@ delete:
   responses:
     '200':
       description: Partner deleted successfully
+      content:
+        application/json:
+          schema:
+            $ref: '../api.yaml#/components/schemas/Partner'
     '400':
       description: Bad input parameter
     '401':
