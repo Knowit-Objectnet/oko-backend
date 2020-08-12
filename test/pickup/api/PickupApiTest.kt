@@ -387,7 +387,7 @@ class EventAPITest {
          * Check for 403 when no request doesn't have the required role.
          */
         @Test
-        fun `post pickup 403`() {
+        fun `delete pickup 403`() {
             testDelete("/pickups/1",JwtMockConfig.partnerBearer2) {
                 assertEquals(HttpStatusCode.Forbidden, response.status())
             }
@@ -398,7 +398,7 @@ class EventAPITest {
          * Check for 500 when we encounter a serious error.
          */
         @Test
-        fun `post pickup 500`() {
+        fun `delete pickup 500`() {
 
             every { PickupService.deletePickup(PickupDeleteForm(1)) } returns ServiceError("test").left()
 
@@ -411,7 +411,7 @@ class EventAPITest {
          * Check for 422 when we get an invalid form. Id can't be -1
          */
         @Test
-        fun `post pickup 422`() {
+        fun `delete pickup 422`() {
 
             testDelete("/pickups/-1") {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
@@ -423,7 +423,7 @@ class EventAPITest {
          * Check for 400 when we get a form which can't be parsed. Id is not an integer.
          */
         @Test
-        fun `post pickup 400`() {
+        fun `delete pickup 400`() {
             testDelete("/pickups/NaN") {
                 assertEquals(HttpStatusCode.BadRequest, response.status())
                 assertEquals("id could not be parsed.", response.content)

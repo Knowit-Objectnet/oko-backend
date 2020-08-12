@@ -59,7 +59,7 @@ class RequestApiTest {
          * Check for 200 when getting valid form
          */
         @Test
-        fun `get pickups 200`() {
+        fun `get requests 200`() {
             val station = Station(1, "test")
             val partner = Partner(1, "test")
             val pickup = Pickup(1, LocalDateTime.now(), LocalDateTime.now(), station = station)
@@ -77,7 +77,7 @@ class RequestApiTest {
          * Check for 500 when we encounter a serious error.
          */
         @Test
-        fun `get pickups 500`() {
+        fun `get requests 500`() {
             every { RequestService.getRequests(RequestGetForm()) }returns ServiceError("test").left()
 
             testGet("/requests") {
@@ -89,7 +89,7 @@ class RequestApiTest {
          * Check for 422 when we get an invalid form. Station id can't be -1.
          */
         @Test
-        fun `get pickups 422`() {
+        fun `get requests 422`() {
             testGet("/requests?pickupId=-1") {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
                 assertEquals("pickupId: Must be greater than 0", response.content)
@@ -100,7 +100,7 @@ class RequestApiTest {
          * Check for 400 when we get a form which can't be parsed. station Id is not an integer.
          */
         @Test
-        fun `get pickups 400`() {
+        fun `get requests 400`() {
             testGet("/requests?pickupId=NaN") {
                 assertEquals(HttpStatusCode.BadRequest, response.status())
                 assertEquals("pickupId could not be parsed.", response.content)
@@ -115,7 +115,7 @@ class RequestApiTest {
          * Check for 200 when getting valid form
          */
         @Test
-        fun `post pickup 200`() {
+        fun `post request 200`() {
             val station = Station(1, "test")
             val partner = Partner(1, "test")
             val pickup = Pickup(1, LocalDateTime.now(), LocalDateTime.now(), station = station)
@@ -136,7 +136,7 @@ class RequestApiTest {
          * Check for 401 when no bearer is present.
          */
         @Test
-        fun `post pickup 401`() {
+        fun `post request 401`() {
             val form = RequestPostForm(1, 1)
 
             testPost("/requests", json.stringify(RequestPostForm.serializer(), form), null) {
@@ -148,7 +148,7 @@ class RequestApiTest {
          * Check for 403 when no request doesn't have the required role.
          */
         @Test
-        fun `post pickup 403`() {
+        fun `post request 403`() {
             val form = RequestPostForm(1, 1)
 
             testPost("/requests", json.stringify(RequestPostForm.serializer(), form), JwtMockConfig.partnerBearer2) {
@@ -161,7 +161,7 @@ class RequestApiTest {
          * Check for 500 when we encounter a serious error.
          */
         @Test
-        fun `post pickup 500`() {
+        fun `post request 500`() {
             val form = RequestPostForm(1, 1)
 
             every { RequestService.saveRequest(form) } returns ServiceError("test").left()
@@ -178,7 +178,7 @@ class RequestApiTest {
          * Check for 422 when we get an invalid form. Pickup id can't be -1
          */
         @Test
-        fun `post pickup 422`() {
+        fun `post request 422`() {
             val form = RequestPostForm(-1, 1)
 
             every { PartnerRepository.exists(1) } returns true
@@ -194,7 +194,7 @@ class RequestApiTest {
          * Check for 400 when we get a form which can't be parsed. The empty string cannot be parsed.
          */
         @Test
-        fun `post pickup 400`() {
+        fun `post request 400`() {
             testPost("/requests", "") {
                 assertEquals(HttpStatusCode.BadRequest, response.status())
             }
@@ -208,7 +208,7 @@ class RequestApiTest {
          * Check for 200 when getting valid form
          */
         @Test
-        fun `delete pickup 200`() {
+        fun `delete request 200`() {
             every { RequestService.deleteRequest(RequestDeleteForm(1, 1))} returns 1.right()
 
             every { PartnerRepository.exists(1) } returns true
@@ -224,7 +224,7 @@ class RequestApiTest {
          * Check for 401 when no bearer is present.
          */
         @Test
-        fun `delete pickup 401`() {
+        fun `delete request 401`() {
             testDelete("/requests?pickupId=1&partnerId=1", null) {
                 assertEquals(HttpStatusCode.Unauthorized, response.status())
             }
@@ -234,7 +234,7 @@ class RequestApiTest {
          * Check for 403 when no request doesn't have the required role.
          */
         @Test
-        fun `post pickup 403`() {
+        fun `delete request 403`() {
             testDelete("/requests?pickupId=1&partnerId=1",JwtMockConfig.partnerBearer2) {
                 assertEquals(HttpStatusCode.Forbidden, response.status())
             }
@@ -245,7 +245,7 @@ class RequestApiTest {
          * Check for 500 when we encounter a serious error.
          */
         @Test
-        fun `post pickup 500`() {
+        fun `delete request 500`() {
             every { RequestService.deleteRequest(RequestDeleteForm(1, 1)) } returns ServiceError("test").left()
             every { PartnerRepository.exists(1) } returns true
             every { PickupRepository.exists(1) } returns true
@@ -259,7 +259,7 @@ class RequestApiTest {
          * Check for 422 when we get an invalid form. Pickup id can't be -1
          */
         @Test
-        fun `post pickup 422`() {
+        fun `delete request 422`() {
             every { PartnerRepository.exists(1) } returns true
             every { PickupRepository.exists(-1) } returns true
 
@@ -273,7 +273,7 @@ class RequestApiTest {
          * Check for 400 when we get a form which can't be parsed. Partner id is not an integer.
          */
         @Test
-        fun `post pickup 400`() {
+        fun `delete request 400`() {
             testDelete("/requests?pickupId=1&partnerId=NaN", JwtMockConfig.partnerBearer1) {
                 assertEquals(HttpStatusCode.BadRequest, response.status())
                 assertEquals("partnerId could not be parsed.", response.content)
