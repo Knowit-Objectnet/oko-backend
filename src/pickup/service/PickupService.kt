@@ -1,5 +1,6 @@
 package ombruk.backend.pickup.service
 
+import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import ombruk.backend.calendar.form.event.EventPostForm
@@ -7,22 +8,25 @@ import ombruk.backend.calendar.service.EventService
 import ombruk.backend.pickup.database.PickupRepository
 import ombruk.backend.pickup.form.pickup.*
 import ombruk.backend.pickup.model.Pickup
+import ombruk.backend.shared.error.ServiceError
 import org.jetbrains.exposed.sql.transactions.transaction
 
 
 object PickupService : IPickupService {
 
-    override fun savePickup(pickupPostForm: PickupPostForm) = PickupRepository.savePickup(pickupPostForm)
+    override fun savePickup(pickupPostForm: PickupPostForm): Either<ServiceError, Pickup> =
+        PickupRepository.savePickup(pickupPostForm)
 
 
-    override fun getPickupById(pickupGetByIdForm: PickupGetByIdForm) =
+    override fun getPickupById(pickupGetByIdForm: PickupGetByIdForm): Either<ServiceError, Pickup> =
         PickupRepository.getPickupById(pickupGetByIdForm.id)
 
 
-    override fun getPickups(pickupQueryForm: PickupGetForm?) = PickupRepository.getPickups(pickupQueryForm)
+    override fun getPickups(pickupQueryForm: PickupGetForm?): Either<ServiceError, List<Pickup>> =
+        PickupRepository.getPickups(pickupQueryForm)
 
 
-    override fun updatePickup(pickupUpdateForm: PickupUpdateForm) = transaction {
+    override fun updatePickup(pickupUpdateForm: PickupUpdateForm): Either<ServiceError, Pickup> = transaction {
         pickupUpdateForm.chosenPartnerId?.let { // partner has been chosen and pickup has been filled. Create event.
             var pickup: Pickup? = null      // used for temp storage
             PickupRepository.updatePickup(pickupUpdateForm)
@@ -44,7 +48,7 @@ object PickupService : IPickupService {
     }
 
 
-    override fun deletePickup(pickupDeleteForm: PickupDeleteForm) = PickupRepository.deletePickup(pickupDeleteForm.id)
+    override fun deletePickup(pickupDeleteForm: PickupDeleteForm): Either<ServiceError, Int> = PickupRepository.deletePickup(pickupDeleteForm.id)
 
 
 }

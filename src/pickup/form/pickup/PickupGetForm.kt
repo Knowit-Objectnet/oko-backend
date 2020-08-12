@@ -19,16 +19,9 @@ data class PickupGetForm(
 ) : IForm<PickupGetForm> {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
-            if (stationId != null) {
-                validate(PickupGetForm::stationId).isGreaterThan(0)
-            }
-            if (startDateTime != null && endDateTime != null) {
-                validate(PickupGetForm::endDateTime).isGreaterThanStartDateTime(startDateTime)
-            }
-
-            if (partnerId != null) {
-                validate(PickupGetForm::partnerId).isGreaterThan(0)
-            }
+            validate(PickupGetForm::stationId).isGreaterThan(0)
+            validate(PickupGetForm::partnerId).isGreaterThan(0)
+            validate(PickupGetForm::endDateTime).isGreaterThanStartDateTime(startDateTime)
         }
     }
 }

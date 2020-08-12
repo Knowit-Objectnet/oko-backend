@@ -468,6 +468,10 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Event'
+        '400':
+          description: Bad request body
+        '422':
+          description: Validation of request body failed. Unprocessable entity
         '500':
           description: Internal server error
     post:

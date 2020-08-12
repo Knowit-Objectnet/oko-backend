@@ -10,7 +10,7 @@ import org.valiktor.functions.isGreaterThan
 import org.valiktor.validate
 
 @KtorExperimentalLocationsAPI
-@Location("/")
+@Location("/{id}")
 data class PickupDeleteForm(
     val id: Int
 ) : IForm<PickupDeleteForm> {
