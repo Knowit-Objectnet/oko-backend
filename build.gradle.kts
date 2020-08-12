@@ -53,6 +53,7 @@ dependencies {
     testImplementation("io.mockk:mockk:1.10.0")
     testImplementation(kotlin("test-junit5"))
     testImplementation(ktor("server-tests"))
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.4.2")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.4.2")
 }
 

@@ -12,7 +12,7 @@ object LocalDateTimeSerializer : KSerializer<LocalDateTime> {
         encoder.encodeString(obj.format(DateTimeFormatter.ISO_DATE_TIME) + "Z")
 
 
-    override fun deserialize(decoder: Decoder): LocalDateTime =
-        LocalDateTime.parse(decoder.decodeString(), DateTimeFormatter.ISO_DATE_TIME)
-
+    override fun deserialize(decoder: Decoder): LocalDateTime {
+        return LocalDateTime.parse(decoder.decodeString(), DateTimeFormatter.ISO_DATE_TIME)
+    }
 }
