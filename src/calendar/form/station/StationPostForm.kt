@@ -15,7 +15,7 @@ import java.time.LocalTime
 @Serializable
 data class StationPostForm(
     val name: String,
-    val hours: Map<DayOfWeek, List<@Serializable(with = LocalTimeSerializer::class) LocalTime>>?
+    val hours: Map<DayOfWeek, List<@Serializable(with = LocalTimeSerializer::class) LocalTime>>? = null
 ) : IForm<StationPostForm> {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
