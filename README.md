@@ -3,20 +3,20 @@ This is the backend of the reuse station project, belonging to [Renovasjon og Gj
 in Oslo kommune. It's entirely written in [Kotlin](https://kotlinlang.org/) with [Exposed]() as its ORM and [Ktor]() as its web framework.
 The code is mostly written in a functional style. 
 
-# Required Knowledge
+## Required Knowledge
 Although Kotlin is Java-friendly, it's highly recommended to read up on Kotlin at [kotlinlang.org](https://kotlinlang.org/docs/reference/).
 Furthermore, knowledge of the [Exposed ORM](), the [Ktor web framework]() and the [Arrow library]() is required.
 
-# Getting Started
+## Getting Started
 
-#### Running Locally
+### Running Locally
 Intellij IDEA has excellent Kotlin tooling, and it's highly recommended for everything.
 If you want to run without it, you will need to install Gradle. Furthermore, you'll need to have JDK 8 installed.
 We have been using 1.8.252.
 
 You can install dependencies and run the application with `gradle run`.
 
-#### Environment Variables
+### Environment Variables
 You will need to set two environment variables in order for the application to function
 as intended:
 
@@ -70,7 +70,7 @@ a new migration has to be created in order to alter the running db instance. Eac
 `V[1-9]+__*.sql`
 
 ## Docker
-We have used two different ways of running Docker throughout the SDLC; Running locally has been done through the use of
+We have used two different ways of running Docker throughout the project duration; Running locally has been done through the use of
 Docker-compose and Dockerfile.dev, whilst the deployed application simply uses __Dockerfile__. The deployment __Dockerfile__
 is not magic; two things to look out for is to ensure that access rights are set correctly and that db migrations
 are placed where they're expected. All files should work as-is.
