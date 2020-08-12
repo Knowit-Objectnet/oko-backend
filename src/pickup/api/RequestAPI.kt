@@ -39,7 +39,6 @@ fun Routing.request(requestService: IRequestService) {
             }
         }
 
-
         get<RequestGetForm> { form ->
             form.validOrError()
                 .flatMap { requestService.getRequests(form) }
