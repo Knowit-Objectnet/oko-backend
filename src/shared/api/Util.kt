@@ -6,11 +6,7 @@ import arrow.core.right
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.JsonDecodingException
-import ombruk.backend.shared.error.KeycloakIntegrationError
-import ombruk.backend.shared.error.AuthorizationError
-import ombruk.backend.shared.error.RepositoryError
-import ombruk.backend.shared.error.ServiceError
-import ombruk.backend.shared.error.ValidationError
+import ombruk.backend.shared.error.*
 import org.slf4j.LoggerFactory
 import java.time.format.DateTimeParseException
 
@@ -43,6 +39,7 @@ fun <T> receiveCatching(func: suspend () -> T) = runCatching { runBlocking { fun
 fun generateResponse(result: Either<ServiceError, Any>) = when (result) {
     is Either.Left -> when (result.a) {
         is AuthorizationError.MissingRolesError,
+        is AuthorizationError.MissingGroupIDError,
         is AuthorizationError.InvalidPrincipal -> Pair(HttpStatusCode.Unauthorized, result.a.message)
         is AuthorizationError -> Pair(HttpStatusCode.Forbidden, result.a.message)
 
