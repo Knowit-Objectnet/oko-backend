@@ -1,6 +1,7 @@
 package ombruk.backend.calendar.form.station
 
 import kotlinx.serialization.Serializable
+import ombruk.backend.calendar.database.StationRepository
 import ombruk.backend.shared.form.IForm
 import ombruk.backend.shared.model.serializer.LocalTimeSerializer
 import ombruk.backend.shared.utils.validation.*
@@ -20,6 +21,7 @@ data class StationUpdateForm(
         validate(this) {
             validate(StationUpdateForm::id).isGreaterThan(0)
             validate(StationUpdateForm::name).isNotBlank()
+            validate(StationUpdateForm::name).isUniqueInRepository(StationRepository)
             validate(StationUpdateForm::hours).isValid()
 
         }

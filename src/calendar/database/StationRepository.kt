@@ -98,6 +98,8 @@ object StationRepository : IStationRepository {
 
     override fun exists(id: Int) = transaction { Stations.select { Stations.id eq id }.count() >= 1 }
 
+    override fun exists(name: String) = transaction { Stations.select{Stations.name eq name}.count() >= 1 }
+
 }
 
 /**

@@ -6,9 +6,10 @@ import ombruk.backend.calendar.form.station.StationPostForm
 import ombruk.backend.calendar.form.station.StationUpdateForm
 import ombruk.backend.calendar.model.Station
 import ombruk.backend.shared.database.IRepository
+import ombruk.backend.shared.database.IRepositoryUniqueName
 import ombruk.backend.shared.error.RepositoryError
 
-interface IStationRepository : IRepository {
+interface IStationRepository : IRepository, IRepositoryUniqueName {
 
     /**
      * Gets a station by its ID.

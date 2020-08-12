@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 import ombruk.backend.partner.database.PartnerRepository
 import ombruk.backend.shared.form.IForm
 import ombruk.backend.shared.utils.validation.isNorwegianPhoneNumber
-import ombruk.backend.shared.utils.validation.isPartnerUnique
+import ombruk.backend.shared.utils.validation.isUniqueInRepository
 import ombruk.backend.shared.utils.validation.runCatchingValidation
 import org.valiktor.functions.isEmail
 import org.valiktor.functions.isGreaterThan
@@ -28,7 +28,7 @@ data class PartnerUpdateForm(
             validate(PartnerUpdateForm::email).isNotBlank().isEmail()
 
             PartnerRepository.getPartnerByID(id).map {
-                if (it.name != name) validate(PartnerUpdateForm::name).isPartnerUnique(PartnerRepository)
+                if (it.name != name) validate(PartnerUpdateForm::name).isUniqueInRepository(PartnerRepository)
             }
         }
     }

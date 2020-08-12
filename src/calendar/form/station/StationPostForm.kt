@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 import ombruk.backend.calendar.database.StationRepository
 import ombruk.backend.shared.form.IForm
 import ombruk.backend.shared.model.serializer.LocalTimeSerializer
-import ombruk.backend.shared.utils.validation.isStationUnique
+import ombruk.backend.shared.utils.validation.isUniqueInRepository
 import ombruk.backend.shared.utils.validation.isValid
 import ombruk.backend.shared.utils.validation.runCatchingValidation
 import org.valiktor.functions.isNotBlank
@@ -21,7 +21,7 @@ data class StationPostForm(
         validate(this) {
             validate(StationPostForm::name).isNotBlank()
             validate(StationPostForm::hours).isValid()
-            validate(StationPostForm::name).isStationUnique(StationRepository)
+            validate(StationPostForm::name).isUniqueInRepository(StationRepository)
         }
     }
 }

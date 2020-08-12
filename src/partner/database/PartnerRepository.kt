@@ -103,6 +103,7 @@ object PartnerRepository : IPartnerRepository {
             )
 
     override fun exists(id: Int) = transaction { Partners.select { Partners.id eq id }.count() >= 1 }
+    override fun exists(name: String) = transaction { Partners.select {Partners.name eq name}.count() >= 1 }
 
 }
 
