@@ -21,7 +21,6 @@ import ombruk.backend.pickup.model.Pickup
 import ombruk.backend.pickup.model.Request
 import ombruk.backend.pickup.service.RequestService
 import ombruk.backend.shared.api.JwtMockConfig
-import ombruk.backend.shared.database.initDB
 import ombruk.backend.shared.error.ServiceError
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
@@ -35,10 +34,6 @@ import kotlin.test.assertEquals
 @ExtendWith(MockKExtension::class)
 class RequestApiTest {
     val json = Json(DefaultJsonConfiguration.copy(prettyPrint = true))
-
-    init {
-        initDB() // Don't want to do this. But EventRepository wont work without it
-    }
 
     @BeforeEach
     fun setup() {

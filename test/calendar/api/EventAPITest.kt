@@ -40,10 +40,6 @@ import kotlin.test.assertEquals
 class EventAPITest {
     val json = Json(DefaultJsonConfiguration.copy(prettyPrint = true))
 
-    init {
-        initDB() // Don't want to do this. But EventRepository wont work without it
-    }
-
     @BeforeEach
     fun setup() {
         mockkObject(EventRepository)

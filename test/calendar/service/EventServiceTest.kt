@@ -19,7 +19,6 @@ import ombruk.backend.calendar.model.RecurrenceRule
 import ombruk.backend.calendar.service.EventService
 import ombruk.backend.reporting.model.Report
 import ombruk.backend.reporting.service.ReportService
-import ombruk.backend.shared.database.initDB
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
 import java.time.DayOfWeek
@@ -30,10 +29,6 @@ import kotlin.test.assertEquals
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockKExtension::class)
 class EventServiceTest {
-
-    init {
-        initDB() // Don't want to do this. But EventRepository wont work without it
-    }
 
     @BeforeEach
     fun setup() {
@@ -49,6 +44,9 @@ class EventServiceTest {
 
     @Nested
     inner class GetEvents {
+        /**
+         * Check that get by id returns the expected event.
+         */
         @Test
         fun `get by id`(@MockK expectedEvent: Event) {
             val id = 1
@@ -60,6 +58,9 @@ class EventServiceTest {
             assertEquals(expectedEvent, actualEvent.b)
         }
 
+        /**
+         * Check that get events returns the exepected list of events
+         */
         @Test
         fun `get all`(@MockK expectedEvents: List<Event>) {
             every { EventRepository.getEvents(null) } returns expectedEvents.right()
@@ -70,6 +71,9 @@ class EventServiceTest {
             assertEquals(expectedEvents, actualEvents.b)
         }
 
+        /**
+         * Check that we can get the expected event when given a station id
+         */
         @Test
         fun `get by station id`(@MockK expectedEvents: List<Event>) {
             val form = EventGetForm(stationId = 1)
@@ -80,6 +84,9 @@ class EventServiceTest {
             assertEquals(expectedEvents, actualEvents.b)
         }
 
+        /**
+         * Check that we can get the expected event when given a partner id
+         */
         @Test
         fun `get by partner id`(@MockK expectedEvents: List<Event>) {
             val form = EventGetForm(partnerId = 1)
@@ -90,6 +97,9 @@ class EventServiceTest {
             assertEquals(expectedEvents, actualEvents.b)
         }
 
+        /**
+         * Check that we can get the expected event when given a station and partner id
+         */
         @Test
         fun `get by partner and station id`(@MockK expectedEvents: List<Event>) {
             val form = EventGetForm(partnerId = 1, stationId = 1)
@@ -100,6 +110,9 @@ class EventServiceTest {
             assertEquals(expectedEvents, actualEvents.b)
         }
 
+        /**
+         * Check that we can get the expected event when given a date time range
+         */
         @Test
         fun `get by datetime range`(@MockK expectedEvents: List<Event>) {
             val form = EventGetForm(
@@ -113,6 +126,9 @@ class EventServiceTest {
             assertEquals(expectedEvents, actualEvents.b)
         }
 
+        /**
+         * Check that we can get the expected event when given a recurrence rule id
+         */
         @Test
         fun `get by recurrenceRule id`(@MockK expectedEvents: List<Event>) {
             val form = EventGetForm(recurrenceRuleId = 1)
@@ -128,6 +144,9 @@ class EventServiceTest {
     @Nested
     inner class SaveEvents {
 
+        /**
+         * Check that save single events calls the repository and returns the saved event.
+         */
         @Test
         fun `save single event`(@MockK expectedEvent: Event, @MockK report: Report) {
             val form = EventPostForm(LocalDateTime.now(), LocalDateTime.now(), 1, 1)
@@ -140,6 +159,9 @@ class EventServiceTest {
             assertEquals(expectedEvent, actualEvent.b)
         }
 
+        /**
+         * Check that the repository is called 3 times, because 3 events should be saved.
+         */
         @Test
         fun `save recurring event`(@MockK expectedEvent: Event, @MockK report: Report) {
             val rRule = RecurrenceRule(count = 3, days = listOf(DayOfWeek.MONDAY))
@@ -159,6 +181,9 @@ class EventServiceTest {
     @Nested
     inner class UpdateEvents {
 
+        /**
+         * Check that update event returns the updated event.
+         */
         @Test
         fun `update single event`(@MockK expectedEvent: Event) {
 
