@@ -11,7 +11,6 @@ plugins {
     kotlin("jvm") version "1.3.70"
     kotlin("plugin.serialization") version "1.3.61"
     id("com.github.johnrengelman.shadow") version "5.0.0"
-    id("org.flywaydb.flyway") version "6.4.4"
     jacoco
 }
 

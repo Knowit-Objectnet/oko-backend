@@ -75,6 +75,16 @@ Docker-compose and Dockerfile.dev, whilst the deployed application simply uses _
 is not magic; two things to look out for is to ensure that access rights are set correctly and that db migrations
 are placed where they're expected. All files should work as-is.
 
+## Testing
+
+### Unit tests
+
+We are doing unit tests with JUnit5, Ktors test server, and MockK. All the tests can be found in the test directory. 
+All services have their own corresponding package. When writing new test you should try to make a as comprehensible as possible. 
+We have tried to follow AAA(Assemble, Act, Aanalyze), which means that the test should have three distinct parts. One for setup,
+one for executing the feature you are testing, and one for checking that the results are what you expected. 
+The variables name ***expected*** and ***actual*** are use throghout our tests to make understanding other tests easier. 
+
 ## Structure
 Each endpoint has been placed in its own folder within __src__, with the exception being __station__, which is placed
 within __calendar_. This structure was created due to moving from microservices to a monolith; In case we want to move back
