@@ -8,6 +8,11 @@ import io.ktor.util.KtorExperimentalAPI
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
 
+/**
+ * This function has to be run before any Exposed transactions takes place.
+ * We load the connection details from the config file and create a connection
+ * to the database using Exposed and Hikari. We also run migrations.
+ */
 @KtorExperimentalAPI
 fun initDB() {
     val appConfig = HoconApplicationConfig(ConfigFactory.load())
@@ -24,8 +29,13 @@ fun initDB() {
     migrate()
 }
 
+
+/**
+ * This function load connection details from the config file and applies any outstanding
+ * migrations with Flyway.
+ */
 @KtorExperimentalAPI
-fun migrate() {
+private fun migrate() {
     val appConfig = HoconApplicationConfig(ConfigFactory.load())
 
     val flyway = Flyway.configure().dataSource(
