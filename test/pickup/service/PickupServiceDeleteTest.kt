@@ -143,35 +143,4 @@ class PickupServiceDeleteTest {
         assertEquals(pickupNotToDelete.b, pickupsLeftAfterDelete.b.first())
     }
 
-//    @Test
-//    fun testDeletePickupByStation() {
-//        val start = LocalDateTime.parse("2020-07-27T15:30:00", DateTimeFormatter.ISO_DATE_TIME)
-//        val end = start.plusHours(1)
-//
-//        // Create a pickup (we don't need to save it
-//        pickupService.savePickup(
-//            PickupPostForm(
-//                start,
-//                start.plusHours(1),
-//                testStation.id
-//            )
-//        )
-//
-//        val pickupsNotToDelete = pickupService.savePickup(
-//            PickupPostForm(
-//                start,
-//                end,
-//                testStation2.id
-//            )
-//        )
-//
-//        // Delete all pickups for testStation
-//        pickupService.deletePickup(null, testStation.id)
-//
-//        val pickupsLeftAfterDelete = pickupService.getPickups()
-//        require(pickupsNotToDelete is Either.Right)
-//        require(pickupsLeftAfterDelete is Either.Right)
-//        assertEquals(pickupsNotToDelete.b, pickupsLeftAfterDelete.b.first())
-//    }
-
 }

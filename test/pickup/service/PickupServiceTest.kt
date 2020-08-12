@@ -8,14 +8,12 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkObject
 import io.mockk.verify
-import ombruk.backend.calendar.model.Station
 import ombruk.backend.pickup.database.PickupRepository
 import ombruk.backend.pickup.form.pickup.PickupDeleteForm
 import ombruk.backend.pickup.form.pickup.PickupGetByIdForm
 import ombruk.backend.pickup.form.pickup.PickupUpdateForm
 import ombruk.backend.pickup.model.Pickup
 import ombruk.backend.pickup.service.PickupService
-import ombruk.backend.shared.database.initDB
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
 import java.time.LocalDateTime
@@ -24,13 +22,6 @@ import kotlin.test.assertEquals
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockKExtension::class)
 class PickupServiceTest {
-
-    lateinit var testStation: Station
-    lateinit var testStation2: Station
-
-    init {
-        initDB()
-    }
 
     @BeforeEach
     fun setup() {
@@ -42,9 +33,13 @@ class PickupServiceTest {
         clearAllMocks()
     }
 
+
     @Nested
     inner class GetPickups {
 
+        /**
+         * Test that get pickup by id returns the expected pickup
+         */
         @Test
         fun `get pickup by id`(@MockK expected: Pickup) {
             every { PickupRepository.getPickupById(1) } returns expected.right()
@@ -55,6 +50,9 @@ class PickupServiceTest {
             assertEquals(expected, actual.b)
         }
 
+        /**
+         * Check that get pickups returns the expected list of pickups
+         */
         @Test
         fun `get all pickups`(@MockK expected: List<Pickup>) {
             every { PickupRepository.getPickups(null) } returns expected.right()
@@ -68,6 +66,9 @@ class PickupServiceTest {
     @Nested
     inner class DeletePickups {
 
+        /**
+         * Check that delete by id call the PickupRepository
+         */
         @Test
         fun `delete by id`() {
             PickupService.deletePickup(PickupDeleteForm(1))
@@ -77,6 +78,9 @@ class PickupServiceTest {
 
     @Nested
     inner class UpdatePickups {
+        /**
+         * Checks that update pickup returns the updated pickup
+         */
         @Test
         fun `update pickup`(@MockK expected: Pickup) {
             val form = PickupUpdateForm(1, LocalDateTime.now(), LocalDateTime.now())
