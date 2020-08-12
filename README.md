@@ -60,13 +60,37 @@ contain descriptions of the different endpoints belonging to a path. The schema 
 
 Furthermore, the _openapi_ folder contains the two files _api.yaml_ and _openapi_yaml_. 
 _api.yaml_ specifies the different paths and components in the different sub-modules. One can then use
-[Swagger-cli]() or something akin to it to merge all the _yaml_ files into one big file, _openapi.yaml_.¨
+[Swagger-cli]() or something akin to it to merge all the _yaml_ files into one big file, _openapi.yaml_.
 This file is then usually uploaded to our [SwaggerHub](https://app.swaggerhub.com/apis/oko8/OKO/1.0.1).
 
 ### Migrations
+Migrations are done through the use of [Flyway](https://flywaydb.org).
 The different database migrations are located in the db.migrations folder. If the postgres database requires updated fields,
 a new migration has to be created in order to alter the running db instance. Each new migration must follow this naming schema:
-`V{1-9}+__*.sql`
+`V[1-9]+__*.sql`
+
+## Docker
+We have used two different ways of running Docker throughout the SDLC; Running locally has been done through the use of
+Docker-compose and Dockerfile.dev, whilst the deployed application simply uses __Dockerfile__. The deployment __Dockerfile__
+is not magic; two things to look out for is to ensure that access rights are set correctly and that db migrations
+are placed where they're expected. All files should work as-is.
+
+## Structure
+Each endpoint has been placed in its own folder within __src__, with the exception being __station__, which is placed
+within __calendar_. This structure was created due to moving from microservices to a monolith; In case we want to move back
+to microservices, the current structure would easily allow for this.
+
+Each folder has the following structure:
+
+| **Name** | **Description** |
+|---|---|
+| api | Contains endpoint definitions and logic |
+| database | Data access layer. Contains ORM logic and code representations of db tables |
+| form | Serializable data classes that are created for a specific REST operation on a specific endpoint. Contains validation logic. |
+| model | Representations of objects "belonging" to a specific endpoint. |
+| service | Business logic that does not belong in api or DAL. |
+
+The exception to this rule is the __shared__ folder, which contains common logic used in the other folders.
 
 
 
