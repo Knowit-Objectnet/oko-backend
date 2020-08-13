@@ -7,7 +7,7 @@ import org.valiktor.functions.isGreaterThan
 import org.valiktor.validate
 
 @Location("/{id}")
-class ReportGetByIdForm(
+data class ReportGetByIdForm(
     var id: Int
 ) : IForm<ReportGetByIdForm> {
     override fun validOrError() = runCatchingValidation {

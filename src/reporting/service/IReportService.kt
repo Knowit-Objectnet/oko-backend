@@ -27,7 +27,7 @@ interface IReportService {
     /**
      * Sets the weight of a stored [Report]. Available through the API.
      *
-     * @param reportUpdateForm a [ReportUpdateForm] where the [ReportUpdateForm.id] corresponds to a stored [Report.reportID].
+     * @param reportUpdateForm a [ReportUpdateForm] where the [ReportUpdateForm.id] corresponds to a stored [Report.reportId].
      * @return a [ServiceError] on failure and a [Report] on success.
      */
     fun updateReport(reportUpdateForm: ReportUpdateForm): Either<ServiceError, Report>
