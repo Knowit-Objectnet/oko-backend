@@ -274,7 +274,7 @@ class ReportRepositoryTest {
         fun generateValidForms() = listOf(
             Pair(null, listOf(testReport, testReport2, testReport3)),
             Pair(ReportGetForm(), listOf(testReport, testReport2, testReport3)),
-            Pair(ReportGetForm(eventId = 1), listOf(testReport)),
+            Pair(ReportGetForm(eventId = testReport.eventId), listOf(testReport)),
             Pair(ReportGetForm(eventId = 0), emptyList()),
             Pair(ReportGetForm(stationId = testStation.id), listOf(testReport, testReport3)),
             Pair(ReportGetForm(stationId = 0), emptyList()),
