@@ -62,6 +62,21 @@ class DateTimeValidationTest {
         }
     }
 
+    /**
+     * start- and end date time cannot be equal
+     */
+    @Test
+    fun `end date and start date time cannot be equal`(){
+        val dateTimeTest = DateTimeTest(LocalDateTime.parse("2020-07-04T15:48:06Z", DateTimeFormatter.ISO_DATE_TIME))
+        assertFailsWith(ConstraintViolationException::class){
+            validate(dateTimeTest) {
+                validate(DateTimeTest::localDateTime).isGreaterThanStartDateTime(
+                    LocalDateTime.parse("2020-07-04T15:48:06Z", DateTimeFormatter.ISO_DATE_TIME)
+                )
+            }
+        }
+    }
+
     /*
     end date time cannot be lesser than start date time, throws exception
      */

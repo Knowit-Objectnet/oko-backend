@@ -290,7 +290,7 @@ class OpenHoursValidationTest {
     }
 
     /*
-    Time list size cannot be greater than two
+    Time list size cannot be empty
      */
     @Test
     fun `hours invalid empty list`() {
@@ -398,6 +398,57 @@ class OpenHoursValidationTest {
                     listOf(
                         LocalTime.parse("20:00:00Z", DateTimeFormatter.ISO_TIME),
                         LocalTime.parse("09:00:00Z", DateTimeFormatter.ISO_TIME)
+                    )
+                )
+            )
+        )
+        assertFailsWith(ConstraintViolationException::class){
+            validate(hours){
+                validate(OpenHours::hours).isValid()
+            }
+        }
+    }
+
+    /*
+    The first value of the list cannot be equal to the second
+     */
+    @Test
+    fun `hours first value equal to second`() {
+        val hours = OpenHours(
+            mapOf<DayOfWeek, List<LocalTime>>(
+                Pair(
+                    DayOfWeek.MONDAY,
+                    listOf(
+                        LocalTime.parse("09:00:00Z", DateTimeFormatter.ISO_TIME),
+                        LocalTime.parse("20:00:00Z", DateTimeFormatter.ISO_TIME)
+                    )
+                ),
+                Pair(
+                    DayOfWeek.TUESDAY,
+                    listOf(
+                        LocalTime.parse("09:00:00Z", DateTimeFormatter.ISO_TIME),
+                        LocalTime.parse("20:00:00Z", DateTimeFormatter.ISO_TIME)
+                    )
+                ),
+                Pair(
+                    DayOfWeek.WEDNESDAY,
+                    listOf(
+                        LocalTime.parse("10:00:00Z", DateTimeFormatter.ISO_TIME),
+                        LocalTime.parse("20:00:00Z", DateTimeFormatter.ISO_TIME)
+                    )
+                ),
+                Pair(
+                    DayOfWeek.THURSDAY,
+                    listOf(
+                        LocalTime.parse("10:00:00Z", DateTimeFormatter.ISO_TIME),
+                        LocalTime.parse("21:00:00Z", DateTimeFormatter.ISO_TIME)
+                    )
+                ),
+                Pair(
+                    DayOfWeek.FRIDAY,
+                    listOf(
+                        LocalTime.parse("20:00:00Z", DateTimeFormatter.ISO_TIME),
+                        LocalTime.parse("20:00:00Z", DateTimeFormatter.ISO_TIME)
                     )
                 )
             )
