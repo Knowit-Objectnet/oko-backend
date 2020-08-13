@@ -10,6 +10,7 @@ import ombruk.backend.shared.utils.validation.isInRepository
 import ombruk.backend.shared.utils.validation.isLessThanEndDateTime
 import ombruk.backend.shared.utils.validation.runCatchingValidation
 import org.valiktor.functions.isGreaterThan
+import org.valiktor.functions.isNotBlank
 import org.valiktor.validate
 import java.time.LocalDateTime
 
@@ -25,6 +26,7 @@ data class PickupPostForm(
         validate(this) {
             validate(PickupPostForm::stationId).isGreaterThan(0)
             validate(PickupPostForm::stationId).isInRepository(StationRepository)
+            validate(PickupPostForm::description).isNotBlank()
             validate(PickupPostForm::startDateTime).isLessThanEndDateTime(endDateTime)
         }
     }
