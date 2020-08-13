@@ -1,6 +1,7 @@
 package ombruk.backend.reporting.database
 
 import arrow.core.Either
+import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
 import ombruk.backend.calendar.database.Events
@@ -58,7 +59,16 @@ object ReportRepository : IReportRepository {
         }
     }
         .onFailure { logger.error("Failed to update report: ${it.message}") }
-        .fold({ getReportByID(reportUpdateForm.id) }, { RepositoryError.UpdateError("Failed to update report").left() })
+        .fold(
+            {
+                Either.cond(
+                    it > 0,
+                    { getReportByID(reportUpdateForm.id) },
+                    { RepositoryError.NoRowsFound("ID ${reportUpdateForm.id} does not exist!") }).flatMap { it }
+            },
+            { RepositoryError.UpdateError("Failed to update report").left() }
+        )
+    //getReportByID(reportUpdateForm.id)
 
     override fun updateReport(event: Event): Either<RepositoryError, Unit> = kotlin.runCatching {
         transaction {
@@ -69,7 +79,9 @@ object ReportRepository : IReportRepository {
         }
     }
         .onFailure { logger.error("Failed to update report: ${it.message}") }
-        .fold({ Unit.right() }, { RepositoryError.UpdateError("Failed to update report").left() })
+        .fold(
+            { Either.cond(it > 0, { Unit }, { RepositoryError.NoRowsFound("eventId ${event.id} does not exist!") }) },
+            { RepositoryError.UpdateError("Failed to update report").left() })
 
 
     override fun getReportByID(reportID: Int): Either<RepositoryError, Report> = transaction {

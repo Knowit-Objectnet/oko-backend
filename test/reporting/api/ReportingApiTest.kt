@@ -134,8 +134,8 @@ class ReportingApiTest {
                 LocalDateTime.parse("2020-07-07T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-07-08T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME)
             )
-            val r2 = r1.copy(reportID = 2)
-            val r3 = r1.copy(reportID = 3)
+            val r2 = r1.copy(reportId = 2)
+            val r3 = r1.copy(reportId = 3)
             val expected = listOf(r1, r2, r3)
 
             every { ReportService.getReports(any()) } returns expected.right()
@@ -159,7 +159,7 @@ class ReportingApiTest {
                 LocalDateTime.parse("2020-07-07T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-07-08T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME)
             )
-            val r3 = r1.copy(reportID = 3)
+            val r3 = r1.copy(reportId = 3)
             val expected = listOf(r1, r3)
             val form = ReportGetForm(stationId = 1)
 
