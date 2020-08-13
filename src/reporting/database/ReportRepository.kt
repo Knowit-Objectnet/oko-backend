@@ -72,14 +72,14 @@ object ReportRepository : IReportRepository {
         .fold({ Unit.right() }, { RepositoryError.UpdateError("Failed to update report").left() })
 
 
-    override fun getReportByID(reportID: Int): Either<RepositoryError.NoRowsFound, Report> = transaction {
+    override fun getReportByID(reportID: Int): Either<RepositoryError, Report> = transaction {
         runCatching {
             (Reports innerJoin Stations).select { Reports.id eq reportID }.map { toReport(it) }.firstOrNull()
         }
             .onFailure { logger.error(it.message) }
             .fold(
                 { Either.cond(it != null, { it!! }, { RepositoryError.NoRowsFound("ID $reportID does not exist!") }) },
-                { RepositoryError.NoRowsFound(it.message).left() }
+                { RepositoryError.SelectError(it.message).left() }
             )
     }
 
