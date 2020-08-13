@@ -29,7 +29,7 @@ import kotlin.test.assertEquals
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockKExtension::class)
-class PartnerTest {
+class PartnerApiTest {
     val json = Json(DefaultJsonConfiguration.copy(prettyPrint = true))
 
     @BeforeEach
