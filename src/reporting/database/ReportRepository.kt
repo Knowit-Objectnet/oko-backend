@@ -88,9 +88,9 @@ object ReportRepository : IReportRepository {
         runCatching {
             val query = (Reports innerJoin Stations).selectAll()
             if (reportGetForm != null) {
-                reportGetForm.eventID?.let { query.andWhere { Reports.eventID eq it } }
-                reportGetForm.stationID?.let { query.andWhere { Reports.stationID eq it } }
-                reportGetForm.partnerID?.let { query.andWhere { Reports.partnerID eq it } }
+                reportGetForm.eventId?.let { query.andWhere { Reports.eventID eq it } }
+                reportGetForm.stationId?.let { query.andWhere { Reports.stationID eq it } }
+                reportGetForm.partnerId?.let { query.andWhere { Reports.partnerID eq it } }
                 reportGetForm.fromDate?.let { query.andWhere { Reports.startDateTime.greaterEq(it) } }
                 reportGetForm.toDate?.let { query.andWhere { Reports.endDateTime.lessEq(it) } }
             }

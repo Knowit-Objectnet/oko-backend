@@ -13,6 +13,6 @@ data class Report(
     val station: Station,
     @Serializable(with = LocalDateTimeSerializer::class) val startDateTime: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class) val endDateTime: LocalDateTime,
-    val weight: Int?,
+    val weight: Int? = null,
     @Serializable(with = LocalDateTimeSerializer::class) val reportedDateTime: LocalDateTime? = null
 )
