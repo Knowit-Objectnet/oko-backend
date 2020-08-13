@@ -12,6 +12,7 @@ import ombruk.backend.shared.utils.validation.isInRepository
 import ombruk.backend.shared.utils.validation.isLessThanEndDateTime
 import ombruk.backend.shared.utils.validation.runCatchingValidation
 import org.valiktor.functions.isGreaterThan
+import org.valiktor.functions.isNotBlank
 import org.valiktor.validate
 import java.time.LocalDateTime
 
@@ -27,11 +28,10 @@ data class PickupUpdateForm(
     override fun validOrError(): Either<ValidationError, PickupUpdateForm> = runCatchingValidation {
         validate(this) {
             validate(PickupUpdateForm::id).isGreaterThan(0)
+            validate(PickupUpdateForm::description).isNotBlank()
+            validate(PickupUpdateForm::chosenPartnerId).isGreaterThan(0)
+            validate(PickupUpdateForm::chosenPartnerId).isInRepository(PartnerRepository)
 
-            chosenPartnerId?.let {
-                validate(PickupUpdateForm::chosenPartnerId).isGreaterThan(0)
-                validate(PickupUpdateForm::chosenPartnerId).isInRepository(PartnerRepository)
-            }
             if (startDateTime != null || endDateTime != null) {      // Only do this db call if there's a chance of updating.
                 // This essentially ensures that the db won't throw an exception due to broken date constraints (start > end etc).
                 PickupRepository.getPickupById(id).map { pickup ->
