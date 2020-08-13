@@ -23,7 +23,6 @@ import ombruk.backend.partner.database.PartnerRepository
 import ombruk.backend.partner.model.Partner
 import ombruk.backend.shared.api.Authorization
 import ombruk.backend.shared.api.JwtMockConfig
-import ombruk.backend.shared.database.initDB
 import ombruk.backend.shared.error.RepositoryError
 import ombruk.backend.shared.error.ServiceError
 import org.junit.jupiter.api.*
