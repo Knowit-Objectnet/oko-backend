@@ -32,7 +32,7 @@ interface IPartnerService {
      * @param partnerGetForm A [PartnerGetForm], where each non-null property will constrain the search.
      * @return An [Either] object consisting of [ServiceError] on failure or a [List] of [Partner] objects on success.
      */
-    fun getPartners(partnerGetForm: PartnerGetForm): Either<ServiceError, List<Partner>>
+    fun getPartners(partnerGetForm: PartnerGetForm = PartnerGetForm()): Either<ServiceError, List<Partner>>
 
     /**
      * Deletes the partner with the provided ID. If the ID does not exist, a [ServiceError] is returned.
