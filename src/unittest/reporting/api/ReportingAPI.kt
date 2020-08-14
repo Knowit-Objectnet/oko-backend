@@ -40,6 +40,7 @@ fun Routing.report(reportService: IReportService) {
         authenticate {
             patch {
                 receiveCatching { call.receive<ReportUpdateForm>() }
+                    .flatMap { it.validOrError() }
                     .flatMap { form ->
                         Authorization.run {
                             authorizeRole(listOf(Roles.Partner, Roles.RegEmployee, Roles.ReuseStation), call)

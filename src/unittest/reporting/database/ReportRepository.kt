@@ -1,6 +1,7 @@
 package ombruk.backend.reporting.database
 
 import arrow.core.Either
+import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
 import ombruk.backend.calendar.database.Events
@@ -19,7 +20,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 
-private val logger = LoggerFactory.getLogger("ombruk.reporting.database.ReportRepository")
+private val logger = LoggerFactory.getLogger("ombruk.unittest.reporting.database.ReportRepository")
 
 object Reports : IntIdTable("reports") {
     val eventID = integer("event_id").references(Events.id)
@@ -58,7 +59,16 @@ object ReportRepository : IReportRepository {
         }
     }
         .onFailure { logger.error("Failed to update report: ${it.message}") }
-        .fold({ getReportByID(reportUpdateForm.id) }, { RepositoryError.UpdateError("Failed to update report").left() })
+        .fold(
+            {
+                Either.cond(
+                    it > 0,
+                    { getReportByID(reportUpdateForm.id) },
+                    { RepositoryError.NoRowsFound("ID ${reportUpdateForm.id} does not exist!") }).flatMap { it }
+            },
+            { RepositoryError.UpdateError("Failed to update report").left() }
+        )
+    //getReportByID(reportUpdateForm.id)
 
     override fun updateReport(event: Event): Either<RepositoryError, Unit> = kotlin.runCatching {
         transaction {
@@ -69,17 +79,19 @@ object ReportRepository : IReportRepository {
         }
     }
         .onFailure { logger.error("Failed to update report: ${it.message}") }
-        .fold({ Unit.right() }, { RepositoryError.UpdateError("Failed to update report").left() })
+        .fold(
+            { Either.cond(it > 0, { Unit }, { RepositoryError.NoRowsFound("eventId ${event.id} does not exist!") }) },
+            { RepositoryError.UpdateError("Failed to update report").left() })
 
 
-    override fun getReportByID(reportID: Int): Either<RepositoryError.NoRowsFound, Report> = transaction {
+    override fun getReportByID(reportID: Int): Either<RepositoryError, Report> = transaction {
         runCatching {
             (Reports innerJoin Stations).select { Reports.id eq reportID }.map { toReport(it) }.firstOrNull()
         }
             .onFailure { logger.error(it.message) }
             .fold(
                 { Either.cond(it != null, { it!! }, { RepositoryError.NoRowsFound("ID $reportID does not exist!") }) },
-                { RepositoryError.NoRowsFound(it.message).left() }
+                { RepositoryError.SelectError(it.message).left() }
             )
     }
 
@@ -88,9 +100,9 @@ object ReportRepository : IReportRepository {
         runCatching {
             val query = (Reports innerJoin Stations).selectAll()
             if (reportGetForm != null) {
-                reportGetForm.eventID?.let { query.andWhere { Reports.eventID eq it } }
-                reportGetForm.stationID?.let { query.andWhere { Reports.stationID eq it } }
-                reportGetForm.partnerID?.let { query.andWhere { Reports.partnerID eq it } }
+                reportGetForm.eventId?.let { query.andWhere { Reports.eventID eq it } }
+                reportGetForm.stationId?.let { query.andWhere { Reports.stationID eq it } }
+                reportGetForm.partnerId?.let { query.andWhere { Reports.partnerID eq it } }
                 reportGetForm.fromDate?.let { query.andWhere { Reports.startDateTime.greaterEq(it) } }
                 reportGetForm.toDate?.let { query.andWhere { Reports.endDateTime.lessEq(it) } }
             }

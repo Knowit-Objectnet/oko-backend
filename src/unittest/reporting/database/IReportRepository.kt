@@ -31,15 +31,15 @@ interface IReportRepository {
      * Updates [Report.startDateTime] and [Report.endDateTime] for the corresponding ID. This function is automatically called
      * when an event is updated, and should not be used under any other circumstances.
      *
-     * @param event an [Event] object where [Event.id] corresponds to a stored [Report.eventID].
+     * @param event an [Event] object where [Event.id] corresponds to a stored [Report.eventId].
      * @return A [RepositoryError] on failure and [Unit] on success.
      */
     fun updateReport(event: Event): Either<RepositoryError, Unit>
 
     /**
-     * Gets a specific [Report] by its [Report.reportID]. Must exist in the database.
+     * Gets a specific [Report] by its [Report.reportId]. Must exist in the database.
      *
-     * @param reportID An ID that corresponds to a [Report.reportID].
+     * @param reportID An ID that corresponds to a [Report.reportId].
      * @return A [RepositoryError] on failure and a [Report] on success.
      */
     fun getReportByID(reportID: Int): Either<RepositoryError, Report>

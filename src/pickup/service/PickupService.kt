@@ -1,6 +1,7 @@
 package ombruk.backend.pickup.service
 
 import arrow.core.Either
+import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
 import ombruk.backend.calendar.form.event.EventPostForm
@@ -37,7 +38,7 @@ object PickupService : IPickupService {
                         it.station.id,
                         it.chosenPartner!!.id // chosePartner is always set or we wouldn't be here.
                     )
-                    EventService.saveEvent(eventPostForm)   //Creates the event
+                    return@map EventService.saveEvent(eventPostForm) //Creates the event
                 }
                 .fold(
                     // failure, we rollback and set a left.
@@ -47,8 +48,8 @@ object PickupService : IPickupService {
         } ?: PickupRepository.updatePickup(pickupUpdateForm)    // pickup is not fulfilled, only updated.
     }
 
-
-    override fun deletePickup(pickupDeleteForm: PickupDeleteForm): Either<ServiceError, Int> = PickupRepository.deletePickup(pickupDeleteForm.id)
+    override fun deletePickup(pickupDeleteForm: PickupDeleteForm): Either<ServiceError, Int> =
+        PickupRepository.deletePickup(pickupDeleteForm.id)
 
 
 }

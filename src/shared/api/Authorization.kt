@@ -82,16 +82,16 @@ object Authorization {
         }
 
     /**
-     * Ensures that the ID in [role] corresponds to the [Report.partnerID] of the [Report] that is being updated.
+     * Ensures that the ID in [role] corresponds to the [Report.partnerId] of the [Report] that is being updated.
      *
      * @param role A [Pair] of a [Roles] instance and an [Int] specifying what group they belong to.
      * @param reportFunc A function that returns either a [ServiceError] or the [Report] that should be updated.
-     * @return [role] if the ID in [role] corresponds to the [Report.partnerID] from the [reportFunc]. Else, return [AuthorizationError]
+     * @return [role] if the ID in [role] corresponds to the [Report.partnerId] from the [reportFunc]. Else, return [AuthorizationError]
      */
     fun authorizeReportPatchByPartnerId(role: Pair<Roles, Int>, reportFunc: () -> Either<ServiceError, Report>) =
         reportFunc()
             .flatMap {
-                if (role.first == Roles.Partner && it.partnerID != role.second) {
+                if (role.first == Roles.Partner && it.partnerId != role.second) {
                     AuthorizationError.AccessViolationError().left()
                 } else role.right()
             }
