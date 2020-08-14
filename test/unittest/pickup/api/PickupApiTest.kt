@@ -18,7 +18,6 @@ import ombruk.backend.pickup.form.pickup.*
 import ombruk.backend.pickup.model.Pickup
 import ombruk.backend.pickup.service.PickupService
 import ombruk.backend.shared.api.JwtMockConfig
-import ombruk.backend.shared.database.initDB
 import ombruk.backend.shared.error.RepositoryError
 import ombruk.backend.shared.error.ServiceError
 import org.junit.jupiter.api.*
@@ -48,7 +47,7 @@ class EventAPITest {
     }
 
     @AfterAll
-    fun finish(){
+    fun finish() {
         unmockkAll()
     }
 
@@ -367,7 +366,7 @@ class EventAPITest {
          */
         @Test
         fun `delete pickup 200`() {
-            every { PickupService.deletePickup(PickupDeleteForm(1))} returns 1.right()
+            every { PickupService.deletePickup(PickupDeleteForm(1)) } returns 1.right()
 
             testDelete("/pickups/1") {
                 assertEquals(HttpStatusCode.OK, response.status())
@@ -390,7 +389,7 @@ class EventAPITest {
          */
         @Test
         fun `delete pickup 403`() {
-            testDelete("/pickups/1",JwtMockConfig.partnerBearer2) {
+            testDelete("/pickups/1", JwtMockConfig.partnerBearer2) {
                 assertEquals(HttpStatusCode.Forbidden, response.status())
             }
         }

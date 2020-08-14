@@ -25,17 +25,17 @@ import kotlin.test.assertEquals
 class ReportServiceTest {
 
     @BeforeEach
-    fun setup(){
+    fun setup() {
         mockkObject(ReportRepository)
     }
 
     @AfterEach
-    fun tearDown(){
+    fun tearDown() {
         clearAllMocks()
     }
 
     @AfterAll
-    fun finish(){
+    fun finish() {
         unmockkAll()
     }
 
@@ -46,7 +46,7 @@ class ReportServiceTest {
          * Get report by ID should return the expected pickup
          */
         @Test
-        fun `get report by id that exists`(@MockK expected: Report){
+        fun `get report by id that exists`(@MockK expected: Report) {
             val id = 1
             every { ReportRepository.getReportByID(id) } returns expected.right()
 
@@ -59,7 +59,7 @@ class ReportServiceTest {
          * Get report by non-existing ID should return a RepositoryError.NoRowsFound error
          */
         @Test
-        fun `get report by id that does not exist not found`(){
+        fun `get report by id that does not exist not found`() {
             val id = 1
             val expected = RepositoryError.NoRowsFound("test")
             every { ReportRepository.getReportByID(id) } returns expected.left()
@@ -73,7 +73,7 @@ class ReportServiceTest {
          * If get report by id fails, it should return a RepositoryError.SelectError
          */
         @Test
-        fun `get report by id fails`(){
+        fun `get report by id fails`() {
             val id = 1
             val expected = RepositoryError.SelectError("test")
             every { ReportRepository.getReportByID(id) } returns expected.left()
@@ -87,7 +87,7 @@ class ReportServiceTest {
          * Get all reports returns right if valid
          */
         @Test
-        fun `get all reports valid`(@MockK expectedReports: List<Report>){
+        fun `get all reports valid`(@MockK expectedReports: List<Report>) {
             every { ReportRepository.getReports(ReportGetForm()) } returns expectedReports.right()
 
             val actualReports = ReportService.getReports(ReportGetForm())
@@ -99,7 +99,7 @@ class ReportServiceTest {
          * If get all reports fails, a left should be returned
          */
         @Test
-        fun `get all reports fails`(){
+        fun `get all reports fails`() {
             val expected = RepositoryError.SelectError("test")
             every { ReportRepository.getReports(ReportGetForm()) } returns expected.left()
             val actual = ReportService.getReports(ReportGetForm())
@@ -116,7 +116,7 @@ class ReportServiceTest {
          * A valid event should be processed successfully
          */
         @Test
-        fun `Save report success`(@MockK event: Event, @MockK expected: Report){
+        fun `Save report success`(@MockK event: Event, @MockK expected: Report) {
             every { ReportRepository.insertReport(event) } returns expected.right()
 
             val actual = ReportService.saveReport(event)
@@ -128,7 +128,7 @@ class ReportServiceTest {
          * If inserting fails, a Left with a RepositoryError.InsertError should be returned
          */
         @Test
-        fun `Save report failure`(@MockK event: Event){
+        fun `Save report failure`(@MockK event: Event) {
             val expected = RepositoryError.DeleteError("test")
             every { ReportRepository.insertReport(event) } returns expected.left()
 
@@ -145,7 +145,7 @@ class ReportServiceTest {
          * A successfull update should return a right
          */
         @Test
-        fun `Update report successful`(@MockK event: Event){
+        fun `Update report successful`(@MockK event: Event) {
             every { ReportRepository.updateReport(event) } returns Unit.right()
 
             val actual = ReportService.updateReport(event)
@@ -157,7 +157,7 @@ class ReportServiceTest {
          * A failed update should return a RepositoryError.UpdateError
          */
         @Test
-        fun `Update report failure`(@MockK event: Event){
+        fun `Update report failure`(@MockK event: Event) {
             val expected = RepositoryError.UpdateError("test")
             every { ReportRepository.updateReport(event) } returns expected.left()
 
@@ -170,7 +170,7 @@ class ReportServiceTest {
          * A successful report with a ReportUpdateForm should return the updated report
          */
         @Test
-        fun `update report with form success`(@MockK form: ReportUpdateForm, @MockK expected: Report){
+        fun `update report with form success`(@MockK form: ReportUpdateForm, @MockK expected: Report) {
             every { ReportRepository.updateReport(form) } returns expected.right()
 
             val actual = ReportService.updateReport(form)
@@ -183,7 +183,7 @@ class ReportServiceTest {
          * A failed report update with a ReportUpdateForm should return a RepositoryError.UpdateError
          */
         @Test
-        fun `update report with form failure`(@MockK form: ReportUpdateForm){
+        fun `update report with form failure`(@MockK form: ReportUpdateForm) {
             val expected = RepositoryError.UpdateError("test")
             every { ReportRepository.updateReport(form) } returns expected.left()
 

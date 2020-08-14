@@ -42,7 +42,7 @@ class PartnerUpdateFormTest {
     }
 
     @AfterAll
-    fun finish(){
+    fun finish() {
         unmockkAll()
     }
 

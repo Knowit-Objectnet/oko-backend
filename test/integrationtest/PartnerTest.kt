@@ -1,4 +1,3 @@
-
 import arrow.core.Either
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.DefaultJsonConfiguration
@@ -261,7 +260,8 @@ class PartnerTest {
         @Test
         fun `update partner everything`() {
             val partnerToUpdate = partners[1]
-            val expectedResponse = partnerToUpdate.copy(email = "test@gmail.com", phone = "12345678", description = "testing")
+            val expectedResponse =
+                partnerToUpdate.copy(email = "test@gmail.com", phone = "12345678", description = "testing")
             val body =
                 """{
                     "id": "${partnerToUpdate.id}",

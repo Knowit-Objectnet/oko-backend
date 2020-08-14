@@ -38,7 +38,7 @@ class EventUpdateFormTest {
     }
 
     @AfterAll
-    fun finish(){
+    fun finish() {
         unmockkAll()
     }
 

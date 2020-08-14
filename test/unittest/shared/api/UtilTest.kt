@@ -31,14 +31,14 @@ class UtilTest {
 
     @ParameterizedTest
     @MethodSource("parameterProvider")
-    fun  `generate response test error`(errorToCode: Pair<ServiceError, HttpStatusCode>) {
+    fun `generate response test error`(errorToCode: Pair<ServiceError, HttpStatusCode>) {
         val expected = errorToCode.second to errorToCode.first.message
         val actual = generateResponse(errorToCode.first.left())
         assertEquals(expected, actual)
     }
 
     @Test
-    fun `generate response success`(){
+    fun `generate response success`() {
         val expected = HttpStatusCode.OK to ""
         val actual = generateResponse("".right())
         assertEquals(expected, actual)

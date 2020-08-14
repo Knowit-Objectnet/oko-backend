@@ -5,7 +5,6 @@ import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
-import ombruk.backend.calendar.database.EventRepository
 import ombruk.backend.calendar.database.Events
 import ombruk.backend.calendar.database.Stations
 import ombruk.backend.calendar.model.Event
@@ -34,7 +33,6 @@ import java.time.DayOfWeek
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import kotlin.math.exp
 import kotlin.test.assertEquals
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -416,7 +414,7 @@ class ReportRepositoryTest {
          * Attempting to set a weight that's lesser than 1 should result in a RepositoryError.UpdateError
          */
         @Test
-        fun `update report with invalid weight`(){
+        fun `update report with invalid weight`() {
             val form = ReportUpdateForm(testReport2.reportId, 0)
             val expected = RepositoryError.UpdateError("Failed to update report")
 
@@ -480,7 +478,7 @@ class ReportRepositoryTest {
          * Valid insertion should return a report
          */
         @Test
-        fun `insert report valid`(){
+        fun `insert report valid`() {
             val actual = ReportRepository.insertReport(testEvent5)
             require(actual is Either.Right)
             assertEquals(testEvent5.id, actual.b.eventId)

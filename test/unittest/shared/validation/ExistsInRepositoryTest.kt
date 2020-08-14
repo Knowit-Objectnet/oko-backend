@@ -17,17 +17,18 @@ import kotlin.test.assertFailsWith
 class ExistsInRepositoryTest {
 
     private val repository = mockk<IRepository>()
+
     data class ExistsTest(val id: Int?)
 
     /*
         if it exists, nothing should be thrown
      */
     @Test
-    fun `does exist valid`(){
+    fun `does exist valid`() {
         every { repository.exists(1) } returns true
 
         val test = ExistsTest(1)
-        validate(test){
+        validate(test) {
             validate(ExistsTest::id).isInRepository(repository)
         }
     }
@@ -36,11 +37,11 @@ class ExistsInRepositoryTest {
     If it does not exist, throw exception
      */
     @Test
-    fun `does exist in repository invalid`(){
+    fun `does exist in repository invalid`() {
         every { repository.exists(1) } returns false
         val test = ExistsTest(1)
-        assertFailsWith(ConstraintViolationException::class){
-            validate(test){
+        assertFailsWith(ConstraintViolationException::class) {
+            validate(test) {
                 validate(ExistsTest::id).isInRepository(repository)
             }
         }
@@ -50,9 +51,9 @@ class ExistsInRepositoryTest {
     Should be valid if null
      */
     @Test
-    fun `exists in repo null value`(){
+    fun `exists in repo null value`() {
         val test = ExistsTest(null)
-        validate(test){
+        validate(test) {
             validate(ExistsTest::id).isInRepository(repository)
         }
     }

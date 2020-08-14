@@ -48,7 +48,7 @@ object Authorization {
             return AuthorizationError.InvalidPrincipal().left()
         }.getOrElse { return AuthorizationError.InvalidPrincipal().left() }
 
-        val claimRoles = when(debug || testing) {
+        val claimRoles = when (debug || testing) {
             //Have to do this because our JWT library doesn't support
             //objects within a claim
             true -> principal.payload.claims["roles"]?.asList(String::class.java)

@@ -18,7 +18,8 @@ object StationService : IStationService {
     override fun getStationById(id: Int): Either<ServiceError, Station> = StationRepository.getStationById(id)
 
     @KtorExperimentalLocationsAPI
-    override fun getStations(stationGetForm: StationGetForm): Either<ServiceError, List<Station>> = StationRepository.getStations(stationGetForm)
+    override fun getStations(stationGetForm: StationGetForm): Either<ServiceError, List<Station>> =
+        StationRepository.getStations(stationGetForm)
 
     @KtorExperimentalAPI
     override fun saveStation(stationPostForm: StationPostForm): Either<ServiceError, Station> = transaction {

@@ -42,7 +42,7 @@ class EventPostFormTest {
     }
 
     @AfterAll
-    fun finish(){
+    fun finish() {
         unmockkAll()
     }
 

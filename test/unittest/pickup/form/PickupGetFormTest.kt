@@ -21,7 +21,7 @@ class PickupGetFormTest {
         PickupGetForm(endDateTime = LocalDateTime.now()),
         PickupGetForm(LocalDateTime.now(), LocalDateTime.now().plusHours(1)),
         PickupGetForm(LocalDateTime.now(), LocalDateTime.now().plusHours(1), 1, 1)
-        )
+    )
 
     @ParameterizedTest
     @MethodSource("generateValidForms")

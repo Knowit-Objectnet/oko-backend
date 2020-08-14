@@ -2,7 +2,6 @@ package shared.validation
 
 import io.mockk.every
 import io.mockk.mockk
-import ombruk.backend.shared.database.IRepository
 import ombruk.backend.shared.database.IRepositoryUniqueName
 import ombruk.backend.shared.utils.validation.isUniqueInRepository
 import org.junit.jupiter.api.Test
@@ -13,15 +12,16 @@ import kotlin.test.assertFailsWith
 class UniqueInRepositoryTest {
 
     private val repository = mockk<IRepositoryUniqueName>()
+
     data class UniqueTest(val name: String?)
 
     /*
     if null, it won't be inserted. Thus, it should be valid
      */
     @Test
-    fun `unique null is valid`(){
+    fun `unique null is valid`() {
         val test = UniqueTest(null)
-        validate(test){
+        validate(test) {
             validate(UniqueTest::name).isUniqueInRepository(repository)
         }
     }
@@ -30,11 +30,11 @@ class UniqueInRepositoryTest {
     Should not throw exception if it is unique.
      */
     @Test
-    fun `unique in repository`(){
+    fun `unique in repository`() {
         val test = UniqueTest("test")
 
         every { repository.exists("test") } returns false
-        validate(test){
+        validate(test) {
             validate(UniqueTest::name).isUniqueInRepository(repository)
         }
     }
@@ -43,12 +43,12 @@ class UniqueInRepositoryTest {
     Should throw exception if not unique
      */
     @Test
-    fun `not unique in repository`(){
+    fun `not unique in repository`() {
         val test = UniqueTest("test")
 
         every { repository.exists("test") } returns true
-        assertFailsWith(ConstraintViolationException::class){
-            validate(test){
+        assertFailsWith(ConstraintViolationException::class) {
+            validate(test) {
                 validate(UniqueTest::name).isUniqueInRepository(repository)
             }
         }

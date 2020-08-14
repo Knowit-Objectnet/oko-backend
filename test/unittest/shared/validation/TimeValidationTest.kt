@@ -66,7 +66,7 @@ class TimeValidationTest {
     @Test
     fun `end time time is lesser than start time`() {
         val timeTest = TimeTest(LocalTime.parse("08:00:00Z", DateTimeFormatter.ISO_TIME))
-        assertFailsWith(exceptionClass = ConstraintViolationException::class){
+        assertFailsWith(exceptionClass = ConstraintViolationException::class) {
             validate(timeTest) {
                 validate(TimeTest::localTime).isGreaterThanOpeningTime(
                     LocalTime.parse("20:00:00Z", DateTimeFormatter.ISO_TIME)

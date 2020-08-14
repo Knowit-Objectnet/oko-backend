@@ -39,7 +39,7 @@ class StationPostFormTest {
     }
 
     @AfterAll
-    fun finish(){
+    fun finish() {
         unmockkAll()
     }
 
@@ -63,7 +63,7 @@ class StationPostFormTest {
         StationPostForm(""),
         StationPostForm("notUnique"),
         StationPostForm("", mapOf(DayOfWeek.MONDAY to emptyList()))
-        )
+    )
 
     @ParameterizedTest
     @MethodSource("generateInvalidForms")

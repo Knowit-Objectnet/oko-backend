@@ -38,7 +38,7 @@ class PartnerPostFormTest {
     }
 
     @AfterAll
-    fun finish(){
+    fun finish() {
         unmockkAll()
     }
 
@@ -49,7 +49,7 @@ class PartnerPostFormTest {
         PartnerPostForm("unique", phone = "12345678"),
         PartnerPostForm("unique", email = "test@gmail.com"),
         PartnerPostForm("unique", "desc", "12345678", "test@gmail.com")
-        )
+    )
 
     @ParameterizedTest
     @MethodSource("generateValidForms")
@@ -68,7 +68,7 @@ class PartnerPostFormTest {
         PartnerPostForm("unique", phone = "123456789"),
         PartnerPostForm("unique", email = "test£gmail.com"),
         PartnerPostForm("unique", "", "12345678", "test@gmail.com")
-        )
+    )
 
     @ParameterizedTest
     @MethodSource("generateInvalidForms")

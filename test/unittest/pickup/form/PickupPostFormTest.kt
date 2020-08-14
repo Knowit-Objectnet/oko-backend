@@ -39,7 +39,7 @@ class PickupPostFormTest {
     }
 
     @AfterAll
-    fun finish(){
+    fun finish() {
         unmockkAll()
     }
 
@@ -48,6 +48,7 @@ class PickupPostFormTest {
         PickupPostForm(LocalDateTime.now(), LocalDateTime.now().plusHours(1), "desc", 1),
         PickupPostForm(LocalDateTime.now(), LocalDateTime.now().plusHours(1), stationId = 1)
     )
+
     @ParameterizedTest
     @MethodSource("generateValidForms")
     fun `validate valid form`(form: PickupPostForm) {
@@ -62,7 +63,7 @@ class PickupPostFormTest {
     @Suppress("unused")
     fun generateInvalidForms() = listOf(
         PickupPostForm(LocalDateTime.now(), LocalDateTime.now().minusHours(1), "desc", 1),
-        PickupPostForm(LocalDateTime.now(), LocalDateTime.now().plusHours(1), "", 1) ,
+        PickupPostForm(LocalDateTime.now(), LocalDateTime.now().plusHours(1), "", 1),
         PickupPostForm(LocalDateTime.now(), LocalDateTime.now().plusHours(1), "desc", 0),
         PickupPostForm(LocalDateTime.now(), LocalDateTime.now().plusHours(1), "desc", 2)
     )

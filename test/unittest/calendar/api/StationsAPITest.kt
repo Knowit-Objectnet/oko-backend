@@ -11,21 +11,14 @@ import io.mockk.mockkObject
 import io.mockk.unmockkAll
 import kotlinx.serialization.builtins.list
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.parse
 import ombruk.backend.calendar.database.StationRepository
-import ombruk.backend.calendar.form.event.EventPostForm
-import ombruk.backend.calendar.form.station.StationDeleteForm
 import ombruk.backend.calendar.form.station.StationGetForm
 import ombruk.backend.calendar.form.station.StationPostForm
 import ombruk.backend.calendar.form.station.StationUpdateForm
-import ombruk.backend.calendar.model.Event
 import ombruk.backend.calendar.model.Station
-import ombruk.backend.calendar.service.EventService
 import ombruk.backend.calendar.service.StationService
-import ombruk.backend.partner.model.Partner
 import ombruk.backend.shared.api.Authorization
 import ombruk.backend.shared.api.JwtMockConfig
-import ombruk.backend.shared.database.initDB
 import ombruk.backend.shared.error.RepositoryError
 import ombruk.backend.shared.error.ServiceError
 import ombruk.backend.shared.error.ValidationError
@@ -36,7 +29,6 @@ import testutils.testGet
 import testutils.testPatch
 import testutils.testPost
 import java.time.DayOfWeek
-import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import kotlin.test.assertEquals
@@ -59,7 +51,7 @@ class StationsAPITest {
     }
 
     @AfterAll
-    fun finish(){
+    fun finish() {
         unmockkAll()
     }
 
@@ -421,7 +413,7 @@ class StationsAPITest {
         Check for 200 when patch is valid
          */
         @Test
-        fun `patch station 200`(){
+        fun `patch station 200`() {
             val form = StationUpdateForm(1, "Test1")
             val initial = Station(1, "Test")
             val expected = Station(1, "Test1")
@@ -429,7 +421,7 @@ class StationsAPITest {
             every { StationService.getStationById(1) } returns initial.right()
             every { StationService.updateStation(form) } returns expected.right()
 
-            testPatch("/stations/", json.stringify(StationUpdateForm.serializer(), form)){
+            testPatch("/stations/", json.stringify(StationUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(json.stringify(Station.serializer(), expected), response.content)
             }
@@ -439,9 +431,9 @@ class StationsAPITest {
         Check for 401 when no bearer is present
          */
         @Test
-        fun `patch station no bearer 401`(){
+        fun `patch station no bearer 401`() {
             val form = StationUpdateForm(1, "Test")
-            testPatch("/stations/", json.stringify(StationUpdateForm.serializer(), form), null){
+            testPatch("/stations/", json.stringify(StationUpdateForm.serializer(), form), null) {
                 assertEquals(HttpStatusCode.Unauthorized, response.status())
             }
         }
@@ -450,9 +442,13 @@ class StationsAPITest {
         Check for 403 when partner tries to update station
          */
         @Test
-        fun `patch station as partner 403`(){
+        fun `patch station as partner 403`() {
             val form = StationUpdateForm(1, "Test")
-            testPatch("/stations/", json.stringify(StationUpdateForm.serializer(), form), JwtMockConfig.partnerBearer2){
+            testPatch(
+                "/stations/",
+                json.stringify(StationUpdateForm.serializer(), form),
+                JwtMockConfig.partnerBearer2
+            ) {
                 assertEquals(HttpStatusCode.Forbidden, response.status())
             }
         }
@@ -461,9 +457,13 @@ class StationsAPITest {
         Check for 403 when station worker tries to update station
          */
         @Test
-        fun `patch station as station worker 403`(){
+        fun `patch station as station worker 403`() {
             val form = StationUpdateForm(1, "Test")
-            testPatch("/stations/", json.stringify(StationUpdateForm.serializer(), form), JwtMockConfig.reuseStationBearer){
+            testPatch(
+                "/stations/",
+                json.stringify(StationUpdateForm.serializer(), form),
+                JwtMockConfig.reuseStationBearer
+            ) {
                 assertEquals(HttpStatusCode.Forbidden, response.status())
             }
         }
@@ -472,11 +472,11 @@ class StationsAPITest {
         Check for 500 when we encounter a serious error
          */
         @Test
-        fun `patch station 500`(){
+        fun `patch station 500`() {
             val form = StationUpdateForm(1, "Test")
             every { StationService.updateStation(form) } returns ServiceError("test").left()
 
-            testPatch("/stations/", json.stringify(StationUpdateForm.serializer(), form)){
+            testPatch("/stations/", json.stringify(StationUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.InternalServerError, response.status())
             }
         }
@@ -485,11 +485,11 @@ class StationsAPITest {
         Check for 404 when station does not exist
          */
         @Test
-        fun `patch station 404`(){
+        fun `patch station 404`() {
             val form = StationUpdateForm(1, "Test")
-            every {StationService.updateStation(form)} returns RepositoryError.NoRowsFound("1").left()
+            every { StationService.updateStation(form) } returns RepositoryError.NoRowsFound("1").left()
 
-            testPatch("/stations/", json.stringify(StationUpdateForm.serializer(), form)){
+            testPatch("/stations/", json.stringify(StationUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.NotFound, response.status())
             }
         }
@@ -498,10 +498,10 @@ class StationsAPITest {
         Stations that cannot be deserialized should return a 400
          */
         @Test
-        fun `patch station invalid json 400`(){
+        fun `patch station invalid json 400`() {
             val testJson = """ {"id": "NaN", "name": "tester"} """
 
-            testPatch("/stations/", testJson){
+            testPatch("/stations/", testJson) {
                 assertEquals(HttpStatusCode.BadRequest, response.status())
             }
         }
@@ -509,10 +509,10 @@ class StationsAPITest {
         /*
         Check for 422 when form is invalid
          */
-        fun `patch station invalid state`(){
+        fun `patch station invalid state`() {
             val form = StationUpdateForm(0, "Test")
 
-            testPatch("/stations/2", json.stringify(StationUpdateForm.serializer(), form)){
+            testPatch("/stations/2", json.stringify(StationUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
             }
         }
@@ -531,7 +531,7 @@ class StationsAPITest {
             val expected = Station(1, "Test")
             every { StationService.deleteStationById(1) } returns expected.right()
 
-            testDelete("/stations/1" ){
+            testDelete("/stations/1") {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(json.stringify(Station.serializer(), expected), response.content)
             }
@@ -544,7 +544,7 @@ class StationsAPITest {
         fun `delete station 404`() {
             every { StationService.deleteStationById(1) } returns RepositoryError.NoRowsFound("1").left()
 
-            testDelete("/stations/1"){
+            testDelete("/stations/1") {
                 assertEquals(HttpStatusCode.NotFound, response.status())
                 assertEquals("No rows found with provided ID, 1", response.content)
             }
@@ -555,7 +555,7 @@ class StationsAPITest {
          */
         @Test
         fun `delete station 422`() {
-            testDelete("/stations/0"){
+            testDelete("/stations/0") {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
                 assertEquals("id: Must be greater than 0", response.content)
             }
@@ -565,8 +565,8 @@ class StationsAPITest {
         Path parameter value that cannot be parsed to int should return 400
          */
         @Test
-        fun `delete station bad path`(){
-            testDelete("/stations/asdasd"){
+        fun `delete station bad path`() {
+            testDelete("/stations/asdasd") {
                 assertEquals(HttpStatusCode.BadRequest, response.status())
             }
         }
@@ -575,10 +575,10 @@ class StationsAPITest {
         Check for 500 when we encounter a serious error
          */
         @Test
-        fun `delete station 500`(){
+        fun `delete station 500`() {
             every { StationService.deleteStationById(1) } returns ServiceError("test").left()
 
-            testDelete("/stations/1"){
+            testDelete("/stations/1") {
                 assertEquals(HttpStatusCode.InternalServerError, response.status())
                 assertEquals("test", response.content)
             }
@@ -588,8 +588,8 @@ class StationsAPITest {
         Partners should not be allowed to delete a station
          */
         @Test
-        fun `delete station 403`(){
-            testDelete("stations/1", JwtMockConfig.partnerBearer1){
+        fun `delete station 403`() {
+            testDelete("stations/1", JwtMockConfig.partnerBearer1) {
                 assertEquals(HttpStatusCode.Forbidden, response.status())
             }
         }
@@ -598,8 +598,8 @@ class StationsAPITest {
         Station workers should not be allowed to delete a station
          */
         @Test
-        fun `delete station station worker 403`(){
-            testDelete("/stations/1", JwtMockConfig.reuseStationBearer){
+        fun `delete station station worker 403`() {
+            testDelete("/stations/1", JwtMockConfig.reuseStationBearer) {
                 assertEquals(HttpStatusCode.Forbidden, response.status())
             }
         }
@@ -608,8 +608,8 @@ class StationsAPITest {
         Cannot delete station without being authenticated
          */
         @Test
-        fun `delete station without bearer 401`(){
-            testDelete("/stations/1", null){
+        fun `delete station without bearer 401`() {
+            testDelete("/stations/1", null) {
                 assertEquals(HttpStatusCode.Unauthorized, response.status())
             }
         }

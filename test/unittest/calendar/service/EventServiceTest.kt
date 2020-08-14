@@ -40,7 +40,7 @@ class EventServiceTest {
     }
 
     @AfterAll
-    fun finish(){
+    fun finish() {
         unmockkAll()
     }
 

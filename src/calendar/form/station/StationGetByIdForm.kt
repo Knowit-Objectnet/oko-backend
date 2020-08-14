@@ -9,7 +9,7 @@ import org.valiktor.validate
 
 @KtorExperimentalLocationsAPI
 @Location("/{id}")
-data class  StationGetByIdForm(val id: Int) : IForm<StationGetByIdForm> {
+data class StationGetByIdForm(val id: Int) : IForm<StationGetByIdForm> {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
             validate(StationGetByIdForm::id).isGreaterThan(0)

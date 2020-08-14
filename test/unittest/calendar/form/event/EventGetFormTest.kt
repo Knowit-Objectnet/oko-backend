@@ -22,7 +22,13 @@ class EventGetFormTest {
         EventGetForm(fromDate = LocalDateTime.now()),
         EventGetForm(toDate = LocalDateTime.now()),
         EventGetForm(fromDate = LocalDateTime.now(), toDate = LocalDateTime.now().plusDays(1)),
-        EventGetForm(stationId = 1, partnerId = 1, recurrenceRuleId = 1, fromDate = LocalDateTime.now(), toDate = LocalDateTime.now().plusDays(1))
+        EventGetForm(
+            stationId = 1,
+            partnerId = 1,
+            recurrenceRuleId = 1,
+            fromDate = LocalDateTime.now(),
+            toDate = LocalDateTime.now().plusDays(1)
+        )
 
     )
 
