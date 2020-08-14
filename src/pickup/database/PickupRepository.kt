@@ -118,6 +118,16 @@ object PickupRepository : IPickupRepository, IRepository {
             { RepositoryError.DeleteError("Failed to delete pickup with ID $id").left() }
         )
 
+    fun deleteAllPickups() = runCatching {
+        transaction {
+            Pickups.deleteAll()
+        }
+    }
+        .onFailure { logger.error(it.message) }
+        .fold(
+            { Unit.right() },
+            { RepositoryError.DeleteError("Failed to delete all pickups").left() }
+        )
 
     override fun exists(id: Int) = transaction {
         Pickups.select { Pickups.id eq id }.count() >= 1
