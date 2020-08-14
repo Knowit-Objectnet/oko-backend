@@ -4,9 +4,11 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.DefaultJsonConfiguration
 import kotlinx.serialization.builtins.list
 import kotlinx.serialization.json.Json
+import ombruk.backend.calendar.database.StationRepository
 import ombruk.backend.calendar.form.station.StationPostForm
 import ombruk.backend.calendar.model.Station
 import ombruk.backend.calendar.service.StationService
+import ombruk.backend.partner.database.PartnerRepository
 import ombruk.backend.partner.form.PartnerPostForm
 import ombruk.backend.partner.model.Partner
 import ombruk.backend.partner.service.PartnerService
@@ -49,10 +51,16 @@ class PickupTest {
         PickupRepository.deleteAllPickups()
     }
 
+    @AfterAll
+    fun finish(){
+        PartnerRepository.deleteAllPartners()
+        StationRepository.deleteAllStations()
+    }
+
     private fun createTestPartners() = (0..9).map {
         val p = PartnerService.savePartner(
             PartnerPostForm(
-                "TestPartner$it",
+                "PickupTest Partner$it",
                 "Description",
                 "1234567$it",
                 "test$it@gmail.com"
@@ -63,7 +71,7 @@ class PickupTest {
     }
 
     private fun createTestStations() = (0..5).map {
-        val s = StationService.saveStation(StationPostForm("Station$it"))
+        val s = StationService.saveStation(StationPostForm("PickupTest Station$it"))
         require(s is Either.Right)
         return@map s.b
     }

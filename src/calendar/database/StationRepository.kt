@@ -96,6 +96,12 @@ object StationRepository : IStationRepository {
         .onFailure { logger.error("Failed to delete station from db") }
         .fold({ id.right() }, { RepositoryError.DeleteError("Failed to delete station with ID $id").left() })
 
+    fun deleteAllStations() = runCatching {
+        transaction { Stations.deleteAll() }
+    }
+        .onFailure { logger.error("Failed to delete station from db") }
+        .fold({ Unit.right() }, { RepositoryError.DeleteError("Failed to delete stations").left() })
+
     override fun exists(id: Int) = transaction { Stations.select { Stations.id eq id }.count() >= 1 }
 
     override fun exists(name: String) = transaction { Stations.select{Stations.name eq name}.count() >= 1 }
