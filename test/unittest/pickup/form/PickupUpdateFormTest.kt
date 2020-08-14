@@ -6,6 +6,7 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkObject
+import io.mockk.unmockkAll
 import ombruk.backend.calendar.model.Station
 import ombruk.backend.partner.database.PartnerRepository
 import ombruk.backend.partner.model.Partner
@@ -13,6 +14,7 @@ import ombruk.backend.pickup.database.PickupRepository
 import ombruk.backend.pickup.form.pickup.PickupUpdateForm
 import ombruk.backend.pickup.model.Pickup
 import ombruk.backend.shared.database.initDB
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
@@ -49,6 +51,11 @@ class PickupUpdateFormTest {
     @AfterEach
     fun teardown() {
         clearAllMocks()
+    }
+
+    @AfterAll
+    fun finish(){
+        unmockkAll()
     }
 
     @Suppress("unused")

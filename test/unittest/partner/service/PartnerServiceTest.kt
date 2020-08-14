@@ -3,10 +3,12 @@ package partner.service
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkObject
+import io.mockk.unmockkAll
 import ombruk.backend.partner.database.PartnerRepository
 import ombruk.backend.partner.form.PartnerDeleteForm
 import ombruk.backend.partner.form.PartnerGetForm
@@ -18,10 +20,7 @@ import ombruk.backend.shared.api.KeycloakGroupIntegration
 import ombruk.backend.shared.database.initDB
 import ombruk.backend.shared.error.KeycloakIntegrationError
 import ombruk.backend.shared.error.RepositoryError
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
 import kotlin.test.assertEquals
 
@@ -38,6 +37,16 @@ class PartnerServiceTest {
     fun setup(){
         mockkObject(PartnerRepository)
         mockkObject(KeycloakGroupIntegration)
+    }
+
+    @AfterEach
+    fun teardown() {
+        clearAllMocks()
+    }
+
+    @AfterAll
+    fun finish(){
+        unmockkAll()
     }
 
     @Nested

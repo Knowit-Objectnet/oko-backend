@@ -8,6 +8,7 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkObject
+import io.mockk.unmockkAll
 import kotlinx.serialization.builtins.list
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.parse
@@ -53,8 +54,13 @@ class StationsAPITest {
     }
 
     @AfterEach
-    fun tearDown() {
+    fun teardown() {
         clearAllMocks()
+    }
+
+    @AfterAll
+    fun finish(){
+        unmockkAll()
     }
 
     @Nested

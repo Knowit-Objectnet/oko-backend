@@ -5,11 +5,13 @@ import arrow.core.right
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockkObject
+import io.mockk.unmockkAll
 import ombruk.backend.calendar.database.EventRepository
 import ombruk.backend.calendar.form.event.EventUpdateForm
 import ombruk.backend.calendar.model.Event
 import ombruk.backend.calendar.model.Station
 import ombruk.backend.partner.model.Partner
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
@@ -33,6 +35,11 @@ class EventUpdateFormTest {
     @AfterEach
     fun teardown() {
         clearAllMocks()
+    }
+
+    @AfterAll
+    fun finish(){
+        unmockkAll()
     }
 
     @Suppress("unused")

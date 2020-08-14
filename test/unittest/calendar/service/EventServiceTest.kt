@@ -2,12 +2,9 @@ package calendar.service
 
 import arrow.core.Either
 import arrow.core.right
-import io.mockk.clearAllMocks
-import io.mockk.every
+import io.mockk.*
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.mockkObject
-import io.mockk.verify
 import ombruk.backend.calendar.database.EventRepository
 import ombruk.backend.calendar.database.RecurrenceRules
 import ombruk.backend.calendar.form.event.EventDeleteForm
@@ -38,8 +35,13 @@ class EventServiceTest {
     }
 
     @AfterEach
-    fun tearDown() {
+    fun teardown() {
         clearAllMocks()
+    }
+
+    @AfterAll
+    fun finish(){
+        unmockkAll()
     }
 
     @Nested

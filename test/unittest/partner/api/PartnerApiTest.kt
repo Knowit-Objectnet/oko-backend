@@ -8,6 +8,7 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkObject
+import io.mockk.unmockkAll
 import kotlinx.serialization.builtins.list
 import kotlinx.serialization.json.Json
 import ombruk.backend.partner.database.PartnerRepository
@@ -39,8 +40,13 @@ class PartnerApiTest {
     }
 
     @AfterEach
-    fun tearDown() {
+    fun teardown() {
         clearAllMocks()
+    }
+
+    @AfterAll
+    fun finish(){
+        unmockkAll()
     }
 
     @Nested

@@ -1,3 +1,4 @@
+
 import arrow.core.Either
 import arrow.core.extensions.list.functorFilter.filter
 import io.ktor.http.HttpStatusCode
@@ -81,7 +82,7 @@ class EventTest {
             val e = EventService.saveEvent(
                 EventPostForm(
                     LocalDateTime.parse("2020-07-06T15:48:06").plusDays(it),
-                    LocalDateTime.parse("2020-07-06T16:48:06").plusDays(it).plusHours(1),
+                    LocalDateTime.parse("2020-07-06T16:48:06").plusDays(it),
                     stations[stationCounter].id,
                     partners[partnerCounter].id
                 )
@@ -185,8 +186,8 @@ class EventTest {
         fun `create single event`() {
             val startDateTime = LocalDateTime.parse("2020-07-06T15:00:00")
             val endDateTime = LocalDateTime.parse("2020-07-06T16:00:00")
-            val stationId = Random.nextInt(1, 5)
-            val partnerId = Random.nextInt(1, 9)
+            val stationId = stations[Random.nextInt(1, 5)].id
+            val partnerId = partners[Random.nextInt(1, 9)].id
 
             val body =
                 """{
@@ -213,8 +214,8 @@ class EventTest {
         fun `create recurring event`() {
             val startDateTime = LocalDateTime.parse("2020-07-06T15:00:00")
             val endDateTime = LocalDateTime.parse("2020-07-06T16:00:00")
-            val stationId = Random.nextInt(1, 5)
-            val partnerId = Random.nextInt(1, 9)
+            val stationId = stations[Random.nextInt(1, 5)].id
+            val partnerId = partners[Random.nextInt(1, 9)].id
             val rRule = RecurrenceRule(count = 5)
 
             val body =
@@ -228,8 +229,7 @@ class EventTest {
 
             testPost("/events", body) {
                 val responseEvent = json.parse(Event.serializer(), response.content!!)
-                val insertedEvents =
-                    EventRepository.getEvents(EventGetForm(recurrenceRuleId = responseEvent.recurrenceRule!!.id))
+                val insertedEvents = EventRepository.getEvents(EventGetForm(recurrenceRuleId = responseEvent.recurrenceRule!!.id))
 
                 assertEquals(HttpStatusCode.OK, response.status())
                 require(insertedEvents is Either.Right)
@@ -336,7 +336,7 @@ class EventTest {
             testDelete("/events?fromDate=2020-08-06T15:48:06&toDate=2020-09-06T15:48:06") {
 
                 val respondedEvents = json.parse(Event.serializer().list, response.content!!)
-                val deletedEvents = events.filter { it.startDateTime >= LocalDateTime.parse("2020-09-06T15:48:06") }
+                val deletedEvents = events.filter { it.startDateTime >= LocalDateTime.parse("2020-08-06T15:48:06") }
                     .filter { it.startDateTime <= LocalDateTime.parse("2020-09-06T15:48:06") }
 
                 assertEquals(HttpStatusCode.OK, response.status())

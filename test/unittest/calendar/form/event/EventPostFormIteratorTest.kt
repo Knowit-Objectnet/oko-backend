@@ -1,7 +1,5 @@
-package calendar
+package calendar.form.event
 
-import calendar.utils.everyWeekDay
-import calendar.utils.everyday
 import ombruk.backend.calendar.form.event.EventPostForm
 import ombruk.backend.calendar.model.RecurrenceRule
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -324,5 +322,24 @@ class EventPostFormIteratorTest {
         }
         assertEquals(1, counter)
     }
+
+    private fun everyWeekDay() = listOf(
+        DayOfWeek.MONDAY,
+        DayOfWeek.TUESDAY,
+        DayOfWeek.WEDNESDAY,
+        DayOfWeek.THURSDAY,
+        DayOfWeek.FRIDAY
+    )
+
+    private fun everyday() = listOf(
+        DayOfWeek.MONDAY,
+        DayOfWeek.TUESDAY,
+        DayOfWeek.WEDNESDAY,
+        DayOfWeek.THURSDAY,
+        DayOfWeek.FRIDAY,
+        DayOfWeek.SATURDAY,
+        DayOfWeek.SUNDAY
+    )
+
 
 }
