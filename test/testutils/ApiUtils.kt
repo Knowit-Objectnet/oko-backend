@@ -22,36 +22,33 @@ fun testPost(
     body: String,
     bearer: String? = JwtMockConfig.regEmployeeBearer,
     func: TestApplicationCall.() -> Unit
-) =
-    withTestApplication({ module(true) }) {
-        handleRequest(HttpMethod.Post, path) {
-            addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-            bearer?.let { addHeader(HttpHeaders.Authorization, "Bearer $it") }
-            setBody(body)
-        }.apply(func)
-    }
+) = withTestApplication({ module(true) }) {
+    handleRequest(HttpMethod.Post, path) {
+        addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+        bearer?.let { addHeader(HttpHeaders.Authorization, "Bearer $it") }
+        setBody(body)
+    }.apply(func)
+}
 
 fun testPatch(
     path: String,
     body: String,
     bearer: String? = JwtMockConfig.regEmployeeBearer,
     func: TestApplicationCall.() -> Unit
-) =
-    withTestApplication({ module(true) }) {
-        handleRequest(HttpMethod.Patch, path) {
-            addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-            bearer?.let { addHeader(HttpHeaders.Authorization, "Bearer $it") }
-            setBody(body)
-        }.apply(func)
-    }
+) = withTestApplication({ module(true) }) {
+    handleRequest(HttpMethod.Patch, path) {
+        addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+        bearer?.let { addHeader(HttpHeaders.Authorization, "Bearer $it") }
+        setBody(body)
+    }.apply(func)
+}
 
 fun testDelete(
     path: String,
     bearer: String? = JwtMockConfig.regEmployeeBearer,
     func: TestApplicationCall.() -> Unit
-) =
-    withTestApplication({ module(true) }) {
-        handleRequest(HttpMethod.Delete, path) {
-            bearer?.let { addHeader(HttpHeaders.Authorization, "Bearer $it") }
-        }.apply(func)
-    }
+) = withTestApplication({ module(true) }) {
+    handleRequest(HttpMethod.Delete, path) {
+        bearer?.let { addHeader(HttpHeaders.Authorization, "Bearer $it") }
+    }.apply(func)
+}

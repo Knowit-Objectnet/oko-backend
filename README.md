@@ -85,6 +85,13 @@ We have tried to follow AAA(Assemble, Act, Aanalyze), which means that the test 
 one for executing the feature you are testing, and one for checking that the results are what you expected. 
 The variables name ***expected*** and ***actual*** are use throghout our tests to make understanding other tests easier. 
 
+### Integration tests
+
+For our integration tests we use ktor test framework. We lose a bit of in-depth http testing by doing it this way. 
+The ease of use makes up for this as tests are much faster to write. Doing more in-depth integration testing is something
+which needs a closer look in the future. It is important to set the environment variable ***OKO_DEBUG*** to true before running
+integration tests. We are not testing against a real Keycloak instance. Debug mode makes sure this is the case. 
+
 ## Structure
 Each endpoint has been placed in its own folder within __src__, with the exception being __station__, which is placed
 within __calendar_. This structure was created due to moving from microservices to a monolith; In case we want to move back

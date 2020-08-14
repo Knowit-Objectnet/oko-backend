@@ -58,21 +58,38 @@ dependencies {
 }
 
 kotlin.sourceSets["main"].kotlin.srcDirs("src")
-kotlin.sourceSets["test"].kotlin.srcDirs("test")
+kotlin.sourceSets["test"].kotlin.srcDirs("test/unittest", "test/testutils")
 
 sourceSets["main"].resources.srcDirs("resources")
 sourceSets["test"].resources.srcDirs("testresources")
 
+
+sourceSets {
+    create("integrationTest") {
+        withConvention(org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet::class) {
+            kotlin.srcDirs("test/integrationtest", "test/testutils")
+            resources.srcDir("testresources")
+            compileClasspath += sourceSets["main"].output + configurations["testRuntimeClasspath"]
+            runtimeClasspath += output + compileClasspath + sourceSets["test"].runtimeClasspath
+        }
+    }
+}
+
 tasks.withType<Jar> {
     manifest {
-        attributes(
-            mapOf(
-                "Main-Class" to application.mainClassName
-            )
-        )
+        attributes(mapOf("Main-Class" to application.mainClassName))
     }
 }
 
 tasks.test {
+    useJUnitPlatform()
+}
+
+task<Test>("integrationTest") {
+    description = "Runs the integration tests"
+    group = "verification"
+    testClassesDirs = sourceSets["integrationTest"].output.classesDirs
+    classpath = sourceSets["integrationTest"].runtimeClasspath
+    mustRunAfter(tasks["test"])
     useJUnitPlatform()
 }

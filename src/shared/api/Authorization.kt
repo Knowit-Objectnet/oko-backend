@@ -47,18 +47,21 @@ object Authorization {
         val principal = runCatching { call.principal<JWTPrincipal>()!! }.onFailure {
             return AuthorizationError.InvalidPrincipal().left()
         }.getOrElse { return AuthorizationError.InvalidPrincipal().left() }
-        val claimRoles = when (debug || testing) {
-            true -> {
-                principal.payload.claims["roles"]?.asList(String::class.java)
-            } //Have to do this because our JWT library doesn't support
+
+        val claimRoles = when(debug || testing) {
+            //Have to do this because our JWT library doesn't support
             //objects within a claim
+            true -> principal.payload.claims["roles"]?.asList(String::class.java)
             else -> principal.payload.claims["realm_access"]?.asMap()?.get("roles") as List<String>?
         } ?: return AuthorizationError.MissingRolesError().left()
+
         val role = allowedRoles.firstOrNull { role -> println(role); claimRoles.any { it == role.value } }
             ?: return AuthorizationError.InsufficientRoleError().left()
+
         val groupID =
             principal.payload.claims["GroupID"]?.asInt() //-1 serves as a placeholder value for stations and REG admin
                 ?: if (role != Roles.Partner) -1 else return AuthorizationError.MissingGroupIDError().left()
+
         return Pair(role, groupID).right()
     }
 
