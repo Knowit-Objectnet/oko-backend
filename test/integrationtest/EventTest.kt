@@ -1,4 +1,3 @@
-
 import arrow.core.Either
 import arrow.core.extensions.list.functorFilter.filter
 import io.ktor.http.HttpStatusCode
@@ -59,7 +58,7 @@ class EventTest {
     }
 
     @AfterAll
-    fun finish(){
+    fun finish() {
         PartnerRepository.deleteAllPartners()
         StationRepository.deleteAllStations()
     }
@@ -237,7 +236,8 @@ class EventTest {
 
             testPost("/events", body) {
                 val responseEvent = json.parse(Event.serializer(), response.content!!)
-                val insertedEvents = EventRepository.getEvents(EventGetForm(recurrenceRuleId = responseEvent.recurrenceRule!!.id))
+                val insertedEvents =
+                    EventRepository.getEvents(EventGetForm(recurrenceRuleId = responseEvent.recurrenceRule!!.id))
 
                 assertEquals(HttpStatusCode.OK, response.status())
                 require(insertedEvents is Either.Right)

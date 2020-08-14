@@ -21,7 +21,7 @@ class ReqportGetFormTest {
         ReportGetForm(fromDate = LocalDateTime.now()),
         ReportGetForm(toDate = LocalDateTime.now()),
         ReportGetForm(fromDate = LocalDateTime.now(), toDate = LocalDateTime.now().plusHours(1))
-        )
+    )
 
     @ParameterizedTest
     @MethodSource("generateValidForms")

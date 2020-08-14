@@ -30,13 +30,13 @@ import kotlin.test.assertTrue
 class PickupUpdateFormTest {
 
     val existingPickup = Pickup(
-            1,
-            LocalDateTime.now(),
-            LocalDateTime.now().plusHours(1),
-            "test",
-            Station(1, "test"),
-            Partner(1, "test")
-        )
+        1,
+        LocalDateTime.now(),
+        LocalDateTime.now().plusHours(1),
+        "test",
+        Station(1, "test"),
+        Partner(1, "test")
+    )
 
     init {
         initDB()
@@ -54,7 +54,7 @@ class PickupUpdateFormTest {
     }
 
     @AfterAll
-    fun finish(){
+    fun finish() {
         unmockkAll()
     }
 
@@ -67,7 +67,7 @@ class PickupUpdateFormTest {
         PickupUpdateForm(1, description = "test"),
         PickupUpdateForm(1, chosenPartnerId = 1),
         PickupUpdateForm(1, LocalDateTime.now(), LocalDateTime.now().plusHours(1), "test", 1)
-        )
+    )
 
     @ParameterizedTest
     @MethodSource("generateValidForms")

@@ -402,8 +402,8 @@ class OpenHoursValidationTest {
                 )
             )
         )
-        assertFailsWith(ConstraintViolationException::class){
-            validate(hours){
+        assertFailsWith(ConstraintViolationException::class) {
+            validate(hours) {
                 validate(OpenHours::hours).isValid()
             }
         }
@@ -453,8 +453,8 @@ class OpenHoursValidationTest {
                 )
             )
         )
-        assertFailsWith(ConstraintViolationException::class){
-            validate(hours){
+        assertFailsWith(ConstraintViolationException::class) {
+            validate(hours) {
                 validate(OpenHours::hours).isValid()
             }
         }

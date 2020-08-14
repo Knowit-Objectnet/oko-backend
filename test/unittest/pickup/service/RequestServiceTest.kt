@@ -80,7 +80,10 @@ class RequestServiceTest {
         }
 
         @Test
-        fun `save requests repository error`(@MockK expected: RepositoryError.InsertError, @MockK form: RequestPostForm) {
+        fun `save requests repository error`(
+            @MockK expected: RepositoryError.InsertError,
+            @MockK form: RequestPostForm
+        ) {
 
             every { RequestRepository.saveRequest(form) } returns expected.left()
 
@@ -107,7 +110,10 @@ class RequestServiceTest {
         }
 
         @Test
-        fun `delete requests repository error`(@MockK expected: RepositoryError.DeleteError, @MockK form: RequestDeleteForm) {
+        fun `delete requests repository error`(
+            @MockK expected: RepositoryError.DeleteError,
+            @MockK form: RequestDeleteForm
+        ) {
 
             every { RequestRepository.deleteRequest(form) } returns expected.left()
 

@@ -1,7 +1,6 @@
 package ombruk.backend.pickup.service
 
 import arrow.core.Either
-import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
 import ombruk.backend.calendar.form.event.EventPostForm

@@ -6,9 +6,7 @@ import arrow.core.right
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import ombruk.backend.calendar.database.Stations
 import ombruk.backend.calendar.database.toStation
-import ombruk.backend.calendar.model.Station
 import ombruk.backend.partner.database.Partners
-import ombruk.backend.partner.database.toPartner
 import ombruk.backend.partner.model.Partner
 import ombruk.backend.pickup.form.request.RequestDeleteForm
 import ombruk.backend.pickup.form.request.RequestGetForm
@@ -19,8 +17,6 @@ import ombruk.backend.shared.error.RepositoryError
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
-import java.time.LocalTime
-import java.time.format.DateTimeFormatter
 
 /*
     Requests are associated to a specific pickup. Each request is a specific partner that wants to perform the pickup.
@@ -121,7 +117,7 @@ object RequestRepository : IRequestRepository {
                 row[Pickups.endTime],
                 row[Pickups.description],
                 toStation(row),
-                row[winningPartner[Partners.id]]?.let { toPartner(row, winningPartner) }
+                row[winningPartner[Partners.id]].let { toPartner(row, winningPartner) }
             ),
             toPartner(row, requestPartner)
         )

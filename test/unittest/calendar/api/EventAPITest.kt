@@ -55,7 +55,7 @@ class EventAPITest {
     }
 
     @AfterAll
-    fun finish(){
+    fun finish() {
         unmockkAll()
     }
 

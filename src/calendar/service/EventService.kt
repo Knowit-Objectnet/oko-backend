@@ -37,7 +37,9 @@ object EventService : IEventService {
     }
 
     override fun saveEvent(eventPostForm: EventPostForm): Either<ServiceError, Event> = transaction {
-        let { eventPostForm.recurrenceRule?.let { RecurrenceRules.insertRecurrenceRule(it) } ?: Unit.right() }  // save recurrence rule, if set
+        let {
+            eventPostForm.recurrenceRule?.let { RecurrenceRules.insertRecurrenceRule(it) } ?: Unit.right()
+        }  // save recurrence rule, if set
             .flatMap { saveRecurring(eventPostForm) }
             .fold({ rollback(); it.left() }, { it.right() })
     }

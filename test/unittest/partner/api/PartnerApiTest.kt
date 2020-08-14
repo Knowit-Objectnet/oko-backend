@@ -45,7 +45,7 @@ class PartnerApiTest {
     }
 
     @AfterAll
-    fun finish(){
+    fun finish() {
         unmockkAll()
     }
 
@@ -253,7 +253,7 @@ class PartnerApiTest {
             val expected = initial.copy(name = form.name!!)
 
             every { PartnerService.updatePartner(form) } returns expected.right()
-            every {PartnerRepository.getPartners(PartnerGetForm("updated"))} returns listOf<Partner>().right()
+            every { PartnerRepository.getPartners(PartnerGetForm("updated")) } returns listOf<Partner>().right()
 
             testPatch("/partners", json.stringify(PartnerUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.OK, response.status())
@@ -293,7 +293,7 @@ class PartnerApiTest {
         fun `patch partner 500`() {
             val form = PartnerUpdateForm(1, "updated")
             every { PartnerService.updatePartner(form) } returns ServiceError("test").left()
-            every {PartnerRepository.getPartners(PartnerGetForm("updated"))} returns listOf<Partner>().right()
+            every { PartnerRepository.getPartners(PartnerGetForm("updated")) } returns listOf<Partner>().right()
 
             testPatch("/partners", json.stringify(PartnerUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.InternalServerError, response.status())

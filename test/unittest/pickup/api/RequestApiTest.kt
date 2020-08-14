@@ -49,7 +49,7 @@ class RequestApiTest {
     }
 
     @AfterAll
-    fun finish(){
+    fun finish() {
         unmockkAll()
     }
 
@@ -79,7 +79,7 @@ class RequestApiTest {
          */
         @Test
         fun `get requests 500`() {
-            every { RequestService.getRequests(RequestGetForm()) }returns ServiceError("test").left()
+            every { RequestService.getRequests(RequestGetForm()) } returns ServiceError("test").left()
 
             testGet("/requests") {
                 assertEquals(HttpStatusCode.InternalServerError, response.status())
@@ -210,7 +210,7 @@ class RequestApiTest {
          */
         @Test
         fun `delete request 200`() {
-            every { RequestService.deleteRequest(RequestDeleteForm(1, 1))} returns 1.right()
+            every { RequestService.deleteRequest(RequestDeleteForm(1, 1)) } returns 1.right()
 
             every { PartnerRepository.exists(1) } returns true
             every { PickupRepository.exists(1) } returns true
@@ -236,7 +236,7 @@ class RequestApiTest {
          */
         @Test
         fun `delete request 403`() {
-            testDelete("/requests?pickupId=1&partnerId=1",JwtMockConfig.partnerBearer2) {
+            testDelete("/requests?pickupId=1&partnerId=1", JwtMockConfig.partnerBearer2) {
                 assertEquals(HttpStatusCode.Forbidden, response.status())
             }
         }

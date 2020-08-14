@@ -6,7 +6,6 @@ import arrow.core.right
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import ombruk.backend.calendar.database.EventRepository
 import ombruk.backend.calendar.form.event.EventPostForm
 import ombruk.backend.calendar.model.Event
 import ombruk.backend.calendar.service.EventService
@@ -45,7 +44,7 @@ class PickupServiceTest {
     }
 
     @AfterAll
-    fun finish(){
+    fun finish() {
         unmockkAll()
     }
 

@@ -1,4 +1,3 @@
-
 import arrow.core.Either
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.DefaultJsonConfiguration
@@ -52,7 +51,7 @@ class PickupTest {
     }
 
     @AfterAll
-    fun finish(){
+    fun finish() {
         PartnerRepository.deleteAllPartners()
         StationRepository.deleteAllStations()
     }
@@ -327,7 +326,7 @@ class PickupTest {
     @Nested
     inner class Delete {
 
-        fun `delete pickup by id`(){
+        fun `delete pickup by id`() {
             testDelete("/pickups/92") {
                 val respondedEvents = json.parse(Pickup.serializer().list, response.content!!)
                 assertEquals(HttpStatusCode.OK, response.status())
