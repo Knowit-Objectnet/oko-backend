@@ -3,12 +3,9 @@ package pickup.service
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
-import io.mockk.clearAllMocks
-import io.mockk.every
+import io.mockk.*
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.mockkObject
-import io.mockk.verify
 import ombruk.backend.calendar.database.EventRepository
 import ombruk.backend.calendar.form.event.EventPostForm
 import ombruk.backend.calendar.model.Event
@@ -47,6 +44,10 @@ class PickupServiceTest {
         clearAllMocks()
     }
 
+    @AfterAll
+    fun finish(){
+        unmockkAll()
+    }
 
     @Nested
     inner class GetPickups {
