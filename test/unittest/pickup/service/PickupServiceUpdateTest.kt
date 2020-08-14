@@ -1,7 +1,6 @@
 package pickup.service
 
 import arrow.core.Either
-import calendar.service.EventServiceDeleteTest
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.json.Json

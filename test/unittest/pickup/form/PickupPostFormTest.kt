@@ -64,6 +64,7 @@ class PickupPostFormTest {
     @MethodSource("generateInvalidForms")
     fun `validate invalid form`(form: PickupPostForm) {
         every { StationRepository.exists(1) } returns true
+        every { StationRepository.exists(2) } returns false
 
         val result = form.validOrError()
 

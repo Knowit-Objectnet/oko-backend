@@ -91,6 +91,7 @@ class PickupUpdateFormTest {
 
         every { PickupRepository.getPickupById(existingPickup.id) } returns existingPickup.right()
         every { PartnerRepository.exists(1) } returns true
+        every { PartnerRepository.exists(2) } returns false
 
         val result = form.validOrError()
 

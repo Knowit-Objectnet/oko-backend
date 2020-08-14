@@ -78,18 +78,24 @@ object EventRepository : IEventRepository {
                 eventDeleteForm.eventId?.let { statements.add(Op.build { Events.id eq it }) }
                 eventDeleteForm.recurrenceRuleId?.let { statements.add(Op.build { Events.recurrenceRuleID eq it }) }
                 eventDeleteForm.fromDate?.let { statements.add(Op.build { Events.startDateTime.greaterEq(it) }) }
-                eventDeleteForm.toDate?.let { statements.add(Op.build { Events.endDateTime.lessEq(it) }) }
+                eventDeleteForm.toDate?.let { statements.add(Op.build { Events.startDateTime.lessEq(it) }) }
                 eventDeleteForm.partnerId?.let { statements.add(Op.build { Events.partnerID eq it }) }
                 eventDeleteForm.stationId?.let { statements.add(Op.build { Events.stationID eq it }) }
-                val statement = AndOp(statements)
 
-                // Gather a list of events to delete.
-                val eventsToDelete =
-                    (Events innerJoin Stations innerJoin Partners leftJoin RecurrenceRules).select { statement }
+                // Delete and return deleted events. Have to handle the case where no statements are sepcified
+                if (statements.isEmpty()) {
+                    val result = (Events innerJoin Stations innerJoin Partners leftJoin RecurrenceRules).selectAll()
                         .mapNotNull { toEvent(it) }
-
-                Events.deleteWhere { statement }
-                return@transaction eventsToDelete //return deleted events
+                    Events.deleteAll()
+                    return@transaction result
+                } else {
+                    val statement = AndOp(statements)
+                    val result =
+                        (Events innerJoin Stations innerJoin Partners leftJoin RecurrenceRules).select { statement }
+                            .mapNotNull { toEvent(it) }
+                    Events.deleteWhere { statement }
+                    return@transaction result
+                }
             }
         }
             .onFailure { logger.error(it.message) }
