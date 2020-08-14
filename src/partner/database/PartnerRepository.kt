@@ -43,11 +43,13 @@ object PartnerRepository : IPartnerRepository {
 
 
     override fun updatePartner(partner: PartnerUpdateForm) = runCatching {
-        Partners.update({ Partners.id eq partner.id }) { row ->
-            partner.name?.let { row[name] = it }
-            partner.description?.let { row[description] = it }
-            partner.phone?.let { row[phone] = it }
-            partner.email?.let { row[email] = it }
+        transaction {
+            Partners.update({ Partners.id eq partner.id }) { row ->
+                partner.name?.let { row[name] = it }
+                partner.description?.let { row[description] = it }
+                partner.phone?.let { row[phone] = it }
+                partner.email?.let { row[email] = it }
+            }
         }
     }
         .onFailure { logger.error("Failed to update partner to DB: ${it.message}") }
@@ -63,13 +65,24 @@ object PartnerRepository : IPartnerRepository {
 
 
     override fun deletePartner(partnerID: Int) =
-        runCatching { Partners.deleteWhere { Partners.id eq partnerID } }
+        runCatching { transaction { Partners.deleteWhere { Partners.id eq partnerID } } }
             .onFailure { logger.error("Failed to delete partner in DB: ${it.message}") }
             .fold(
                 {
                     Either.cond(it > 0,
                         { Unit },
                         { RepositoryError.NoRowsFound("$partnerID not found") })
+                },
+                { RepositoryError.DeleteError(it.message).left() })
+
+    fun deleteAllPartners() =
+        runCatching { transaction { Partners.deleteAll() } }
+            .onFailure { logger.error("Failed to delete partners in DB: ${it.message}") }
+            .fold(
+                {
+                    Either.cond(it > 0,
+                        { Unit },
+                        { RepositoryError.NoRowsFound("not found") })
                 },
                 { RepositoryError.DeleteError(it.message).left() })
 
@@ -103,7 +116,7 @@ object PartnerRepository : IPartnerRepository {
             )
 
     override fun exists(id: Int) = transaction { Partners.select { Partners.id eq id }.count() >= 1 }
-    override fun exists(name: String) = transaction { Partners.select {Partners.name eq name}.count() >= 1 }
+    override fun exists(name: String) = transaction { Partners.select { Partners.name eq name }.count() >= 1 }
 
 }
 
