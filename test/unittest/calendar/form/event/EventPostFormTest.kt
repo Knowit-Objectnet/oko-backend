@@ -9,6 +9,7 @@ import io.mockk.unmockkAll
 import ombruk.backend.calendar.database.StationRepository
 import ombruk.backend.calendar.form.event.EventPostForm
 import ombruk.backend.calendar.model.RecurrenceRule
+import ombruk.backend.calendar.model.Station
 import ombruk.backend.partner.database.PartnerRepository
 import ombruk.backend.shared.database.initDB
 import org.junit.jupiter.api.AfterAll
@@ -18,7 +19,10 @@ import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import java.time.DayOfWeek
 import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -71,6 +75,9 @@ class EventPostFormTest {
     fun `validate valid form`(form: EventPostForm) {
         every { StationRepository.exists(1) } returns true
         every { PartnerRepository.exists(1) } returns true
+        every { StationRepository.getStationById(1) } returns Either.right(Station(
+            id = 1, name = "some station", hours = openHours()
+        ))
 
         val result = form.validOrError()
 
@@ -112,10 +119,50 @@ class EventPostFormTest {
     fun `validate invalid form`(form: EventPostForm) {
         every { StationRepository.exists(1) } returns true
         every { PartnerRepository.exists(1) } returns true
+        every { StationRepository.getStationById(1) } returns Either.right(Station(
+            id = 1, name = "some station", hours = openHours()
+        ))
 
         val result = form.validOrError()
 
         assertTrue(result is Either.Left)
     }
 
+    private fun openHours() = mapOf<DayOfWeek, List<LocalTime>>(
+        Pair(
+            DayOfWeek.MONDAY,
+            listOf(
+                LocalTime.parse("09:00:00Z", DateTimeFormatter.ISO_TIME),
+                LocalTime.parse("20:00:00Z", DateTimeFormatter.ISO_TIME)
+            )
+        ),
+        Pair(
+            DayOfWeek.TUESDAY,
+            listOf(
+                LocalTime.parse("09:00:00Z", DateTimeFormatter.ISO_TIME),
+                LocalTime.parse("20:00:00Z", DateTimeFormatter.ISO_TIME)
+            )
+        ),
+        Pair(
+            DayOfWeek.WEDNESDAY,
+            listOf(
+                LocalTime.parse("10:00:00Z", DateTimeFormatter.ISO_TIME),
+                LocalTime.parse("20:00:00Z", DateTimeFormatter.ISO_TIME)
+            )
+        ),
+        Pair(
+            DayOfWeek.THURSDAY,
+            listOf(
+                LocalTime.parse("10:00:00Z", DateTimeFormatter.ISO_TIME),
+                LocalTime.parse("21:00:00Z", DateTimeFormatter.ISO_TIME)
+            )
+        ),
+        Pair(
+            DayOfWeek.FRIDAY,
+            listOf(
+                LocalTime.parse("09:00:00Z", DateTimeFormatter.ISO_TIME),
+                LocalTime.parse("20:00:00Z", DateTimeFormatter.ISO_TIME)
+            )
+        )
+    )
 }
