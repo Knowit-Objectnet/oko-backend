@@ -1,5 +1,6 @@
 package calendar.api
 
+import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import io.ktor.http.HttpStatusCode
@@ -32,7 +33,10 @@ import testutils.testDelete
 import testutils.testGet
 import testutils.testPatch
 import testutils.testPost
+import java.time.DayOfWeek
 import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import kotlin.test.assertEquals
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -192,7 +196,7 @@ class EventAPITest {
          */
         @Test
         fun `post event 200`() {
-            val s = Station(1, "test")
+            val s = Station(id = 1, name = "test", hours = openHours())
             val p = Partner(1, "test")
             val form = EventPostForm(LocalDateTime.now(), LocalDateTime.now().plusHours(1), s.id, p.id)
             val expected = Event(1, form.startDateTime, form.endDateTime, s, p)
@@ -200,6 +204,7 @@ class EventAPITest {
             every { EventService.saveEvent(form) } returns expected.right()
             every { PartnerRepository.exists(1) } returns true
             every { StationRepository.exists(1) } returns true
+            every { StationRepository.getStationById(1) } returns Either.right(s)
 
             testPost("/events", json.stringify(EventPostForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.OK, response.status())
@@ -244,9 +249,11 @@ class EventAPITest {
         fun `post event 500`() {
             val form = EventPostForm(LocalDateTime.now(), LocalDateTime.now().plusHours(1), 1, 1)
 
+            val s = Station(id = 1, name = "test", hours = openHours())
             every { EventService.saveEvent(form) } returns ServiceError("test").left()
             every { PartnerRepository.exists(1) } returns true
-            every { StationRepository.exists(1) } returns true
+            every { StationRepository.exists(s.id) } returns true
+            every { StationRepository.getStationById(1) } returns Either.right(s)
 
             testPost("/events", json.stringify(EventPostForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.InternalServerError, response.status())
@@ -261,8 +268,10 @@ class EventAPITest {
         fun `post event 422`() {
             val form = EventPostForm(LocalDateTime.now(), LocalDateTime.now().plusHours(1), 1, 1)
 
+            val s = Station(id = 1, name = "test", hours = openHours())
             every { PartnerRepository.exists(1) } returns false // Partner does not exist
-            every { StationRepository.exists(1) } returns true
+            every { StationRepository.exists(s.id) } returns true
+            every { StationRepository.getStationById(1) } returns Either.right(s)
 
             testPost("/events", json.stringify(EventPostForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
@@ -290,7 +299,7 @@ class EventAPITest {
          */
         @Test
         fun `patch event 200`() {
-            val s = Station(1, "test")
+            val s = Station(1, "test", hours = openHours())
             val p = Partner(1, "test")
             val initial = Event(1, LocalDateTime.now().plusDays(2), LocalDateTime.now().plusDays(2).plusHours(1), s, p)
             val form = EventUpdateForm(1, LocalDateTime.now(), LocalDateTime.now().plusHours(1))
@@ -298,6 +307,7 @@ class EventAPITest {
 
             every { EventService.updateEvent(form) } returns expected.right()
             every { EventRepository.getEventByID(1) } returns initial.right()
+            every { StationRepository.getStationById(s.id) } returns Either.right(s)
 
             testPatch("/events", json.stringify(EventUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.OK, response.status())
@@ -310,13 +320,14 @@ class EventAPITest {
          */
         @Test
         fun `patch event 500`() {
-            val s = Station(1, "test")
+            val s = Station(1, "test", hours = openHours())
             val p = Partner(1, "test")
             val initial = Event(1, LocalDateTime.now().plusDays(2), LocalDateTime.now().plusDays(2).plusHours(1), s, p)
             val form = EventUpdateForm(1, LocalDateTime.now(), LocalDateTime.now().plusHours(1))
 
             every { EventService.updateEvent(form) } returns ServiceError("test").left()
             every { EventRepository.getEventByID(1) } returns initial.right()
+            every { StationRepository.getStationById(s.id) } returns Either.right(s)
 
             testPatch("/events", json.stringify(EventUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.InternalServerError, response.status())
@@ -464,4 +475,42 @@ class EventAPITest {
             }
         }
     }
+
+    private fun openHours() = mapOf<DayOfWeek, List<LocalTime>>(
+        Pair(
+            DayOfWeek.MONDAY,
+            listOf(
+                LocalTime.parse("00:00:00Z", DateTimeFormatter.ISO_TIME),
+                LocalTime.parse("23:59:59Z", DateTimeFormatter.ISO_TIME)
+            )
+        ),
+        Pair(
+            DayOfWeek.TUESDAY,
+            listOf(
+                LocalTime.parse("00:00:00Z", DateTimeFormatter.ISO_TIME),
+                LocalTime.parse("23:59:59Z", DateTimeFormatter.ISO_TIME)
+            )
+        ),
+        Pair(
+            DayOfWeek.WEDNESDAY,
+            listOf(
+                LocalTime.parse("00:00:00Z", DateTimeFormatter.ISO_TIME),
+                LocalTime.parse("23:59:59Z", DateTimeFormatter.ISO_TIME)
+            )
+        ),
+        Pair(
+            DayOfWeek.THURSDAY,
+            listOf(
+                LocalTime.parse("00:00:00Z", DateTimeFormatter.ISO_TIME),
+                LocalTime.parse("23:59:59Z", DateTimeFormatter.ISO_TIME)
+            )
+        ),
+        Pair(
+            DayOfWeek.FRIDAY,
+            listOf(
+                LocalTime.parse("00:00:00Z", DateTimeFormatter.ISO_TIME),
+                LocalTime.parse("23:59:59Z", DateTimeFormatter.ISO_TIME)
+            )
+        )
+    )
 }

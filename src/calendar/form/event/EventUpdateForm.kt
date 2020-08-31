@@ -9,6 +9,7 @@ import ombruk.backend.shared.model.serializer.LocalDateTimeSerializer
 import ombruk.backend.shared.utils.validation.isGreaterThanStartDateTime
 import ombruk.backend.shared.utils.validation.isLessThanEndDateTime
 import ombruk.backend.shared.utils.validation.isSameDateAs
+import ombruk.backend.shared.utils.validation.isWithinOpeningHoursOf
 import ombruk.backend.shared.utils.validation.runCatchingValidation
 import org.valiktor.functions.isGreaterThan
 import org.valiktor.functions.isNotNull
@@ -33,6 +34,9 @@ data class EventUpdateForm(
                 validate(EventUpdateForm::startDateTime).isLessThanEndDateTime(newEndDateTime)
                 validate(EventUpdateForm::endDateTime).isSameDateAs(startDateTime)
                 validate(EventUpdateForm::endDateTime).isGreaterThanStartDateTime(newStartDateTime)
+
+                validate(EventUpdateForm::startDateTime).isWithinOpeningHoursOf(event.station.id)
+                validate(EventUpdateForm::endDateTime).isWithinOpeningHoursOf(event.station.id)
             }
         }
     }
