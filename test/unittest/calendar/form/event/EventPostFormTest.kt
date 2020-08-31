@@ -1,6 +1,7 @@
 package calendar.form.event
 
 import arrow.core.Either
+import arrow.core.right
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
@@ -29,6 +30,8 @@ import kotlin.test.assertTrue
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockKExtension::class)
 class EventPostFormTest {
+
+    private val existingStation = Station(id = 1, name = "some station", hours = openHours())
 
     init {
         initDB()
@@ -73,11 +76,9 @@ class EventPostFormTest {
     @ParameterizedTest
     @MethodSource("generateValidForms")
     fun `validate valid form`(form: EventPostForm) {
-        every { StationRepository.exists(1) } returns true
         every { PartnerRepository.exists(1) } returns true
-        every { StationRepository.getStationById(1) } returns Either.right(Station(
-            id = 1, name = "some station", hours = openHours()
-        ))
+        every { StationRepository.exists(existingStation.id) } returns true
+        every { StationRepository.getStationById(1) } returns existingStation.right()
 
         val result = form.validOrError()
 

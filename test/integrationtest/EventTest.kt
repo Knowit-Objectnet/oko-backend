@@ -25,7 +25,10 @@ import testutils.testDelete
 import testutils.testGet
 import testutils.testPatch
 import testutils.testPost
+import java.time.DayOfWeek
 import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import kotlin.random.Random
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -77,7 +80,7 @@ class EventTest {
     }
 
     private fun createTestStations() = (0..5).map {
-        val s = StationService.saveStation(StationPostForm("EventTest Station$it"))
+        val s = StationService.saveStation(StationPostForm("EventTest Station$it", hours = openHours()))
         require(s is Either.Right)
         return@map s.b
     }
@@ -426,4 +429,42 @@ class EventTest {
             }
         }
     }
+
+    private fun openHours() = mapOf<DayOfWeek, List<LocalTime>>(
+        Pair(
+            DayOfWeek.MONDAY,
+            listOf(
+                LocalTime.parse("00:00:00Z", DateTimeFormatter.ISO_TIME),
+                LocalTime.parse("23:59:59Z", DateTimeFormatter.ISO_TIME)
+            )
+        ),
+        Pair(
+            DayOfWeek.TUESDAY,
+            listOf(
+                LocalTime.parse("00:00:00Z", DateTimeFormatter.ISO_TIME),
+                LocalTime.parse("23:59:59Z", DateTimeFormatter.ISO_TIME)
+            )
+        ),
+        Pair(
+            DayOfWeek.WEDNESDAY,
+            listOf(
+                LocalTime.parse("00:00:00Z", DateTimeFormatter.ISO_TIME),
+                LocalTime.parse("23:59:59Z", DateTimeFormatter.ISO_TIME)
+            )
+        ),
+        Pair(
+            DayOfWeek.THURSDAY,
+            listOf(
+                LocalTime.parse("00:00:00Z", DateTimeFormatter.ISO_TIME),
+                LocalTime.parse("23:59:59Z", DateTimeFormatter.ISO_TIME)
+            )
+        ),
+        Pair(
+            DayOfWeek.FRIDAY,
+            listOf(
+                LocalTime.parse("00:00:00Z", DateTimeFormatter.ISO_TIME),
+                LocalTime.parse("23:59:59Z", DateTimeFormatter.ISO_TIME)
+            )
+        )
+    )
 }
