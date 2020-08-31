@@ -27,7 +27,7 @@ object Events : IntIdTable("events") {
     val recurrenceRuleID =
         integer("recurrence_rule_id").references(RecurrenceRules.id, onDelete = ReferenceOption.CASCADE).nullable()
     val stationID = integer("station_id").references(Stations.id, onDelete = ReferenceOption.CASCADE)
-    val partnerID = integer("partner_id").references(Partners.id, onDelete = ReferenceOption.CASCADE)
+    val partnerID = integer("partner_id").references(Partners.id, onDelete = ReferenceOption.CASCADE).nullable()
 }
 
 object EventRepository : IEventRepository {
@@ -107,7 +107,7 @@ object EventRepository : IEventRepository {
     override fun getEventByID(eventID: Int): Either<RepositoryError, Event> = runCatching {
         transaction {
             // leftJoin RecurrenceRules because not all events are recurring.
-            (Events innerJoin Stations innerJoin Partners leftJoin RecurrenceRules).select { Events.id eq eventID }
+            (Events innerJoin Stations leftJoin Partners leftJoin RecurrenceRules).select { Events.id eq eventID }
                 .map { toEvent(it) }.firstOrNull()
         }
     }

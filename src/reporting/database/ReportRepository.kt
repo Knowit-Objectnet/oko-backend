@@ -24,7 +24,7 @@ private val logger = LoggerFactory.getLogger("ombruk.unittest.reporting.database
 
 object Reports : IntIdTable("reports") {
     val eventID = integer("event_id").references(Events.id)
-    val partnerID = integer("partner_id").references(Partners.id)
+    val partnerID = integer("partner_id").references(Partners.id).nullable()
     val stationID = integer("station_id").references(Stations.id)
     val startDateTime = datetime("start_date_time")
     val endDateTime = datetime("end_date_time")
@@ -40,7 +40,7 @@ object ReportRepository : IReportRepository {
                 it[weight] = null
                 it[reportedDateTime] = null
                 it[eventID] = event.id
-                it[partnerID] = event.partner.id
+                it[partnerID] = event.partner?.id
                 it[stationID] = event.station.id
                 it[startDateTime] = event.startDateTime
                 it[endDateTime] = event.endDateTime

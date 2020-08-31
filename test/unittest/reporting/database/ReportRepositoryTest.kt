@@ -238,7 +238,7 @@ class ReportRepositoryTest {
             it[endDateTime] = event.endDateTime
             it[recurrenceRuleID] = event.recurrenceRule?.id
             it[stationID] = event.station.id
-            it[partnerID] = event.partner.id
+            it[partnerID] = event.partner?.id
         }.value
     }
 
@@ -482,7 +482,7 @@ class ReportRepositoryTest {
             val actual = ReportRepository.insertReport(testEvent5)
             require(actual is Either.Right)
             assertEquals(testEvent5.id, actual.b.eventId)
-            assertEquals(testEvent5.partner.id, actual.b.partnerId)
+            assertEquals(testEvent5.partner?.id, actual.b.partnerId)
             assertEquals(testEvent5.station, actual.b.station)
             assertEquals(testEvent5.startDateTime, actual.b.startDateTime)
             assertEquals(testEvent5.endDateTime, actual.b.endDateTime)

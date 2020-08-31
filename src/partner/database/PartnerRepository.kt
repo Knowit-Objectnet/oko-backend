@@ -5,6 +5,7 @@ import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
 import io.ktor.locations.KtorExperimentalLocationsAPI
+import ombruk.backend.calendar.database.RecurrenceRules
 import ombruk.backend.partner.form.PartnerGetForm
 
 import ombruk.backend.partner.form.PartnerPostForm
@@ -88,7 +89,7 @@ object PartnerRepository : IPartnerRepository {
 
 
     override fun getPartnerByID(partnerID: Int): Either<RepositoryError.NoRowsFound, Partner> =
-        runCatching { transaction { Partners.select { Partners.id eq partnerID }.map { toPartner(it) } } }
+        runCatching { transaction { Partners.select { Partners.id eq partnerID }.mapNotNull { toPartner(it) } } }
             .onFailure { logger.error(it.message) }
             .fold(
                 {
@@ -121,11 +122,16 @@ object PartnerRepository : IPartnerRepository {
 }
 
 
-fun toPartner(resultRow: ResultRow): Partner =
-    Partner(
-        resultRow[Partners.id].value,
-        resultRow[Partners.name],
-        resultRow[Partners.description],
-        resultRow[Partners.phone],
-        resultRow[Partners.email]
+fun toPartner(row: ResultRow): Partner? {
+    if (!row.hasValue(Partners.id) || row.getOrNull(Partners.id) == null) {
+        return null
+    }
+
+    return Partner(
+        row[Partners.id].value,
+        row[Partners.name],
+        row[Partners.description],
+        row[Partners.phone],
+        row[Partners.email]
     )
+}

@@ -10,14 +10,10 @@ import ombruk.backend.partner.database.PartnerRepository
 import ombruk.backend.shared.error.ValidationError
 import ombruk.backend.shared.form.IForm
 import ombruk.backend.shared.model.serializer.LocalDateTimeSerializer
-import ombruk.backend.shared.utils.validation.isGreaterThanStartDateTime
-import ombruk.backend.shared.utils.validation.isInRepository
-import ombruk.backend.shared.utils.validation.isSameDateAs
-import ombruk.backend.shared.utils.validation.isWithinOpeningHoursOf
-import ombruk.backend.shared.utils.validation.runCatchingValidation
-import org.valiktor.functions.isGreaterThan
+import ombruk.backend.shared.utils.validation.*
 import org.valiktor.functions.isGreaterThanOrEqualTo
 import org.valiktor.functions.isNotNull
+import org.valiktor.functions.isPositive
 import org.valiktor.validate
 import java.time.LocalDateTime
 
@@ -26,7 +22,7 @@ data class EventPostForm(
     @Serializable(with = LocalDateTimeSerializer::class) var startDateTime: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class) var endDateTime: LocalDateTime,
     val stationId: Int,
-    val partnerId: Int,
+    val partnerId: Int? = null,
     var recurrenceRule: RecurrenceRule? = null
 ) : Iterable<EventPostForm>, IForm<EventPostForm> {
     override fun iterator() = when (recurrenceRule) {
@@ -42,8 +38,7 @@ data class EventPostForm(
             validate(EventPostForm::startDateTime).isWithinOpeningHoursOf(it.stationId)
             validate(EventPostForm::endDateTime).isWithinOpeningHoursOf(it.stationId)
 
-            validate(EventPostForm::stationId).isGreaterThan(0)
-            validate(EventPostForm::partnerId).isGreaterThan(0)
+            validate(EventPostForm::stationId).isPositive()
 
             validate(EventPostForm::stationId).isInRepository(StationRepository)
             validate(EventPostForm::partnerId).isInRepository(PartnerRepository)
@@ -62,3 +57,4 @@ private fun RecurrenceRule.validateSelf(startDateTime: LocalDateTime) = validate
     if (count == null) validate(RecurrenceRule::until).isNotNull()
     if (until == null) validate(RecurrenceRule::count).isNotNull()
 }
+

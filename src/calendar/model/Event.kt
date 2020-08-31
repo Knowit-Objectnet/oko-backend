@@ -11,6 +11,6 @@ data class Event(
     @Serializable(with = LocalDateTimeSerializer::class) var startDateTime: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class) var endDateTime: LocalDateTime,
     val station: Station,
-    val partner: Partner,
+    val partner: Partner?,
     var recurrenceRule: RecurrenceRule? = null
 )
