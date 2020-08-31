@@ -194,7 +194,7 @@ class EventAPITest {
         fun `post event 200`() {
             val s = Station(1, "test")
             val p = Partner(1, "test")
-            val form = EventPostForm(LocalDateTime.now(), LocalDateTime.now().plusDays(1), s.id, p.id)
+            val form = EventPostForm(LocalDateTime.now(), LocalDateTime.now().plusHours(1), s.id, p.id)
             val expected = Event(1, form.startDateTime, form.endDateTime, s, p)
 
             every { EventService.saveEvent(form) } returns expected.right()
@@ -242,7 +242,7 @@ class EventAPITest {
          */
         @Test
         fun `post event 500`() {
-            val form = EventPostForm(LocalDateTime.now(), LocalDateTime.now().plusDays(1), 1, 1)
+            val form = EventPostForm(LocalDateTime.now(), LocalDateTime.now().plusHours(1), 1, 1)
 
             every { EventService.saveEvent(form) } returns ServiceError("test").left()
             every { PartnerRepository.exists(1) } returns true
@@ -259,7 +259,7 @@ class EventAPITest {
          */
         @Test
         fun `post event 422`() {
-            val form = EventPostForm(LocalDateTime.now(), LocalDateTime.now().plusDays(1), 1, 1)
+            val form = EventPostForm(LocalDateTime.now(), LocalDateTime.now().plusHours(1), 1, 1)
 
             every { PartnerRepository.exists(1) } returns false // Partner does not exist
             every { StationRepository.exists(1) } returns true
@@ -292,8 +292,8 @@ class EventAPITest {
         fun `patch event 200`() {
             val s = Station(1, "test")
             val p = Partner(1, "test")
-            val initial = Event(1, LocalDateTime.now().plusDays(2), LocalDateTime.now().plusDays(3), s, p)
-            val form = EventUpdateForm(1, LocalDateTime.now(), LocalDateTime.now().plusDays(1))
+            val initial = Event(1, LocalDateTime.now().plusDays(2), LocalDateTime.now().plusDays(2).plusHours(1), s, p)
+            val form = EventUpdateForm(1, LocalDateTime.now(), LocalDateTime.now().plusHours(1))
             val expected = initial.copy(startDateTime = form.startDateTime!!, endDateTime = form.endDateTime!!)
 
             every { EventService.updateEvent(form) } returns expected.right()
@@ -312,8 +312,8 @@ class EventAPITest {
         fun `patch event 500`() {
             val s = Station(1, "test")
             val p = Partner(1, "test")
-            val initial = Event(1, LocalDateTime.now().plusDays(2), LocalDateTime.now().plusDays(3), s, p)
-            val form = EventUpdateForm(1, LocalDateTime.now(), LocalDateTime.now().plusDays(1))
+            val initial = Event(1, LocalDateTime.now().plusDays(2), LocalDateTime.now().plusDays(2).plusHours(1), s, p)
+            val form = EventUpdateForm(1, LocalDateTime.now(), LocalDateTime.now().plusHours(1))
 
             every { EventService.updateEvent(form) } returns ServiceError("test").left()
             every { EventRepository.getEventByID(1) } returns initial.right()

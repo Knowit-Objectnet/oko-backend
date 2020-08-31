@@ -12,6 +12,7 @@ import ombruk.backend.shared.form.IForm
 import ombruk.backend.shared.model.serializer.LocalDateTimeSerializer
 import ombruk.backend.shared.utils.validation.isGreaterThanStartDateTime
 import ombruk.backend.shared.utils.validation.isInRepository
+import ombruk.backend.shared.utils.validation.isSameDateAs
 import ombruk.backend.shared.utils.validation.runCatchingValidation
 import org.valiktor.functions.isGreaterThan
 import org.valiktor.functions.isGreaterThanOrEqualTo
@@ -35,6 +36,7 @@ data class EventPostForm(
     override fun validOrError(): Either<ValidationError, EventPostForm> = runCatchingValidation {
         validate(this) {
             validate(EventPostForm::endDateTime).isGreaterThanStartDateTime(startDateTime)
+            validate(EventPostForm::endDateTime).isSameDateAs(startDateTime)
 
             validate(EventPostForm::stationId).isGreaterThan(0)
             validate(EventPostForm::partnerId).isGreaterThan(0)
