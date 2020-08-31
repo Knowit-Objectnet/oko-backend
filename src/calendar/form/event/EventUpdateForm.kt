@@ -8,6 +8,7 @@ import ombruk.backend.shared.form.IForm
 import ombruk.backend.shared.model.serializer.LocalDateTimeSerializer
 import ombruk.backend.shared.utils.validation.isGreaterThanStartDateTime
 import ombruk.backend.shared.utils.validation.isLessThanEndDateTime
+import ombruk.backend.shared.utils.validation.isSameDateAs
 import ombruk.backend.shared.utils.validation.runCatchingValidation
 import org.valiktor.functions.isGreaterThan
 import org.valiktor.functions.isNotNull
@@ -30,6 +31,7 @@ data class EventUpdateForm(
                 val newStartDateTime = startDateTime ?: event.startDateTime
                 val newEndDateTime = endDateTime ?: event.endDateTime
                 validate(EventUpdateForm::startDateTime).isLessThanEndDateTime(newEndDateTime)
+                validate(EventUpdateForm::endDateTime).isSameDateAs(startDateTime)
                 validate(EventUpdateForm::endDateTime).isGreaterThanStartDateTime(newStartDateTime)
             }
         }

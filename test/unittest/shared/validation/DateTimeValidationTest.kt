@@ -2,6 +2,7 @@ package shared.validation
 
 import ombruk.backend.shared.utils.validation.isGreaterThanStartDateTime
 import ombruk.backend.shared.utils.validation.isLessThanEndDateTime
+import ombruk.backend.shared.utils.validation.isSameDateAs
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.valiktor.ConstraintViolationException
@@ -89,6 +90,28 @@ class DateTimeValidationTest {
                     LocalDateTime.parse("2020-07-05T15:45:06Z", DateTimeFormatter.ISO_DATE_TIME)
                 )
             }
+        }
+    }
+
+    @Test
+    fun `end date and start date is not the same`() {
+        val dateTimeTest = DateTimeTest(LocalDateTime.parse("2020-07-04T15:48:06Z", DateTimeFormatter.ISO_DATE_TIME))
+        assertFailsWith(exceptionClass = ConstraintViolationException::class) {
+            validate(dateTimeTest) {
+                validate(DateTimeTest::localDateTime).isSameDateAs(
+                    LocalDateTime.parse("2020-07-05T15:45:06Z", DateTimeFormatter.ISO_DATE_TIME)
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `end date and start date is the same`() {
+        val dateTimeTest = DateTimeTest(LocalDateTime.parse("2020-07-06T10:48:06Z", DateTimeFormatter.ISO_DATE_TIME))
+        validate(dateTimeTest) {
+            validate(DateTimeTest::localDateTime).isSameDateAs(
+                LocalDateTime.parse("2020-07-06T18:49:06Z", DateTimeFormatter.ISO_DATE_TIME)
+            )
         }
     }
 

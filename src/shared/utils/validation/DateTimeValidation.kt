@@ -19,3 +19,10 @@ fun <E> Validator<E>.Property<LocalDateTime?>.isLessThanEndDateTime(endDateTime:
     }
 
 
+data class SameDate(val endDateTime: LocalDateTime?) : Constraint
+
+fun <E> Validator<E>.Property<LocalDateTime?>.isSameDateAs(endDateTime: LocalDateTime?) =
+    this.validate(SameDate(endDateTime)) {
+        it == null || endDateTime == null || it.toLocalDate() == endDateTime.toLocalDate()
+    }
+
