@@ -54,24 +54,24 @@ class EventPostFormTest {
     }
 
     @Suppress("unused")
-    fun generateValidForms() = listOf(
-        EventPostForm(LocalDateTime.now(), LocalDateTime.now().plusHours(1), 1, 1),
-        EventPostForm(LocalDateTime.now(), LocalDateTime.now().plusHours(1), 1, 1, RecurrenceRule(1, count = 1)),
-        EventPostForm(
-            LocalDateTime.now(),
-            LocalDateTime.now().plusHours(1),
-            1,
-            1,
-            RecurrenceRule(1, count = 1, interval = 1)
-        ),
-        EventPostForm(
-            LocalDateTime.now(),
-            LocalDateTime.now().plusHours(1),
-            1,
-            1,
-            RecurrenceRule(1, until = LocalDateTime.now().plusDays(1))
+    fun generateValidForms(): List<EventPostForm> {
+        val from = LocalDateTime.parse("2020-09-02T12:00:00Z", DateTimeFormatter.ISO_DATE_TIME)
+        return listOf(
+            EventPostForm(from, from.plusHours(1), 1, 1),
+            EventPostForm(
+                from, from.plusHours(1), 1, 1,
+                RecurrenceRule(1, count = 1)
+            ),
+            EventPostForm(
+                from, from.plusHours(1), 1, 1,
+                RecurrenceRule(1, count = 1, interval = 1)
+            ),
+            EventPostForm(
+                from, from.plusHours(1), 1, 1,
+                RecurrenceRule(1, until = LocalDateTime.now().plusDays(1))
+            )
         )
-    )
+    }
 
     @ParameterizedTest
     @MethodSource("generateValidForms")
@@ -87,33 +87,18 @@ class EventPostFormTest {
     }
 
     @Suppress("unused")
-    fun generateInvalidForms() = listOf(
-        EventPostForm(LocalDateTime.now(), LocalDateTime.now().plusHours(1), 1, 2),
-        EventPostForm(LocalDateTime.now(), LocalDateTime.now().plusHours(1), 2, 1),
-        EventPostForm(LocalDateTime.now(), LocalDateTime.now().minusHours(1), 1, 1),
-        EventPostForm(LocalDateTime.now(), LocalDateTime.now().plusHours(1), 1, 1, RecurrenceRule(1)),
-        EventPostForm(
-            LocalDateTime.now(),
-            LocalDateTime.now().plusHours(1),
-            1,
-            1,
-            RecurrenceRule(1, count = 0)
-        ),
-        EventPostForm(
-            LocalDateTime.now(),
-            LocalDateTime.now().plusHours(1),
-            1,
-            1,
-            RecurrenceRule(1, count = 1, interval = 0)
-        ),
-        EventPostForm(
-            LocalDateTime.now(),
-            LocalDateTime.now().plusHours(1),
-            1,
-            1,
-            RecurrenceRule(1, until = LocalDateTime.now().minusDays(1))
+    fun generateInvalidForms(): List<EventPostForm> {
+        val from = LocalDateTime.parse("2020-09-02T12:00:00Z", DateTimeFormatter.ISO_DATE_TIME)
+        return listOf(
+            EventPostForm(from, from.plusHours(1), 1, 2),
+            EventPostForm(from, from.plusHours(1), 2, 1),
+            EventPostForm(from, from.minusHours(1), 1, 1),
+            EventPostForm(from, from.plusHours(1), 1, 1, RecurrenceRule(1)),
+            EventPostForm(from, from.plusHours(1), 1, 1, RecurrenceRule(1, count = 0)),
+            EventPostForm(from, from.plusHours(1), 1, 1, RecurrenceRule(1, count = 1, interval = 0)),
+            EventPostForm(from, from.plusHours(1), 1, 1, RecurrenceRule(1, until = LocalDateTime.now().minusDays(1)))
         )
-    )
+    }
 
     @ParameterizedTest
     @MethodSource("generateInvalidForms")
