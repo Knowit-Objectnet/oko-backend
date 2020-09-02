@@ -151,7 +151,8 @@ class EventServiceTest {
          */
         @Test
         fun `save single event`(@MockK expectedEvent: Event, @MockK report: Report) {
-            val form = EventPostForm(LocalDateTime.now(), LocalDateTime.now(), 1, 1)
+            val from = LocalDateTime.parse("2020-09-02T12:00:00Z", DateTimeFormatter.ISO_DATE_TIME)
+            val form = EventPostForm(from, from.plusHours(1), 1, 1)
             every { EventRepository.insertEvent(form) } returns expectedEvent.right()
             every { ReportService.saveReport(expectedEvent) } returns report.right()
 
@@ -167,7 +168,8 @@ class EventServiceTest {
         @Test
         fun `save recurring event`(@MockK expectedEvent: Event, @MockK report: Report) {
             val rRule = RecurrenceRule(count = 3, days = listOf(DayOfWeek.MONDAY))
-            val form = EventPostForm(LocalDateTime.now(), LocalDateTime.now(), 1, 1, recurrenceRule = rRule)
+            val from = LocalDateTime.parse("2020-09-02T12:00:00Z", DateTimeFormatter.ISO_DATE_TIME)
+            val form = EventPostForm(from, from.plusHours(1), 1, 1, recurrenceRule = rRule)
 
             every { RecurrenceRules.insertRecurrenceRule(rRule) } returns rRule.right()
             every { ReportService.saveReport(expectedEvent) } returns report.right()
@@ -188,8 +190,8 @@ class EventServiceTest {
          */
         @Test
         fun `update single event`(@MockK expectedEvent: Event) {
-
-            val updateForm = EventUpdateForm(1, LocalDateTime.now(), LocalDateTime.now())
+            val from = LocalDateTime.parse("2020-09-02T12:00:00Z", DateTimeFormatter.ISO_DATE_TIME)
+            val updateForm = EventUpdateForm(1, from, from.plusHours(1))
 
             every { ReportService.updateReport(expectedEvent) } returns Unit.right()
             every { EventRepository.updateEvent(updateForm) } returns expectedEvent.right()

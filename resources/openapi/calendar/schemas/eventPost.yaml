@@ -12,6 +12,7 @@ properties:
     type: integer
     format: int64
     example: 1
+    description: Optional partner. An event without a partner is arranged by the station only, like example "Ombruksdager".
   stationId:
     type: integer
     format: int64
@@ -21,5 +22,4 @@ properties:
 required:
   - startDateTime
   - endDateTime
-  - partnerId
   - stationId

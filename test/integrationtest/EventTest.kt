@@ -216,7 +216,7 @@ class EventTest {
                 assertEquals(startDateTime, responseEvent.startDateTime)
                 assertEquals(endDateTime, responseEvent.endDateTime)
                 assertEquals(stationId, responseEvent.station.id)
-                assertEquals(partnerId, responseEvent.partner.id)
+                assertEquals(partnerId, responseEvent.partner?.id)
             }
         }
 
@@ -251,7 +251,7 @@ class EventTest {
                     assertEquals(startDateTime.plusDays(7L * index), event.startDateTime)
                     assertEquals(endDateTime.plusDays(7L * index), event.endDateTime)
                     assertEquals(stationId, event.station.id)
-                    assertEquals(partnerId, event.partner.id)
+                    assertEquals(partnerId, event.partner?.id)
                 }
             }
         }
@@ -287,7 +287,7 @@ class EventTest {
         fun `delete events by partner id`() {
             testDelete("/events?partnerId=${partners[8].id}") {
                 val respondedEvents = json.parse(Event.serializer().list, response.content!!)
-                val deletedEvents = events.filter { it.partner.id == partners[8].id }
+                val deletedEvents = events.filter { it.partner?.id == partners[8].id }
 
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(deletedEvents, respondedEvents)
@@ -303,7 +303,7 @@ class EventTest {
             testDelete("/events?partnerId=${partners[7].id}&stationId=${stations[2].id}") {
                 val respondedEvents = json.parse(Event.serializer().list, response.content!!)
                 val deletedEvents =
-                    events.filter { it.partner.id == partners[7].id }.filter { it.station.id == stations[2].id }
+                    events.filter { it.partner?.id == partners[7].id }.filter { it.station.id == stations[2].id }
 
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(deletedEvents, respondedEvents)

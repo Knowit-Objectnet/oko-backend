@@ -32,9 +32,10 @@ import kotlin.test.assertTrue
 @ExtendWith(MockKExtension::class)
 class EventUpdateFormTest {
 
+    private val from = LocalDateTime.parse("2020-09-02T12:00:00Z", DateTimeFormatter.ISO_DATE_TIME)
     private val existingStation = Station(id = 1, name = "some station", hours = openHours())
     private val existingEvent =
-        Event(1, LocalDateTime.now(), LocalDateTime.now().plusHours(1), existingStation, Partner(1, "name"))
+        Event(1, from, from.plusHours(1), existingStation, Partner(1, "name"))
 
 
     init {
@@ -58,12 +59,14 @@ class EventUpdateFormTest {
     }
 
     @Suppress("unused")
-    fun generateValidForms() = listOf(
-        EventUpdateForm(1, LocalDateTime.now()),
-        EventUpdateForm(1, endDateTime = LocalDateTime.now()),
-        EventUpdateForm(1, LocalDateTime.now(), LocalDateTime.now().plusHours(1))
+    fun generateValidForms(): List<EventUpdateForm> {
+        return listOf(
+            EventUpdateForm(1, from),
+            EventUpdateForm(1, endDateTime = from.plusHours(1)),
+            EventUpdateForm(1, from, from.plusHours(1))
 
-    )
+        )
+    }
 
     @ParameterizedTest
     @MethodSource("generateValidForms")
@@ -81,9 +84,9 @@ class EventUpdateFormTest {
     @Suppress("unused")
     fun generateInvalidForms() = listOf(
         EventUpdateForm(1),
-        EventUpdateForm(1, LocalDateTime.now().plusHours(2)),
-        EventUpdateForm(1, endDateTime = LocalDateTime.now().minusHours(2)),
-        EventUpdateForm(1, LocalDateTime.now(), LocalDateTime.now().minusHours(1))
+        EventUpdateForm(1, from.plusHours(2)),
+        EventUpdateForm(1, endDateTime = from.minusHours(2)),
+        EventUpdateForm(1, from, from.minusHours(1))
     )
 
     @ParameterizedTest

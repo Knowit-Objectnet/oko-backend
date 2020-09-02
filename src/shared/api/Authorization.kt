@@ -76,7 +76,7 @@ object Authorization {
      */
     fun authorizePartnerID(role: Pair<Roles, Int>, eventsFunc: () -> Either<ServiceError, List<Event>>) = eventsFunc()
         .flatMap {
-            if (role.first == Roles.Partner && it.any { event -> event.partner.id != role.second }) {
+            if (role.first == Roles.Partner && it.any { event -> event.partner?.id != role.second }) {
                 AuthorizationError.AccessViolationError().left()
             } else role.right()
         }
