@@ -27,6 +27,7 @@ object Events : IntIdTable("events") {
     val recurrenceRuleID =
         integer("recurrence_rule_id").references(RecurrenceRules.id, onDelete = ReferenceOption.CASCADE).nullable()
     val stationID = integer("station_id").references(Stations.id, onDelete = ReferenceOption.CASCADE)
+    // Nullable partner. An event without a partner is arranged by the station only, like example "Ombruksdager".
     val partnerID = integer("partner_id").references(Partners.id, onDelete = ReferenceOption.CASCADE).nullable()
 }
 

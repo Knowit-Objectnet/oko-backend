@@ -22,7 +22,7 @@ data class EventPostForm(
     @Serializable(with = LocalDateTimeSerializer::class) var startDateTime: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class) var endDateTime: LocalDateTime,
     val stationId: Int,
-    val partnerId: Int? = null,
+    val partnerId: Int? = null, // Optional partner. An event without a partner is arranged by the station only.
     var recurrenceRule: RecurrenceRule? = null
 ) : Iterable<EventPostForm>, IForm<EventPostForm> {
     override fun iterator() = when (recurrenceRule) {
