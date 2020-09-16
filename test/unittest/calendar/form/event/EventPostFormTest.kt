@@ -95,8 +95,7 @@ class EventPostFormTest {
             EventPostForm(from, from.minusHours(1), 1, 1),
             EventPostForm(from, from.plusHours(1), 1, 1, RecurrenceRule(1)),
             EventPostForm(from, from.plusHours(1), 1, 1, RecurrenceRule(1, count = 0)),
-            EventPostForm(from, from.plusHours(1), 1, 1, RecurrenceRule(1, count = 1, interval = 0)),
-            EventPostForm(from, from.plusHours(1), 1, 1, RecurrenceRule(1, until = LocalDateTime.now().minusDays(1)))
+            EventPostForm(from, from.plusHours(1), 1, 1, RecurrenceRule(1, count = 1, interval = 0))
         )
     }
 

@@ -32,20 +32,20 @@ object RequestRepository : IRequestRepository {
 
     @KtorExperimentalLocationsAPI
     override fun getRequests(requestGetForm: RequestGetForm?): Either<RepositoryError, List<Request>> {
-        // Partner is joined twice on different tables, therefore aliases have to be used.
-        val winningPartner = Partners.alias("winningPartner")
+        // Partner is joined twice on different tables (pickup and on this request), therefore aliases have to be used.
+        val chosenPartnerForPickup = Partners.alias("chosenPartnerForPickup")
         val requestPartner = Partners.alias("requestPartner")
         return runCatching {
             transaction {
                 val query = (Requests innerJoin Pickups innerJoin Stations)
-                    .leftJoin(winningPartner, { Pickups.chosenPartnerId }, { winningPartner[Partners.id] })
+                    .leftJoin(chosenPartnerForPickup, { Pickups.chosenPartnerId }, { chosenPartnerForPickup[Partners.id] })
                     .innerJoin(requestPartner, { Requests.partnerID }, { requestPartner[Partners.id] })
                     .selectAll()
                 requestGetForm?.let {   // add constraints if needed.
                     requestGetForm.pickupId?.let { query.andWhere { Requests.pickupID eq it } }
                     requestGetForm.partnerId?.let { query.andWhere { Requests.partnerID eq it } }
                 }
-                query.map { toRequest(it, winningPartner, requestPartner) }
+                query.map { toRequest(it, chosenPartnerForPickup, requestPartner) }
             }
         }
             .onFailure { it.printStackTrace(); logger.error(it.message) }
@@ -105,11 +105,17 @@ object RequestRepository : IRequestRepository {
      * objects are aliased and present in the [ResultRow].
      *
      * @param row A [ResultRow] that contains two [Partners] represented by two [Alias].
-     * @param winningPartner an [Alias] of a subsection of the [row]. Used to represent [Pickup.chosenPartner]. Can be null.
+     * @param chosenPartnerForPickup an [Alias] of a subsection of the [row]. Used to represent [Pickup.chosenPartner]. Can be null.
      * @param requestPartner An [Alias] of a subsection of the [row]. Used to represent the [Request.partner]. Is always set.
      * @return A [Request].
      */
-    private fun toRequest(row: ResultRow, winningPartner: Alias<Partners>, requestPartner: Alias<Partners>): Request {
+    private fun toRequest(row: ResultRow, chosenPartnerForPickup: Alias<Partners>, requestPartner: Alias<Partners>): Request {
+        // "chosenPartnerForPickup" for the pickup might be null
+        var chosenPartner: Partner? = null
+        if (row.getOrNull(chosenPartnerForPickup[Partners.id]) != null) {
+            chosenPartner = toPartner(row, chosenPartnerForPickup)
+        }
+
         return Request(
             Pickup(
                 row[Pickups.id].value,
@@ -117,7 +123,7 @@ object RequestRepository : IRequestRepository {
                 row[Pickups.endTime],
                 row[Pickups.description],
                 toStation(row),
-                row[winningPartner[Partners.id]].let { toPartner(row, winningPartner) }
+                chosenPartner
             ),
             toPartner(row, requestPartner)
         )
