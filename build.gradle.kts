@@ -4,7 +4,7 @@ val kotlin_version: String by project
 val exposed_version: String by project
 val valiktor_version: String by project
 
-group = "oslokommune.ombruk"
+group = "no.oslokommune.ombruk"
 
 plugins {
     application
@@ -57,6 +57,15 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.4.2")
 }
 
+tasks.test {
+    useJUnitPlatform()
+}
+tasks.withType<Jar> {
+    manifest {
+        attributes(mapOf("Main-Class" to application.mainClassName))
+    }
+}
+/*
 kotlin.sourceSets["main"].kotlin.srcDirs("src")
 kotlin.sourceSets["test"].kotlin.srcDirs("test/unittest", "test/testutils")
 
@@ -75,15 +84,7 @@ sourceSets {
     }
 }
 
-tasks.withType<Jar> {
-    manifest {
-        attributes(mapOf("Main-Class" to application.mainClassName))
-    }
-}
 
-tasks.test {
-    useJUnitPlatform()
-}
 
 task<Test>("integrationTest") {
     description = "Runs the integration tests"
@@ -93,3 +94,4 @@ task<Test>("integrationTest") {
     mustRunAfter(tasks["test"])
     useJUnitPlatform()
 }
+*/

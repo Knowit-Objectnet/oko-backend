@@ -1,0 +1,96 @@
+openapi: 3.0.0
+info:
+  description: API documentation for the OKO endpoints
+  version: 1.0.1
+  title: OKO API
+  contact:
+    email: jonas.carlsen@knowit.no
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - description: Actual API
+    url: https://tcuk58u5ge.execute-api.eu-central-1.amazonaws.com/staging/backend
+tags:
+  - name: partners
+    description: Calls available in  the /partners/ endpoint
+  - name: events
+    description: Calls available in the /events/ endpoint
+  - name: reports
+    description: Calls available in the /reports/ endpoint
+  - name: stations
+    description: Calls available in the /stations/ endpoint
+  - name: pickups
+    description: Calls available in the /pickups/ endpoint
+  - name: requests
+    description: Calls available in the /requests/ endpoint
+#  - name: reg-admin
+#    description: Calls available for reg admins
+#  - name: reuse-station
+#    description: Calls available for reuse station workers.
+#  - name: partner
+#    description: Calls available for partners. Can only access reports that belong to said partner.
+#  - name: everyone
+#    description: Calls available for unauthorized users
+paths:
+  /partners/{id}:
+    $ref: "./partner/partnersId.yaml"
+  /partners:
+    $ref: "./partner/partners.yaml"
+  /stations:
+    $ref: "./station/stations.yaml"
+  /stations{id}:
+    $ref: "./station/stationsId.yaml"
+  /reports:
+    $ref: "./report/reports.yaml"
+  /reports{id}:
+    $ref: "./report/reportsId.yaml"
+  /events:
+    $ref: "./calendar/events.yaml"
+  /events/{id}:
+    $ref: "./calendar/eventsId.yaml"
+  /pickups/:
+    $ref: "./no.oslokommune.ombruk.pickup/pickups.yaml"
+  /pickups/{id}:
+    $ref: "./no.oslokommune.ombruk.pickup/pickupsId.yaml"
+  /requests/:
+    $ref: "./request/requests.yaml"
+
+components:
+  schemas:
+    PartnerPost:
+      $ref: "./partner/schemas/partnerPost.yaml"
+    Partner:
+      $ref: "./partner/schemas/partner.yaml"
+    PartnerPatch:
+      $ref: "./partner/schemas/partnerPatch.yaml"
+    Report:
+      $ref: "./report/schemas/report.yaml"
+    ReportPatch:
+      $ref: "./report/schemas/reportPatch.yaml"
+    Station:
+      $ref: "./station/schemas/station.yaml"
+    StationPost:
+      $ref: "./station/schemas/stationPost.yaml"
+    StationPatch:
+      $ref: "./station/schemas/stationPatch.yaml"
+    Event:
+      $ref: "./calendar/schemas/event.yaml"
+    EventPatch:
+      $ref: "./calendar/schemas/eventPatch.yaml"
+    EventPost:
+      $ref: "./calendar/schemas/eventPost.yaml"
+    RecurrenceRule:
+      $ref: "./calendar/schemas/recurrenceRule.yaml"
+    RecurrenceRulePost:
+      $ref: "./calendar/schemas/recurrenceRulePost.yaml"
+    PickupPost:
+      $ref: "./no.oslokommune.ombruk.pickup/schemas/pickupPost.yaml"
+    PickupPatch:
+      $ref: "./no.oslokommune.ombruk.pickup/schemas/pickupPatch.yaml"
+    Pickup:
+      $ref: "./no.oslokommune.ombruk.pickup/schemas/no.oslokommune.ombruk.pickup.yaml"
+    RequestPost:
+      $ref: "./request/schemas/requestPost.yaml"
+    Request:
+      $ref: "./request/schemas/request.yaml"

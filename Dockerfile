@@ -5,7 +5,6 @@ WORKDIR /tmp/backend
 COPY build.gradle.kts .
 COPY gradle.properties .
 COPY settings.gradle.kts .
-COPY resources resources
 COPY src src
 
 RUN gradle build 
@@ -21,7 +20,6 @@ ENV OKO_DB_MIGRATIONS_LOCATION filesystem:/app/resources/db/migrations
 RUN adduser -D -g '' $APPLICATION_USER
 
 COPY --from=builder /tmp/backend/build/libs/backend-all.jar /app/backend-all.jar
-COPY resources resources
 
 RUN chown -R $APPLICATION_USER .
 
