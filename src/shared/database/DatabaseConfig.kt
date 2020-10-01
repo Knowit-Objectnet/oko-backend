@@ -24,6 +24,7 @@ fun initDB() {
     hikariConfig.addDataSourceProperty("prepStmtCacheSize", "250")
     hikariConfig.addDataSourceProperty("prepStmtCacheSqlLimit", "2048")
 
+    Class.forName("org.postgresql.Driver")
     Database.connect(HikariDataSource(hikariConfig))
 
     migrate()
