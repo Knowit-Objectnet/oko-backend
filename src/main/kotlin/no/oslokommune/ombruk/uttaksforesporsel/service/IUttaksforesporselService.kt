@@ -4,7 +4,6 @@ import arrow.core.Either
 import no.oslokommune.ombruk.uttaksforesporsel.form.uttaksforesporsel.UttaksforesporselDeleteForm
 import no.oslokommune.ombruk.uttaksforesporsel.form.uttaksforesporsel.UttaksforesporselGetForm
 import no.oslokommune.ombruk.uttaksforesporsel.form.uttaksforesporsel.UttaksforesporselPostForm
-import no.oslokommune.ombruk.uttaksforesporsel.model.Pickup
 import no.oslokommune.ombruk.uttaksforesporsel.model.Uttaksforesporsel
 import no.oslokommune.ombruk.shared.error.ServiceError
 

@@ -149,17 +149,17 @@ object UttakRepository : IUttakRepository {
     override fun exists(id: Int) = transaction { UttakTable.select { UttakTable.id eq id }.count() >= 1 }
 
 
-    private fun toUttak(row: ResultRow?): Uttak? {
+    fun toUttak(row: ResultRow?): Uttak? {
         if (row == null) return null
 
         return Uttak(
-            row[UttakTable.id].value,
-            row[UttakTable.startDateTime],
-            row[UttakTable.endDateTime],
-            toStasjon(row),
-            toPartner(row),
-            getGetGjentakelsesRegelFromResultRow(row),
-            row[UttakTable.type]
+                row[UttakTable.id].value,
+                row[UttakTable.startDateTime],
+                row[UttakTable.endDateTime],
+                toStasjon(row),
+                toPartner(row),
+                UttakRepository.getGetGjentakelsesRegelFromResultRow(row),
+                row[UttakTable.type]
         )
     }
 

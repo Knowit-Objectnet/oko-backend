@@ -11,9 +11,11 @@ import no.oslokommune.ombruk.partner.model.Partner
 import no.oslokommune.ombruk.uttaksforesporsel.form.uttaksforesporsel.UttaksforesporselDeleteForm
 import no.oslokommune.ombruk.uttaksforesporsel.form.uttaksforesporsel.UttaksforesporselGetForm
 import no.oslokommune.ombruk.uttaksforesporsel.form.uttaksforesporsel.UttaksforesporselPostForm
-import no.oslokommune.ombruk.uttaksforesporsel.model.Pickup
 import no.oslokommune.ombruk.uttaksforesporsel.model.Uttaksforesporsel
 import no.oslokommune.ombruk.shared.error.RepositoryError
+import no.oslokommune.ombruk.uttak.database.UttakRepository
+import no.oslokommune.ombruk.uttak.database.UttakTable
+import no.oslokommune.ombruk.uttak.model.Uttak
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
@@ -22,8 +24,8 @@ import org.slf4j.LoggerFactory
     Uttaksforesporsels are associated to a specific no.oslokommune.ombruk.pickup. Each uttaksforesporsel is a specific partner that wants to perform the no.oslokommune.ombruk.pickup.
  */
 
-object Uttaksforesporsels : Table("requests") {
-    val pickupID = integer("pickup_id").references(Pickups.id)
+object Uttaksforesporsels : Table("uttaksforesporsel") {
+    val uttaksID = integer("uttak_id").references(UttakTable.id)
     val partnerID = integer("partner_id").references(Partnere.id)
 }
 
@@ -37,15 +39,15 @@ object UttaksforesporselRepository : IUttaksforesporselRepository {
         val requestPartner = Partnere.alias("requestPartner")
         return runCatching {
             transaction {
-                val query = (Uttaksforesporsels innerJoin Pickups innerJoin Stasjoner)
-                    .leftJoin(chosenPartnerForPickup, { Pickups.chosenPartnerId }, { chosenPartnerForPickup[Partnere.id] })
+                val query = (Uttaksforesporsels innerJoin UttakTable innerJoin Stasjoner)
+                    .leftJoin(chosenPartnerForPickup, { UttakTable.partnerID }, { chosenPartnerForPickup[Partnere.id] })
                     .innerJoin(requestPartner, { Uttaksforesporsels.partnerID }, { requestPartner[Partnere.id] })
                     .selectAll()
                 requestGetForm?.let {   // add constraints if needed.
-                    requestGetForm.pickupId?.let { query.andWhere { Uttaksforesporsels.pickupID eq it } }
+                    requestGetForm.pickupId?.let { query.andWhere { Uttaksforesporsels.uttaksID eq it } }
                     requestGetForm.partnerId?.let { query.andWhere { Uttaksforesporsels.partnerID eq it } }
                 }
-                query.map { toRequest(it, chosenPartnerForPickup, requestPartner) }
+                query.map { toUttaksforesporsel(it, chosenPartnerForPickup, requestPartner) }
             }
         }
             .onFailure { it.printStackTrace(); logger.error(it.message) }
@@ -73,14 +75,14 @@ object UttaksforesporselRepository : IUttaksforesporselRepository {
         runCatching {
             transaction {
                 Uttaksforesporsels.insert {
-                    it[pickupID] = requestPostForm.pickupId
+                    it[uttaksID] = requestPostForm.uttaksId
                     it[partnerID] = requestPostForm.partnerId
                 }
             }
         }
             .onFailure { logger.error(it.message) }
             .fold(
-                { getSingleRequest(requestPostForm.pickupId, requestPostForm.partnerId) },
+                { getSingleRequest(requestPostForm.uttaksId, requestPostForm.partnerId) },
                 { RepositoryError.InsertError("Failed to save uttaksforesporsel $requestPostForm").left() }
             )
 
@@ -88,7 +90,7 @@ object UttaksforesporselRepository : IUttaksforesporselRepository {
     override fun deleteRequest(requestDeleteForm: UttaksforesporselDeleteForm) = runCatching {
         transaction {
             Uttaksforesporsels.deleteWhere {
-                Uttaksforesporsels.pickupID eq requestDeleteForm.pickupId and
+                Uttaksforesporsels.uttaksID eq requestDeleteForm.uttaksId and
                         (Uttaksforesporsels.partnerID eq requestDeleteForm.partnerId)
             }
         }
@@ -109,7 +111,7 @@ object UttaksforesporselRepository : IUttaksforesporselRepository {
      * @param requestPartner An [Alias] of a subsection of the [row]. Used to represent the [Uttaksforesporsel.partner]. Is always set.
      * @return A [Uttaksforesporsel].
      */
-    private fun toRequest(row: ResultRow, chosenPartnerForPickup: Alias<Partnere>, requestPartner: Alias<Partnere>): Uttaksforesporsel {
+    private fun toUttaksforesporsel(row: ResultRow, chosenPartnerForPickup: Alias<Partnere>, requestPartner: Alias<Partnere>): Uttaksforesporsel {
         // "chosenPartnerForPickup" for the no.oslokommune.ombruk.pickup might be null
         var chosenPartner: Partner? = null
         if (row.getOrNull(chosenPartnerForPickup[Partnere.id]) != null) {
@@ -117,14 +119,7 @@ object UttaksforesporselRepository : IUttaksforesporselRepository {
         }
 
         return Uttaksforesporsel(
-            Pickup(
-                row[Pickups.id].value,
-                row[Pickups.startTime],
-                row[Pickups.endTime],
-                row[Pickups.description],
-                toStasjon(row),
-                chosenPartner
-            ),
+                UttakRepository.toUttak(row)!!,
             toPartner(row, requestPartner)
         )
 

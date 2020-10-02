@@ -30,9 +30,7 @@ import no.oslokommune.ombruk.uttak.service.UttakService
 import no.oslokommune.ombruk.stasjon.service.StasjonService
 import no.oslokommune.ombruk.partner.api.partnere
 import no.oslokommune.ombruk.partner.service.PartnerService
-import no.oslokommune.ombruk.uttaksforesporsel.api.pickup
 import no.oslokommune.ombruk.uttaksforesporsel.api.request
-import no.oslokommune.ombruk.uttaksforesporsel.service.PickupService
 import no.oslokommune.ombruk.uttaksforesporsel.service.UttaksforesporselService
 import no.oslokommune.ombruk.uttaksdata.api.uttaksdata
 import no.oslokommune.ombruk.uttaksdata.service.UttaksdataService
@@ -172,7 +170,6 @@ fun Application.module(testing: Boolean = false) {
         uttak(UttakService)
         partnere(PartnerService)
         uttaksdata(UttaksdataService)
-        pickup(PickupService)
         stasjoner(StasjonService)
         request(UttaksforesporselService)
         get("/health_check") {

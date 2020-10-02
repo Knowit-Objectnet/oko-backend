@@ -38,23 +38,12 @@ create TABLE uttak
     FOREIGN KEY (partner_id) references partnere on delete cascade
 );
 
-create TABLE pickups
+create TABLE uttaksforesporsel
 (
-    id         serial primary key,
-    start_time timestamp not null,
-    end_time   timestamp not null,
-    stasjon_id int not null,
-    description text,
-    chosen_partner_id INTEGER references partnere,
-    FOREIGN KEY (stasjon_id) references stasjoner on delete cascade
-);
-
-create TABLE requests
-(
+    uttak_id int not null,
     partner_id int not null,
-    pickup_id  int not null,
-    FOREIGN KEY (pickup_id) references pickups on delete cascade,
-    FOREIGN KEY (partner_id) references partnere on delete cascade
+    FOREIGN KEY (partner_id) references partnere on delete cascade,
+    FOREIGN KEY (uttak_id) references uttak on delete cascade
 
 );
 
