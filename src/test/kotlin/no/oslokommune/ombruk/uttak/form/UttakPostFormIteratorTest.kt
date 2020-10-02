@@ -1,6 +1,6 @@
 package no.oslokommune.ombruk.uttak.form
 
-import no.oslokommune.ombruk.uttak.model.RecurrenceRule
+import no.oslokommune.ombruk.uttak.model.GjentakelsesRegel
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.time.DayOfWeek
@@ -9,14 +9,14 @@ import java.time.LocalDateTime
 class UttakPostFormIteratorTest {
 
     @Test
-    fun testEverydayStartingSameAsRecurrenceRuleDay() {
-        val recurrenceRule = RecurrenceRule(count = 1, days = everyday())
+    fun testEverydayStartingSameAsGjentakelsesRegelDay() {
+        val gjentakelsesRegel = GjentakelsesRegel(count = 1, days = everyday())
         val recurringForm = UttakPostForm(
             LocalDateTime.parse("2020-07-13T15:00:00"),
             LocalDateTime.parse("2020-07-13T15:00:00"),
             1,
             1,
-            recurrenceRule
+            gjentakelsesRegel
 
         )
 
@@ -35,15 +35,15 @@ class UttakPostFormIteratorTest {
     }
 
     @Test
-    fun testSkipWeekendStartingSameAsRecurrenceRuleDay() {
-        val recurrenceRule = RecurrenceRule(count = 1, days = everyWeekDay())
+    fun testSkipWeekendStartingSameAsGjentakelsesRegelDay() {
+        val gjentakelsesRegel = GjentakelsesRegel(count = 1, days = everyWeekDay())
 
         val recurringForm = UttakPostForm(
             LocalDateTime.parse("2020-07-13T15:00:00"),
             LocalDateTime.parse("2020-07-13T15:00:00"),
             1,
             1,
-            recurrenceRule
+            gjentakelsesRegel
 
         )
 
@@ -62,8 +62,8 @@ class UttakPostFormIteratorTest {
     }
 
     @Test
-    fun testSkipWednesdayStartingSameAsRecurrenceRuleDay() {
-        val recurrenceRule = RecurrenceRule(
+    fun testSkipWednesdayStartingSameAsGjentakelsesRegelDay() {
+        val gjentakelsesRegel = GjentakelsesRegel(
             count = 1,
             days = listOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY)
         )
@@ -73,7 +73,7 @@ class UttakPostFormIteratorTest {
             LocalDateTime.parse("2020-07-13T15:00:00"),
             1,
             1,
-            recurrenceRule
+            gjentakelsesRegel
 
         )
 
@@ -96,15 +96,15 @@ class UttakPostFormIteratorTest {
     }
 
     @Test
-    fun testFormStartingLaterThanDayFromRecurrenceRule() {
-        val recurrenceRule = RecurrenceRule(count = 1, days = everyday())
+    fun testFormStartingLaterThanDayFromGjentakelsesRegel() {
+        val gjentakelsesRegel = GjentakelsesRegel(count = 1, days = everyday())
 
         val recurringForm = UttakPostForm(
             LocalDateTime.parse("2020-07-14T15:00:00"),
             LocalDateTime.parse("2020-07-14T15:00:00"),
             1,
             1,
-            recurrenceRule
+            gjentakelsesRegel
 
         )
 
@@ -123,15 +123,15 @@ class UttakPostFormIteratorTest {
     }
 
     @Test
-    fun testFormBeforeLaterThanDayFromRecurrenceRule() {
-        val recurrenceRule = RecurrenceRule(count = 1, days = everyWeekDay())
+    fun testFormBeforeLaterThanDayFromGjentakelsesRegel() {
+        val gjentakelsesRegel = GjentakelsesRegel(count = 1, days = everyWeekDay())
 
         val recurringForm = UttakPostForm(
             LocalDateTime.parse("2020-07-12T15:00:00"),
             LocalDateTime.parse("2020-07-12T15:00:00"),
             1,
             1,
-            recurrenceRule
+            gjentakelsesRegel
 
         )
 
@@ -151,14 +151,14 @@ class UttakPostFormIteratorTest {
 
     @Test
     fun testHighCount() {
-        val recurrenceRule = RecurrenceRule(count = 7, days = everyday())
+        val gjentakelsesRegel = GjentakelsesRegel(count = 7, days = everyday())
 
         val recurringForm = UttakPostForm(
             LocalDateTime.parse("2020-07-13T15:00:00"),
             LocalDateTime.parse("2020-07-13T15:00:00"),
             1,
             1,
-            recurrenceRule
+            gjentakelsesRegel
 
         )
 
@@ -177,14 +177,14 @@ class UttakPostFormIteratorTest {
     }
 
     @Test
-    fun testFormWithRecurrenceRuleWithoutDays() {
-        val recurrenceRule = RecurrenceRule(count = 8)
+    fun testFormWithGjentakelsesRegelWithoutDays() {
+        val gjentakelsesRegel = GjentakelsesRegel(count = 8)
         val recurringForm = UttakPostForm(
             LocalDateTime.parse("2020-07-13T15:00:00"),
             LocalDateTime.parse("2020-07-13T15:00:00"),
             1,
             1,
-            recurrenceRule
+            gjentakelsesRegel
 
         )
 
@@ -204,7 +204,7 @@ class UttakPostFormIteratorTest {
 
     @Test
     fun testFormEveryDayWithUntil() {
-        val recurrenceRule = RecurrenceRule(
+        val gjentakelsesRegel = GjentakelsesRegel(
             until = LocalDateTime.parse("2020-07-30T15:00:00"),
             days = everyday()
         )
@@ -213,7 +213,7 @@ class UttakPostFormIteratorTest {
             LocalDateTime.parse("2020-07-13T15:00:00"),
             1,
             1,
-            recurrenceRule
+            gjentakelsesRegel
 
         )
 
@@ -234,7 +234,7 @@ class UttakPostFormIteratorTest {
 
     @Test
     fun testFormWeekdayWithUntil() {
-        val recurrenceRule = RecurrenceRule(
+        val gjentakelsesRegel = GjentakelsesRegel(
             until = LocalDateTime.parse("2020-07-20T15:00:00"),
             days = everyWeekDay()
         )
@@ -245,7 +245,7 @@ class UttakPostFormIteratorTest {
             LocalDateTime.parse("2020-07-13T15:00:00"),
             1,
             1,
-            recurrenceRule
+            gjentakelsesRegel
 
         )
 
@@ -267,7 +267,7 @@ class UttakPostFormIteratorTest {
 
     @Test
     fun testFormWeekdaySkipWednesdayWithUntil() {
-        val recurrenceRule = RecurrenceRule(
+        val gjentakelsesRegel = GjentakelsesRegel(
             until = LocalDateTime.parse("2020-07-20T15:00:00"),
             days = listOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY)
         )
@@ -277,7 +277,7 @@ class UttakPostFormIteratorTest {
             LocalDateTime.parse("2020-07-13T15:00:00"),
             1,
             1,
-            recurrenceRule
+            gjentakelsesRegel
 
         )
 
@@ -300,7 +300,7 @@ class UttakPostFormIteratorTest {
     }
 
     @Test
-    fun testFormWithoutRecurrenceRule() {
+    fun testFormWithoutGjentakelsesRegel() {
 
         val nonRecurringForm = UttakPostForm(
             LocalDateTime.parse("2020-07-12T15:00:00"),

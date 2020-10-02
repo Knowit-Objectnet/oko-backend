@@ -15,7 +15,7 @@ class UttakGetFormTest {
     fun generateValidForms() = listOf(
         UttakGetForm(),
         UttakGetForm(1),
-        UttakGetForm(recurrenceRuleId = 1),
+        UttakGetForm(gjentakelsesRegelId = 1),
         UttakGetForm(stasjonId = 1),
         UttakGetForm(partnerId = 1),
         UttakGetForm(fromDate = LocalDateTime.now()),
@@ -24,7 +24,7 @@ class UttakGetFormTest {
         UttakGetForm(
             stasjonId = 1,
             partnerId = 1,
-            recurrenceRuleId = 1,
+            gjentakelsesRegelId = 1,
             fromDate = LocalDateTime.now(),
             toDate = LocalDateTime.now().plusDays(1)
         )
@@ -43,7 +43,7 @@ class UttakGetFormTest {
     @Suppress("unused")
     fun generateInvalidForms() = listOf(
         UttakGetForm(0),
-        UttakGetForm(recurrenceRuleId = 0),
+        UttakGetForm(gjentakelsesRegelId = 0),
         UttakGetForm(stasjonId = 0),
         UttakGetForm(partnerId = 0),
         UttakGetForm(0, fromDate = LocalDateTime.now()),

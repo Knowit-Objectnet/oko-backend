@@ -16,5 +16,5 @@ properties:
     $ref: '../../api.yaml#/components/schemas/Partner'
   stasjonId:
     $ref: '../../api.yaml#/components/schemas/Stasjon'
-  recurrenceRule:
-    $ref: '../../api.yaml#/components/schemas/RecurrenceRule'
+  gjentakelsesRegel:
+    $ref: '../../api.yaml#/components/schemas/GjentakelsesRegel'

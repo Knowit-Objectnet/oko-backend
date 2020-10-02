@@ -20,8 +20,8 @@ import no.oslokommune.ombruk.shared.api.Authorization
 import no.oslokommune.ombruk.shared.api.Roles
 
 @KtorExperimentalLocationsAPI
-fun Routing.uttaks(uttakService: IUttakService) {
-    route("/uttaks") {
+fun Routing.uttak(uttakService: IUttakService) {
+    route("/uttak") {
         get<UttakGetByIdForm> { form ->
             form.validOrError()
                 .flatMap { uttakService.getUttakByID(it.id) }
@@ -31,7 +31,7 @@ fun Routing.uttaks(uttakService: IUttakService) {
 
         get<UttakGetForm> { form ->
             form.validOrError()
-                .flatMap { uttakService.getUttaks(it) }
+                .flatMap { uttakService.getUttak(it) }
                 .run { generateResponse(this) }
                 .also { (code, response) -> call.respond(code, response) }
         }
@@ -64,7 +64,7 @@ fun Routing.uttaks(uttakService: IUttakService) {
             delete<UttakDeleteForm> { form ->
                 Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.ReuseStasjon, Roles.Partner), call)
                     .map { if (it.first == Roles.Partner) form.partnerId = it.second; it }
-                    .flatMap { Authorization.authorizePartnerID(it) { uttakService.getUttaks(form.toGetForm()) } }
+                    .flatMap { Authorization.authorizePartnerID(it) { uttakService.getUttak(form.toGetForm()) } }
                     .flatMap { form.validOrError() }
                     .flatMap { uttakService.deleteUttak(it) }
                     .run { generateResponse(this) }
@@ -79,7 +79,7 @@ fun Routing.uttaks(uttakService: IUttakService) {
 private fun UttakDeleteForm.toGetForm() =
     UttakGetForm(
         uttakId,
-        recurrenceRuleId = recurrenceRuleId,
+        gjentakelsesRegelId = gjentakelsesRegelId,
         fromDate = fromDate,
         toDate = toDate,
         stasjonId = stasjonId,

@@ -172,9 +172,9 @@ class StasjonTest {
         @Test
         fun `delete stasjon by id`() {
             testDelete("/stasjoner/${stasjoner[3].id}") {
-                val respondedUttaks = json.parse(Stasjon.serializer(), response.content!!)
+                val respondedUttak = json.parse(Stasjon.serializer(), response.content!!)
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(stasjoner[3], respondedUttaks)
+                assertEquals(stasjoner[3], respondedUttak)
                 assertFalse(UttakRepository.exists(stasjoner[3].id))
             }
         }

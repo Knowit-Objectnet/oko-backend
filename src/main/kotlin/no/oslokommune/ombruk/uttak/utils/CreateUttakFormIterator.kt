@@ -1,7 +1,7 @@
 package no.oslokommune.ombruk.uttak.utils
 
 import no.oslokommune.ombruk.uttak.form.UttakPostForm
-import no.oslokommune.ombruk.uttak.model.RecurrenceRule
+import no.oslokommune.ombruk.uttak.model.GjentakelsesRegel
 import java.time.temporal.TemporalAdjusters
 
 
@@ -9,7 +9,7 @@ class CreateUttakFormIterator(postForm: UttakPostForm) : Iterator<UttakPostForm>
 
     private var currentForm = postForm
     private var currentCount: Int = 1
-    private val rRule: RecurrenceRule = postForm.recurrenceRule!!
+    private val rRule: GjentakelsesRegel = postForm.gjentakelsesRegel!!
 
     init {
         // Make iteration start on the first day of the days list. Next week if start date doesn't correspond with first value in days.

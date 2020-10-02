@@ -15,7 +15,7 @@ class UttakDeleteFormTest {
     fun generateValidForms() = listOf(
         UttakDeleteForm(),
         UttakDeleteForm(1),
-        UttakDeleteForm(recurrenceRuleId = 1),
+        UttakDeleteForm(gjentakelsesRegelId = 1),
         UttakDeleteForm(stasjonId = 1),
         UttakDeleteForm(partnerId = 1),
         UttakDeleteForm(fromDate = LocalDateTime.now()),
@@ -37,7 +37,7 @@ class UttakDeleteFormTest {
     @Suppress("unused")
     fun generateInvalidForms() = listOf(
         UttakDeleteForm(0),
-        UttakDeleteForm(recurrenceRuleId = 0),
+        UttakDeleteForm(gjentakelsesRegelId = 0),
         UttakDeleteForm(stasjonId = 0),
         UttakDeleteForm(partnerId = 0),
         UttakDeleteForm(0, fromDate = LocalDateTime.now()),

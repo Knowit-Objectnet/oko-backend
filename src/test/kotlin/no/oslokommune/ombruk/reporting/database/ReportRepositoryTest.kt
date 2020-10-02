@@ -236,7 +236,7 @@ class ReportRepositoryTest {
         UttakTable.insertAndGetId {
             it[startDateTime] = uttak.startDateTime
             it[endDateTime] = uttak.endDateTime
-            it[recurrenceRuleID] = uttak.recurrenceRule?.id
+            it[gjentakelsesRegelID] = uttak.gjentakelsesRegel?.id
             it[stasjonID] = uttak.stasjon.id
             it[partnerID] = uttak.partner?.id
         }.value

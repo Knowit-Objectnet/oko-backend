@@ -11,5 +11,5 @@ sealed class AuthorizationError(msg: String) : ServiceError(msg) {
 
     data class InvalidPrincipal(val reason: String = "") : AuthorizationError("JWT token is mangled, $reason")
     data class AccessViolationError(val reason: String = "") :
-        AuthorizationError("The requested uttaks do not belong to you $reason")
+        AuthorizationError("The requested uttak do not belong to you $reason")
 }

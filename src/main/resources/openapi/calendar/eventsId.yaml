@@ -1,7 +1,7 @@
 get:
   tags:
     #- everyone
-    - uttaks
+    - uttak
   summary: Get an uttak with the provided ID
   operationId: getUttak
   parameters:

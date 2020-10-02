@@ -21,7 +21,7 @@ data class UttakGetForm(
     val uttakId: Int? = null,
     val stasjonId: Int? = null,
     val partnerId: Int? = null,
-    val recurrenceRuleId: Int? = null,
+    val gjentakelsesRegelId: Int? = null,
     @Serializable(with = LocalDateTimeSerializer::class) val fromDate: LocalDateTime? = null,
     @Serializable(with = LocalDateTimeSerializer::class) val toDate: LocalDateTime? = null
 ) : IForm<UttakGetForm> {
@@ -31,14 +31,14 @@ data class UttakGetForm(
             validate(UttakGetForm::uttakId).isGreaterThan(0)
             validate(UttakGetForm::stasjonId).isGreaterThan(0)
             validate(UttakGetForm::partnerId).isGreaterThan(0)
-            validate(UttakGetForm::recurrenceRuleId).isGreaterThan(0)
+            validate(UttakGetForm::gjentakelsesRegelId).isGreaterThan(0)
 
             if (fromDate != null && toDate != null) validate(UttakGetForm::fromDate).isLessThanEndDateTime(toDate)
 
             if (uttakId != null) {
                 validate(UttakGetForm::stasjonId).isNull()
                 validate(UttakGetForm::partnerId).isNull()
-                validate(UttakGetForm::recurrenceRuleId).isNull()
+                validate(UttakGetForm::gjentakelsesRegelId).isNull()
                 validate(UttakGetForm::fromDate).isNull()
                 validate(UttakGetForm::toDate).isNull()
             }

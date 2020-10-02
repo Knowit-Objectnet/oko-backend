@@ -290,9 +290,9 @@ class PartnerTest {
         @Test
         fun `delete partner by id`() {
             testDelete("/partners/${partners[3].id}") {
-                val respondedUttaks = json.parse(Partner.serializer(), response.content!!)
+                val respondedUttak = json.parse(Partner.serializer(), response.content!!)
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(partners[3], respondedUttaks)
+                assertEquals(partners[3], respondedUttak)
                 assertFalse(UttakRepository.exists(partners[3].id))
             }
         }

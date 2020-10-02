@@ -13,5 +13,5 @@ data class Uttak(
         @Serializable(with = LocalDateTimeSerializer::class) var endDateTime: LocalDateTime,
         val stasjon: Stasjon,
         val partner: Partner?, // Optional partner. An uttak without a partner is arranged by the stasjon only.
-        var recurrenceRule: RecurrenceRule? = null
+        var gjentakelsesRegel: GjentakelsesRegel? = null
 )

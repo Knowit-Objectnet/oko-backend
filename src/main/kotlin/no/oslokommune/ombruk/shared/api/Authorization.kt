@@ -66,7 +66,7 @@ object Authorization {
     }
 
     /**
-     * Checks if a partner is only attempting to access uttaks that belong to them. If they do not own all the resources,
+     * Checks if a partner is only attempting to access uttak that belong to them. If they do not own all the resources,
      * they should not be allowed to perform the operation.
      *
      * @param role A [Pair] of a [Roles] and an [Int] specifying what group they belong to.

@@ -11,7 +11,7 @@ import no.oslokommune.ombruk.uttak.form.UttakGetForm
 import no.oslokommune.ombruk.uttak.form.UttakPostForm
 import no.oslokommune.ombruk.uttak.form.UttakUpdateForm
 import no.oslokommune.ombruk.uttak.model.Uttak
-import no.oslokommune.ombruk.uttak.model.RecurrenceRule
+import no.oslokommune.ombruk.uttak.model.GjentakelsesRegel
 import no.oslokommune.ombruk.uttak.model.toWeekDayList
 import no.oslokommune.ombruk.partner.database.Partners
 import no.oslokommune.ombruk.partner.database.toPartner
@@ -26,8 +26,8 @@ import org.slf4j.LoggerFactory
 object UttakTable : IntIdTable("uttak") {
     val startDateTime = datetime("start_date_time")
     val endDateTime = datetime("end_date_time")
-    val recurrenceRuleID =
-        integer("recurrence_rule_id").references(RecurrenceRules.id, onDelete = ReferenceOption.CASCADE).nullable()
+    val gjentakelsesRegelID =
+        integer("gjentakelses_regel_id").references(GjentakelsesRegels.id, onDelete = ReferenceOption.CASCADE).nullable()
     val stasjonID = integer("stasjon_id").references(Stasjoner.id, onDelete = ReferenceOption.CASCADE)
     // Nullable partner. An uttak without a partner is arranged by the stasjon only, like example "Ombruksdager".
     val partnerID = integer("partner_id").references(Partners.id, onDelete = ReferenceOption.CASCADE).nullable()
@@ -40,7 +40,7 @@ object UttakRepository : IUttakRepository {
         UttakTable.insertAndGetId {
             it[startDateTime] = uttakPostForm.startDateTime
             it[endDateTime] = uttakPostForm.endDateTime
-            it[recurrenceRuleID] = uttakPostForm.recurrenceRule?.id
+            it[gjentakelsesRegelID] = uttakPostForm.gjentakelsesRegel?.id
             it[stasjonID] = uttakPostForm.stasjonId
             it[partnerID] = uttakPostForm.partnerId
         }.value
@@ -79,22 +79,22 @@ object UttakRepository : IUttakRepository {
                  */
                 val statements = mutableListOf<Op<Boolean>>()
                 uttakDeleteForm.uttakId?.let { statements.add(Op.build { UttakTable.id eq it }) }
-                uttakDeleteForm.recurrenceRuleId?.let { statements.add(Op.build { UttakTable.recurrenceRuleID eq it }) }
+                uttakDeleteForm.gjentakelsesRegelId?.let { statements.add(Op.build { UttakTable.gjentakelsesRegelID eq it }) }
                 uttakDeleteForm.fromDate?.let { statements.add(Op.build { UttakTable.startDateTime.greaterEq(it) }) }
                 uttakDeleteForm.toDate?.let { statements.add(Op.build { UttakTable.startDateTime.lessEq(it) }) }
                 uttakDeleteForm.partnerId?.let { statements.add(Op.build { UttakTable.partnerID eq it }) }
                 uttakDeleteForm.stasjonId?.let { statements.add(Op.build { UttakTable.stasjonID eq it }) }
 
-                // Delete and return deleted uttaks. Have to handle the case where no statements are sepcified
+                // Delete and return deleted uttak. Have to handle the case where no statements are sepcified
                 if (statements.isEmpty()) {
-                    val result = (UttakTable innerJoin Stasjoner innerJoin Partners leftJoin RecurrenceRules).selectAll()
+                    val result = (UttakTable innerJoin Stasjoner innerJoin Partners leftJoin GjentakelsesRegels).selectAll()
                         .mapNotNull { toUttak(it) }
                     UttakTable.deleteAll()
                     return@transaction result
                 } else {
                     val statement = AndOp(statements)
                     val result =
-                        (UttakTable innerJoin Stasjoner innerJoin Partners leftJoin RecurrenceRules).select { statement }
+                        (UttakTable innerJoin Stasjoner innerJoin Partners leftJoin GjentakelsesRegels).select { statement }
                             .mapNotNull { toUttak(it) }
                     UttakTable.deleteWhere { statement }
                     return@transaction result
@@ -109,8 +109,8 @@ object UttakRepository : IUttakRepository {
 
     override fun getUttakByID(uttakID: Int): Either<RepositoryError, Uttak> = runCatching {
         transaction {
-            // leftJoin RecurrenceRules because not all uttaks are recurring.
-            (UttakTable innerJoin Stasjoner leftJoin Partners leftJoin RecurrenceRules).select { UttakTable.id eq uttakID }
+            // leftJoin GjentakelsesRegels because not all uttak are recurring.
+            (UttakTable innerJoin Stasjoner leftJoin Partners leftJoin GjentakelsesRegels).select { UttakTable.id eq uttakID }
                 .map { toUttak(it) }.firstOrNull()
         }
     }
@@ -121,15 +121,15 @@ object UttakRepository : IUttakRepository {
 
 
     @KtorExperimentalLocationsAPI
-    override fun getUttaks(uttakGetForm: UttakGetForm?): Either<RepositoryError, List<Uttak>> =
+    override fun getUttak(uttakGetForm: UttakGetForm?): Either<RepositoryError, List<Uttak>> =
         runCatching {
             transaction {
-                val query = (UttakTable innerJoin Stasjoner innerJoin Partners leftJoin RecurrenceRules).selectAll()
+                val query = (UttakTable innerJoin Stasjoner innerJoin Partners leftJoin GjentakelsesRegels).selectAll()
                 if (uttakGetForm != null) {
                     uttakGetForm.uttakId?.let { query.andWhere { UttakTable.id eq it } }
                     uttakGetForm.stasjonId?.let { query.andWhere { UttakTable.stasjonID eq it } }
                     uttakGetForm.partnerId?.let { query.andWhere { UttakTable.partnerID eq it } }
-                    uttakGetForm.recurrenceRuleId?.let { query.andWhere { UttakTable.recurrenceRuleID eq it } }
+                    uttakGetForm.gjentakelsesRegelId?.let { query.andWhere { UttakTable.gjentakelsesRegelID eq it } }
                     uttakGetForm.fromDate?.let { query.andWhere { UttakTable.startDateTime.greaterEq(it) } }
                     uttakGetForm.toDate?.let { query.andWhere { UttakTable.endDateTime.lessEq(it) } }
                 }
@@ -154,23 +154,23 @@ object UttakRepository : IUttakRepository {
             row[UttakTable.endDateTime],
             toStasjon(row),
             toPartner(row),
-            getGetRecurrenceRuleFromResultRow(row)
+            getGetGjentakelsesRegelFromResultRow(row)
         )
     }
 
 
-    private fun getGetRecurrenceRuleFromResultRow(row: ResultRow): RecurrenceRule? {
-        if (!row.hasValue(RecurrenceRules.id) || row.getOrNull(
-                RecurrenceRules.id
+    private fun getGetGjentakelsesRegelFromResultRow(row: ResultRow): GjentakelsesRegel? {
+        if (!row.hasValue(GjentakelsesRegels.id) || row.getOrNull(
+                GjentakelsesRegels.id
             ) == null
         ) return null
 
-        return RecurrenceRule(
-            row[RecurrenceRules.id].value,
-            row[RecurrenceRules.until],
-            row[RecurrenceRules.days]?.toWeekDayList(),
-            row[RecurrenceRules.interval],
-            row[RecurrenceRules.count]
+        return GjentakelsesRegel(
+            row[GjentakelsesRegels.id].value,
+            row[GjentakelsesRegels.until],
+            row[GjentakelsesRegels.days]?.toWeekDayList(),
+            row[GjentakelsesRegels.interval],
+            row[GjentakelsesRegels.count]
         )
     }
 }

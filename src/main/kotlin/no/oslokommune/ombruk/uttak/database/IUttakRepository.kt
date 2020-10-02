@@ -29,7 +29,7 @@ interface IUttakRepository : IRepository {
     fun updateUttak(uttak: UttakUpdateForm): Either<RepositoryError, Uttak>
 
     /**
-     * Deletes one or several [Uttak] objects from the database. The uttaks to be deleted are filtered through the use
+     * Deletes one or several [Uttak] objects from the database. The uttak to be deleted are filtered through the use
      * of non-null properties in the [UttakDeleteForm].
      *
      * @param uttakDeleteForm A [UttakDeleteForm] containing the query constraints.
@@ -46,9 +46,9 @@ interface IUttakRepository : IRepository {
     fun getUttakByID(uttakID: Int): Either<RepositoryError, Uttak>
 
     /**
-     * Fetches a set of uttaks that are specified by query parameters in a [UttakGetForm]. If null, all uttaks are returned.
+     * Fetches a set of uttak that are specified by query parameters in a [UttakGetForm]. If null, all uttak are returned.
      *
      * @return An [Either] object consisting of a [RepositoryError] on failure and a [List] of [Uttak] objects on success.
      */
-    fun getUttaks(uttakGetForm: UttakGetForm?): Either<RepositoryError, List<Uttak>>
+    fun getUttak(uttakGetForm: UttakGetForm?): Either<RepositoryError, List<Uttak>>
 }

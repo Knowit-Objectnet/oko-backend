@@ -6,7 +6,7 @@ import java.time.DayOfWeek
 import java.time.LocalDateTime
 
 @Serializable
-data class RecurrenceRule(
+data class GjentakelsesRegel(
     var id: Int = 0,
     @Serializable(with = LocalDateTimeSerializer::class) val until: LocalDateTime? = null,
     val days: List<DayOfWeek>? = null,

@@ -15,7 +15,7 @@ import java.time.LocalDateTime
 @Location("/")
 data class UttakDeleteForm(
     var uttakId: Int? = null,
-    var recurrenceRuleId: Int? = null,
+    var gjentakelsesRegelId: Int? = null,
     var fromDate: LocalDateTime? = null,
     var toDate: LocalDateTime? = null,
     var stasjonId: Int? = null,
@@ -25,7 +25,7 @@ data class UttakDeleteForm(
         validate(this) {
 
             validate(UttakDeleteForm::uttakId).isGreaterThan(0)
-            validate(UttakDeleteForm::recurrenceRuleId).isGreaterThan(0)
+            validate(UttakDeleteForm::gjentakelsesRegelId).isGreaterThan(0)
             validate(UttakDeleteForm::stasjonId).isGreaterThan(0)
             validate(UttakDeleteForm::partnerId).isGreaterThan(0)
 

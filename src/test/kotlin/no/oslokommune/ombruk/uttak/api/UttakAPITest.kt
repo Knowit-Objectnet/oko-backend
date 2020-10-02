@@ -75,7 +75,7 @@ class UttakAPITest {
             val expected = Uttak(1, LocalDateTime.now(), LocalDateTime.now(), s, p, null)
             every { UttakService.getUttakByID(1) } returns expected.right()
 
-            testGet("/uttaks/1") {
+            testGet("/uttak/1") {
                 assertEquals(HttpStatusCode.OK, response.status())
             }
         }
@@ -87,7 +87,7 @@ class UttakAPITest {
         fun `get single uttak 404`() {
             every { UttakService.getUttakByID(1) } returns RepositoryError.NoRowsFound("test").left()
 
-            testGet("/uttaks/1") {
+            testGet("/uttak/1") {
                 assertEquals(HttpStatusCode.NotFound, response.status())
                 assertEquals("No rows found with provided ID, test", response.content)
             }
@@ -98,7 +98,7 @@ class UttakAPITest {
          */
         @Test
         fun `get single uttak 422`() {
-            testGet("/uttaks/0") {
+            testGet("/uttak/0") {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
                 assertEquals("id: Must be greater than 0", response.content)
             }
@@ -111,7 +111,7 @@ class UttakAPITest {
         fun `get single uttak 500`() {
             every { UttakService.getUttakByID(1) } returns ServiceError("test").left()
 
-            testGet("/uttaks/1") {
+            testGet("/uttak/1") {
                 assertEquals(HttpStatusCode.InternalServerError, response.status())
                 assertEquals("test", response.content)
             }
@@ -122,7 +122,7 @@ class UttakAPITest {
          */
         @Test
         fun `get single uttak 400`() {
-            testGet("/uttaks/NaN") {
+            testGet("/uttak/NaN") {
                 assertEquals(HttpStatusCode.BadRequest, response.status())
                 assertEquals("id could not be parsed.", response.content)
             }
@@ -133,10 +133,10 @@ class UttakAPITest {
     inner class Get {
 
         /**
-         * Check for 200 when we try to get all uttaks with an empty form
+         * Check for 200 when we try to get all uttak with an empty form
          */
         @Test
-        fun `get uttaks 200`() {
+        fun `get uttak 200`() {
             val s = Stasjon(1, "test")
             val p = Partner(1, "test")
             val e1 = Uttak(1, LocalDateTime.now(), LocalDateTime.now(), s, p, null)
@@ -144,9 +144,9 @@ class UttakAPITest {
             val e3 = e1.copy(3)
             val expected = listOf(e1, e2, e3)
 
-            every { UttakService.getUttaks(UttakGetForm()) } returns expected.right()
+            every { UttakService.getUttak(UttakGetForm()) } returns expected.right()
 
-            testGet("/uttaks") {
+            testGet("/uttak") {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(json.stringify(Uttak.serializer().list, expected), response.content)
             }
@@ -156,10 +156,10 @@ class UttakAPITest {
          * Check for 500 when we encounter a serious error
          */
         @Test
-        fun `get uttaks 500`() {
-            every { UttakService.getUttaks(UttakGetForm()) } returns ServiceError("test").left()
+        fun `get uttak 500`() {
+            every { UttakService.getUttak(UttakGetForm()) } returns ServiceError("test").left()
 
-            testGet("/uttaks") {
+            testGet("/uttak") {
                 assertEquals(HttpStatusCode.InternalServerError, response.status())
                 assertEquals("test", response.content)
             }
@@ -169,8 +169,8 @@ class UttakAPITest {
          * Check for 400 when we get a form which can't be parsed. uttakId is not a number here.
          */
         @Test
-        fun `get uttaks 400`() {
-            testGet("/uttaks?uttakId=NaN") {
+        fun `get uttak 400`() {
+            testGet("/uttak?uttakId=NaN") {
                 assertEquals(HttpStatusCode.BadRequest, response.status())
                 assertEquals("uttakId could not be parsed.", response.content)
             }
@@ -180,8 +180,8 @@ class UttakAPITest {
          * Check for 422 when we get an invalid form. uttakId is not valid here.
          */
         @Test
-        fun `get uttaks 422`() {
-            testGet("/uttaks?uttakId=-1") {
+        fun `get uttak 422`() {
+            testGet("/uttak?uttakId=-1") {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
                 assertEquals("uttakId: Must be greater than 0", response.content)
             }
@@ -206,7 +206,7 @@ class UttakAPITest {
             every { StasjonRepository.exists(1) } returns true
             every { StasjonRepository.getStasjonById(1) } returns Either.right(s)
 
-            testPost("/uttaks", json.stringify(UttakPostForm.serializer(), form)) {
+            testPost("/uttak", json.stringify(UttakPostForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(json.stringify(Uttak.serializer(), expected), response.content)
             }
@@ -222,7 +222,7 @@ class UttakAPITest {
             every { PartnerRepository.exists(1) } returns true
             every { StasjonRepository.exists(1) } returns true
 
-            testPost("/uttaks", json.stringify(UttakPostForm.serializer(), form), null) {
+            testPost("/uttak", json.stringify(UttakPostForm.serializer(), form), null) {
                 assertEquals(HttpStatusCode.Unauthorized, response.status())
             }
         }
@@ -237,7 +237,7 @@ class UttakAPITest {
             every { PartnerRepository.exists(1) } returns true
             every { StasjonRepository.exists(1) } returns true
 
-            testPost("/uttaks", json.stringify(UttakPostForm.serializer(), form), JwtMockConfig.partnerBearer2) {
+            testPost("/uttak", json.stringify(UttakPostForm.serializer(), form), JwtMockConfig.partnerBearer2) {
                 assertEquals(HttpStatusCode.Forbidden, response.status())
             }
         }
@@ -255,7 +255,7 @@ class UttakAPITest {
             every { StasjonRepository.exists(s.id) } returns true
             every { StasjonRepository.getStasjonById(1) } returns Either.right(s)
 
-            testPost("/uttaks", json.stringify(UttakPostForm.serializer(), form)) {
+            testPost("/uttak", json.stringify(UttakPostForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.InternalServerError, response.status())
                 assertEquals("test", response.content)
             }
@@ -274,7 +274,7 @@ class UttakAPITest {
             every { StasjonRepository.exists(s.id) } returns true
             every { StasjonRepository.getStasjonById(1) } returns Either.right(s)
 
-            testPost("/uttaks", json.stringify(UttakPostForm.serializer(), form)) {
+            testPost("/uttak", json.stringify(UttakPostForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
                 assertEquals("partnerId: entity does not exist", response.content)
             }
@@ -285,7 +285,7 @@ class UttakAPITest {
          */
         @Test
         fun `post uttak 400`() {
-            testPost("/uttaks", "") {
+            testPost("/uttak", "") {
                 assertEquals(HttpStatusCode.BadRequest, response.status())
             }
         }
@@ -310,7 +310,7 @@ class UttakAPITest {
             every { UttakRepository.getUttakByID(1) } returns initial.right()
             every { StasjonRepository.getStasjonById(s.id) } returns Either.right(s)
 
-            testPatch("/uttaks", json.stringify(UttakUpdateForm.serializer(), form)) {
+            testPatch("/uttak", json.stringify(UttakUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(json.stringify(Uttak.serializer(), expected), response.content)
             }
@@ -330,7 +330,7 @@ class UttakAPITest {
             every { UttakRepository.getUttakByID(1) } returns initial.right()
             every { StasjonRepository.getStasjonById(s.id) } returns Either.right(s)
 
-            testPatch("/uttaks", json.stringify(UttakUpdateForm.serializer(), form)) {
+            testPatch("/uttak", json.stringify(UttakUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.InternalServerError, response.status())
             }
         }
@@ -342,7 +342,7 @@ class UttakAPITest {
         fun `patch uttak 401`() {
             val form = UttakUpdateForm(1, LocalDateTime.now(), LocalDateTime.now().plusDays(1))
 
-            testPatch("/uttaks", json.stringify(UttakUpdateForm.serializer(), form), null) {
+            testPatch("/uttak", json.stringify(UttakUpdateForm.serializer(), form), null) {
                 assertEquals(HttpStatusCode.Unauthorized, response.status())
             }
         }
@@ -354,7 +354,7 @@ class UttakAPITest {
         fun `patch uttak 403`() {
             val form = UttakUpdateForm(1, LocalDateTime.now(), LocalDateTime.now().plusDays(1))
 
-            testPatch("/uttaks", json.stringify(UttakUpdateForm.serializer(), form), JwtMockConfig.partnerBearer2) {
+            testPatch("/uttak", json.stringify(UttakUpdateForm.serializer(), form), JwtMockConfig.partnerBearer2) {
                 assertEquals(HttpStatusCode.Forbidden, response.status())
             }
         }
@@ -373,7 +373,7 @@ class UttakAPITest {
             every { UttakService.updateUttak(form) } returns expected.right()
             every { UttakRepository.getUttakByID(1) } returns initial.right()
 
-            testPatch("/uttaks", json.stringify(UttakUpdateForm.serializer(), form)) {
+            testPatch("/uttak", json.stringify(UttakUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
                 assertEquals("id: Must be greater than 0", response.content)
 
@@ -386,7 +386,7 @@ class UttakAPITest {
          */
         @Test
         fun `patch uttak 400`() {
-            testPatch("/uttaks", "") {
+            testPatch("/uttak", "") {
                 assertEquals(HttpStatusCode.BadRequest, response.status())
             }
         }
@@ -399,14 +399,14 @@ class UttakAPITest {
          * Check for 200 when we get a valid delete form.
          */
         @Test
-        fun `delete uttaks 200`() {
+        fun `delete uttak 200`() {
             val s = Stasjon(1, "test")
             val p = Partner(1, "test")
             val expected = listOf(Uttak(1, LocalDateTime.now(), LocalDateTime.now().plusDays(1), s, p))
 
             every { UttakService.deleteUttak(UttakDeleteForm()) } returns expected.right()
 
-            testDelete("/uttaks") {
+            testDelete("/uttak") {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(json.stringify(Uttak.serializer().list, expected), response.content)
             }
@@ -416,10 +416,10 @@ class UttakAPITest {
          * Check for 500 when we encounter a serious error.
          */
         @Test
-        fun `delete uttaks 500`() {
+        fun `delete uttak 500`() {
             every { UttakService.deleteUttak(UttakDeleteForm()) } returns ServiceError("test").left()
 
-            testDelete("/uttaks") {
+            testDelete("/uttak") {
                 assertEquals(HttpStatusCode.InternalServerError, response.status())
             }
         }
@@ -428,26 +428,26 @@ class UttakAPITest {
          * Check for 401 when no bearer is present.
          */
         @Test
-        fun `delete uttaks 401`() {
-            testDelete("/uttaks", null) {
+        fun `delete uttak 401`() {
+            testDelete("/uttak", null) {
                 assertEquals(HttpStatusCode.Unauthorized, response.status())
             }
         }
 
         /**
-         * Check for 404 when there is no uttaks that match our partner id. This is only "semi intended" behaviour
+         * Check for 404 when there is no uttak that match our partner id. This is only "semi intended" behaviour
          * Someone please fix later. @todo FIX this
          */
         @Test
-        fun `delete uttaks 404`() {
+        fun `delete uttak 404`() {
             val s = Stasjon(1, "test")
             val p = Partner(1, "test")
             val expected = listOf(Uttak(1, LocalDateTime.now(), LocalDateTime.now().plusDays(1), s, p))
 
-            every { UttakService.getUttaks(UttakGetForm()) } returns expected.right()
+            every { UttakService.getUttak(UttakGetForm()) } returns expected.right()
             every { UttakService.deleteUttak(UttakDeleteForm()) } returns expected.right()
 
-            testDelete("/uttaks", JwtMockConfig.partnerBearer2) {
+            testDelete("/uttak", JwtMockConfig.partnerBearer2) {
                 assertEquals(HttpStatusCode.NotFound, response.status())
             }
         }
@@ -457,7 +457,7 @@ class UttakAPITest {
          */
         @Test
         fun `delete uttak 422`() {
-            testDelete("/uttaks?uttakId=-1") {
+            testDelete("/uttak?uttakId=-1") {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
                 assertEquals("uttakId: Must be greater than 0", response.content)
 
@@ -469,7 +469,7 @@ class UttakAPITest {
          */
         @Test
         fun `delete uttak 400`() {
-            testDelete("/uttaks?uttakId=NaN") {
+            testDelete("/uttak?uttakId=NaN") {
                 assertEquals(HttpStatusCode.BadRequest, response.status())
                 assertEquals("uttakId could not be parsed.", response.content)
 

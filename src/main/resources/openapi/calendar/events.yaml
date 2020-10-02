@@ -1,9 +1,9 @@
 get:
   tags:
     #- everyone
-    - uttaks
-  summary: Gets uttaks
-  operationId: getUttaks
+    - uttak
+  summary: Gets uttak
+  operationId: getUttak
   parameters:
     - in: query
       name: uttakId
@@ -12,7 +12,7 @@ get:
         format: int64
       example: 1
     - in: query
-      name: recurrenceRuleId
+      name: gjentakelsesRegelId
       schema:
         type: integer
         format: int64
@@ -43,7 +43,7 @@ get:
       example: 1
   responses:
     '200':
-      description: Returns an array of all the uttaks that matched the query.
+      description: Returns an array of all the uttak that matched the query.
       content:
         application/json:
           schema:
@@ -60,10 +60,10 @@ get:
 post:
   tags:
     #- reg-admin
-    - uttaks
-  summary: adds one or more uttaks to the database.
-  operationId: addUttaks
-  description: Adds one or more uttaks to the database. This also creates corresponding weight uttaksdata with nulled weight.
+    - uttak
+  summary: adds one or more uttak to the database.
+  operationId: addUttak
+  description: Adds one or more uttak to the database. This also creates corresponding weight uttaksdata with nulled weight.
   responses:
     '200':
       description: item created. Returns the created uttak. If recurring, the first uttak is returned.
@@ -91,7 +91,7 @@ patch:
   tags:
     #- reg-admin
     #- reuse-stasjon
-    - uttaks
+    - uttak
   summary: Updates an uttak
   operationId: patchUttak
   description: |
@@ -126,13 +126,13 @@ delete:
 #    - reg-admin
 #    - reuse-stasjon
 #    - partner
-    - uttaks
-  summary: Deletes uttaks
-  operationId: deleteUttaks
+    - uttak
+  summary: Deletes uttak
+  operationId: deleteUttak
   description: |
-    Deletes one or several uttaks from the database. Deletion can be specified through the use of query parameters.
+    Deletes one or several uttak from the database. Deletion can be specified through the use of query parameters.
     Reuse stasjon workers and REG admin will be able to delete any uttak, whilst a partner only has permission to delete
-    their own uttaks.
+    their own uttak.
   parameters:
     - in: query
       name: uttakId
@@ -141,7 +141,7 @@ delete:
         format: int64
       example: 1
     - in: query
-      name: recurrenceRuleId
+      name: gjentakelsesRegelId
       schema:
         type: integer
         format: int64
@@ -179,7 +179,7 @@ delete:
             type: array
             items:
               $ref: '../api.yaml#/components/schemas/Uttak'
-            description: A list of deleted uttaks
+            description: A list of deleted uttak
     '400':
       description: Bad request body
     '401':

@@ -3,7 +3,7 @@ package no.oslokommune.ombruk.uttak.form
 import arrow.core.Either
 import kotlinx.serialization.Serializable
 import no.oslokommune.ombruk.stasjon.database.StasjonRepository
-import no.oslokommune.ombruk.uttak.model.RecurrenceRule
+import no.oslokommune.ombruk.uttak.model.GjentakelsesRegel
 import no.oslokommune.ombruk.uttak.utils.CreateUttakFormIterator
 import no.oslokommune.ombruk.uttak.utils.NonRecurringCreateUttakFormIterator
 import no.oslokommune.ombruk.partner.database.PartnerRepository
@@ -23,9 +23,9 @@ data class UttakPostForm(
     @Serializable(with = LocalDateTimeSerializer::class) var endDateTime: LocalDateTime,
     val stasjonId: Int,
     val partnerId: Int? = null, // Optional partner. An uttak without a partner is arranged by the stasjon only.
-    var recurrenceRule: RecurrenceRule? = null
+    var gjentakelsesRegel: GjentakelsesRegel? = null
 ) : Iterable<UttakPostForm>, IForm<UttakPostForm> {
-    override fun iterator() = when (recurrenceRule) {
+    override fun iterator() = when (gjentakelsesRegel) {
         null -> NonRecurringCreateUttakFormIterator(this)
         else -> CreateUttakFormIterator(this)
     }
@@ -42,19 +42,19 @@ data class UttakPostForm(
 
             validate(UttakPostForm::stasjonId).isInRepository(StasjonRepository)
             validate(UttakPostForm::partnerId).isInRepository(PartnerRepository)
-            recurrenceRule?.validateSelf(startDateTime)
+            gjentakelsesRegel?.validateSelf(startDateTime)
         }
     }
 }
 
 
-private fun RecurrenceRule.validateSelf(startDateTime: LocalDateTime) = validate(this) {
+private fun GjentakelsesRegel.validateSelf(startDateTime: LocalDateTime) = validate(this) {
 
-    validate(RecurrenceRule::interval).isGreaterThanOrEqualTo(1)
-    validate(RecurrenceRule::count).isGreaterThanOrEqualTo(1)
-    validate(RecurrenceRule::until).isGreaterThanStartDateTime(startDateTime)
+    validate(GjentakelsesRegel::interval).isGreaterThanOrEqualTo(1)
+    validate(GjentakelsesRegel::count).isGreaterThanOrEqualTo(1)
+    validate(GjentakelsesRegel::until).isGreaterThanStartDateTime(startDateTime)
 
-    if (count == null) validate(RecurrenceRule::until).isNotNull()
-    if (until == null) validate(RecurrenceRule::count).isNotNull()
+    if (count == null) validate(GjentakelsesRegel::until).isNotNull()
+    if (until == null) validate(GjentakelsesRegel::count).isNotNull()
 }
 

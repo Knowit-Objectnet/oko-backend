@@ -8,7 +8,7 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.mockkObject
 import io.mockk.unmockkAll
 import no.oslokommune.ombruk.stasjon.database.StasjonRepository
-import no.oslokommune.ombruk.uttak.model.RecurrenceRule
+import no.oslokommune.ombruk.uttak.model.GjentakelsesRegel
 import no.oslokommune.ombruk.stasjon.model.Stasjon
 import no.oslokommune.ombruk.partner.database.PartnerRepository
 import no.oslokommune.ombruk.shared.database.initDB
@@ -59,15 +59,15 @@ class UttakPostFormTest {
             UttakPostForm(from, from.plusHours(1), 1, 1),
             UttakPostForm(
                 from, from.plusHours(1), 1, 1,
-                RecurrenceRule(1, count = 1)
+                GjentakelsesRegel(1, count = 1)
             ),
             UttakPostForm(
                 from, from.plusHours(1), 1, 1,
-                RecurrenceRule(1, count = 1, interval = 1)
+                GjentakelsesRegel(1, count = 1, interval = 1)
             ),
             UttakPostForm(
                 from, from.plusHours(1), 1, 1,
-                RecurrenceRule(1, until = LocalDateTime.now().plusDays(1))
+                GjentakelsesRegel(1, until = LocalDateTime.now().plusDays(1))
             )
         )
     }
@@ -92,9 +92,9 @@ class UttakPostFormTest {
             UttakPostForm(from, from.plusHours(1), 1, 2),
             UttakPostForm(from, from.plusHours(1), 2, 1),
             UttakPostForm(from, from.minusHours(1), 1, 1),
-            UttakPostForm(from, from.plusHours(1), 1, 1, RecurrenceRule(1)),
-            UttakPostForm(from, from.plusHours(1), 1, 1, RecurrenceRule(1, count = 0)),
-            UttakPostForm(from, from.plusHours(1), 1, 1, RecurrenceRule(1, count = 1, interval = 0))
+            UttakPostForm(from, from.plusHours(1), 1, 1, GjentakelsesRegel(1)),
+            UttakPostForm(from, from.plusHours(1), 1, 1, GjentakelsesRegel(1, count = 0)),
+            UttakPostForm(from, from.plusHours(1), 1, 1, GjentakelsesRegel(1, count = 1, interval = 0))
         )
     }
 

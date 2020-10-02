@@ -15,7 +15,7 @@ create TABLE partners
     email varchar(255) not null
 );
 
-create table recurrence_rules
+create table gjentakelses_regels
 (
     id         serial primary key,
     count      int,
@@ -29,10 +29,10 @@ create TABLE uttak
     id                 serial primary key,
     start_date_time    timestamp not null,
     end_date_time      timestamp not null,
-    recurrence_rule_id int,
+    gjentakelses_regel_id int,
     stasjon_id         int not null,
     partner_id         int not null,
-    FOREIGN KEY (recurrence_rule_id) references recurrence_rules on delete cascade,
+    FOREIGN KEY (gjentakelses_regel_id) references gjentakelses_regels on delete cascade,
     FOREIGN KEY (stasjon_id) references stasjoner on delete cascade,
     FOREIGN KEY (partner_id) references partners on delete cascade
 );

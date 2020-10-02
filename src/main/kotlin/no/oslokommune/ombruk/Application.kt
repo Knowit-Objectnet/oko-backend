@@ -24,7 +24,7 @@ import io.ktor.serialization.json
 import io.ktor.util.DataConversionException
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.serialization.json.Json
-import no.oslokommune.ombruk.uttak.api.uttaks
+import no.oslokommune.ombruk.uttak.api.uttak
 import no.oslokommune.ombruk.stasjon.api.stasjoner
 import no.oslokommune.ombruk.uttak.service.UttakService
 import no.oslokommune.ombruk.stasjon.service.StasjonService
@@ -169,7 +169,7 @@ fun Application.module(testing: Boolean = false) {
     }
 
     routing {
-        uttaks(UttakService)
+        uttak(UttakService)
         partners(PartnerService)
         uttaksdata(ReportService)
         pickup(PickupService)

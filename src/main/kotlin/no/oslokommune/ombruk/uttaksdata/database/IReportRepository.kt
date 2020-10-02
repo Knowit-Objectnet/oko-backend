@@ -47,7 +47,7 @@ interface IReportRepository {
     /**
      * Gets a [List] of [Report] objects specified by parameters in a [ReportGetForm].
      *
-     * @param uttaksdataGetForm A [ReportGetForm]. If null, all uttaks are fetched from the DB.
+     * @param uttaksdataGetForm A [ReportGetForm]. If null, all uttak are fetched from the DB.
      * @return A [RepositoryError] on failure and a [List] of [Report] objects on success.
      */
     fun getReports(uttaksdataGetForm: ReportGetForm?): Either<RepositoryError, List<Report>>

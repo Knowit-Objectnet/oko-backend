@@ -6,13 +6,13 @@ import io.mockk.*
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import no.oslokommune.ombruk.uttak.database.UttakRepository
-import no.oslokommune.ombruk.uttak.database.RecurrenceRules
+import no.oslokommune.ombruk.uttak.database.GjentakelsesRegels
 import no.oslokommune.ombruk.uttak.form.UttakDeleteForm
 import no.oslokommune.ombruk.uttak.form.UttakGetForm
 import no.oslokommune.ombruk.uttak.form.UttakPostForm
 import no.oslokommune.ombruk.uttak.form.UttakUpdateForm
 import no.oslokommune.ombruk.uttak.model.Uttak
-import no.oslokommune.ombruk.uttak.model.RecurrenceRule
+import no.oslokommune.ombruk.uttak.model.GjentakelsesRegel
 import no.oslokommune.ombruk.uttaksdata.model.Report
 import no.oslokommune.ombruk.uttaksdata.service.ReportService
 import org.junit.jupiter.api.*
@@ -30,7 +30,7 @@ class UttakServiceTest {
     fun setup() {
         mockkObject(UttakRepository)
         mockkObject(ReportService)
-        mockkObject(RecurrenceRules)
+        mockkObject(GjentakelsesRegels)
     }
 
     @AfterEach
@@ -60,84 +60,84 @@ class UttakServiceTest {
         }
 
         /**
-         * Check that get uttaks returns the exepected list of uttaks
+         * Check that get uttak returns the exepected list of uttak
          */
         @Test
-        fun `get all`(@MockK expectedUttaks: List<Uttak>) {
-            every { UttakRepository.getUttaks(null) } returns expectedUttaks.right()
+        fun `get all`(@MockK expectedUttak: List<Uttak>) {
+            every { UttakRepository.getUttak(null) } returns expectedUttak.right()
 
-            val actualUttaks = UttakService.getUttaks()
-            require(actualUttaks is Either.Right)
+            val actualUttak = UttakService.getUttak()
+            require(actualUttak is Either.Right)
 
-            assertEquals(expectedUttaks, actualUttaks.b)
+            assertEquals(expectedUttak, actualUttak.b)
         }
 
         /**
          * Check that we can get the expected uttak when given a stasjon id
          */
         @Test
-        fun `get by stasjon id`(@MockK expectedUttaks: List<Uttak>) {
+        fun `get by stasjon id`(@MockK expectedUttak: List<Uttak>) {
             val form = UttakGetForm(stasjonId = 1)
-            every { UttakRepository.getUttaks(form) } returns expectedUttaks.right()
+            every { UttakRepository.getUttak(form) } returns expectedUttak.right()
 
-            val actualUttaks = UttakService.getUttaks(form)
-            require(actualUttaks is Either.Right)
-            assertEquals(expectedUttaks, actualUttaks.b)
+            val actualUttak = UttakService.getUttak(form)
+            require(actualUttak is Either.Right)
+            assertEquals(expectedUttak, actualUttak.b)
         }
 
         /**
          * Check that we can get the expected uttak when given a partner id
          */
         @Test
-        fun `get by partner id`(@MockK expectedUttaks: List<Uttak>) {
+        fun `get by partner id`(@MockK expectedUttak: List<Uttak>) {
             val form = UttakGetForm(partnerId = 1)
-            every { UttakRepository.getUttaks(form) } returns expectedUttaks.right()
+            every { UttakRepository.getUttak(form) } returns expectedUttak.right()
 
-            val actualUttaks = UttakService.getUttaks(form)
-            require(actualUttaks is Either.Right)
-            assertEquals(expectedUttaks, actualUttaks.b)
+            val actualUttak = UttakService.getUttak(form)
+            require(actualUttak is Either.Right)
+            assertEquals(expectedUttak, actualUttak.b)
         }
 
         /**
          * Check that we can get the expected uttak when given a stasjon and partner id
          */
         @Test
-        fun `get by partner and stasjon id`(@MockK expectedUttaks: List<Uttak>) {
+        fun `get by partner and stasjon id`(@MockK expectedUttak: List<Uttak>) {
             val form = UttakGetForm(partnerId = 1, stasjonId = 1)
-            every { UttakRepository.getUttaks(form) } returns expectedUttaks.right()
+            every { UttakRepository.getUttak(form) } returns expectedUttak.right()
 
-            val actualUttaks = UttakService.getUttaks(form)
-            require(actualUttaks is Either.Right)
-            assertEquals(expectedUttaks, actualUttaks.b)
+            val actualUttak = UttakService.getUttak(form)
+            require(actualUttak is Either.Right)
+            assertEquals(expectedUttak, actualUttak.b)
         }
 
         /**
          * Check that we can get the expected uttak when given a date time range
          */
         @Test
-        fun `get by datetime range`(@MockK expectedUttaks: List<Uttak>) {
+        fun `get by datetime range`(@MockK expectedUttak: List<Uttak>) {
             val form = UttakGetForm(
                 fromDate = LocalDateTime.parse("2020-08-15T15:30:00", DateTimeFormatter.ISO_DATE_TIME),
                 toDate = LocalDateTime.parse("2020-08-20T15:30:00", DateTimeFormatter.ISO_DATE_TIME)
             )
-            every { UttakRepository.getUttaks(form) } returns expectedUttaks.right()
+            every { UttakRepository.getUttak(form) } returns expectedUttak.right()
 
-            val actualUttaks = UttakService.getUttaks(form)
-            require(actualUttaks is Either.Right)
-            assertEquals(expectedUttaks, actualUttaks.b)
+            val actualUttak = UttakService.getUttak(form)
+            require(actualUttak is Either.Right)
+            assertEquals(expectedUttak, actualUttak.b)
         }
 
         /**
          * Check that we can get the expected uttak when given a recurrence rule id
          */
         @Test
-        fun `get by recurrenceRule id`(@MockK expectedUttaks: List<Uttak>) {
-            val form = UttakGetForm(recurrenceRuleId = 1)
-            every { UttakRepository.getUttaks(form) } returns expectedUttaks.right()
+        fun `get by gjentakelsesRegel id`(@MockK expectedUttak: List<Uttak>) {
+            val form = UttakGetForm(gjentakelsesRegelId = 1)
+            every { UttakRepository.getUttak(form) } returns expectedUttak.right()
 
-            val actualUttaks = UttakService.getUttaks(form)
-            require(actualUttaks is Either.Right)
-            assertEquals(expectedUttaks, actualUttaks.b)
+            val actualUttak = UttakService.getUttak(form)
+            require(actualUttak is Either.Right)
+            assertEquals(expectedUttak, actualUttak.b)
         }
 
     }
@@ -146,7 +146,7 @@ class UttakServiceTest {
     inner class SaveUttakTable {
 
         /**
-         * Check that save single uttaks calls the repository and returns the saved uttak.
+         * Check that save single uttak calls the repository and returns the saved uttak.
          */
         @Test
         fun `save single uttak`(@MockK expectedUttak: Uttak, @MockK uttaksdata: Report) {
@@ -162,15 +162,15 @@ class UttakServiceTest {
         }
 
         /**
-         * Check that the repository is called 3 times, because 3 uttaks should be saved.
+         * Check that the repository is called 3 times, because 3 uttak should be saved.
          */
         @Test
         fun `save recurring uttak`(@MockK expectedUttak: Uttak, @MockK uttaksdata: Report) {
-            val rRule = RecurrenceRule(count = 3, days = listOf(DayOfWeek.MONDAY))
+            val rRule = GjentakelsesRegel(count = 3, days = listOf(DayOfWeek.MONDAY))
             val from = LocalDateTime.parse("2020-09-02T12:00:00Z", DateTimeFormatter.ISO_DATE_TIME)
-            val form = UttakPostForm(from, from.plusHours(1), 1, 1, recurrenceRule = rRule)
+            val form = UttakPostForm(from, from.plusHours(1), 1, 1, gjentakelsesRegel = rRule)
 
-            every { RecurrenceRules.insertRecurrenceRule(rRule) } returns rRule.right()
+            every { GjentakelsesRegels.insertGjentakelsesRegel(rRule) } returns rRule.right()
             every { ReportService.saveReport(expectedUttak) } returns uttaksdata.right()
             every { UttakRepository.insertUttak(any()) } returns expectedUttak.right()
 

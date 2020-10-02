@@ -3,7 +3,7 @@ properties:
   until:
     type: string
     format: date-time
-    description: Create uttaks until the specified date.
+    description: Create uttak until the specified date.
     default: null
     example: "2020-07-13T15:00:00Z"
   days:

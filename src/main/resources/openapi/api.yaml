@@ -14,8 +14,8 @@ servers:
 tags:
   - name: partners
     description: Calls available in  the /partners/ endpoint
-  - name: uttaks
-    description: Calls available in the /uttaks/ endpoint
+  - name: uttak
+    description: Calls available in the /uttak/ endpoint
   - name: uttaksdata
     description: Calls available in the /uttaksdata/ endpoint
   - name: stasjoner
@@ -45,9 +45,9 @@ paths:
     $ref: "./uttaksdata/uttaksdata.yaml"
   /uttaksdata{id}:
     $ref: "./uttaksdata/uttaksdataId.yaml"
-  /uttaks:
-    $ref: "./calendar/uttaks.yaml"
-  /uttaks/{id}:
+  /uttak:
+    $ref: "./calendar/uttak.yaml"
+  /uttak/{id}:
     $ref: "./calendar/uttaksId.yaml"
   /pickups/:
     $ref: "./no.oslokommune.ombruk.pickup/pickups.yaml"
@@ -80,10 +80,10 @@ components:
       $ref: "./calendar/schemas/uttakPatch.yaml"
     UttakPost:
       $ref: "./calendar/schemas/uttakPost.yaml"
-    RecurrenceRule:
-      $ref: "./calendar/schemas/recurrenceRule.yaml"
-    RecurrenceRulePost:
-      $ref: "./calendar/schemas/recurrenceRulePost.yaml"
+    GjentakelsesRegel:
+      $ref: "./calendar/schemas/gjentakelsesRegel.yaml"
+    GjentakelsesRegelPost:
+      $ref: "./calendar/schemas/gjentakelsesRegelPost.yaml"
     PickupPost:
       $ref: "./no.oslokommune.ombruk.pickup/schemas/pickupPost.yaml"
     PickupPatch:

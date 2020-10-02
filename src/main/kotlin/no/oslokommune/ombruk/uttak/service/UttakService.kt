@@ -6,7 +6,7 @@ import arrow.core.left
 import arrow.core.right
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import no.oslokommune.ombruk.uttak.database.UttakRepository
-import no.oslokommune.ombruk.uttak.database.RecurrenceRules
+import no.oslokommune.ombruk.uttak.database.GjentakelsesRegels
 import no.oslokommune.ombruk.uttak.form.UttakDeleteForm
 import no.oslokommune.ombruk.uttak.form.UttakGetForm
 import no.oslokommune.ombruk.uttak.form.UttakPostForm
@@ -20,8 +20,8 @@ object UttakService : IUttakService {
 
     /**
      * Helper function for [saveUttak]. Takes an iterable [uttakPostForm] and posts every [Uttak] to the db.
-     * This function is used for saving both singular and recurring uttaks, leading to a slightly confusing name. With that
-     * being said, both types of uttaks are iterable, so the map on the [uttakPostForm] will only run once on singular uttaks.
+     * This function is used for saving both singular and recurring uttak, leading to a slightly confusing name. With that
+     * being said, both types of uttak are iterable, so the map on the [uttakPostForm] will only run once on singular uttak.
      *
      * @param uttakPostForm An [UttakPostForm] containing info on the [Uttak](s) to be stored.
      * @return a [ServiceError] on failure and the first stored [Uttak] on success.
@@ -38,7 +38,7 @@ object UttakService : IUttakService {
 
     override fun saveUttak(uttakPostForm: UttakPostForm): Either<ServiceError, Uttak> = transaction {
         let {
-            uttakPostForm.recurrenceRule?.let { RecurrenceRules.insertRecurrenceRule(it) } ?: Unit.right()
+            uttakPostForm.gjentakelsesRegel?.let { GjentakelsesRegels.insertGjentakelsesRegel(it) } ?: Unit.right()
         }  // save recurrence rule, if set
             .flatMap { saveRecurring(uttakPostForm) }
             .fold({ rollback(); it.left() }, { it.right() })
@@ -49,8 +49,8 @@ object UttakService : IUttakService {
     }
 
     @KtorExperimentalLocationsAPI
-    override fun getUttaks(uttakGetForm: UttakGetForm?): Either<ServiceError, List<Uttak>> = transaction {
-        UttakRepository.getUttaks(uttakGetForm)
+    override fun getUttak(uttakGetForm: UttakGetForm?): Either<ServiceError, List<Uttak>> = transaction {
+        UttakRepository.getUttak(uttakGetForm)
     }
 
     @KtorExperimentalLocationsAPI
