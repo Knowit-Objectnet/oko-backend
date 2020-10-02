@@ -22,7 +22,7 @@ post:
     - stasjoner
   summary: Adds a stasjon
   operationId: addStasjon
-  description: Adds a stasjon to the database. Name must be unique. The stored Stasjon object is returned if request is valid.
+  description: Adds a stasjon to the database. Name must be unique. The stored Stasjon object is returned if uttaksforesporsel is valid.
   responses:
     '200':
       description: item created
@@ -64,7 +64,7 @@ patch:
           schema:
             $ref: '../api.yaml#/components/schemas/Stasjon'
     '400':
-      description: Bad request body
+      description: Bad uttaksforesporsel body
     '401':
       description: Unauthorized
     '403':

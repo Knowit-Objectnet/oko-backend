@@ -96,7 +96,7 @@ paths:
         '201':
           description: Uttak created
         '400':
-          description: Bad request
+          description: Bad uttaksforesporsel
       requestBody:
         content:
           application/json:

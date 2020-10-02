@@ -30,10 +30,10 @@ import no.oslokommune.ombruk.uttak.service.UttakService
 import no.oslokommune.ombruk.stasjon.service.StasjonService
 import no.oslokommune.ombruk.partner.api.partnere
 import no.oslokommune.ombruk.partner.service.PartnerService
-import no.oslokommune.ombruk.pickup.api.pickup
-import no.oslokommune.ombruk.pickup.api.request
-import no.oslokommune.ombruk.pickup.service.PickupService
-import no.oslokommune.ombruk.pickup.service.RequestService
+import no.oslokommune.ombruk.uttaksforesporsel.api.pickup
+import no.oslokommune.ombruk.uttaksforesporsel.api.request
+import no.oslokommune.ombruk.uttaksforesporsel.service.PickupService
+import no.oslokommune.ombruk.uttaksforesporsel.service.UttaksforesporselService
 import no.oslokommune.ombruk.uttaksdata.api.uttaksdata
 import no.oslokommune.ombruk.uttaksdata.service.ReportService
 import no.oslokommune.ombruk.shared.api.Authorization
@@ -174,7 +174,7 @@ fun Application.module(testing: Boolean = false) {
         uttaksdata(ReportService)
         pickup(PickupService)
         stasjoner(StasjonService)
-        request(RequestService)
+        request(UttaksforesporselService)
         get("/health_check") {
             call.respond(HttpStatusCode.OK)
         }

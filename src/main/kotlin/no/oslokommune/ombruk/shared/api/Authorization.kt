@@ -99,7 +99,7 @@ object Authorization {
     /**
      * Ensures that the ID in [role] corresponds to the [partnerId] passed in.
      * @param role A [Pair] of a [Roles] instance and an [Int] specifying what group they belong to.
-     * @param partnerId The partner ID of the Request to be posted.
+     * @param partnerId The partner ID of the Uttaksforesporsel to be posted.
      * @return [role] if the two ID's match or an [AuthorizationError] if they differ.
      */
     fun authorizeRequestId(role: Pair<Roles, Int>, partnerId: Int) = when (partnerId == role.second) {

@@ -73,7 +73,7 @@ patch:
           schema:
             $ref: '../api.yaml#/components/schemas/Partner'
     '400':
-      description: Bad request body
+      description: Bad uttaksforesporsel body
     '401':
       description: Unauthorized
     '403':
@@ -83,7 +83,7 @@ patch:
     '409':
       description: A partner with that name already exists
     '422':
-      description: Unprocessable request body. Validation of request body failed
+      description: Unprocessable uttaksforesporsel body. Validation of uttaksforesporsel body failed
     '500':
       description: Internal server error
   requestBody:

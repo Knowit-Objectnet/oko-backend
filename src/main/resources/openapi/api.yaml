@@ -54,7 +54,7 @@ paths:
   /pickups/{id}:
     $ref: "./no.oslokommune.ombruk.pickup/pickupsId.yaml"
   /requests/:
-    $ref: "./request/requests.yaml"
+    $ref: "./uttaksforesporsel/requests.yaml"
 
 components:
   schemas:
@@ -90,7 +90,7 @@ components:
       $ref: "./no.oslokommune.ombruk.pickup/schemas/pickupPatch.yaml"
     Pickup:
       $ref: "./no.oslokommune.ombruk.pickup/schemas/no.oslokommune.ombruk.pickup.yaml"
-    RequestPost:
-      $ref: "./request/schemas/requestPost.yaml"
-    Request:
-      $ref: "./request/schemas/request.yaml"
+    UttaksforesporselPost:
+      $ref: "./uttaksforesporsel/schemas/requestPost.yaml"
+    Uttaksforesporsel:
+      $ref: "./uttaksforesporsel/schemas/uttaksforesporsel.yaml"

@@ -83,7 +83,7 @@ patch:
             items:
               $ref: '../api.yaml#/components/schemas/Report'
     '400':
-      description: Bad request body
+      description: Bad uttaksforesporsel body
     '401':
       description: Unauthorized
     '403':

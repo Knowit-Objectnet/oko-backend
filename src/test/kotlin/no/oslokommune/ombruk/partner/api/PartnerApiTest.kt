@@ -190,7 +190,7 @@ class PartnerApiTest {
         }
 
         /**
-         * Check for 403 when no request doesn't have the required role.
+         * Check for 403 when no uttaksforesporsel doesn't have the required role.
          */
         @Test
         fun `post partner 403`() {
@@ -275,7 +275,7 @@ class PartnerApiTest {
         }
 
         /**
-         * Check for 403 when no request doesn't have the required role.
+         * Check for 403 when no uttaksforesporsel doesn't have the required role.
          */
         @Test
         fun `patch partner 403`() {
@@ -354,7 +354,7 @@ class PartnerApiTest {
         }
 
         /**
-         * Check for 403 when no request doesn't have the required role.
+         * Check for 403 when no uttaksforesporsel doesn't have the required role.
          */
         @Test
         fun `delete partner 403`() {
