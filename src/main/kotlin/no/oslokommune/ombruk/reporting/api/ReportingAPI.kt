@@ -43,7 +43,7 @@ fun Routing.report(reportService: IReportService) {
                     .flatMap { it.validOrError() }
                     .flatMap { form ->
                         Authorization.run {
-                            authorizeRole(listOf(Roles.Partner, Roles.RegEmployee, Roles.ReuseStation), call)
+                            authorizeRole(listOf(Roles.Partner, Roles.RegEmployee, Roles.ReuseStasjon), call)
                                 .flatMap { authorizeReportPatchByPartnerId(it) { reportService.getReportById(form.id) } }
                         }.flatMap { reportService.updateReport(form) }
                     }

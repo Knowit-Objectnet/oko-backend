@@ -38,7 +38,7 @@ fun Routing.pickup(pickupService: IPickupService) {
 
         authenticate {
             post {
-                Authorization.authorizeRole(listOf(Roles.ReuseStation, Roles.RegEmployee), call)
+                Authorization.authorizeRole(listOf(Roles.ReuseStasjon, Roles.RegEmployee), call)
                     .flatMap { receiveCatching { call.receive<PickupPostForm>() } }
                     .flatMap { it.validOrError() }
                     .flatMap { (pickupService.savePickup(it)) }
@@ -49,7 +49,7 @@ fun Routing.pickup(pickupService: IPickupService) {
 
             authenticate {
                 patch {
-                    Authorization.authorizeRole(listOf(Roles.ReuseStation, Roles.RegEmployee), call)
+                    Authorization.authorizeRole(listOf(Roles.ReuseStasjon, Roles.RegEmployee), call)
                         .flatMap { receiveCatching { call.receive<PickupUpdateForm>() } }
                         .flatMap { it.validOrError() }
                         .flatMap { pickupService.updatePickup(it) }
@@ -61,7 +61,7 @@ fun Routing.pickup(pickupService: IPickupService) {
 
             authenticate {
                 delete<PickupDeleteForm> { form ->
-                    Authorization.authorizeRole(listOf(Roles.ReuseStation, Roles.RegEmployee), call)
+                    Authorization.authorizeRole(listOf(Roles.ReuseStasjon, Roles.RegEmployee), call)
                         .flatMap { form.validOrError() }
                         .flatMap { pickupService.deletePickup(form) }
                         .run { generateResponse(this) }

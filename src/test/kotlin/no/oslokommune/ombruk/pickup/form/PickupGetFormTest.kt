@@ -15,7 +15,7 @@ class PickupGetFormTest {
     @Suppress("unused")
     fun generateValidForms() = listOf(
         PickupGetForm(),
-        PickupGetForm(stationId = 1),
+        PickupGetForm(stasjonId = 1),
         PickupGetForm(partnerId = 1),
         PickupGetForm(LocalDateTime.now()),
         PickupGetForm(endDateTime = LocalDateTime.now()),
@@ -34,7 +34,7 @@ class PickupGetFormTest {
 
     @Suppress("unused")
     fun generateInvalidForms() = listOf(
-        PickupGetForm(stationId = 0),
+        PickupGetForm(stasjonId = 0),
         PickupGetForm(partnerId = 0),
         PickupGetForm(LocalDateTime.now(), LocalDateTime.now().minusHours(1))
     )

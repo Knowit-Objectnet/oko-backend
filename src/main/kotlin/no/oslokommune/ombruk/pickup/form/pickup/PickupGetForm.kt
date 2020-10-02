@@ -14,12 +14,12 @@ import java.time.LocalDateTime
 data class PickupGetForm(
     var startDateTime: LocalDateTime? = null,   // get from this date.
     var endDateTime: LocalDateTime? = null,     // get until this date. Optionally, specify start and end for query in range.
-    val stationId: Int? = null,
+    val stasjonId: Int? = null,
     val partnerId: Int? = null
 ) : IForm<PickupGetForm> {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
-            validate(PickupGetForm::stationId).isGreaterThan(0)
+            validate(PickupGetForm::stasjonId).isGreaterThan(0)
             validate(PickupGetForm::partnerId).isGreaterThan(0)
             validate(PickupGetForm::endDateTime).isGreaterThanStartDateTime(startDateTime)
         }

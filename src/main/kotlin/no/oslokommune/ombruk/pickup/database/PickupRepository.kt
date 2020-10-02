@@ -4,8 +4,8 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import io.ktor.locations.KtorExperimentalLocationsAPI
-import no.oslokommune.ombruk.station.database.Stations
-import no.oslokommune.ombruk.station.database.toStation
+import no.oslokommune.ombruk.stasjon.database.Stasjoner
+import no.oslokommune.ombruk.stasjon.database.toStasjon
 import no.oslokommune.ombruk.partner.database.Partners
 import no.oslokommune.ombruk.partner.database.toPartner
 import no.oslokommune.ombruk.pickup.form.pickup.PickupGetForm
@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory
 object Pickups : IntIdTable("pickups") {
     val startTime = datetime("start_time")
     val endTime = datetime("end_time")
-    val stationID = integer("station_id").references(Stations.id)
+    val stasjonID = integer("stasjon_id").references(Stasjoner.id)
     val description = text("description").nullable()
     val chosenPartnerId = integer("chosen_partner_id").references(Partners.id).nullable()
 }
@@ -34,7 +34,7 @@ object PickupRepository : IPickupRepository, IRepository {
     override fun savePickup(pickupPostForm: PickupPostForm): Either<RepositoryError, Pickup> = runCatching {
         transaction {
             Pickups.insertAndGetId {
-                it[stationID] = pickupPostForm.stationId
+                it[stasjonID] = pickupPostForm.stasjonId
                 it[startTime] = pickupPostForm.startDateTime
                 it[endTime] = pickupPostForm.endDateTime
                 it[description] = pickupPostForm.description
@@ -49,7 +49,7 @@ object PickupRepository : IPickupRepository, IRepository {
 
     override fun getPickupById(id: Int): Either<RepositoryError, Pickup> = runCatching {
         transaction {
-            (Pickups innerJoin Stations leftJoin Partners)
+            (Pickups innerJoin Stasjoner leftJoin Partners)
                 .select { Pickups.id eq id }
                 .map { toPickup(it) }
                 .firstOrNull()
@@ -70,9 +70,9 @@ object PickupRepository : IPickupRepository, IRepository {
     override fun getPickups(pickupGetForm: PickupGetForm?) =
         runCatching {
             transaction {
-                val query = (Pickups innerJoin Stations leftJoin Partners).selectAll()
+                val query = (Pickups innerJoin Stasjoner leftJoin Partners).selectAll()
                 pickupGetForm?.let {
-                    pickupGetForm.stationId?.let { query.andWhere { Pickups.stationID eq it } }
+                    pickupGetForm.stasjonId?.let { query.andWhere { Pickups.stasjonID eq it } }
                     pickupGetForm.endDateTime?.let { query.andWhere { Pickups.startTime lessEq it } }
                     pickupGetForm.startDateTime?.let { query.andWhere { Pickups.startTime greaterEq it } }
                     pickupGetForm.partnerId?.let { query.andWhere { Pickups.chosenPartnerId eq it } }
@@ -142,7 +142,7 @@ fun toPickup(row: ResultRow): Pickup {
         row[Pickups.startTime],
         row[Pickups.endTime],
         row[Pickups.description],
-        toStation(row),
+        toStasjon(row),
         row[Pickups.chosenPartnerId]?.let { toPartner(row) }
     )
 }

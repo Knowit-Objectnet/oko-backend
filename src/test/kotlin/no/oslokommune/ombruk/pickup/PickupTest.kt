@@ -5,10 +5,10 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.DefaultJsonConfiguration
 import kotlinx.serialization.builtins.list
 import kotlinx.serialization.json.Json
-import no.oslokommune.ombruk.station.database.StationRepository
-import no.oslokommune.ombruk.station.form.StationPostForm
-import no.oslokommune.ombruk.station.model.Station
-import no.oslokommune.ombruk.station.service.StationService
+import no.oslokommune.ombruk.stasjon.database.StasjonRepository
+import no.oslokommune.ombruk.stasjon.form.StasjonPostForm
+import no.oslokommune.ombruk.stasjon.model.Stasjon
+import no.oslokommune.ombruk.stasjon.service.StasjonService
 import no.oslokommune.ombruk.partner.database.PartnerRepository
 import no.oslokommune.ombruk.partner.form.PartnerPostForm
 import no.oslokommune.ombruk.partner.model.Partner
@@ -34,13 +34,13 @@ class PickupTest {
     val json = Json(DefaultJsonConfiguration.copy(prettyPrint = true))
 
     var partners: List<Partner>
-    var stations: List<Station>
+    var stasjoner: List<Stasjon>
     lateinit var pickups: List<Pickup>
 
     init {
         initDB()
         partners = createTestPartners()
-        stations = createTestStations()
+        stasjoner = createTestStasjoner()
     }
 
     @BeforeEach
@@ -56,7 +56,7 @@ class PickupTest {
     @AfterAll
     fun finish() {
         PartnerRepository.deleteAllPartners()
-        StationRepository.deleteAllStations()
+        StasjonRepository.deleteAllStasjoner()
     }
 
     private fun createTestPartners() = (0..9).map {
@@ -72,25 +72,25 @@ class PickupTest {
         return@map p.b
     }
 
-    private fun createTestStations() = (0..5).map {
-        val s = StationService.saveStation(StationPostForm("no.oslokommune.ombruk.pickup.PickupTest Station$it"))
+    private fun createTestStasjoner() = (0..5).map {
+        val s = StasjonService.saveStasjon(StasjonPostForm("no.oslokommune.ombruk.pickup.PickupTest Stasjon$it"))
         require(s is Either.Right)
         return@map s.b
     }
 
     private fun createPickups(): List<Pickup> {
-        var stationCounter = 0
+        var stasjonCounter = 0
         return (0..100L).map {
             val p = PickupRepository.savePickup(
                 PickupPostForm(
                     LocalDateTime.parse("2020-07-06T15:48:06").plusDays(it),
                     LocalDateTime.parse("2020-07-06T16:48:06").plusDays(it),
                     "Test no.oslokommune.ombruk.pickup",
-                    stations[stationCounter].id
+                    stasjoner[stasjonCounter].id
                 )
             )
 
-            stationCounter = (stationCounter + 1) % 6
+            stasjonCounter = (stasjonCounter + 1) % 6
             require(p is Either.Right)
             return@map p.b
         }
@@ -116,9 +116,9 @@ class PickupTest {
         }
 
         @Test
-        fun `get pickups by station id`() {
-            testGet("/pickups?stationId=${stations[2].id}") {
-                val expected = pickups.filter { it.station == stations[2] }
+        fun `get pickups by stasjon id`() {
+            testGet("/pickups?stasjonId=${stasjoner[2].id}") {
+                val expected = pickups.filter { it.stasjon == stasjoner[2] }
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(json.stringify(Pickup.serializer().list, expected), response.content)
             }
@@ -162,14 +162,14 @@ class PickupTest {
         fun `create pickup with description`() {
             val startDateTime = LocalDateTime.parse("2020-07-06T15:00:00")
             val endDateTime = LocalDateTime.parse("2020-07-06T16:00:00")
-            val stationId = stations[Random.nextInt(1, 5)].id
+            val stasjonId = stasjoner[Random.nextInt(1, 5)].id
             val description = "this is a description"
 
             val body =
                 """{
                     "startDateTime": "2020-07-06T15:00:00",
                     "endDateTime": "2020-07-06T16:00:00",
-                    "stationId": "$stationId",
+                    "stasjonId": "$stasjonId",
                     "description": "$description"
                 }"""
 
@@ -181,7 +181,7 @@ class PickupTest {
                 assertEquals(responsePickup, insertedPickup.b)
                 assertEquals(startDateTime, responsePickup.startDateTime)
                 assertEquals(endDateTime, responsePickup.endDateTime)
-                assertEquals(stationId, responsePickup.station.id)
+                assertEquals(stasjonId, responsePickup.stasjon.id)
                 assertEquals(description, responsePickup.description)
             }
         }
@@ -190,13 +190,13 @@ class PickupTest {
         fun `create pickup without description`() {
             val startDateTime = LocalDateTime.parse("2020-07-06T15:00:00")
             val endDateTime = LocalDateTime.parse("2020-07-06T16:00:00")
-            val stationId = stations[Random.nextInt(1, 5)].id
+            val stasjonId = stasjoner[Random.nextInt(1, 5)].id
 
             val body =
                 """{
                     "startDateTime": "2020-07-06T15:00:00",
                     "endDateTime": "2020-07-06T16:00:00",
-                    "stationId": "$stationId"
+                    "stasjonId": "$stasjonId"
                 }"""
 
             testPost("/pickups", body) {
@@ -207,7 +207,7 @@ class PickupTest {
                 assertEquals(responsePickup, insertedPickup.b)
                 assertEquals(startDateTime, responsePickup.startDateTime)
                 assertEquals(endDateTime, responsePickup.endDateTime)
-                assertEquals(stationId, responsePickup.station.id)
+                assertEquals(stasjonId, responsePickup.stasjon.id)
                 assertEquals(null, responsePickup.description)
             }
         }

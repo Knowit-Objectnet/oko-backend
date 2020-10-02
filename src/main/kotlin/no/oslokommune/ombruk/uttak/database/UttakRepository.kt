@@ -4,8 +4,8 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import io.ktor.locations.KtorExperimentalLocationsAPI
-import no.oslokommune.ombruk.station.database.Stations
-import no.oslokommune.ombruk.station.database.toStation
+import no.oslokommune.ombruk.stasjon.database.Stasjoner
+import no.oslokommune.ombruk.stasjon.database.toStasjon
 import no.oslokommune.ombruk.uttak.form.UttakDeleteForm
 import no.oslokommune.ombruk.uttak.form.UttakGetForm
 import no.oslokommune.ombruk.uttak.form.UttakPostForm
@@ -28,8 +28,8 @@ object UttakTable : IntIdTable("uttak") {
     val endDateTime = datetime("end_date_time")
     val recurrenceRuleID =
         integer("recurrence_rule_id").references(RecurrenceRules.id, onDelete = ReferenceOption.CASCADE).nullable()
-    val stationID = integer("station_id").references(Stations.id, onDelete = ReferenceOption.CASCADE)
-    // Nullable partner. An uttak without a partner is arranged by the station only, like example "Ombruksdager".
+    val stasjonID = integer("stasjon_id").references(Stasjoner.id, onDelete = ReferenceOption.CASCADE)
+    // Nullable partner. An uttak without a partner is arranged by the stasjon only, like example "Ombruksdager".
     val partnerID = integer("partner_id").references(Partners.id, onDelete = ReferenceOption.CASCADE).nullable()
 }
 
@@ -41,7 +41,7 @@ object UttakRepository : IUttakRepository {
             it[startDateTime] = uttakPostForm.startDateTime
             it[endDateTime] = uttakPostForm.endDateTime
             it[recurrenceRuleID] = uttakPostForm.recurrenceRule?.id
-            it[stationID] = uttakPostForm.stationId
+            it[stasjonID] = uttakPostForm.stasjonId
             it[partnerID] = uttakPostForm.partnerId
         }.value
     }
@@ -83,18 +83,18 @@ object UttakRepository : IUttakRepository {
                 uttakDeleteForm.fromDate?.let { statements.add(Op.build { UttakTable.startDateTime.greaterEq(it) }) }
                 uttakDeleteForm.toDate?.let { statements.add(Op.build { UttakTable.startDateTime.lessEq(it) }) }
                 uttakDeleteForm.partnerId?.let { statements.add(Op.build { UttakTable.partnerID eq it }) }
-                uttakDeleteForm.stationId?.let { statements.add(Op.build { UttakTable.stationID eq it }) }
+                uttakDeleteForm.stasjonId?.let { statements.add(Op.build { UttakTable.stasjonID eq it }) }
 
                 // Delete and return deleted uttaks. Have to handle the case where no statements are sepcified
                 if (statements.isEmpty()) {
-                    val result = (UttakTable innerJoin Stations innerJoin Partners leftJoin RecurrenceRules).selectAll()
+                    val result = (UttakTable innerJoin Stasjoner innerJoin Partners leftJoin RecurrenceRules).selectAll()
                         .mapNotNull { toUttak(it) }
                     UttakTable.deleteAll()
                     return@transaction result
                 } else {
                     val statement = AndOp(statements)
                     val result =
-                        (UttakTable innerJoin Stations innerJoin Partners leftJoin RecurrenceRules).select { statement }
+                        (UttakTable innerJoin Stasjoner innerJoin Partners leftJoin RecurrenceRules).select { statement }
                             .mapNotNull { toUttak(it) }
                     UttakTable.deleteWhere { statement }
                     return@transaction result
@@ -110,7 +110,7 @@ object UttakRepository : IUttakRepository {
     override fun getUttakByID(uttakID: Int): Either<RepositoryError, Uttak> = runCatching {
         transaction {
             // leftJoin RecurrenceRules because not all uttaks are recurring.
-            (UttakTable innerJoin Stations leftJoin Partners leftJoin RecurrenceRules).select { UttakTable.id eq uttakID }
+            (UttakTable innerJoin Stasjoner leftJoin Partners leftJoin RecurrenceRules).select { UttakTable.id eq uttakID }
                 .map { toUttak(it) }.firstOrNull()
         }
     }
@@ -124,10 +124,10 @@ object UttakRepository : IUttakRepository {
     override fun getUttaks(uttakGetForm: UttakGetForm?): Either<RepositoryError, List<Uttak>> =
         runCatching {
             transaction {
-                val query = (UttakTable innerJoin Stations innerJoin Partners leftJoin RecurrenceRules).selectAll()
+                val query = (UttakTable innerJoin Stasjoner innerJoin Partners leftJoin RecurrenceRules).selectAll()
                 if (uttakGetForm != null) {
                     uttakGetForm.uttakId?.let { query.andWhere { UttakTable.id eq it } }
-                    uttakGetForm.stationId?.let { query.andWhere { UttakTable.stationID eq it } }
+                    uttakGetForm.stasjonId?.let { query.andWhere { UttakTable.stasjonID eq it } }
                     uttakGetForm.partnerId?.let { query.andWhere { UttakTable.partnerID eq it } }
                     uttakGetForm.recurrenceRuleId?.let { query.andWhere { UttakTable.recurrenceRuleID eq it } }
                     uttakGetForm.fromDate?.let { query.andWhere { UttakTable.startDateTime.greaterEq(it) } }
@@ -152,7 +152,7 @@ object UttakRepository : IUttakRepository {
             row[UttakTable.id].value,
             row[UttakTable.startDateTime],
             row[UttakTable.endDateTime],
-            toStation(row),
+            toStasjon(row),
             toPartner(row),
             getGetRecurrenceRuleFromResultRow(row)
         )

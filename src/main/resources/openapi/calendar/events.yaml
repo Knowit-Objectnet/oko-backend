@@ -36,7 +36,7 @@ get:
         format: int64
       example: 1
     - in: query
-      name: stationId
+      name: stasjonId
       schema:
         type: integer
         format: int64
@@ -90,7 +90,7 @@ post:
 patch:
   tags:
     #- reg-admin
-    #- reuse-station
+    #- reuse-stasjon
     - uttaks
   summary: Updates an uttak
   operationId: patchUttak
@@ -124,14 +124,14 @@ patch:
 delete:
   tags:
 #    - reg-admin
-#    - reuse-station
+#    - reuse-stasjon
 #    - partner
     - uttaks
   summary: Deletes uttaks
   operationId: deleteUttaks
   description: |
     Deletes one or several uttaks from the database. Deletion can be specified through the use of query parameters.
-    Reuse station workers and REG admin will be able to delete any uttak, whilst a partner only has permission to delete
+    Reuse stasjon workers and REG admin will be able to delete any uttak, whilst a partner only has permission to delete
     their own uttaks.
   parameters:
     - in: query
@@ -165,7 +165,7 @@ delete:
         format: int64
       example: 1
     - in: query
-      name: stationId
+      name: stasjonId
       schema:
         type: integer
         format: int64

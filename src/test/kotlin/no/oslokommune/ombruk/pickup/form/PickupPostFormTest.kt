@@ -6,7 +6,7 @@ import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkObject
 import io.mockk.unmockkAll
-import no.oslokommune.ombruk.station.database.StationRepository
+import no.oslokommune.ombruk.stasjon.database.StasjonRepository
 import no.oslokommune.ombruk.pickup.form.pickup.PickupPostForm
 import no.oslokommune.ombruk.shared.database.initDB
 import org.junit.jupiter.api.AfterAll
@@ -30,7 +30,7 @@ class PickupPostFormTest {
 
     @BeforeEach
     fun setup() {
-        mockkObject(StationRepository)
+        mockkObject(StasjonRepository)
     }
 
     @AfterEach
@@ -46,13 +46,13 @@ class PickupPostFormTest {
     @Suppress("unused")
     fun generateValidForms() = listOf(
         PickupPostForm(LocalDateTime.now(), LocalDateTime.now().plusHours(1), "desc", 1),
-        PickupPostForm(LocalDateTime.now(), LocalDateTime.now().plusHours(1), stationId = 1)
+        PickupPostForm(LocalDateTime.now(), LocalDateTime.now().plusHours(1), stasjonId = 1)
     )
 
     @ParameterizedTest
     @MethodSource("generateValidForms")
     fun `validate valid form`(form: PickupPostForm) {
-        every { StationRepository.exists(1) } returns true
+        every { StasjonRepository.exists(1) } returns true
 
         val result = form.validOrError()
 
@@ -71,8 +71,8 @@ class PickupPostFormTest {
     @ParameterizedTest
     @MethodSource("generateInvalidForms")
     fun `validate invalid form`(form: PickupPostForm) {
-        every { StationRepository.exists(1) } returns true
-        every { StationRepository.exists(2) } returns false
+        every { StasjonRepository.exists(1) } returns true
+        every { StasjonRepository.exists(2) } returns false
 
         val result = form.validOrError()
 

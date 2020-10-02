@@ -11,8 +11,8 @@ import io.mockk.mockkObject
 import io.mockk.unmockkAll
 import kotlinx.serialization.builtins.list
 import kotlinx.serialization.json.Json
-import no.oslokommune.ombruk.station.database.StationRepository
-import no.oslokommune.ombruk.station.model.Station
+import no.oslokommune.ombruk.stasjon.database.StasjonRepository
+import no.oslokommune.ombruk.stasjon.model.Stasjon
 import no.oslokommune.ombruk.pickup.database.PickupRepository
 import no.oslokommune.ombruk.pickup.form.pickup.*
 import no.oslokommune.ombruk.pickup.model.Pickup
@@ -37,7 +37,7 @@ class UttakAPITest {
     @BeforeEach
     fun setup() {
         mockkObject(PickupService)
-        mockkObject(StationRepository)
+        mockkObject(StasjonRepository)
         mockkObject(PickupRepository)
     }
 
@@ -59,8 +59,8 @@ class UttakAPITest {
          */
         @Test
         fun `get pickup by id 200`() {
-            val s = Station(1, "test")
-            val expected = Pickup(1, LocalDateTime.now(), LocalDateTime.now(), station = s)
+            val s = Stasjon(1, "test")
+            val expected = Pickup(1, LocalDateTime.now(), LocalDateTime.now(), stasjon = s)
 
             every { PickupService.getPickupById(PickupGetByIdForm(1)) } returns expected.right()
 
@@ -127,8 +127,8 @@ class UttakAPITest {
          */
         @Test
         fun `get pickups 200`() {
-            val s = Station(1, "test")
-            val expected = listOf(Pickup(1, LocalDateTime.now(), LocalDateTime.now(), station = s))
+            val s = Stasjon(1, "test")
+            val expected = listOf(Pickup(1, LocalDateTime.now(), LocalDateTime.now(), stasjon = s))
 
             every { PickupService.getPickups(PickupGetForm()) } returns expected.right()
 
@@ -152,24 +152,24 @@ class UttakAPITest {
         }
 
         /**
-         * Check for 422 when we get an invalid form. Station id can't be -1.
+         * Check for 422 when we get an invalid form. Stasjon id can't be -1.
          */
         @Test
         fun `get pickups 422`() {
-            testGet("/pickups?stationId=-1") {
+            testGet("/pickups?stasjonId=-1") {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
-                assertEquals("stationId: Must be greater than 0", response.content)
+                assertEquals("stasjonId: Must be greater than 0", response.content)
             }
         }
 
         /**
-         * Check for 400 when we get a form which can't be parsed. station Id is not an integer.
+         * Check for 400 when we get a form which can't be parsed. stasjon Id is not an integer.
          */
         @Test
         fun `get pickups 400`() {
-            testGet("/pickups?stationId=NaN") {
+            testGet("/pickups?stasjonId=NaN") {
                 assertEquals(HttpStatusCode.BadRequest, response.status())
-                assertEquals("stationId could not be parsed.", response.content)
+                assertEquals("stasjonId could not be parsed.", response.content)
             }
         }
     }
@@ -182,12 +182,12 @@ class UttakAPITest {
          */
         @Test
         fun `post pickup 200`() {
-            val s = Station(1, "test")
+            val s = Stasjon(1, "test")
             val form = PickupPostForm(LocalDateTime.now(), LocalDateTime.now().plusDays(1), "test", 1)
-            val expected = Pickup(1, form.startDateTime, form.endDateTime, station = s)
+            val expected = Pickup(1, form.startDateTime, form.endDateTime, stasjon = s)
 
             every { PickupService.savePickup(form) } returns expected.right()
-            every { StationRepository.exists(1) } returns true
+            every { StasjonRepository.exists(1) } returns true
 
             testPost("/pickups", json.stringify(PickupPostForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.OK, response.status())
@@ -228,7 +228,7 @@ class UttakAPITest {
             val form = PickupPostForm(LocalDateTime.now(), LocalDateTime.now().plusDays(1), "test", 1)
 
             every { PickupService.savePickup(form) } returns ServiceError("test").left()
-            every { StationRepository.exists(1) } returns true
+            every { StasjonRepository.exists(1) } returns true
 
 
             testPost("/pickups", json.stringify(PickupPostForm.serializer(), form)) {
@@ -244,7 +244,7 @@ class UttakAPITest {
         fun `post pickup 422`() {
             val form = PickupPostForm(LocalDateTime.now(), LocalDateTime.now().minusDays(1), "test", 1)
 
-            every { StationRepository.exists(1) } returns true
+            every { StasjonRepository.exists(1) } returns true
 
             testPost("/pickups", json.stringify(PickupPostForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
@@ -271,14 +271,14 @@ class UttakAPITest {
          */
         @Test
         fun `patch pickup 200`() {
-            val s = Station(1, "test")
-            val initial = Pickup(1, LocalDateTime.now(), LocalDateTime.now().plusDays(1), station = s)
+            val s = Stasjon(1, "test")
+            val initial = Pickup(1, LocalDateTime.now(), LocalDateTime.now().plusDays(1), stasjon = s)
             val form = PickupUpdateForm(1, LocalDateTime.now(), LocalDateTime.now().plusDays(1))
             val expected = initial.copy(startDateTime = form.startDateTime!!, endDateTime = form.endDateTime!!)
 
             every { PickupRepository.getPickupById(1) } returns initial.right()
             every { PickupService.updatePickup(form) } returns expected.right()
-            every { StationRepository.exists(1) } returns true
+            every { StasjonRepository.exists(1) } returns true
 
             testPatch("/pickups", json.stringify(PickupUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.OK, response.status())
@@ -319,7 +319,7 @@ class UttakAPITest {
             val form = PickupUpdateForm(1, LocalDateTime.now())
 
             every { PickupService.updatePickup(form) } returns ServiceError("test").left()
-            every { StationRepository.exists(1) } returns true
+            every { StasjonRepository.exists(1) } returns true
 
 
             testPatch("/pickups", json.stringify(PickupUpdateForm.serializer(), form)) {
@@ -333,12 +333,12 @@ class UttakAPITest {
         @Test
         @Disabled
         fun `patch pickup 422`() {
-            val s = Station(1, "test")
-            val initial = Pickup(1, LocalDateTime.now(), LocalDateTime.now().plusDays(1), station = s)
+            val s = Stasjon(1, "test")
+            val initial = Pickup(1, LocalDateTime.now(), LocalDateTime.now().plusDays(1), stasjon = s)
             val form = PickupUpdateForm(1, LocalDateTime.now(), LocalDateTime.now().minusDays(1))
 
             every { PickupRepository.getPickupById(1) } returns initial.right()
-            every { StationRepository.exists(1) } returns true
+            every { StasjonRepository.exists(1) } returns true
 
             testPatch("/pickups", json.stringify(PickupUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())

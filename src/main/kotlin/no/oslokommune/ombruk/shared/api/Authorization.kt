@@ -22,7 +22,7 @@ import no.oslokommune.ombruk.shared.error.ServiceError
 enum class Roles(val value: String) {
     Partner("partner"),
     RegEmployee("reg_employee"),
-    ReuseStation("reuse_station")
+    ReuseStasjon("reuse_stasjon")
 }
 
 /**
@@ -59,7 +59,7 @@ object Authorization {
             ?: return AuthorizationError.InsufficientRoleError().left()
 
         val groupID =
-            principal.payload.claims["GroupID"]?.asInt() //-1 serves as a placeholder value for stations and REG admin
+            principal.payload.claims["GroupID"]?.asInt() //-1 serves as a placeholder value for stasjoner and REG admin
                 ?: if (role != Roles.Partner) -1 else return AuthorizationError.MissingGroupIDError().left()
 
         return Pair(role, groupID).right()

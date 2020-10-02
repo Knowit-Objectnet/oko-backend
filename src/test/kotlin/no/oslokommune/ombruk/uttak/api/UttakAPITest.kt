@@ -13,13 +13,13 @@ import io.mockk.unmockkAll
 import kotlinx.serialization.builtins.list
 import kotlinx.serialization.json.Json
 import no.oslokommune.ombruk.uttak.database.UttakRepository
-import no.oslokommune.ombruk.station.database.StationRepository
+import no.oslokommune.ombruk.stasjon.database.StasjonRepository
 import no.oslokommune.ombruk.uttak.form.UttakDeleteForm
 import no.oslokommune.ombruk.uttak.form.UttakGetForm
 import no.oslokommune.ombruk.uttak.form.UttakPostForm
 import no.oslokommune.ombruk.uttak.form.UttakUpdateForm
 import no.oslokommune.ombruk.uttak.model.Uttak
-import no.oslokommune.ombruk.station.model.Station
+import no.oslokommune.ombruk.stasjon.model.Stasjon
 import no.oslokommune.ombruk.uttak.service.UttakService
 import no.oslokommune.ombruk.partner.database.PartnerRepository
 import no.oslokommune.ombruk.partner.model.Partner
@@ -48,7 +48,7 @@ class UttakAPITest {
     fun setup() {
         mockkObject(UttakRepository)
         mockkObject(UttakService)
-        mockkObject(StationRepository)
+        mockkObject(StasjonRepository)
         mockkObject(PartnerRepository)
         mockkObject(Authorization)
     }
@@ -70,7 +70,7 @@ class UttakAPITest {
          */
         @Test
         fun `get single uttak 200`() {
-            val s = Station(1, "test")
+            val s = Stasjon(1, "test")
             val p = Partner(1, "test")
             val expected = Uttak(1, LocalDateTime.now(), LocalDateTime.now(), s, p, null)
             every { UttakService.getUttakByID(1) } returns expected.right()
@@ -137,7 +137,7 @@ class UttakAPITest {
          */
         @Test
         fun `get uttaks 200`() {
-            val s = Station(1, "test")
+            val s = Stasjon(1, "test")
             val p = Partner(1, "test")
             val e1 = Uttak(1, LocalDateTime.now(), LocalDateTime.now(), s, p, null)
             val e2 = e1.copy(2)
@@ -196,15 +196,15 @@ class UttakAPITest {
          */
         @Test
         fun `post uttak 200`() {
-            val s = Station(id = 1, name = "test", hours = openHours())
+            val s = Stasjon(id = 1, name = "test", hours = openHours())
             val p = Partner(1, "test")
             val form = UttakPostForm(LocalDateTime.now(), LocalDateTime.now().plusHours(1), s.id, p.id)
             val expected = Uttak(1, form.startDateTime, form.endDateTime, s, p)
 
             every { UttakService.saveUttak(form) } returns expected.right()
             every { PartnerRepository.exists(1) } returns true
-            every { StationRepository.exists(1) } returns true
-            every { StationRepository.getStationById(1) } returns Either.right(s)
+            every { StasjonRepository.exists(1) } returns true
+            every { StasjonRepository.getStasjonById(1) } returns Either.right(s)
 
             testPost("/uttaks", json.stringify(UttakPostForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.OK, response.status())
@@ -220,7 +220,7 @@ class UttakAPITest {
             val form = UttakPostForm(LocalDateTime.now(), LocalDateTime.now().plusDays(1), 1, 1)
 
             every { PartnerRepository.exists(1) } returns true
-            every { StationRepository.exists(1) } returns true
+            every { StasjonRepository.exists(1) } returns true
 
             testPost("/uttaks", json.stringify(UttakPostForm.serializer(), form), null) {
                 assertEquals(HttpStatusCode.Unauthorized, response.status())
@@ -235,7 +235,7 @@ class UttakAPITest {
             val form = UttakPostForm(LocalDateTime.now(), LocalDateTime.now().plusDays(1), 1, 1)
 
             every { PartnerRepository.exists(1) } returns true
-            every { StationRepository.exists(1) } returns true
+            every { StasjonRepository.exists(1) } returns true
 
             testPost("/uttaks", json.stringify(UttakPostForm.serializer(), form), JwtMockConfig.partnerBearer2) {
                 assertEquals(HttpStatusCode.Forbidden, response.status())
@@ -249,11 +249,11 @@ class UttakAPITest {
         fun `post uttak 500`() {
             val form = UttakPostForm(LocalDateTime.now(), LocalDateTime.now().plusHours(1), 1, 1)
 
-            val s = Station(id = 1, name = "test", hours = openHours())
+            val s = Stasjon(id = 1, name = "test", hours = openHours())
             every { UttakService.saveUttak(form) } returns ServiceError("test").left()
             every { PartnerRepository.exists(1) } returns true
-            every { StationRepository.exists(s.id) } returns true
-            every { StationRepository.getStationById(1) } returns Either.right(s)
+            every { StasjonRepository.exists(s.id) } returns true
+            every { StasjonRepository.getStasjonById(1) } returns Either.right(s)
 
             testPost("/uttaks", json.stringify(UttakPostForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.InternalServerError, response.status())
@@ -269,10 +269,10 @@ class UttakAPITest {
         fun `post uttak 422`() {
             val form = UttakPostForm(LocalDateTime.now(), LocalDateTime.now().plusHours(1), 1, 1)
 
-            val s = Station(id = 1, name = "test", hours = openHours())
+            val s = Stasjon(id = 1, name = "test", hours = openHours())
             every { PartnerRepository.exists(1) } returns false // Partner does not exist
-            every { StationRepository.exists(s.id) } returns true
-            every { StationRepository.getStationById(1) } returns Either.right(s)
+            every { StasjonRepository.exists(s.id) } returns true
+            every { StasjonRepository.getStasjonById(1) } returns Either.right(s)
 
             testPost("/uttaks", json.stringify(UttakPostForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
@@ -300,7 +300,7 @@ class UttakAPITest {
          */
         @Test
         fun `patch uttak 200`() {
-            val s = Station(1, "test", hours = openHours())
+            val s = Stasjon(1, "test", hours = openHours())
             val p = Partner(1, "test")
             val initial = Uttak(1, LocalDateTime.now().plusDays(2), LocalDateTime.now().plusDays(2).plusHours(1), s, p)
             val form = UttakUpdateForm(1, LocalDateTime.now(), LocalDateTime.now().plusHours(1))
@@ -308,7 +308,7 @@ class UttakAPITest {
 
             every { UttakService.updateUttak(form) } returns expected.right()
             every { UttakRepository.getUttakByID(1) } returns initial.right()
-            every { StationRepository.getStationById(s.id) } returns Either.right(s)
+            every { StasjonRepository.getStasjonById(s.id) } returns Either.right(s)
 
             testPatch("/uttaks", json.stringify(UttakUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.OK, response.status())
@@ -321,14 +321,14 @@ class UttakAPITest {
          */
         @Test
         fun `patch uttak 500`() {
-            val s = Station(1, "test", hours = openHours())
+            val s = Stasjon(1, "test", hours = openHours())
             val p = Partner(1, "test")
             val initial = Uttak(1, LocalDateTime.now().plusDays(2), LocalDateTime.now().plusDays(2).plusHours(1), s, p)
             val form = UttakUpdateForm(1, LocalDateTime.now(), LocalDateTime.now().plusHours(1))
 
             every { UttakService.updateUttak(form) } returns ServiceError("test").left()
             every { UttakRepository.getUttakByID(1) } returns initial.right()
-            every { StationRepository.getStationById(s.id) } returns Either.right(s)
+            every { StasjonRepository.getStasjonById(s.id) } returns Either.right(s)
 
             testPatch("/uttaks", json.stringify(UttakUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.InternalServerError, response.status())
@@ -364,7 +364,7 @@ class UttakAPITest {
          */
         @Test
         fun `patch uttak 422`() {
-            val s = Station(1, "test")
+            val s = Stasjon(1, "test")
             val p = Partner(1, "test")
             val initial = Uttak(1, LocalDateTime.now().plusDays(2), LocalDateTime.now().plusDays(3), s, p)
             val form = UttakUpdateForm(-1, LocalDateTime.now(), LocalDateTime.now().plusDays(1))
@@ -400,7 +400,7 @@ class UttakAPITest {
          */
         @Test
         fun `delete uttaks 200`() {
-            val s = Station(1, "test")
+            val s = Stasjon(1, "test")
             val p = Partner(1, "test")
             val expected = listOf(Uttak(1, LocalDateTime.now(), LocalDateTime.now().plusDays(1), s, p))
 
@@ -440,7 +440,7 @@ class UttakAPITest {
          */
         @Test
         fun `delete uttaks 404`() {
-            val s = Station(1, "test")
+            val s = Stasjon(1, "test")
             val p = Partner(1, "test")
             val expected = listOf(Uttak(1, LocalDateTime.now(), LocalDateTime.now().plusDays(1), s, p))
 

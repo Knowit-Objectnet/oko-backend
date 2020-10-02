@@ -15,7 +15,7 @@ properties:
   description:
     type: string
     example: Hey come pick up some furniture
-  station:
-    $ref: "../../api.yaml#/components/schemas/Station"
+  stasjon:
+    $ref: "../../api.yaml#/components/schemas/Stasjon"
   partner:
     $ref: "../../api.yaml#/components/schemas/Partner"

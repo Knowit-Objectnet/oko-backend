@@ -8,9 +8,9 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.mockkObject
 import io.mockk.unmockkAll
 import no.oslokommune.ombruk.uttak.database.UttakRepository
-import no.oslokommune.ombruk.station.database.StationRepository
+import no.oslokommune.ombruk.stasjon.database.StasjonRepository
 import no.oslokommune.ombruk.uttak.model.Uttak
-import no.oslokommune.ombruk.station.model.Station
+import no.oslokommune.ombruk.stasjon.model.Stasjon
 import no.oslokommune.ombruk.partner.model.Partner
 import no.oslokommune.ombruk.shared.database.initDB
 import org.junit.jupiter.api.AfterAll
@@ -32,9 +32,9 @@ import kotlin.test.assertTrue
 class UttakUpdateFormTest {
 
     private val from = LocalDateTime.parse("2020-09-02T12:00:00Z", DateTimeFormatter.ISO_DATE_TIME)
-    private val existingStation = Station(id = 1, name = "some station", hours = openHours())
+    private val existingStasjon = Stasjon(id = 1, name = "some stasjon", hours = openHours())
     private val existingUttak =
-        Uttak(1, from, from.plusHours(1), existingStation, Partner(1, "name"))
+        Uttak(1, from, from.plusHours(1), existingStasjon, Partner(1, "name"))
 
 
     init {
@@ -43,7 +43,7 @@ class UttakUpdateFormTest {
 
     @BeforeEach
     fun setup() {
-        mockkObject(StationRepository)
+        mockkObject(StasjonRepository)
         mockkObject(UttakRepository)
     }
 
@@ -71,8 +71,8 @@ class UttakUpdateFormTest {
     @MethodSource("generateValidForms")
     fun `validate valid form`(form: UttakUpdateForm) {
         every { UttakRepository.getUttakByID(existingUttak.id) } returns existingUttak.right()
-        every { StationRepository.exists(existingStation.id) } returns true
-        every { StationRepository.getStationById(existingStation.id) } returns existingStation.right()
+        every { StasjonRepository.exists(existingStasjon.id) } returns true
+        every { StasjonRepository.getStasjonById(existingStasjon.id) } returns existingStasjon.right()
 
         val result = form.validOrError()
 

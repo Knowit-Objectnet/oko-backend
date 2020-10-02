@@ -16,7 +16,7 @@ class UttakDeleteFormTest {
         UttakDeleteForm(),
         UttakDeleteForm(1),
         UttakDeleteForm(recurrenceRuleId = 1),
-        UttakDeleteForm(stationId = 1),
+        UttakDeleteForm(stasjonId = 1),
         UttakDeleteForm(partnerId = 1),
         UttakDeleteForm(fromDate = LocalDateTime.now()),
         UttakDeleteForm(toDate = LocalDateTime.now()),
@@ -38,7 +38,7 @@ class UttakDeleteFormTest {
     fun generateInvalidForms() = listOf(
         UttakDeleteForm(0),
         UttakDeleteForm(recurrenceRuleId = 0),
-        UttakDeleteForm(stationId = 0),
+        UttakDeleteForm(stasjonId = 0),
         UttakDeleteForm(partnerId = 0),
         UttakDeleteForm(0, fromDate = LocalDateTime.now()),
         UttakDeleteForm(0, toDate = LocalDateTime.now()),

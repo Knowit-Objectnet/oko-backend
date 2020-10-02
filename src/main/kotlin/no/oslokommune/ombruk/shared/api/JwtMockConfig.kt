@@ -20,13 +20,13 @@ object JwtMockConfig {
         "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJhdWQiOiJhY2NvdW50Iiwic3ViIjoiQXV0aGVudGljYXRpb24iLCJyb2xlcyI6WyJwYXJ0bmVyIl0sImV4cCI6OTIyMzM3MjAzNjg1NDc3NSwiR3JvdXBJRCI6Mn0.Mzn2cdMiSqIDUCkHpdiaG-hEM2NGcbLOKlkFeOHIhEHXYcdEDvzfg9lrdO24_Hjdk1XxGtBjZbVm0VVw-3Xgcg"
     val regEmployeeBearer =
         "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJhdWQiOiJhY2NvdW50Iiwic3ViIjoiQXV0aGVudGljYXRpb24iLCJyb2xlcyI6WyJyZWdfZW1wbG95ZWUiXSwiZXhwIjo5MjIzMzcyMDM2ODU0Nzc1LCJHcm91cElEIjoyfQ.vi42IxWDGPOvxgiThFwfpv6Rif9QRzIXy0MBSLOasT_1AQlUWD8NmUWexaJLQ-WpUmkbL1zzqaEF4xPdOkJ2_Q"
-    val reuseStationBearer =
+    val reuseStasjonBearer =
         "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJhdWQiOiJhY2NvdW50Iiwic3ViIjoiQXV0aGVudGljYXRpb24iLCJyb2xlcyI6WyJyZXVzZV9zdGF0aW9uIl0sImV4cCI6OTIyMzM3MjAzNjg1NDc3NSwiR3JvdXBJRCI6Mn0.tIx5MsiMh2kftFpPnIKAcEiqIr_5RcLxx8QcIUPV7yKtXgtJykh6W1xo4MNtd1Wh97AOQ2tCSfMlAFno8RYyjw"
     private val mockTokens = listOf(
         Pair("Partner with ID 1", partnerBearer1),
         Pair("Partner with ID 2", partnerBearer2),
         Pair("reg_employee", regEmployeeBearer),
-        Pair("reuse_station", reuseStationBearer)
+        Pair("reuse_stasjon", reuseStasjonBearer)
     )
 
     /**
@@ -34,7 +34,7 @@ object JwtMockConfig {
      */
     fun createMockVerifier(): JWTVerifier {
         println("\nMOCK CREDENTIALS\n")
-        println("ID for both reuse_station and reg_employee is not validated and can be whatever")
+        println("ID for both reuse_stasjon and reg_employee is not validated and can be whatever")
         mockTokens.forEach { (info, token) -> println("$info:\n$token") }
         println()
         return require(algorithm)

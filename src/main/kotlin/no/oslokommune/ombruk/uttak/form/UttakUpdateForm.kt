@@ -35,8 +35,8 @@ data class UttakUpdateForm(
                 validate(UttakUpdateForm::endDateTime).isSameDateAs(startDateTime)
                 validate(UttakUpdateForm::endDateTime).isGreaterThanStartDateTime(newStartDateTime)
 
-                validate(UttakUpdateForm::startDateTime).isWithinOpeningHoursOf(uttak.station.id)
-                validate(UttakUpdateForm::endDateTime).isWithinOpeningHoursOf(uttak.station.id)
+                validate(UttakUpdateForm::startDateTime).isWithinOpeningHoursOf(uttak.stasjon.id)
+                validate(UttakUpdateForm::endDateTime).isWithinOpeningHoursOf(uttak.stasjon.id)
             }
         }
     }

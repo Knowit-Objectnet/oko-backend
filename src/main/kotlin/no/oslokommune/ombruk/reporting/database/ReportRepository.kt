@@ -5,8 +5,8 @@ import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
 import no.oslokommune.ombruk.uttak.database.UttakTable
-import no.oslokommune.ombruk.station.database.Stations
-import no.oslokommune.ombruk.station.database.toStation
+import no.oslokommune.ombruk.stasjon.database.Stasjoner
+import no.oslokommune.ombruk.stasjon.database.toStasjon
 import no.oslokommune.ombruk.uttak.model.Uttak
 import no.oslokommune.ombruk.partner.database.Partners
 import no.oslokommune.ombruk.reporting.form.ReportGetForm
@@ -25,7 +25,7 @@ private val logger = LoggerFactory.getLogger("ombruk.unittest.no.oslokommune.omb
 object Reports : IntIdTable("reports") {
     val uttakID = integer("uttak_id").references(UttakTable.id)
     val partnerID = integer("partner_id").references(Partners.id).nullable()
-    val stationID = integer("station_id").references(Stations.id)
+    val stasjonID = integer("stasjon_id").references(Stasjoner.id)
     val startDateTime = datetime("start_date_time")
     val endDateTime = datetime("end_date_time")
     val weight = integer("weight").nullable()
@@ -41,13 +41,13 @@ object ReportRepository : IReportRepository {
                 it[reportedDateTime] = null
                 it[uttakID] = uttak.id
                 it[partnerID] = uttak.partner?.id
-                it[stationID] = uttak.station.id
+                it[stasjonID] = uttak.stasjon.id
                 it[startDateTime] = uttak.startDateTime
                 it[endDateTime] = uttak.endDateTime
             }.value
         }
     }
-        .onFailure { logger.error("Failed to insert station to db: ${it.message}") }
+        .onFailure { logger.error("Failed to insert stasjon to db: ${it.message}") }
         .fold({ getReportByID(it) }, { RepositoryError.InsertError("SQL error").left() })
 
     override fun updateReport(reportUpdateForm: ReportUpdateForm): Either<RepositoryError, Report> = runCatching {
@@ -86,7 +86,7 @@ object ReportRepository : IReportRepository {
 
     override fun getReportByID(reportID: Int): Either<RepositoryError, Report> = transaction {
         runCatching {
-            (Reports innerJoin Stations).select { Reports.id eq reportID }.map { toReport(it) }.firstOrNull()
+            (Reports innerJoin Stasjoner).select { Reports.id eq reportID }.map { toReport(it) }.firstOrNull()
         }
             .onFailure { logger.error(it.message) }
             .fold(
@@ -98,10 +98,10 @@ object ReportRepository : IReportRepository {
 
     override fun getReports(reportGetForm: ReportGetForm?): Either<RepositoryError, List<Report>> = transaction {
         runCatching {
-            val query = (Reports innerJoin Stations).selectAll()
+            val query = (Reports innerJoin Stasjoner).selectAll()
             if (reportGetForm != null) {
                 reportGetForm.uttakId?.let { query.andWhere { Reports.uttakID eq it } }
-                reportGetForm.stationId?.let { query.andWhere { Reports.stationID eq it } }
+                reportGetForm.stasjonId?.let { query.andWhere { Reports.stasjonID eq it } }
                 reportGetForm.partnerId?.let { query.andWhere { Reports.partnerID eq it } }
                 reportGetForm.fromDate?.let { query.andWhere { Reports.startDateTime.greaterEq(it) } }
                 reportGetForm.toDate?.let { query.andWhere { Reports.endDateTime.lessEq(it) } }
@@ -118,7 +118,7 @@ object ReportRepository : IReportRepository {
             resultRow[Reports.id].value,
             resultRow[Reports.uttakID],
             resultRow[Reports.partnerID],
-            toStation(resultRow),
+            toStasjon(resultRow),
             resultRow[Reports.startDateTime],
             resultRow[Reports.endDateTime],
             resultRow[Reports.weight],

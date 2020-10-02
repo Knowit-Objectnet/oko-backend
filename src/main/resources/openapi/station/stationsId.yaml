@@ -1,9 +1,9 @@
 get:
   tags:
     #- everyone
-    - stations
-  summary: fetches stations
-  operationId: getStation
+    - stasjoner
+  summary: fetches stasjoner
+  operationId: getStasjon
   parameters:
     - in: path
       name: id
@@ -12,24 +12,24 @@ get:
         type: integer
   responses:
     '200':
-      description: Station matching ID
+      description: Stasjon matching ID
       content:
         application/json:
           schema:
-            $ref: '../api.yaml#/components/schemas/Station'
+            $ref: '../api.yaml#/components/schemas/Stasjon'
     '400':
       description: Bad input parameter
     '404':
-      description: Station not found
+      description: Stasjon not found
     '500':
       description: Internal server error
 
 delete:
   tags:
     #- reg-admin
-    - stations
-  summary: Deletes a station
-  operationId: deleteStation
+    - stasjoner
+  summary: Deletes a stasjon
+  operationId: deleteStasjon
   parameters:
     - in: path
       name: id
@@ -38,11 +38,11 @@ delete:
         type: integer
   responses:
     '200':
-      description: Station deleted successfully
+      description: Stasjon deleted successfully
       content:
         application/json:
           schema:
-            $ref: '../api.yaml#/components/schemas/Station'
+            $ref: '../api.yaml#/components/schemas/Stasjon'
     '400':
       description: Bad input parameter
     '401':

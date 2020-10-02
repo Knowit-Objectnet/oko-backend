@@ -14,7 +14,7 @@ properties:
     example: "2020-07-20T15:00:00Z"
   partnerId:
     $ref: '../../api.yaml#/components/schemas/Partner'
-  stationId:
-    $ref: '../../api.yaml#/components/schemas/Station'
+  stasjonId:
+    $ref: '../../api.yaml#/components/schemas/Stasjon'
   recurrenceRule:
     $ref: '../../api.yaml#/components/schemas/RecurrenceRule'

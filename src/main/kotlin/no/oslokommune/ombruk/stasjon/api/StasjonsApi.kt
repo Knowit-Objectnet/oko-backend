@@ -1,4 +1,4 @@
-package no.oslokommune.ombruk.station.api
+package no.oslokommune.ombruk.stasjon.api
 
 import arrow.core.flatMap
 import io.ktor.application.call
@@ -12,28 +12,28 @@ import io.ktor.routing.Routing
 import io.ktor.routing.patch
 import io.ktor.routing.post
 import io.ktor.routing.route
-import no.oslokommune.ombruk.station.form.*
-import no.oslokommune.ombruk.station.service.IStationService
+import no.oslokommune.ombruk.stasjon.form.*
+import no.oslokommune.ombruk.stasjon.service.IStasjonService
 import no.oslokommune.ombruk.shared.api.Authorization
 import no.oslokommune.ombruk.shared.api.Roles
 import no.oslokommune.ombruk.shared.api.generateResponse
 import no.oslokommune.ombruk.shared.api.receiveCatching
 
 @KtorExperimentalLocationsAPI
-fun Routing.stations(stationService: IStationService) {
+fun Routing.stasjoner(stasjonService: IStasjonService) {
 
-    route("/stations") {
+    route("/stasjoner") {
 
-        get<StationGetByIdForm> { form ->
+        get<StasjonGetByIdForm> { form ->
             form.validOrError()
-                .flatMap { stationService.getStationById(it.id) }
+                .flatMap { stasjonService.getStasjonById(it.id) }
                 .run { generateResponse(this) }
                 .also { (code, response) -> call.respond(code, response) }
         }
 
-        get<StationGetForm> { form ->
+        get<StasjonGetForm> { form ->
             form.validOrError()
-                .flatMap { stationService.getStations(it) }
+                .flatMap { stasjonService.getStasjoner(it) }
                 .run { generateResponse(this) }
                 .also { (code, response) -> call.respond(code, response) }
         }
@@ -41,9 +41,9 @@ fun Routing.stations(stationService: IStationService) {
         authenticate {
             post {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
-                    .flatMap { receiveCatching { call.receive<StationPostForm>() } }
+                    .flatMap { receiveCatching { call.receive<StasjonPostForm>() } }
                     .flatMap { it.validOrError() }
-                    .flatMap { stationService.saveStation(it) }
+                    .flatMap { stasjonService.saveStasjon(it) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }
@@ -52,20 +52,20 @@ fun Routing.stations(stationService: IStationService) {
         authenticate {
             patch {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
-                    .flatMap { receiveCatching { call.receive<StationUpdateForm>() } }
+                    .flatMap { receiveCatching { call.receive<StasjonUpdateForm>() } }
                     .flatMap { it.validOrError() }
-                    .flatMap { stationService.updateStation(it) }
+                    .flatMap { stasjonService.updateStasjon(it) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }
         }
 
         authenticate {
-            delete<StationDeleteForm> { form ->
+            delete<StasjonDeleteForm> { form ->
 
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
                     .flatMap { form.validOrError() }
-                    .flatMap { stationService.deleteStationById(it.id) }
+                    .flatMap { stasjonService.deleteStasjonById(it.id) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }

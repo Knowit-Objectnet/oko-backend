@@ -6,9 +6,9 @@ import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 import no.oslokommune.ombruk.uttak.database.UttakTable
-import no.oslokommune.ombruk.station.database.Stations
+import no.oslokommune.ombruk.stasjon.database.Stasjoner
 import no.oslokommune.ombruk.uttak.model.Uttak
-import no.oslokommune.ombruk.station.model.Station
+import no.oslokommune.ombruk.stasjon.model.Stasjon
 import no.oslokommune.ombruk.partner.database.Partners
 import no.oslokommune.ombruk.partner.model.Partner
 import no.oslokommune.ombruk.reporting.form.ReportGetForm
@@ -37,8 +37,8 @@ import kotlin.test.assertEquals
 class ReportRepositoryTest {
     lateinit var testPartner: Partner
     lateinit var testPartner2: Partner
-    lateinit var testStation: Station
-    lateinit var testStation2: Station
+    lateinit var testStasjon: Stasjon
+    lateinit var testStasjon2: Stasjon
     lateinit var testReport: Report
     lateinit var testReport2: Report
     lateinit var testReport3: Report
@@ -96,16 +96,16 @@ class ReportRepositoryTest {
             )
             val json = Json(JsonConfiguration.Stable)
 
-            val testStationId = Stations.insertAndGetId {
-                it[name] = "Test Station 1"
-                it[Stations.hours] =
+            val testStasjonId = Stasjoner.insertAndGetId {
+                it[name] = "Test Stasjon 1"
+                it[Stasjoner.hours] =
                     json.toJson(MapSerializer(DayOfWeekSerializer, ListSerializer(LocalTimeSerializer)), hours)
                         .toString()
             }.value
 
-            testStation = Station(
-                testStationId,
-                "Test Station 1",
+            testStasjon = Stasjon(
+                testStasjonId,
+                "Test Stasjon 1",
                 hours
             )
 
@@ -119,9 +119,9 @@ class ReportRepositoryTest {
                 Pair(DayOfWeek.FRIDAY, listOf(opensAt, closesAt))
             )
 
-            val testStationId2 = Stations.insertAndGetId {
-                it[name] = "Test Station 2"
-                it[Stations.hours] = json.toJson(
+            val testStasjonId2 = Stasjoner.insertAndGetId {
+                it[name] = "Test Stasjon 2"
+                it[Stasjoner.hours] = json.toJson(
                     MapSerializer(
                         DayOfWeekSerializer, ListSerializer(
                             LocalTimeSerializer
@@ -130,9 +130,9 @@ class ReportRepositoryTest {
                 )
                     .toString()
             }.value
-            testStation2 = Station(
-                testStationId2,
-                "Test Station 2",
+            testStasjon2 = Stasjon(
+                testStasjonId2,
+                "Test Stasjon 2",
                 hours
             )
 
@@ -140,7 +140,7 @@ class ReportRepositoryTest {
                 0,
                 LocalDateTime.parse("2020-07-07T16:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-07-07T18:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
-                testStation,
+                testStasjon,
                 testPartner
             )
             testUttak = testUttak.copy(id = insertTestUttak(testUttak))
@@ -148,7 +148,7 @@ class ReportRepositoryTest {
                 0,
                 LocalDateTime.parse("2020-08-08T16:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-08-08T17:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
-                testStation,
+                testStasjon,
                 testPartner
             )
             testUttak2 = testUttak2.copy(id = insertTestUttak(testUttak2))
@@ -156,7 +156,7 @@ class ReportRepositoryTest {
                 0,
                 LocalDateTime.parse("2020-05-06T16:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-05-06T18:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
-                testStation,
+                testStasjon,
                 testPartner
             )
             testUttak3 = testUttak3.copy(id = insertTestUttak(testUttak3))
@@ -164,7 +164,7 @@ class ReportRepositoryTest {
                 0,
                 LocalDateTime.parse("2020-07-07T16:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-07-07T18:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
-                testStation,
+                testStasjon,
                 testPartner
             )
             testUttak4 = testUttak4.copy(id = insertTestUttak(testUttak4))
@@ -172,7 +172,7 @@ class ReportRepositoryTest {
                 0,
                 LocalDateTime.parse("2020-08-08T16:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-08-08T17:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
-                testStation,
+                testStasjon,
                 testPartner
             )
             testUttak5 = testUttak5.copy(id = insertTestUttak(testUttak5))
@@ -181,7 +181,7 @@ class ReportRepositoryTest {
                 1,
                 testUttak.id,
                 testPartner.id,
-                testStation,
+                testStasjon,
                 testUttak.startDateTime,
                 testUttak.endDateTime
             )
@@ -190,7 +190,7 @@ class ReportRepositoryTest {
                 2,
                 testUttak2.id,
                 testPartner.id,
-                testStation2,
+                testStasjon2,
                 testUttak2.startDateTime,
                 testUttak2.endDateTime
             )
@@ -199,7 +199,7 @@ class ReportRepositoryTest {
                 3,
                 testUttak3.id,
                 testPartner2.id,
-                testStation,
+                testStasjon,
                 testUttak3.startDateTime,
                 testUttak3.endDateTime
             )
@@ -210,10 +210,10 @@ class ReportRepositoryTest {
     }
 
     @AfterAll
-    fun cleanPartnersAndStationsFromDB() {
+    fun cleanPartnersAndStasjonerFromDB() {
         transaction {
             Partners.deleteAll()
-            Stations.deleteAll()
+            Stasjoner.deleteAll()
         }
     }
 
@@ -224,7 +224,7 @@ class ReportRepositoryTest {
                 it[reportedDateTime] = null
                 it[uttakID] = report.uttakId
                 it[partnerID] = report.partnerId
-                it[stationID] = report.station.id
+                it[stasjonID] = report.stasjon.id
                 it[startDateTime] = report.startDateTime
                 it[endDateTime] = report.endDateTime
             }.value
@@ -235,7 +235,7 @@ class ReportRepositoryTest {
             it[startDateTime] = uttak.startDateTime
             it[endDateTime] = uttak.endDateTime
             it[recurrenceRuleID] = uttak.recurrenceRule?.id
-            it[stationID] = uttak.station.id
+            it[stasjonID] = uttak.stasjon.id
             it[partnerID] = uttak.partner?.id
         }.value
     }
@@ -272,8 +272,8 @@ class ReportRepositoryTest {
             Pair(ReportGetForm(), listOf(testReport, testReport2, testReport3)),
             Pair(ReportGetForm(uttakId = testReport.uttakId), listOf(testReport)),
             Pair(ReportGetForm(uttakId = 0), emptyList()),
-            Pair(ReportGetForm(stationId = testStation.id), listOf(testReport, testReport3)),
-            Pair(ReportGetForm(stationId = 0), emptyList()),
+            Pair(ReportGetForm(stasjonId = testStasjon.id), listOf(testReport, testReport3)),
+            Pair(ReportGetForm(stasjonId = 0), emptyList()),
             Pair(ReportGetForm(partnerId = testPartner2.id), listOf(testReport3)),
             Pair(ReportGetForm(partnerId = 0), emptyList()),
             Pair(
@@ -325,7 +325,7 @@ class ReportRepositoryTest {
             ),
             Pair(
                 ReportGetForm(
-                    stationId = testStation.id,
+                    stasjonId = testStasjon.id,
                     partnerId = testPartner.id,
                     fromDate = LocalDateTime.parse("2020-06-03T08:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
                     toDate = LocalDateTime.parse("2020-09-10T15:57:00Z", DateTimeFormatter.ISO_DATE_TIME)
@@ -351,7 +351,7 @@ class ReportRepositoryTest {
             0,
             testUttak4.id,
             testPartner.id,
-            testStation,
+            testStasjon,
             testUttak4.startDateTime,
             testUttak4.endDateTime
         )
@@ -360,7 +360,7 @@ class ReportRepositoryTest {
             0,
             testUttak5.id,
             testPartner.id,
-            testStation2,
+            testStasjon2,
             testUttak5.startDateTime,
             testUttak5.endDateTime
         )
@@ -369,7 +369,7 @@ class ReportRepositoryTest {
 //            0,
 //            6,
 //            testPartner2.id,
-//            testStation,
+//            testStasjon,
 //            LocalDateTime.parse("2020-05-06T16:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
 //            LocalDateTime.parse("2020-05-06T18:00:00Z", DateTimeFormatter.ISO_DATE_TIME)
 //        )
@@ -436,7 +436,7 @@ class ReportRepositoryTest {
                 testReport2.uttakId,
                 LocalDateTime.parse("2020-05-05T16:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-05-05T18:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
-                testStation,
+                testStasjon,
                 testPartner
             )
             val expected = testReport2.copy(startDateTime = uttak.startDateTime, endDateTime = uttak.endDateTime)
@@ -457,7 +457,7 @@ class ReportRepositoryTest {
                 0,
                 LocalDateTime.parse("2020-05-05T16:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-05-05T18:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
-                testStation,
+                testStasjon,
                 testPartner
             )
             val expected = RepositoryError.NoRowsFound("uttakId 0 does not exist!")
@@ -481,7 +481,7 @@ class ReportRepositoryTest {
             require(actual is Either.Right)
             assertEquals(testUttak5.id, actual.b.uttakId)
             assertEquals(testUttak5.partner?.id, actual.b.partnerId)
-            assertEquals(testUttak5.station, actual.b.station)
+            assertEquals(testUttak5.stasjon, actual.b.stasjon)
             assertEquals(testUttak5.startDateTime, actual.b.startDateTime)
             assertEquals(testUttak5.endDateTime, actual.b.endDateTime)
             assert(actual.b.reportedDateTime == null)

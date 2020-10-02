@@ -11,7 +11,7 @@ import io.mockk.mockkObject
 import io.mockk.unmockkAll
 import kotlinx.serialization.builtins.list
 import kotlinx.serialization.json.Json
-import no.oslokommune.ombruk.station.model.Station
+import no.oslokommune.ombruk.stasjon.model.Stasjon
 import no.oslokommune.ombruk.reporting.database.ReportRepository
 import no.oslokommune.ombruk.reporting.form.ReportGetForm
 import no.oslokommune.ombruk.reporting.form.ReportUpdateForm
@@ -62,7 +62,7 @@ class ReportingApiTest {
                 1,
                 1,
                 1,
-                Station(1, "Test"),
+                Stasjon(1, "Test"),
                 LocalDateTime.parse("2020-07-07T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-07-08T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME)
             )
@@ -136,7 +136,7 @@ class ReportingApiTest {
                 1,
                 1,
                 1,
-                Station(1, "Test"),
+                Stasjon(1, "Test"),
                 LocalDateTime.parse("2020-07-07T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-07-08T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME)
             )
@@ -153,25 +153,25 @@ class ReportingApiTest {
         }
 
         /**
-         * Check for 200 when getting reports by valid stationID
+         * Check for 200 when getting reports by valid stasjonID
          */
         @Test
-        fun `get all reports by stationID 200`() {
+        fun `get all reports by stasjonID 200`() {
             val r1 = Report(
                 1,
                 1,
                 1,
-                Station(1, "Test"),
+                Stasjon(1, "Test"),
                 LocalDateTime.parse("2020-07-07T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-07-08T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME)
             )
             val r3 = r1.copy(reportId = 3)
             val expected = listOf(r1, r3)
-            val form = ReportGetForm(stationId = 1)
+            val form = ReportGetForm(stasjonId = 1)
 
             every { ReportService.getReports(form) } returns expected.right()
 
-            testGet("/reports/?stationId=1") {
+            testGet("/reports/?stasjonId=1") {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(json.stringify(Report.serializer().list, expected), response.content)
             }
@@ -225,7 +225,7 @@ class ReportingApiTest {
                 1,
                 1,
                 1,
-                Station(1, "Test"),
+                Stasjon(1, "Test"),
                 LocalDateTime.parse("2020-07-07T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-07-08T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME)
             )
@@ -262,7 +262,7 @@ class ReportingApiTest {
                 1,
                 1,
                 1,
-                Station(1, "Test"),
+                Stasjon(1, "Test"),
                 LocalDateTime.parse("2020-07-07T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-07-08T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME)
             )
@@ -284,7 +284,7 @@ class ReportingApiTest {
                 1,
                 1,
                 1,
-                Station(1, "Test"),
+                Stasjon(1, "Test"),
                 LocalDateTime.parse("2020-07-07T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-07-08T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME)
             )
@@ -347,7 +347,7 @@ class ReportingApiTest {
                 1,
                 1,
                 1,
-                Station(1, "Test"),
+                Stasjon(1, "Test"),
                 LocalDateTime.parse("2020-07-07T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-07-08T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME)
             )

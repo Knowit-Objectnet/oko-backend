@@ -64,8 +64,8 @@ paths:
         down search results
       parameters:
         - in: query
-          name: stationId
-          description: pass an optional station id for uttaks
+          name: stasjonId
+          description: pass an optional stasjon id for uttaks
           required: false
           schema:
             type: integer
@@ -182,7 +182,7 @@ components:
           type: string
           format: date-time
           example: "2020-07-10T13:17:39"
-        station:
+        stasjon:
           type: integer
           format: int64
           example: 1
@@ -207,8 +207,8 @@ components:
           type: string
           format: date-time
           example: "2020-07-10T13:17:39"
-        station:
-          $ref: '#/components/schemas/Station'
+        stasjon:
+          $ref: '#/components/schemas/Stasjon'
         partner:
           $ref: '#/components/schemas/Partner'
         recurrenceRule:
@@ -229,7 +229,7 @@ components:
           format: date-time
           example: "2020-07-10T14:17:39"
 
-    Station:
+    Stasjon:
       type: object
       properties:
         id:

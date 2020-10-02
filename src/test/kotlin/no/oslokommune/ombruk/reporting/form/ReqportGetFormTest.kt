@@ -16,7 +16,7 @@ class ReqportGetFormTest {
     fun generateValidForms() = listOf(
         ReportGetForm(),
         ReportGetForm(1),
-        ReportGetForm(stationId = 1),
+        ReportGetForm(stasjonId = 1),
         ReportGetForm(partnerId = 1),
         ReportGetForm(fromDate = LocalDateTime.now()),
         ReportGetForm(toDate = LocalDateTime.now()),
@@ -35,7 +35,7 @@ class ReqportGetFormTest {
     @Suppress("unused")
     fun generateInvalidForms() = listOf(
         ReportGetForm(0),
-        ReportGetForm(stationId = 0),
+        ReportGetForm(stasjonId = 0),
         ReportGetForm(partnerId = 0),
         ReportGetForm(fromDate = LocalDateTime.now(), toDate = LocalDateTime.now().minusHours(1)),
         ReportGetForm(1, 1, 1, LocalDateTime.now(), LocalDateTime.now().plusHours(1))

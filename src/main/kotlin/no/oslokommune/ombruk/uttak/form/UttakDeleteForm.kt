@@ -18,7 +18,7 @@ data class UttakDeleteForm(
     var recurrenceRuleId: Int? = null,
     var fromDate: LocalDateTime? = null,
     var toDate: LocalDateTime? = null,
-    var stationId: Int? = null,
+    var stasjonId: Int? = null,
     var partnerId: Int? = null
 ) : IForm<UttakDeleteForm> {
     override fun validOrError(): Either<ValidationError, UttakDeleteForm> = runCatchingValidation {
@@ -26,7 +26,7 @@ data class UttakDeleteForm(
 
             validate(UttakDeleteForm::uttakId).isGreaterThan(0)
             validate(UttakDeleteForm::recurrenceRuleId).isGreaterThan(0)
-            validate(UttakDeleteForm::stationId).isGreaterThan(0)
+            validate(UttakDeleteForm::stasjonId).isGreaterThan(0)
             validate(UttakDeleteForm::partnerId).isGreaterThan(0)
 
             validate(UttakDeleteForm::toDate).isGreaterThanStartDateTime(fromDate)

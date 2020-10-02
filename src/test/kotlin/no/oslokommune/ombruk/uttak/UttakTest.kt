@@ -7,16 +7,16 @@ import io.ktor.serialization.DefaultJsonConfiguration
 import kotlinx.serialization.builtins.list
 import kotlinx.serialization.json.Json
 import no.oslokommune.ombruk.uttak.database.UttakRepository
-import no.oslokommune.ombruk.station.database.StationRepository
+import no.oslokommune.ombruk.stasjon.database.StasjonRepository
 import no.oslokommune.ombruk.uttak.form.UttakDeleteForm
 import no.oslokommune.ombruk.uttak.form.UttakGetForm
 import no.oslokommune.ombruk.uttak.form.UttakPostForm
-import no.oslokommune.ombruk.station.form.StationPostForm
+import no.oslokommune.ombruk.stasjon.form.StasjonPostForm
 import no.oslokommune.ombruk.uttak.model.Uttak
 import no.oslokommune.ombruk.uttak.model.RecurrenceRule
-import no.oslokommune.ombruk.station.model.Station
+import no.oslokommune.ombruk.stasjon.model.Stasjon
 import no.oslokommune.ombruk.uttak.service.UttakService
-import no.oslokommune.ombruk.station.service.StationService
+import no.oslokommune.ombruk.stasjon.service.StasjonService
 import no.oslokommune.ombruk.partner.database.PartnerRepository
 import no.oslokommune.ombruk.partner.form.PartnerPostForm
 import no.oslokommune.ombruk.partner.model.Partner
@@ -44,13 +44,13 @@ class UttakTest {
     val json = Json(DefaultJsonConfiguration.copy(prettyPrint = true))
 
     var partners: List<Partner>
-    var stations: List<Station>
+    var stasjoner: List<Stasjon>
     lateinit var uttaks: List<Uttak>
 
     init {
         initDB()
         partners = createTestPartners()
-        stations = createTestStations()
+        stasjoner = createTestStasjoner()
     }
 
     @BeforeEach
@@ -66,7 +66,7 @@ class UttakTest {
     @AfterAll
     fun finish() {
         PartnerRepository.deleteAllPartners()
-        StationRepository.deleteAllStations()
+        StasjonRepository.deleteAllStasjoner()
     }
 
     private fun createTestPartners() = (0..9).map {
@@ -82,21 +82,21 @@ class UttakTest {
         return@map p.b
     }
 
-    private fun createTestStations() = (0..5).map {
-        val s = StationService.saveStation(StationPostForm("no.oslokommune.ombruk.uttak.UttakTest Station$it", hours = openHours()))
+    private fun createTestStasjoner() = (0..5).map {
+        val s = StasjonService.saveStasjon(StasjonPostForm("no.oslokommune.ombruk.uttak.UttakTest Stasjon$it", hours = openHours()))
         require(s is Either.Right)
         return@map s.b
     }
 
     private fun createTestUttaks(): List<Uttak> {
         var partnerCounter = 0
-        var stationCounter = 0
+        var stasjonCounter = 0
         return (1..100L).map {
             val e = UttakService.saveUttak(
                 UttakPostForm(
                     LocalDateTime.parse("2020-07-06T15:48:06").plusDays(it),
                     LocalDateTime.parse("2020-07-06T16:48:06").plusDays(it),
-                    stations[stationCounter].id,
+                    stasjoner[stasjonCounter].id,
                     partners[partnerCounter].id
                 )
             )
@@ -104,7 +104,7 @@ class UttakTest {
             partnerCounter++
             if (partnerCounter % 10 == 0) {
                 partnerCounter = 0
-                stationCounter = (stationCounter + 1) % 6
+                stasjonCounter = (stasjonCounter + 1) % 6
             }
 
             require(e is Either.Right)
@@ -131,9 +131,9 @@ class UttakTest {
         }
 
         @Test
-        fun `get uttaks by stationId`() {
-            testGet("/uttaks?stationId=${stations[3].id}") {
-                val expected = uttaks.filter { it.station == stations[3] }
+        fun `get uttaks by stasjonId`() {
+            testGet("/uttaks?stasjonId=${stasjoner[3].id}") {
+                val expected = uttaks.filter { it.stasjon == stasjoner[3] }
 
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(json.stringify(Uttak.serializer().list, expected), response.content)
@@ -150,9 +150,9 @@ class UttakTest {
         }
 
         @Test
-        fun `get uttaks by stationId and partnerId`() {
-            testGet("/uttaks?stationId=${stations[2].id}&partnerId=${partners[4].id}") {
-                val expected = uttaks.filter { it.station == stations[2] }.filter { it.partner == partners[4] }
+        fun `get uttaks by stasjonId and partnerId`() {
+            testGet("/uttaks?stasjonId=${stasjoner[2].id}&partnerId=${partners[4].id}") {
+                val expected = uttaks.filter { it.stasjon == stasjoner[2] }.filter { it.partner == partners[4] }
 
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(json.stringify(Uttak.serializer().list, expected), response.content)
@@ -199,14 +199,14 @@ class UttakTest {
         fun `create single uttak`() {
             val startDateTime = LocalDateTime.parse("2020-07-06T15:00:00")
             val endDateTime = LocalDateTime.parse("2020-07-06T16:00:00")
-            val stationId = stations[Random.nextInt(1, 5)].id
+            val stasjonId = stasjoner[Random.nextInt(1, 5)].id
             val partnerId = partners[Random.nextInt(1, 9)].id
 
             val body =
                 """{
                     "startDateTime": "2020-07-06T15:00:00",
                     "endDateTime": "2020-07-06T16:00:00",
-                    "stationId": "$stationId",
+                    "stasjonId": "$stasjonId",
                     "partnerId": "$partnerId"
                 }"""
 
@@ -218,7 +218,7 @@ class UttakTest {
                 assertEquals(responseUttak, insertedUttak.b)
                 assertEquals(startDateTime, responseUttak.startDateTime)
                 assertEquals(endDateTime, responseUttak.endDateTime)
-                assertEquals(stationId, responseUttak.station.id)
+                assertEquals(stasjonId, responseUttak.stasjon.id)
                 assertEquals(partnerId, responseUttak.partner?.id)
             }
         }
@@ -227,7 +227,7 @@ class UttakTest {
         fun `create recurring uttak`() {
             val startDateTime = LocalDateTime.parse("2020-07-06T15:00:00")
             val endDateTime = LocalDateTime.parse("2020-07-06T16:00:00")
-            val stationId = stations[Random.nextInt(1, 5)].id
+            val stasjonId = stasjoner[Random.nextInt(1, 5)].id
             val partnerId = partners[Random.nextInt(1, 9)].id
             val rRule = RecurrenceRule(count = 5)
 
@@ -235,7 +235,7 @@ class UttakTest {
                 """{
                     "startDateTime": "2020-07-06T15:00:00",
                     "endDateTime": "2020-07-06T16:00:00",
-                    "stationId": "$stationId",
+                    "stasjonId": "$stasjonId",
                     "partnerId": "$partnerId",
                     "recurrenceRule": { "count": "${rRule.count}" }
                 }"""
@@ -253,7 +253,7 @@ class UttakTest {
                 insertedUttaks.b.forEachIndexed { index, uttak ->
                     assertEquals(startDateTime.plusDays(7L * index), uttak.startDateTime)
                     assertEquals(endDateTime.plusDays(7L * index), uttak.endDateTime)
-                    assertEquals(stationId, uttak.station.id)
+                    assertEquals(stasjonId, uttak.stasjon.id)
                     assertEquals(partnerId, uttak.partner?.id)
                 }
             }
@@ -274,10 +274,10 @@ class UttakTest {
         }
 
         @Test
-        fun `delete uttaks by station id`() {
-            testDelete("/uttaks?stationId=${stations[1].id}") {
+        fun `delete uttaks by stasjon id`() {
+            testDelete("/uttaks?stasjonId=${stasjoner[1].id}") {
                 val respondedUttaks = json.parse(Uttak.serializer().list, response.content!!)
-                val deletedUttaks = uttaks.filter { it.station.id == stations[1].id }
+                val deletedUttaks = uttaks.filter { it.stasjon.id == stasjoner[1].id }
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(deletedUttaks, respondedUttaks)
                 deletedUttaks.forEach {
@@ -302,11 +302,11 @@ class UttakTest {
 
 
         @Test
-        fun `delete uttaks by partner id and station id`() {
-            testDelete("/uttaks?partnerId=${partners[7].id}&stationId=${stations[2].id}") {
+        fun `delete uttaks by partner id and stasjon id`() {
+            testDelete("/uttaks?partnerId=${partners[7].id}&stasjonId=${stasjoner[2].id}") {
                 val respondedUttaks = json.parse(Uttak.serializer().list, response.content!!)
                 val deletedUttaks =
-                    uttaks.filter { it.partner?.id == partners[7].id }.filter { it.station.id == stations[2].id }
+                    uttaks.filter { it.partner?.id == partners[7].id }.filter { it.stasjon.id == stasjoner[2].id }
 
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(deletedUttaks, respondedUttaks)

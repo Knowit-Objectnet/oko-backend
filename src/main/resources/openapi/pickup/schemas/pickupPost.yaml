@@ -11,11 +11,11 @@ properties:
   description:
     type: string
     example: Hey come pick up some furniture
-  stationId:
+  stasjonId:
     type: integer
     format: int64
     example: 1
 required:
   - startDateTime
   - endDateTime
-  - stationId
+  - stasjonId

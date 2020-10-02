@@ -1,4 +1,4 @@
-package no.oslokommune.ombruk.station.form
+package no.oslokommune.ombruk.stasjon.form
 
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.locations.Location
@@ -9,10 +9,10 @@ import org.valiktor.validate
 
 @KtorExperimentalLocationsAPI
 @Location("/{id}")
-data class StationGetByIdForm(val id: Int) : IForm<StationGetByIdForm> {
+data class StasjonGetByIdForm(val id: Int) : IForm<StasjonGetByIdForm> {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
-            validate(StationGetByIdForm::id).isGreaterThan(0)
+            validate(StasjonGetByIdForm::id).isGreaterThan(0)
         }
     }
 }

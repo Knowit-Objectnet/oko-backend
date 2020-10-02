@@ -223,7 +223,7 @@ object KeycloakGroupIntegration {
      * Creates a Keycloak group for the specified resource. This function should be called whenever a new partner is
      * stored to the database. The [id] that is passed in as a parameter will be stored as an attribute in Keycloak, and
      * will be passed along in all tokens provided by keycloak so that individual users can be associated to a larger group,
-     * for instance a partner or a reuse station.
+     * for instance a partner or a reuse stasjon.
      *
      * @param name The name of the group, e.g "Fretex". Must be a name that does not exist in keycloak.
      * @param id The ID of the created group. Must match the ID the partner has in the database.

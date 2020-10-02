@@ -1,18 +1,18 @@
-package no.oslokommune.ombruk.station.form
+package no.oslokommune.ombruk.stasjon.form
 
 import arrow.core.Either
-import no.oslokommune.ombruk.station.form.StationGetByIdForm
+import no.oslokommune.ombruk.stasjon.form.StasjonDeleteForm
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class StationGetByIdFormTest {
+class StasjonDeleteFormTest {
 
     @Test
     fun `validate valid form`() {
-        val form = StationGetByIdForm(1)
+        val form = StasjonDeleteForm(1)
         val result = form.validOrError()
 
         require(result is Either.Right)
@@ -21,7 +21,7 @@ class StationGetByIdFormTest {
 
     @Test
     fun `validate invalid form`() {
-        val form = StationGetByIdForm(0)
+        val form = StasjonDeleteForm(0)
         val result = form.validOrError()
 
         assertTrue(result is Either.Left)

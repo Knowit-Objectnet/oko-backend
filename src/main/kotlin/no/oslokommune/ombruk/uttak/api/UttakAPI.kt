@@ -51,7 +51,7 @@ fun Routing.uttaks(uttakService: IUttakService) {
         authenticate {
             patch("/") {
                 receiveCatching { call.receive<UttakUpdateForm>() }.flatMap { form ->
-                    Authorization.authorizeRole(listOf(Roles.ReuseStation, Roles.RegEmployee), call)
+                    Authorization.authorizeRole(listOf(Roles.ReuseStasjon, Roles.RegEmployee), call)
                         .flatMap { form.validOrError() }
                         .flatMap { uttakService.updateUttak(it) }
                 }
@@ -62,7 +62,7 @@ fun Routing.uttaks(uttakService: IUttakService) {
 
         authenticate {
             delete<UttakDeleteForm> { form ->
-                Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.ReuseStation, Roles.Partner), call)
+                Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.ReuseStasjon, Roles.Partner), call)
                     .map { if (it.first == Roles.Partner) form.partnerId = it.second; it }
                     .flatMap { Authorization.authorizePartnerID(it) { uttakService.getUttaks(form.toGetForm()) } }
                     .flatMap { form.validOrError() }
@@ -82,6 +82,6 @@ private fun UttakDeleteForm.toGetForm() =
         recurrenceRuleId = recurrenceRuleId,
         fromDate = fromDate,
         toDate = toDate,
-        stationId = stationId,
+        stasjonId = stasjonId,
         partnerId = partnerId
     )

@@ -1,7 +1,7 @@
-package no.oslokommune.ombruk.station.form
+package no.oslokommune.ombruk.stasjon.form
 
 import arrow.core.Either
-import no.oslokommune.ombruk.station.form.StationGetForm
+import no.oslokommune.ombruk.stasjon.form.StasjonGetForm
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
@@ -10,14 +10,14 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class StationGetFormTest {
+class StasjonGetFormTest {
 
     @Suppress("unused")
-    fun generateValidForms() = listOf(StationGetForm(), StationGetForm("notBlank"))
+    fun generateValidForms() = listOf(StasjonGetForm(), StasjonGetForm("notBlank"))
 
     @ParameterizedTest
     @MethodSource("generateValidForms")
-    fun `validate valid form`(form: StationGetForm) {
+    fun `validate valid form`(form: StasjonGetForm) {
         val result = form.validOrError()
 
         require(result is Either.Right)
@@ -26,7 +26,7 @@ class StationGetFormTest {
 
     @Test
     fun `validate invalid form`() {
-        val form = StationGetForm("")
+        val form = StasjonGetForm("")
         val result = form.validOrError()
 
         assertTrue(result is Either.Left)

@@ -19,7 +19,7 @@ class OpenHoursValidationTest {
     data class OpenHours(val hours: Map<DayOfWeek, List<LocalTime>>?)
 
     /*
-    If hours is null, station is always closed and thus valid
+    If hours is null, stasjon is always closed and thus valid
      */
     @Test
     fun `null hours valid`() {

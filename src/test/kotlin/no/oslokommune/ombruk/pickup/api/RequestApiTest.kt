@@ -11,7 +11,7 @@ import io.mockk.mockkObject
 import io.mockk.unmockkAll
 import kotlinx.serialization.builtins.list
 import kotlinx.serialization.json.Json
-import no.oslokommune.ombruk.station.model.Station
+import no.oslokommune.ombruk.stasjon.model.Stasjon
 import no.oslokommune.ombruk.partner.database.PartnerRepository
 import no.oslokommune.ombruk.partner.model.Partner
 import no.oslokommune.ombruk.pickup.database.PickupRepository
@@ -61,9 +61,9 @@ class RequestApiTest {
          */
         @Test
         fun `get requests 200`() {
-            val station = Station(1, "test")
+            val stasjon = Stasjon(1, "test")
             val partner = Partner(1, "test")
-            val pickup = Pickup(1, LocalDateTime.now(), LocalDateTime.now(), station = station)
+            val pickup = Pickup(1, LocalDateTime.now(), LocalDateTime.now(), stasjon = stasjon)
             val expected = listOf(Request(pickup, partner))
 
             every { RequestService.getRequests(RequestGetForm()) } returns expected.right()
@@ -87,7 +87,7 @@ class RequestApiTest {
         }
 
         /**
-         * Check for 422 when we get an invalid form. Station id can't be -1.
+         * Check for 422 when we get an invalid form. Stasjon id can't be -1.
          */
         @Test
         fun `get requests 422`() {
@@ -98,7 +98,7 @@ class RequestApiTest {
         }
 
         /**
-         * Check for 400 when we get a form which can't be parsed. station Id is not an integer.
+         * Check for 400 when we get a form which can't be parsed. stasjon Id is not an integer.
          */
         @Test
         fun `get requests 400`() {
@@ -117,9 +117,9 @@ class RequestApiTest {
          */
         @Test
         fun `post request 200`() {
-            val station = Station(1, "test")
+            val stasjon = Stasjon(1, "test")
             val partner = Partner(1, "test")
-            val pickup = Pickup(1, LocalDateTime.now(), LocalDateTime.now(), station = station)
+            val pickup = Pickup(1, LocalDateTime.now(), LocalDateTime.now(), stasjon = stasjon)
             val form = RequestPostForm(pickup.id, partner.id)
             val expected = Request(pickup, partner)
 

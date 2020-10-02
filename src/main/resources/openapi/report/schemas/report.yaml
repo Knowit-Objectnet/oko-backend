@@ -12,8 +12,8 @@ properties:
     type: integer
     format: int64
     example: 2
-  station:
-    $ref: '../../api.yaml#/components/schemas/Station'
+  stasjon:
+    $ref: '../../api.yaml#/components/schemas/Stasjon'
   startDateTime:
     type: string
     format: date-time

@@ -7,9 +7,9 @@ import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkObject
 import io.mockk.unmockkAll
-import no.oslokommune.ombruk.station.database.StationRepository
+import no.oslokommune.ombruk.stasjon.database.StasjonRepository
 import no.oslokommune.ombruk.uttak.model.RecurrenceRule
-import no.oslokommune.ombruk.station.model.Station
+import no.oslokommune.ombruk.stasjon.model.Stasjon
 import no.oslokommune.ombruk.partner.database.PartnerRepository
 import no.oslokommune.ombruk.shared.database.initDB
 import org.junit.jupiter.api.AfterAll
@@ -30,7 +30,7 @@ import kotlin.test.assertTrue
 @ExtendWith(MockKExtension::class)
 class UttakPostFormTest {
 
-    private val existingStation = Station(id = 1, name = "some station", hours = openHours())
+    private val existingStasjon = Stasjon(id = 1, name = "some stasjon", hours = openHours())
 
     init {
         initDB()
@@ -38,7 +38,7 @@ class UttakPostFormTest {
 
     @BeforeEach
     fun setup() {
-        mockkObject(StationRepository)
+        mockkObject(StasjonRepository)
         mockkObject(PartnerRepository)
     }
 
@@ -76,8 +76,8 @@ class UttakPostFormTest {
     @MethodSource("generateValidForms")
     fun `validate valid form`(form: UttakPostForm) {
         every { PartnerRepository.exists(1) } returns true
-        every { StationRepository.exists(existingStation.id) } returns true
-        every { StationRepository.getStationById(1) } returns existingStation.right()
+        every { StasjonRepository.exists(existingStasjon.id) } returns true
+        every { StasjonRepository.getStasjonById(1) } returns existingStasjon.right()
 
         val result = form.validOrError()
 
@@ -101,10 +101,10 @@ class UttakPostFormTest {
     @ParameterizedTest
     @MethodSource("generateInvalidForms")
     fun `validate invalid form`(form: UttakPostForm) {
-        every { StationRepository.exists(1) } returns true
+        every { StasjonRepository.exists(1) } returns true
         every { PartnerRepository.exists(1) } returns true
-        every { StationRepository.getStationById(1) } returns Either.right(Station(
-            id = 1, name = "some station", hours = openHours()
+        every { StasjonRepository.getStasjonById(1) } returns Either.right(Stasjon(
+            id = 1, name = "some stasjon", hours = openHours()
         ))
 
         val result = form.validOrError()

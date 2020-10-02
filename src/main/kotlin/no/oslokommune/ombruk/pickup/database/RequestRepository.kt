@@ -4,8 +4,8 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import io.ktor.locations.KtorExperimentalLocationsAPI
-import no.oslokommune.ombruk.station.database.Stations
-import no.oslokommune.ombruk.station.database.toStation
+import no.oslokommune.ombruk.stasjon.database.Stasjoner
+import no.oslokommune.ombruk.stasjon.database.toStasjon
 import no.oslokommune.ombruk.partner.database.Partners
 import no.oslokommune.ombruk.partner.model.Partner
 import no.oslokommune.ombruk.pickup.form.request.RequestDeleteForm
@@ -37,7 +37,7 @@ object RequestRepository : IRequestRepository {
         val requestPartner = Partners.alias("requestPartner")
         return runCatching {
             transaction {
-                val query = (Requests innerJoin Pickups innerJoin Stations)
+                val query = (Requests innerJoin Pickups innerJoin Stasjoner)
                     .leftJoin(chosenPartnerForPickup, { Pickups.chosenPartnerId }, { chosenPartnerForPickup[Partners.id] })
                     .innerJoin(requestPartner, { Requests.partnerID }, { requestPartner[Partners.id] })
                     .selectAll()
@@ -122,7 +122,7 @@ object RequestRepository : IRequestRepository {
                 row[Pickups.startTime],
                 row[Pickups.endTime],
                 row[Pickups.description],
-                toStation(row),
+                toStasjon(row),
                 chosenPartner
             ),
             toPartner(row, requestPartner)

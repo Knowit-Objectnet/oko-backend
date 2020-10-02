@@ -73,11 +73,11 @@ class UttakServiceTest {
         }
 
         /**
-         * Check that we can get the expected uttak when given a station id
+         * Check that we can get the expected uttak when given a stasjon id
          */
         @Test
-        fun `get by station id`(@MockK expectedUttaks: List<Uttak>) {
-            val form = UttakGetForm(stationId = 1)
+        fun `get by stasjon id`(@MockK expectedUttaks: List<Uttak>) {
+            val form = UttakGetForm(stasjonId = 1)
             every { UttakRepository.getUttaks(form) } returns expectedUttaks.right()
 
             val actualUttaks = UttakService.getUttaks(form)
@@ -99,11 +99,11 @@ class UttakServiceTest {
         }
 
         /**
-         * Check that we can get the expected uttak when given a station and partner id
+         * Check that we can get the expected uttak when given a stasjon and partner id
          */
         @Test
-        fun `get by partner and station id`(@MockK expectedUttaks: List<Uttak>) {
-            val form = UttakGetForm(partnerId = 1, stationId = 1)
+        fun `get by partner and stasjon id`(@MockK expectedUttaks: List<Uttak>) {
+            val form = UttakGetForm(partnerId = 1, stasjonId = 1)
             every { UttakRepository.getUttaks(form) } returns expectedUttaks.right()
 
             val actualUttaks = UttakService.getUttaks(form)

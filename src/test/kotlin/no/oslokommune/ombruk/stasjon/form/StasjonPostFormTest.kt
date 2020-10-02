@@ -1,4 +1,4 @@
-package no.oslokommune.ombruk.station.form
+package no.oslokommune.ombruk.stasjon.form
 
 import arrow.core.Either
 import io.mockk.clearAllMocks
@@ -6,7 +6,7 @@ import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkObject
 import io.mockk.unmockkAll
-import no.oslokommune.ombruk.station.database.StationRepository
+import no.oslokommune.ombruk.stasjon.database.StasjonRepository
 import no.oslokommune.ombruk.shared.database.initDB
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
@@ -21,7 +21,7 @@ import kotlin.test.assertTrue
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockKExtension::class)
-class StationUpdateFormTest {
+class StasjonPostFormTest {
 
     init {
         initDB()
@@ -29,7 +29,7 @@ class StationUpdateFormTest {
 
     @BeforeEach
     fun setup() {
-        mockkObject(StationRepository)
+        mockkObject(StasjonRepository)
     }
 
     @AfterEach
@@ -44,14 +44,13 @@ class StationUpdateFormTest {
 
     @Suppress("unused")
     fun generateValidForms() = listOf(
-        StationUpdateForm(1, "unique"),
-        StationUpdateForm(1, "unique", emptyMap()),
-        StationUpdateForm(1, hours = emptyMap())
+        StasjonPostForm("unique", emptyMap()),
+        StasjonPostForm("unique")
     )
 
     @ParameterizedTest
     @MethodSource("generateValidForms")
-    fun `validate valid form`(form: StationUpdateForm) {
+    fun `validate valid form`(form: StasjonPostForm) {
         val result = form.validOrError()
 
         require(result is Either.Right)
@@ -60,16 +59,15 @@ class StationUpdateFormTest {
 
     @Suppress("unused")
     fun generateInvalidForms() = listOf(
-        StationUpdateForm(0),
-        StationUpdateForm(1, ""),
-        StationUpdateForm(1, "notUnique"),
-        StationUpdateForm(1, hours = mapOf(DayOfWeek.MONDAY to emptyList()))
+        StasjonPostForm(""),
+        StasjonPostForm("notUnique"),
+        StasjonPostForm("", mapOf(DayOfWeek.MONDAY to emptyList()))
     )
 
     @ParameterizedTest
     @MethodSource("generateInvalidForms")
-    fun `validate invalid form`(form: StationUpdateForm) {
-        every { StationRepository.exists("notUnique") } returns true
+    fun `validate invalid form`(form: StasjonPostForm) {
+        every { StasjonRepository.exists("notUnique") } returns true
 
         val result = form.validOrError()
 

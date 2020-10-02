@@ -2,7 +2,7 @@ package no.oslokommune.ombruk.uttak.form
 
 import arrow.core.Either
 import kotlinx.serialization.Serializable
-import no.oslokommune.ombruk.station.database.StationRepository
+import no.oslokommune.ombruk.stasjon.database.StasjonRepository
 import no.oslokommune.ombruk.uttak.model.RecurrenceRule
 import no.oslokommune.ombruk.uttak.utils.CreateUttakFormIterator
 import no.oslokommune.ombruk.uttak.utils.NonRecurringCreateUttakFormIterator
@@ -21,8 +21,8 @@ import java.time.LocalDateTime
 data class UttakPostForm(
     @Serializable(with = LocalDateTimeSerializer::class) var startDateTime: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class) var endDateTime: LocalDateTime,
-    val stationId: Int,
-    val partnerId: Int? = null, // Optional partner. An uttak without a partner is arranged by the station only.
+    val stasjonId: Int,
+    val partnerId: Int? = null, // Optional partner. An uttak without a partner is arranged by the stasjon only.
     var recurrenceRule: RecurrenceRule? = null
 ) : Iterable<UttakPostForm>, IForm<UttakPostForm> {
     override fun iterator() = when (recurrenceRule) {
@@ -35,12 +35,12 @@ data class UttakPostForm(
             validate(UttakPostForm::endDateTime).isGreaterThanStartDateTime(startDateTime)
             validate(UttakPostForm::endDateTime).isSameDateAs(startDateTime)
 
-            validate(UttakPostForm::startDateTime).isWithinOpeningHoursOf(it.stationId)
-            validate(UttakPostForm::endDateTime).isWithinOpeningHoursOf(it.stationId)
+            validate(UttakPostForm::startDateTime).isWithinOpeningHoursOf(it.stasjonId)
+            validate(UttakPostForm::endDateTime).isWithinOpeningHoursOf(it.stasjonId)
 
-            validate(UttakPostForm::stationId).isPositive()
+            validate(UttakPostForm::stasjonId).isPositive()
 
-            validate(UttakPostForm::stationId).isInRepository(StationRepository)
+            validate(UttakPostForm::stasjonId).isInRepository(StasjonRepository)
             validate(UttakPostForm::partnerId).isInRepository(PartnerRepository)
             recurrenceRule?.validateSelf(startDateTime)
         }

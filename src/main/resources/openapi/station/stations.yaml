@@ -1,37 +1,37 @@
 get:
   tags:
     #- everyone
-    - stations
-  summary: Gets all stations
-  operationId: getStations
+    - stasjoner
+  summary: Gets all stasjoner
+  operationId: getStasjoner
   responses:
     '200':
-      description: Returns all stations
+      description: Returns all stasjoner
       content:
         application/json:
           schema:
             type: array
             items:
-              $ref: '../api.yaml#/components/schemas/Station'
+              $ref: '../api.yaml#/components/schemas/Stasjon'
     '500':
       description: Internal server error
 
 post:
   tags:
     #- reg-admin
-    - stations
-  summary: Adds a station
-  operationId: addStation
-  description: Adds a station to the database. Name must be unique. The stored Station object is returned if request is valid.
+    - stasjoner
+  summary: Adds a stasjon
+  operationId: addStasjon
+  description: Adds a stasjon to the database. Name must be unique. The stored Stasjon object is returned if request is valid.
   responses:
     '200':
       description: item created
       content:
         application/json:
           schema:
-            $ref: '../api.yaml#/components/schemas/Station'
+            $ref: '../api.yaml#/components/schemas/Stasjon'
     '400':
-      description: Bad station body
+      description: Bad stasjon body
     '401':
       description: Unauthorized
     '403':
@@ -44,25 +44,25 @@ post:
     content:
       application/json:
         schema:
-          $ref: '../api.yaml#/components/schemas/StationPost'
+          $ref: '../api.yaml#/components/schemas/StasjonPost'
 
 patch:
   tags:
     #- reg-admin
-    - stations
-  summary: Updates a station
-  operationId: patchStation
+    - stasjoner
+  summary: Updates a stasjon
+  operationId: patchStasjon
   description:
     |
-    Updates a partner. ID cannot be changed and must correspond with an existing station. Name must be unique.
-    The stored station object is returned if request is valid. WARNING: PATCHING HOURS WILL OVERWRITE PREVIOUS HOURS.
+    Updates a partner. ID cannot be changed and must correspond with an existing stasjon. Name must be unique.
+    The stored stasjon object is returned if request is valid. WARNING: PATCHING HOURS WILL OVERWRITE PREVIOUS HOURS.
   responses:
     '200':
-      description: Station updated
+      description: Stasjon updated
       content:
         application/json:
           schema:
-            $ref: '../api.yaml#/components/schemas/Station'
+            $ref: '../api.yaml#/components/schemas/Stasjon'
     '400':
       description: Bad request body
     '401':
@@ -79,4 +79,4 @@ patch:
     content:
       application/json:
         schema:
-          $ref: '../api.yaml#/components/schemas/StationPatch'
+          $ref: '../api.yaml#/components/schemas/StasjonPatch'

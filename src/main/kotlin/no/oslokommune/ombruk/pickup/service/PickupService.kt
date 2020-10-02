@@ -34,7 +34,7 @@ object PickupService : IPickupService {
                     pickup = it
                     val uttakPostForm = UttakPostForm(
                         it.startDateTime, it.endDateTime,
-                        it.station.id,
+                        it.stasjon.id,
                         it.chosenPartner!!.id // chosePartner is always set or we wouldn't be here.
                     )
                     return@map UttakService.saveUttak(uttakPostForm) //Creates the uttak

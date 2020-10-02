@@ -18,8 +18,8 @@ get:
         format: int64
       example: 1
     - in: query
-      name: stationId
-      description: Only get reports belonging at the specified Station ID.
+      name: stasjonId
+      description: Only get reports belonging at the specified Stasjon ID.
       required: false
       schema:
         type: integer
@@ -64,7 +64,7 @@ get:
 patch:
   tags:
     #- reg-admin
-    #- reuse-station
+    #- reuse-stasjon
     #- partner
     - reports
   summary: Sets the weight of a report

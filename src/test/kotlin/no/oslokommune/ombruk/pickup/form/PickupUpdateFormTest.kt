@@ -7,7 +7,7 @@ import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkObject
 import io.mockk.unmockkAll
-import no.oslokommune.ombruk.station.model.Station
+import no.oslokommune.ombruk.stasjon.model.Stasjon
 import no.oslokommune.ombruk.partner.database.PartnerRepository
 import no.oslokommune.ombruk.partner.model.Partner
 import no.oslokommune.ombruk.pickup.database.PickupRepository
@@ -34,7 +34,7 @@ class PickupUpdateFormTest {
         LocalDateTime.now(),
         LocalDateTime.now().plusHours(1),
         "test",
-        Station(1, "test"),
+        Stasjon(1, "test"),
         Partner(1, "test")
     )
 

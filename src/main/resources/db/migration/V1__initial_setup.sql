@@ -1,4 +1,4 @@
-create TABLE stations
+create TABLE stasjoner
 (
     id   serial primary key,
     name varchar(255) not null unique,
@@ -30,10 +30,10 @@ create TABLE uttak
     start_date_time    timestamp not null,
     end_date_time      timestamp not null,
     recurrence_rule_id int,
-    station_id         int not null,
+    stasjon_id         int not null,
     partner_id         int not null,
     FOREIGN KEY (recurrence_rule_id) references recurrence_rules on delete cascade,
-    FOREIGN KEY (station_id) references stations on delete cascade,
+    FOREIGN KEY (stasjon_id) references stasjoner on delete cascade,
     FOREIGN KEY (partner_id) references partners on delete cascade
 );
 
@@ -42,8 +42,8 @@ create TABLE pickups
     id         serial primary key,
     start_time timestamp not null,
     end_time   timestamp not null,
-    station_id int not null,
-    FOREIGN KEY (station_id) references stations on delete cascade
+    stasjon_id int not null,
+    FOREIGN KEY (stasjon_id) references stasjoner on delete cascade
 );
 
 create TABLE requests
@@ -64,8 +64,8 @@ create TABLE reports
     start_date_time   timestamp not null,
     end_date_time     timestamp not null,
     partner_id        int not null,
-    station_id        int not null,
-    FOREIGN KEY (station_id) references stations on delete cascade,
+    stasjon_id        int not null,
+    FOREIGN KEY (stasjon_id) references stasjoner on delete cascade,
     FOREIGN KEY (partner_id) references partners on delete cascade
 );
 
@@ -83,16 +83,16 @@ ALTER table partners
 ALTER table partners
     ALTER column phone DROP not null;
 
-ALTER TABLE stations
+ALTER TABLE stasjoner
     DROP COLUMN opening_time;
 
-ALTER TABLE stations
+ALTER TABLE stasjoner
     DROP COLUMN closing_time;
 
-ALTER TABLE stations
+ALTER TABLE stasjoner
     ADD hours varchar(400);
 
-delete from stations;
+delete from stasjoner;
 
 ALTER TABLE reports
     ADD CONSTRAINT uttak_id_fk FOREIGN KEY (uttak_id) REFERENCES uttak (id) ON DELETE CASCADE;

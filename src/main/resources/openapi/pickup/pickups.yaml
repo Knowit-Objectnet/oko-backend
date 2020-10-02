@@ -24,7 +24,7 @@ get:
         format: int64
       example: 1
     - in: query
-      name: stationId
+      name: stasjonId
       schema:
         type: integer
         format: int64
@@ -76,7 +76,7 @@ post:
 patch:
   tags:
     #- reg-admin
-    #- reuse-station
+    #- reuse-stasjon
     - pickups
   summary: Updates a no.oslokommune.ombruk.pickup
   operationId: patchPickup

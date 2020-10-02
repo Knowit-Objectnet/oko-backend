@@ -1,27 +1,31 @@
-package no.oslokommune.ombruk.station.form
+package no.oslokommune.ombruk.stasjon.form
 
 import kotlinx.serialization.Serializable
-import no.oslokommune.ombruk.station.database.StationRepository
+import no.oslokommune.ombruk.stasjon.database.StasjonRepository
 import no.oslokommune.ombruk.shared.form.IForm
 import no.oslokommune.ombruk.shared.model.serializer.LocalTimeSerializer
 import no.oslokommune.ombruk.shared.utils.validation.isUniqueInRepository
 import no.oslokommune.ombruk.shared.utils.validation.isValid
 import no.oslokommune.ombruk.shared.utils.validation.runCatchingValidation
+import org.valiktor.functions.isGreaterThan
 import org.valiktor.functions.isNotBlank
 import org.valiktor.validate
 import java.time.DayOfWeek
 import java.time.LocalTime
 
 @Serializable
-data class StationPostForm(
-    val name: String,
+data class StasjonUpdateForm(
+    val id: Int,
+    val name: String? = null,
     val hours: Map<DayOfWeek, List<@Serializable(with = LocalTimeSerializer::class) LocalTime>>? = null
-) : IForm<StationPostForm> {
+) : IForm<StasjonUpdateForm> {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
-            validate(StationPostForm::name).isNotBlank()
-            validate(StationPostForm::hours).isValid()
-            validate(StationPostForm::name).isUniqueInRepository(StationRepository)
+            validate(StasjonUpdateForm::id).isGreaterThan(0)
+            validate(StasjonUpdateForm::name).isNotBlank()
+            validate(StasjonUpdateForm::name).isUniqueInRepository(StasjonRepository)
+            validate(StasjonUpdateForm::hours).isValid()
+
         }
     }
 }
