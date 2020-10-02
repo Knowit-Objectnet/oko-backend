@@ -20,9 +20,9 @@ import no.oslokommune.ombruk.shared.api.generateResponse
 import no.oslokommune.ombruk.shared.api.receiveCatching
 
 @KtorExperimentalLocationsAPI
-fun Routing.partners(partnerService: IPartnerService) {
+fun Routing.partnere(partnerService: IPartnerService) {
 
-    route("/partners") {
+    route("/partnere") {
         get<PartnerGetByIdForm> { form ->
             form.validOrError()
                 .flatMap { partnerService.getPartnerById(it.id) }
@@ -32,7 +32,7 @@ fun Routing.partners(partnerService: IPartnerService) {
 
         get<PartnerGetForm> { form ->
             form.validOrError()
-                .flatMap { partnerService.getPartners(it) }
+                .flatMap { partnerService.getPartnere(it) }
                 .run { generateResponse(this) }
                 .also { (code, response) -> call.respond(code, response) }
         }

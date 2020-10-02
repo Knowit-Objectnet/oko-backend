@@ -46,10 +46,10 @@ interface IPartnerRepository : IRepository, IRepositoryUniqueName {
     fun getPartnerByID(partnerID: Int): Either<RepositoryError, Partner>
 
     /**
-     * Fetches all partners. Supports getting partner by name.
+     * Fetches all partnere. Supports getting partner by name.
      *
      * @return An [Either] object consisting of a [RepositoryError] on failure and a [List] of [Partner] objects on success.
      */
     @KtorExperimentalLocationsAPI
-    fun getPartners(partnerGetForm: PartnerGetForm): Either<RepositoryError, List<Partner>>
+    fun getPartnere(partnerGetForm: PartnerGetForm): Either<RepositoryError, List<Partner>>
 }

@@ -1,9 +1,9 @@
 get:
   tags:
     #- everyone
-    - partners
-  summary: Gets all partners
-  operationId: getPartners
+    - partnere
+  summary: Gets all partnere
+  operationId: getPartnere
   parameters:
     - in: query
       name: name
@@ -12,7 +12,7 @@ get:
         example: Fretex
   responses:
     '200':
-      description: Returns all partners
+      description: Returns all partnere
       content:
         application/json:
           schema:
@@ -25,7 +25,7 @@ get:
 post:
   tags:
     #- reg-admin
-    - partners
+    - partnere
   summary: adds a partner
   operationId: addPartner
   description: Adds a partner to the database and to keycloak. Name must be unique.
@@ -58,13 +58,13 @@ patch:
   tags:
     #- reg-admin
     #- partner
-    - partners
+    - partnere
   summary: Updates a partner both in the database and in keycloak
   operationId: patchpartner
   description: |
     Updates a partner in both the database and in keycloak. ID cannot be
     changed and must correspond with an existing partner. Name must be unique.
-    Partners can only update their own information.
+    Partnere can only update their own information.
   responses:
     '200':
       description: Partner updated

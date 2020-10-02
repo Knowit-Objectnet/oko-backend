@@ -17,7 +17,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 
 
-object Partners : IntIdTable("partners") {
+object Partnere : IntIdTable("partnere") {
     val name = varchar("name", 100)
     val description = varchar("description", 100).nullable()
     val phone = varchar("phone", 20).nullable()
@@ -28,7 +28,7 @@ object PartnerRepository : IPartnerRepository {
     private val logger = LoggerFactory.getLogger("ombruk.no.oslokommune.ombruk.partner.service.PartnerRepository")
 
     override fun insertPartner(partner: PartnerPostForm) = runCatching {
-        Partners.insertAndGetId {
+        Partnere.insertAndGetId {
             it[name] = partner.name
             it[description] = partner.description
             it[phone] = partner.phone
@@ -44,7 +44,7 @@ object PartnerRepository : IPartnerRepository {
 
     override fun updatePartner(partner: PartnerUpdateForm) = runCatching {
         transaction {
-            Partners.update({ Partners.id eq partner.id }) { row ->
+            Partnere.update({ Partnere.id eq partner.id }) { row ->
                 partner.name?.let { row[name] = it }
                 partner.description?.let { row[description] = it }
                 partner.phone?.let { row[phone] = it }
@@ -65,7 +65,7 @@ object PartnerRepository : IPartnerRepository {
 
 
     override fun deletePartner(partnerID: Int) =
-        runCatching { transaction { Partners.deleteWhere { Partners.id eq partnerID } } }
+        runCatching { transaction { Partnere.deleteWhere { Partnere.id eq partnerID } } }
             .onFailure { logger.error("Failed to delete partner in DB: ${it.message}") }
             .fold(
                 {
@@ -75,9 +75,9 @@ object PartnerRepository : IPartnerRepository {
                 },
                 { RepositoryError.DeleteError(it.message).left() })
 
-    fun deleteAllPartners() =
-        runCatching { transaction { Partners.deleteAll() } }
-            .onFailure { logger.error("Failed to delete partners in DB: ${it.message}") }
+    fun deleteAllPartnere() =
+        runCatching { transaction { Partnere.deleteAll() } }
+            .onFailure { logger.error("Failed to delete partnere in DB: ${it.message}") }
             .fold(
                 {
                     Either.cond(it > 0,
@@ -88,7 +88,7 @@ object PartnerRepository : IPartnerRepository {
 
 
     override fun getPartnerByID(partnerID: Int): Either<RepositoryError.NoRowsFound, Partner> =
-        runCatching { transaction { Partners.select { Partners.id eq partnerID }.mapNotNull { toPartner(it) } } }
+        runCatching { transaction { Partnere.select { Partnere.id eq partnerID }.mapNotNull { toPartner(it) } } }
             .onFailure { logger.error(it.message) }
             .fold(
                 {
@@ -101,11 +101,11 @@ object PartnerRepository : IPartnerRepository {
 
 
     @KtorExperimentalLocationsAPI
-    override fun getPartners(partnerGetForm: PartnerGetForm): Either<RepositoryError.SelectError, List<Partner>> =
+    override fun getPartnere(partnerGetForm: PartnerGetForm): Either<RepositoryError.SelectError, List<Partner>> =
         runCatching {
             transaction {
-                val query = Partners.selectAll()
-                partnerGetForm.name?.let { query.andWhere { Partners.name eq it } }
+                val query = Partnere.selectAll()
+                partnerGetForm.name?.let { query.andWhere { Partnere.name eq it } }
                 query.mapNotNull { toPartner(it) }
             }
         }
@@ -115,22 +115,22 @@ object PartnerRepository : IPartnerRepository {
                 { RepositoryError.SelectError(it.message).left() }
             )
 
-    override fun exists(id: Int) = transaction { Partners.select { Partners.id eq id }.count() >= 1 }
-    override fun exists(name: String) = transaction { Partners.select { Partners.name eq name }.count() >= 1 }
+    override fun exists(id: Int) = transaction { Partnere.select { Partnere.id eq id }.count() >= 1 }
+    override fun exists(name: String) = transaction { Partnere.select { Partnere.name eq name }.count() >= 1 }
 
 }
 
 
 fun toPartner(row: ResultRow): Partner? {
-    if (!row.hasValue(Partners.id) || row.getOrNull(Partners.id) == null) {
+    if (!row.hasValue(Partnere.id) || row.getOrNull(Partnere.id) == null) {
         return null
     }
 
     return Partner(
-        row[Partners.id].value,
-        row[Partners.name],
-        row[Partners.description],
-        row[Partners.phone],
-        row[Partners.email]
+        row[Partnere.id].value,
+        row[Partnere.name],
+        row[Partnere.description],
+        row[Partnere.phone],
+        row[Partnere.email]
     )
 }

@@ -9,7 +9,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class ReportGetByIdFormTest {
+class UttaksdataGetByIdFormTest {
 
     @Test
     fun `validate valid form`() {

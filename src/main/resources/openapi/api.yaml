@@ -12,8 +12,8 @@ servers:
   - description: Actual API
     url: https://tcuk58u5ge.execute-api.eu-central-1.amazonaws.com/staging/backend
 tags:
-  - name: partners
-    description: Calls available in  the /partners/ endpoint
+  - name: partnere
+    description: Calls available in  the /partnere/ endpoint
   - name: uttak
     description: Calls available in the /uttak/ endpoint
   - name: uttaksdata
@@ -29,14 +29,14 @@ tags:
 #  - name: reuse-stasjon
 #    description: Calls available for reuse stasjon workers.
 #  - name: partner
-#    description: Calls available for partners. Can only access uttaksdata that belong to said partner.
+#    description: Calls available for partnere. Can only access uttaksdata that belong to said partner.
 #  - name: everyone
 #    description: Calls available for unauthorized users
 paths:
-  /partners/{id}:
-    $ref: "./partner/partnersId.yaml"
-  /partners:
-    $ref: "./partner/partners.yaml"
+  /partnere/{id}:
+    $ref: "./partner/partnereId.yaml"
+  /partnere:
+    $ref: "./partner/partnere.yaml"
   /stasjoner:
     $ref: "./stasjon/stasjoner.yaml"
   /stasjoner{id}:

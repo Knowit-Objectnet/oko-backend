@@ -22,7 +22,7 @@ import kotlin.test.assertEquals
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockKExtension::class)
-class ReportServiceTest {
+class UttaksdataServiceTest {
 
     @BeforeEach
     fun setup() {

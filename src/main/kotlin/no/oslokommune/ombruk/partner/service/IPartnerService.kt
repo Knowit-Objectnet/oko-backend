@@ -13,7 +13,7 @@ interface IPartnerService {
      * Saves a [Partner] to both the database and to Keycloak. If keycloak saving fails, the database transaction
      * rolls back.
      *
-     * @param partnerForm A custom object used to edit existing partners. [partnerForm] id must belong to an existing user.
+     * @param partnerForm A custom object used to edit existing partnere. [partnerForm] id must belong to an existing user.
      * @return An [Either] object consisting of [ServiceError] on failure or the ID of the saved partner on success.
      */
     fun savePartner(partnerForm: PartnerPostForm): Either<ServiceError, Partner>
@@ -27,12 +27,12 @@ interface IPartnerService {
     fun getPartnerById(id: Int): Either<ServiceError, Partner>
 
     /**
-     * Fetches partners constrained by non-null values in the [PartnerGetForm].
+     * Fetches partnere constrained by non-null values in the [PartnerGetForm].
      *
      * @param partnerGetForm A [PartnerGetForm], where each non-null property will constrain the search.
      * @return An [Either] object consisting of [ServiceError] on failure or a [List] of [Partner] objects on success.
      */
-    fun getPartners(partnerGetForm: PartnerGetForm = PartnerGetForm()): Either<ServiceError, List<Partner>>
+    fun getPartnere(partnerGetForm: PartnerGetForm = PartnerGetForm()): Either<ServiceError, List<Partner>>
 
     /**
      * Deletes the partner with the provided ID. If the ID does not exist, a [ServiceError] is returned.

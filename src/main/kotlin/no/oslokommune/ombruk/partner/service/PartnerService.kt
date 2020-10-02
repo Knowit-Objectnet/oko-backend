@@ -26,8 +26,8 @@ object PartnerService : IPartnerService {
     override fun getPartnerById(id: Int): Either<ServiceError, Partner> = PartnerRepository.getPartnerByID(id)
 
     @KtorExperimentalLocationsAPI
-    override fun getPartners(partnerGetForm: PartnerGetForm): Either<ServiceError, List<Partner>> =
-        PartnerRepository.getPartners(partnerGetForm)
+    override fun getPartnere(partnerGetForm: PartnerGetForm): Either<ServiceError, List<Partner>> =
+        PartnerRepository.getPartnere(partnerGetForm)
 
     @KtorExperimentalAPI
     override fun deletePartnerById(id: Int): Either<ServiceError, Partner> = transaction {

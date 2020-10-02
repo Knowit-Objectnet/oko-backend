@@ -12,8 +12,8 @@ servers:
   - description: Actual API
     url: 'https://tcuk58u5ge.execute-api.eu-central-1.amazonaws.com/staging/backend'
 tags:
-  - name: partners
-    description: Calls available in  the /partners/ endpoint
+  - name: partnere
+    description: Calls available in  the /partnere/ endpoint
   - name: uttak
     description: Calls available in the /uttak/ endpoint
   - name: uttaksdata
@@ -25,10 +25,10 @@ tags:
   - name: requests
     description: Calls available in the /requests/ endpoint
 paths:
-  '/partners/{id}':
+  '/partnere/{id}':
     get:
       tags:
-        - partners
+        - partnere
       summary: Get a partner with the given id
       operationId: getPartner
       parameters:
@@ -52,7 +52,7 @@ paths:
           description: Internal server error
     delete:
       tags:
-        - partners
+        - partnere
       summary: Deletes a partner
       operationId: deletePartner
       parameters:
@@ -78,12 +78,12 @@ paths:
           description: ID not found
         '500':
           description: Internal server error
-  /partners:
+  /partnere:
     get:
       tags:
-        - partners
-      summary: Gets all partners
-      operationId: getPartners
+        - partnere
+      summary: Gets all partnere
+      operationId: getPartnere
       parameters:
         - in: query
           name: name
@@ -92,7 +92,7 @@ paths:
             example: Fretex
       responses:
         '200':
-          description: Returns all partners
+          description: Returns all partnere
           content:
             application/json:
               schema:
@@ -103,7 +103,7 @@ paths:
           description: Internal server error
     post:
       tags:
-        - partners
+        - partnere
       summary: adds a partner
       operationId: addPartner
       description: Adds a partner to the database and to keycloak. Name must be unique.
@@ -133,13 +133,13 @@ paths:
               $ref: '#/components/schemas/PartnerPost'
     patch:
       tags:
-        - partners
+        - partnere
       summary: Updates a partner both in the database and in keycloak
       operationId: patchpartner
       description: |
         Updates a partner in both the database and in keycloak. ID cannot be
         changed and must correspond with an existing partner. Name must be unique.
-        Partners can only update their own information.
+        Partnere can only update their own information.
       responses:
         '200':
           description: Partner updated
@@ -365,7 +365,7 @@ paths:
       operationId: patchWeight
       description: |
         Updates the weight of a uttaksdata. When weight is updated, it's uttaksdataedDateTime field is also updated.
-        Although partners can call this endpoint, they are only able to update uttaksdata that belong to their corresponding
+        Although partnere can call this endpoint, they are only able to update uttaksdata that belong to their corresponding
         partner ID.
       responses:
         '200':

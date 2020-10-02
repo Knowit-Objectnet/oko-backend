@@ -42,13 +42,13 @@ class UttakTest {
 
     val json = Json(DefaultJsonConfiguration.copy(prettyPrint = true))
 
-    var partners: List<Partner>
+    var partnere: List<Partner>
     var stasjoner: List<Stasjon>
     lateinit var uttak: List<Uttak>
 
     init {
         initDB()
-        partners = createTestPartners()
+        partnere = createTestPartnere()
         stasjoner = createTestStasjoner()
     }
 
@@ -64,11 +64,11 @@ class UttakTest {
 
     @AfterAll
     fun finish() {
-        PartnerRepository.deleteAllPartners()
+        PartnerRepository.deleteAllPartnere()
         StasjonRepository.deleteAllStasjoner()
     }
 
-    private fun createTestPartners() = (0..9).map {
+    private fun createTestPartnere() = (0..9).map {
         val p = PartnerService.savePartner(
             PartnerPostForm(
                 "TestPartner$it",
@@ -96,7 +96,7 @@ class UttakTest {
                     LocalDateTime.parse("2020-07-06T15:48:06").plusDays(it),
                     LocalDateTime.parse("2020-07-06T16:48:06").plusDays(it),
                     stasjoner[stasjonCounter].id,
-                    partners[partnerCounter].id
+                    partnere[partnerCounter].id
                 )
             )
 
@@ -141,8 +141,8 @@ class UttakTest {
 
         @Test
         fun `get uttak by partnerId`() {
-            testGet("/uttak?partnerId=${partners[7].id}") {
-                val expected = uttak.filter { it.partner == partners[7] }
+            testGet("/uttak?partnerId=${partnere[7].id}") {
+                val expected = uttak.filter { it.partner == partnere[7] }
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(json.stringify(Uttak.serializer().list, expected), response.content)
             }
@@ -150,8 +150,8 @@ class UttakTest {
 
         @Test
         fun `get uttak by stasjonId and partnerId`() {
-            testGet("/uttak?stasjonId=${stasjoner[2].id}&partnerId=${partners[4].id}") {
-                val expected = uttak.filter { it.stasjon == stasjoner[2] }.filter { it.partner == partners[4] }
+            testGet("/uttak?stasjonId=${stasjoner[2].id}&partnerId=${partnere[4].id}") {
+                val expected = uttak.filter { it.stasjon == stasjoner[2] }.filter { it.partner == partnere[4] }
 
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(json.stringify(Uttak.serializer().list, expected), response.content)
@@ -199,7 +199,7 @@ class UttakTest {
             val startDateTime = LocalDateTime.parse("2020-07-06T15:00:00")
             val endDateTime = LocalDateTime.parse("2020-07-06T16:00:00")
             val stasjonId = stasjoner[Random.nextInt(1, 5)].id
-            val partnerId = partners[Random.nextInt(1, 9)].id
+            val partnerId = partnere[Random.nextInt(1, 9)].id
 
             val body =
                 """{
@@ -227,7 +227,7 @@ class UttakTest {
             val startDateTime = LocalDateTime.parse("2020-07-06T15:00:00")
             val endDateTime = LocalDateTime.parse("2020-07-06T16:00:00")
             val stasjonId = stasjoner[Random.nextInt(1, 5)].id
-            val partnerId = partners[Random.nextInt(1, 9)].id
+            val partnerId = partnere[Random.nextInt(1, 9)].id
             val rRule = GjentakelsesRegel(count = 5)
 
             val body =
@@ -287,9 +287,9 @@ class UttakTest {
 
         @Test
         fun `delete uttak by partner id`() {
-            testDelete("/uttak?partnerId=${partners[8].id}") {
+            testDelete("/uttak?partnerId=${partnere[8].id}") {
                 val respondedUttak = json.parse(Uttak.serializer().list, response.content!!)
-                val deletedUttak = uttak.filter { it.partner?.id == partners[8].id }
+                val deletedUttak = uttak.filter { it.partner?.id == partnere[8].id }
 
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(deletedUttak, respondedUttak)
@@ -302,10 +302,10 @@ class UttakTest {
 
         @Test
         fun `delete uttak by partner id and stasjon id`() {
-            testDelete("/uttak?partnerId=${partners[7].id}&stasjonId=${stasjoner[2].id}") {
+            testDelete("/uttak?partnerId=${partnere[7].id}&stasjonId=${stasjoner[2].id}") {
                 val respondedUttak = json.parse(Uttak.serializer().list, response.content!!)
                 val deletedUttak =
-                    uttak.filter { it.partner?.id == partners[7].id }.filter { it.stasjon.id == stasjoner[2].id }
+                    uttak.filter { it.partner?.id == partnere[7].id }.filter { it.stasjon.id == stasjoner[2].id }
 
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(deletedUttak, respondedUttak)

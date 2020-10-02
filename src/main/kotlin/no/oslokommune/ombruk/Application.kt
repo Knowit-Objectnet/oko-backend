@@ -28,7 +28,7 @@ import no.oslokommune.ombruk.uttak.api.uttak
 import no.oslokommune.ombruk.stasjon.api.stasjoner
 import no.oslokommune.ombruk.uttak.service.UttakService
 import no.oslokommune.ombruk.stasjon.service.StasjonService
-import no.oslokommune.ombruk.partner.api.partners
+import no.oslokommune.ombruk.partner.api.partnere
 import no.oslokommune.ombruk.partner.service.PartnerService
 import no.oslokommune.ombruk.pickup.api.pickup
 import no.oslokommune.ombruk.pickup.api.request
@@ -170,7 +170,7 @@ fun Application.module(testing: Boolean = false) {
 
     routing {
         uttak(UttakService)
-        partners(PartnerService)
+        partnere(PartnerService)
         uttaksdata(ReportService)
         pickup(PickupService)
         stasjoner(StasjonService)

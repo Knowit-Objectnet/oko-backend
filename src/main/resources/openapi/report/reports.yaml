@@ -71,7 +71,7 @@ patch:
   operationId: patchWeight
   description: |
     Updates the weight of a uttaksdata. When weight is updated, it's uttaksdataedDateTime field is also updated.
-    Although partners can call this endpoint, they are only able to update uttaksdata that belong to their corresponding
+    Although partnere can call this endpoint, they are only able to update uttaksdata that belong to their corresponding
     partner ID.
   responses:
     '200':

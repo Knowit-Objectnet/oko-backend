@@ -2,17 +2,16 @@ create TABLE stasjoner
 (
     id   serial primary key,
     name varchar(255) not null unique,
-    opening_time varchar(20) not null,
-    closing_time varchar(20) not null
+    hours varchar(400)
 );
 
-create TABLE partners
+create TABLE partnere
 (
     id   serial primary key,
     name varchar(255) not null unique,
-    description text not null,
-    phone varchar(20) not null,
-    email varchar(255) not null
+    description text,
+    phone varchar(20),
+    email varchar(255)
 );
 
 create table gjentakelses_regels
@@ -31,10 +30,10 @@ create TABLE uttak
     end_date_time      timestamp not null,
     gjentakelses_regel_id int,
     stasjon_id         int not null,
-    partner_id         int not null,
+    partner_id         int,
     FOREIGN KEY (gjentakelses_regel_id) references gjentakelses_regels on delete cascade,
     FOREIGN KEY (stasjon_id) references stasjoner on delete cascade,
-    FOREIGN KEY (partner_id) references partners on delete cascade
+    FOREIGN KEY (partner_id) references partnere on delete cascade
 );
 
 create TABLE pickups
@@ -43,6 +42,8 @@ create TABLE pickups
     start_time timestamp not null,
     end_time   timestamp not null,
     stasjon_id int not null,
+    description text,
+    chosen_partner_id INTEGER references partnere,
     FOREIGN KEY (stasjon_id) references stasjoner on delete cascade
 );
 
@@ -51,7 +52,7 @@ create TABLE requests
     partner_id int not null,
     pickup_id  int not null,
     FOREIGN KEY (pickup_id) references pickups on delete cascade,
-    FOREIGN KEY (partner_id) references partners on delete cascade
+    FOREIGN KEY (partner_id) references partnere on delete cascade
 
 );
 
@@ -63,45 +64,10 @@ create TABLE uttaksdata
     modified_date_time timestamp,
     start_date_time   timestamp not null,
     end_date_time     timestamp not null,
-    partner_id        int not null,
+    partner_id        int,
     stasjon_id        int not null,
+    CHECK (weight > 0),
     FOREIGN KEY (stasjon_id) references stasjoner on delete cascade,
-    FOREIGN KEY (partner_id) references partners on delete cascade
+    FOREIGN KEY (partner_id) references partnere on delete cascade,
+    FOREIGN KEY (uttak_id) references uttak on delete cascade
 );
-
-ALTER table pickups
-    ADD description text;
-
-ALTER table pickups
-    ADD chosen_partner_id INTEGER references partners;
-ALTER table partners
-    ALTER column description DROP not null;
-
-ALTER table partners
-    ALTER column email DROP not null;
-
-ALTER table partners
-    ALTER column phone DROP not null;
-
-ALTER TABLE stasjoner
-    DROP COLUMN opening_time;
-
-ALTER TABLE stasjoner
-    DROP COLUMN closing_time;
-
-ALTER TABLE stasjoner
-    ADD hours varchar(400);
-
-delete from stasjoner;
-
-ALTER TABLE uttaksdata
-    ADD CONSTRAINT uttak_id_fk FOREIGN KEY (uttak_id) REFERENCES uttak (id) ON DELETE CASCADE;
-
-ALTER TABLE uttaksdata
-    ADD CHECK (weight > 0);
-
-ALTER TABLE uttak
-    ALTER column partner_id DROP not null;
-
-ALTER TABLE uttaksdata
-    ALTER column partner_id DROP not null;

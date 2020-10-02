@@ -9,7 +9,7 @@ import no.oslokommune.ombruk.uttak.database.UttakTable
 import no.oslokommune.ombruk.stasjon.database.Stasjoner
 import no.oslokommune.ombruk.uttak.model.Uttak
 import no.oslokommune.ombruk.stasjon.model.Stasjon
-import no.oslokommune.ombruk.partner.database.Partners
+import no.oslokommune.ombruk.partner.database.Partnere
 import no.oslokommune.ombruk.partner.model.Partner
 import no.oslokommune.ombruk.uttaksdata.form.ReportGetForm
 import no.oslokommune.ombruk.uttaksdata.form.ReportUpdateForm
@@ -36,7 +36,7 @@ import java.time.format.DateTimeFormatter
 import kotlin.test.assertEquals
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class ReportRepositoryTest {
+class UttaksdataRepositoryTest {
     lateinit var testPartner: Partner
     lateinit var testPartner2: Partner
     lateinit var testStasjon: Stasjon
@@ -54,7 +54,7 @@ class ReportRepositoryTest {
     init {
         initDB()
         transaction {
-            val testPartnerId = Partners.insertAndGetId {
+            val testPartnerId = Partnere.insertAndGetId {
                 it[name] = "TestPartner 1"
                 it[description] = "Description of TestPartner 1"
                 it[phone] = "+47 2381931"
@@ -70,7 +70,7 @@ class ReportRepositoryTest {
                     "example@gmail.com"
                 )
 
-            val testPartnerId2 = Partners.insertAndGetId {
+            val testPartnerId2 = Partnere.insertAndGetId {
                 it[name] = "TestPartner 2"
                 it[description] = "Description of TestPartner 2"
                 it[phone] = "911"
@@ -212,9 +212,9 @@ class ReportRepositoryTest {
     }
 
     @AfterAll
-    fun cleanPartnersAndStasjonerFromDB() {
+    fun cleanPartnereAndStasjonerFromDB() {
         transaction {
-            Partners.deleteAll()
+            Partnere.deleteAll()
             Stasjoner.deleteAll()
         }
     }

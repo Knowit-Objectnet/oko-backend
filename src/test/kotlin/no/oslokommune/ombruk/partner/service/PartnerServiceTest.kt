@@ -117,13 +117,13 @@ class PartnerServiceTest {
     }
 
     @Nested
-    inner class GetPartners {
+    inner class GetPartnere {
 
         @Test
-        fun `get partners success`(@MockK expected: List<Partner>) {
-            every { PartnerRepository.getPartners(PartnerGetForm()) } returns expected.right()
+        fun `get partnere success`(@MockK expected: List<Partner>) {
+            every { PartnerRepository.getPartnere(PartnerGetForm()) } returns expected.right()
 
-            val actual = PartnerService.getPartners()
+            val actual = PartnerService.getPartnere()
 
             require(actual is Either.Right)
             assertEquals(expected, actual.b)
@@ -131,9 +131,9 @@ class PartnerServiceTest {
 
         @Test
         fun `get partner repository error`(@MockK expected: RepositoryError.SelectError) {
-            every { PartnerRepository.getPartners(PartnerGetForm()) } returns expected.left()
+            every { PartnerRepository.getPartnere(PartnerGetForm()) } returns expected.left()
 
-            val actual = PartnerService.getPartners()
+            val actual = PartnerService.getPartnere()
 
             require(actual is Either.Left)
             assertEquals(expected, actual.a)

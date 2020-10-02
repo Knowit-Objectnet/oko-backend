@@ -32,13 +32,13 @@ class PickupTest {
 
     val json = Json(DefaultJsonConfiguration.copy(prettyPrint = true))
 
-    var partners: List<Partner>
+    var partnere: List<Partner>
     var stasjoner: List<Stasjon>
     lateinit var pickups: List<Pickup>
 
     init {
         initDB()
-        partners = createTestPartners()
+        partnere = createTestPartnere()
         stasjoner = createTestStasjoner()
     }
 
@@ -54,11 +54,11 @@ class PickupTest {
 
     @AfterAll
     fun finish() {
-        PartnerRepository.deleteAllPartners()
+        PartnerRepository.deleteAllPartnere()
         StasjonRepository.deleteAllStasjoner()
     }
 
-    private fun createTestPartners() = (0..9).map {
+    private fun createTestPartnere() = (0..9).map {
         val p = PartnerService.savePartner(
             PartnerPostForm(
                 "Partner$it",
@@ -306,11 +306,11 @@ class PickupTest {
         @Test
         fun `update pickup chosen partner`() {
             val pickupToUpdate = pickups[87]
-            val expectedResponse = pickupToUpdate.copy(chosenPartner = partners[6])
+            val expectedResponse = pickupToUpdate.copy(chosenPartner = partnere[6])
             val body =
                 """{
                     "id": "${pickupToUpdate.id}",
-                    "chosenPartnerId": "${partners[6].id}"
+                    "chosenPartnerId": "${partnere[6].id}"
                 }"""
 
             testPatch("/pickups", body) {

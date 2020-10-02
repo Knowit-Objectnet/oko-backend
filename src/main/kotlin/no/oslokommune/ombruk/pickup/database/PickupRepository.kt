@@ -6,7 +6,7 @@ import arrow.core.right
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import no.oslokommune.ombruk.stasjon.database.Stasjoner
 import no.oslokommune.ombruk.stasjon.database.toStasjon
-import no.oslokommune.ombruk.partner.database.Partners
+import no.oslokommune.ombruk.partner.database.Partnere
 import no.oslokommune.ombruk.partner.database.toPartner
 import no.oslokommune.ombruk.pickup.form.pickup.PickupGetForm
 import no.oslokommune.ombruk.pickup.form.pickup.PickupPostForm
@@ -25,7 +25,7 @@ object Pickups : IntIdTable("pickups") {
     val endTime = datetime("end_time")
     val stasjonID = integer("stasjon_id").references(Stasjoner.id)
     val description = text("description").nullable()
-    val chosenPartnerId = integer("chosen_partner_id").references(Partners.id).nullable()
+    val chosenPartnerId = integer("chosen_partner_id").references(Partnere.id).nullable()
 }
 
 object PickupRepository : IPickupRepository, IRepository {
@@ -49,7 +49,7 @@ object PickupRepository : IPickupRepository, IRepository {
 
     override fun getPickupById(id: Int): Either<RepositoryError, Pickup> = runCatching {
         transaction {
-            (Pickups innerJoin Stasjoner leftJoin Partners)
+            (Pickups innerJoin Stasjoner leftJoin Partnere)
                 .select { Pickups.id eq id }
                 .map { toPickup(it) }
                 .firstOrNull()
@@ -70,7 +70,7 @@ object PickupRepository : IPickupRepository, IRepository {
     override fun getPickups(pickupGetForm: PickupGetForm?) =
         runCatching {
             transaction {
-                val query = (Pickups innerJoin Stasjoner leftJoin Partners).selectAll()
+                val query = (Pickups innerJoin Stasjoner leftJoin Partnere).selectAll()
                 pickupGetForm?.let {
                     pickupGetForm.stasjonId?.let { query.andWhere { Pickups.stasjonID eq it } }
                     pickupGetForm.endDateTime?.let { query.andWhere { Pickups.startTime lessEq it } }

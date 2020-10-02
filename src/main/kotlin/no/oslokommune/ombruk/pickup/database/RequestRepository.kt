@@ -6,7 +6,7 @@ import arrow.core.right
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import no.oslokommune.ombruk.stasjon.database.Stasjoner
 import no.oslokommune.ombruk.stasjon.database.toStasjon
-import no.oslokommune.ombruk.partner.database.Partners
+import no.oslokommune.ombruk.partner.database.Partnere
 import no.oslokommune.ombruk.partner.model.Partner
 import no.oslokommune.ombruk.pickup.form.request.RequestDeleteForm
 import no.oslokommune.ombruk.pickup.form.request.RequestGetForm
@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory
 
 object Requests : Table("requests") {
     val pickupID = integer("pickup_id").references(Pickups.id)
-    val partnerID = integer("partner_id").references(Partners.id)
+    val partnerID = integer("partner_id").references(Partnere.id)
 }
 
 object RequestRepository : IRequestRepository {
@@ -33,13 +33,13 @@ object RequestRepository : IRequestRepository {
     @KtorExperimentalLocationsAPI
     override fun getRequests(requestGetForm: RequestGetForm?): Either<RepositoryError, List<Request>> {
         // Partner is joined twice on different tables (no.oslokommune.ombruk.pickup and on this request), therefore aliases have to be used.
-        val chosenPartnerForPickup = Partners.alias("chosenPartnerForPickup")
-        val requestPartner = Partners.alias("requestPartner")
+        val chosenPartnerForPickup = Partnere.alias("chosenPartnerForPickup")
+        val requestPartner = Partnere.alias("requestPartner")
         return runCatching {
             transaction {
                 val query = (Requests innerJoin Pickups innerJoin Stasjoner)
-                    .leftJoin(chosenPartnerForPickup, { Pickups.chosenPartnerId }, { chosenPartnerForPickup[Partners.id] })
-                    .innerJoin(requestPartner, { Requests.partnerID }, { requestPartner[Partners.id] })
+                    .leftJoin(chosenPartnerForPickup, { Pickups.chosenPartnerId }, { chosenPartnerForPickup[Partnere.id] })
+                    .innerJoin(requestPartner, { Requests.partnerID }, { requestPartner[Partnere.id] })
                     .selectAll()
                 requestGetForm?.let {   // add constraints if needed.
                     requestGetForm.pickupId?.let { query.andWhere { Requests.pickupID eq it } }
@@ -104,15 +104,15 @@ object RequestRepository : IRequestRepository {
      * Private function for creating a request from a [ResultRow]. This function expects that the two required [Partner]
      * objects are aliased and present in the [ResultRow].
      *
-     * @param row A [ResultRow] that contains two [Partners] represented by two [Alias].
+     * @param row A [ResultRow] that contains two [Partnere] represented by two [Alias].
      * @param chosenPartnerForPickup an [Alias] of a subsection of the [row]. Used to represent [Pickup.chosenPartner]. Can be null.
      * @param requestPartner An [Alias] of a subsection of the [row]. Used to represent the [Request.partner]. Is always set.
      * @return A [Request].
      */
-    private fun toRequest(row: ResultRow, chosenPartnerForPickup: Alias<Partners>, requestPartner: Alias<Partners>): Request {
+    private fun toRequest(row: ResultRow, chosenPartnerForPickup: Alias<Partnere>, requestPartner: Alias<Partnere>): Request {
         // "chosenPartnerForPickup" for the no.oslokommune.ombruk.pickup might be null
         var chosenPartner: Partner? = null
-        if (row.getOrNull(chosenPartnerForPickup[Partners.id]) != null) {
+        if (row.getOrNull(chosenPartnerForPickup[Partnere.id]) != null) {
             chosenPartner = toPartner(row, chosenPartnerForPickup)
         }
 
@@ -137,13 +137,13 @@ object RequestRepository : IRequestRepository {
      * @param alias a subset of the [row] which contains an [Alias]ed [Partner].
      * @return A [Partner].
      */
-    private fun toPartner(row: ResultRow, alias: Alias<Partners>): Partner {
+    private fun toPartner(row: ResultRow, alias: Alias<Partnere>): Partner {
         return Partner(
-            row[alias[Partners.id]].value,
-            row[alias[Partners.name]],
-            row[alias[Partners.description]],
-            row[alias[Partners.phone]],
-            row[alias[Partners.email]]
+            row[alias[Partnere.id]].value,
+            row[alias[Partnere.name]],
+            row[alias[Partnere.description]],
+            row[alias[Partnere.phone]],
+            row[alias[Partnere.email]]
         )
     }
 }

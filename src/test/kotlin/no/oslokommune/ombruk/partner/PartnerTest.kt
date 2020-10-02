@@ -24,7 +24,7 @@ class PartnerTest {
 
     val json = Json(DefaultJsonConfiguration.copy(prettyPrint = true))
 
-    lateinit var partners: List<Partner>
+    lateinit var partnere: List<Partner>
 
     init {
         initDB()
@@ -32,15 +32,15 @@ class PartnerTest {
 
     @BeforeEach
     fun setup() {
-        partners = createTestPartners()
+        partnere = createTestPartnere()
     }
 
     @AfterEach
     fun teardown() {
-        PartnerRepository.deleteAllPartners()
+        PartnerRepository.deleteAllPartnere()
     }
 
-    private fun createTestPartners() = (0..9).map {
+    private fun createTestPartnere() = (0..9).map {
         val p = PartnerService.savePartner(
             PartnerPostForm(
                 "no.oslokommune.ombruk.partner.PartnerTest Partner$it",
@@ -57,25 +57,25 @@ class PartnerTest {
     inner class Get {
         @Test
         fun `get partner by id`() {
-            testGet("/partners/${partners[3].id}") {
+            testGet("/partnere/${partnere[3].id}") {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Partner.serializer(), partners[3]), response.content)
+                assertEquals(json.stringify(Partner.serializer(), partnere[3]), response.content)
             }
         }
 
         @Test
-        fun `get all partners`() {
-            testGet("/partners") {
+        fun `get all partnere`() {
+            testGet("/partnere") {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Partner.serializer().list, partners), response.content)
+                assertEquals(json.stringify(Partner.serializer().list, partnere), response.content)
             }
         }
 
         @Test
         fun `get partner by name`() {
-            testGet("/partners?name=${partners[6].name}") {
+            testGet("/partnere?name=${partnere[6].name}") {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Partner.serializer().list, listOf(partners[6])), response.content)
+                assertEquals(json.stringify(Partner.serializer().list, listOf(partnere[6])), response.content)
             }
         }
     }
@@ -92,7 +92,7 @@ class PartnerTest {
                     "name": "$name"
                 }"""
 
-            testPost("/partners", body) {
+            testPost("/partnere", body) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 val responsePartner = json.parse(Partner.serializer(), response.content!!)
                 val insertedPartner = PartnerRepository.getPartnerByID(responsePartner.id)
@@ -112,7 +112,7 @@ class PartnerTest {
                     "description": "$description"
                 }"""
 
-            testPost("/partners", body) {
+            testPost("/partnere", body) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 val responsePartner = json.parse(Partner.serializer(), response.content!!)
                 val insertedPartner = PartnerRepository.getPartnerByID(responsePartner.id)
@@ -133,7 +133,7 @@ class PartnerTest {
                     "phone": "$phone"
                 }"""
 
-            testPost("/partners", body) {
+            testPost("/partnere", body) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 val responsePartner = json.parse(Partner.serializer(), response.content!!)
                 val insertedPartner = PartnerRepository.getPartnerByID(responsePartner.id)
@@ -154,7 +154,7 @@ class PartnerTest {
                     "email": "$email"
                 }"""
 
-            testPost("/partners", body) {
+            testPost("/partnere", body) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 val responsePartner = json.parse(Partner.serializer(), response.content!!)
                 val insertedPartner = PartnerRepository.getPartnerByID(responsePartner.id)
@@ -179,7 +179,7 @@ class PartnerTest {
                     "email": "$email"
                 }"""
 
-            testPost("/partners", body) {
+            testPost("/partnere", body) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 val responsePartner = json.parse(Partner.serializer(), response.content!!)
                 val insertedPartner = PartnerRepository.getPartnerByID(responsePartner.id)
@@ -198,7 +198,7 @@ class PartnerTest {
     inner class Patch {
         @Test
         fun `update partner description`() {
-            val partnerToUpdate = partners[9]
+            val partnerToUpdate = partnere[9]
             val expectedResponse = partnerToUpdate.copy(description = "testing")
             val body =
                 """{
@@ -206,7 +206,7 @@ class PartnerTest {
                     "description": "testing"
                 }"""
 
-            testPatch("/partners", body) {
+            testPatch("/partnere", body) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(json.stringify(Partner.serializer(), expectedResponse), response.content)
 
@@ -219,7 +219,7 @@ class PartnerTest {
 
         @Test
         fun `update partner email`() {
-            val partnerToUpdate = partners[1]
+            val partnerToUpdate = partnere[1]
             val expectedResponse = partnerToUpdate.copy(email = "test@gmail.com")
             val body =
                 """{
@@ -227,7 +227,7 @@ class PartnerTest {
                     "email": "test@gmail.com"
                 }"""
 
-            testPatch("/partners", body) {
+            testPatch("/partnere", body) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(json.stringify(Partner.serializer(), expectedResponse), response.content)
 
@@ -240,7 +240,7 @@ class PartnerTest {
 
         @Test
         fun `update partner phone`() {
-            val partnerToUpdate = partners[1]
+            val partnerToUpdate = partnere[1]
             val expectedResponse = partnerToUpdate.copy(phone = "54612876")
             val body =
                 """{
@@ -248,7 +248,7 @@ class PartnerTest {
                     "phone": "54612876"
                 }"""
 
-            testPatch("/partners", body) {
+            testPatch("/partnere", body) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(json.stringify(Partner.serializer(), expectedResponse), response.content)
 
@@ -261,7 +261,7 @@ class PartnerTest {
 
         @Test
         fun `update partner everything`() {
-            val partnerToUpdate = partners[1]
+            val partnerToUpdate = partnere[1]
             val expectedResponse =
                 partnerToUpdate.copy(email = "test@gmail.com", phone = "12345678", description = "testing")
             val body =
@@ -272,7 +272,7 @@ class PartnerTest {
                     "description": "testing"
                 }"""
 
-            testPatch("/partners", body) {
+            testPatch("/partnere", body) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(json.stringify(Partner.serializer(), expectedResponse), response.content)
 
@@ -289,11 +289,11 @@ class PartnerTest {
 
         @Test
         fun `delete partner by id`() {
-            testDelete("/partners/${partners[3].id}") {
+            testDelete("/partnere/${partnere[3].id}") {
                 val respondedUttak = json.parse(Partner.serializer(), response.content!!)
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(partners[3], respondedUttak)
-                assertFalse(UttakRepository.exists(partners[3].id))
+                assertEquals(partnere[3], respondedUttak)
+                assertFalse(UttakRepository.exists(partnere[3].id))
             }
         }
     }

@@ -360,7 +360,7 @@ class StasjonerAPITest {
         }
 
         /*
-    Partners should not be able to post stasjoner
+    Partnere should not be able to post stasjoner
      */
         @Test
         fun `post stasjon as partner 403`() {
@@ -585,7 +585,7 @@ class StasjonerAPITest {
         }
 
         /*
-        Partners should not be allowed to delete a stasjon
+        Partnere should not be allowed to delete a stasjon
          */
         @Test
         fun `delete stasjon 403`() {
