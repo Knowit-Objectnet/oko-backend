@@ -1,7 +1,6 @@
 package no.oslokommune.ombruk.uttaksdata.form
 
 import arrow.core.Either
-import no.oslokommune.ombruk.uttaksdata.form.ReportGetForm
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -10,22 +9,22 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class ReqportGetFormTest {
+class UttaksdataGetFormTest {
 
     @Suppress("unused")
     fun generateValidForms() = listOf(
-        ReportGetForm(),
-        ReportGetForm(1),
-        ReportGetForm(stasjonId = 1),
-        ReportGetForm(partnerId = 1),
-        ReportGetForm(fromDate = LocalDateTime.now()),
-        ReportGetForm(toDate = LocalDateTime.now()),
-        ReportGetForm(fromDate = LocalDateTime.now(), toDate = LocalDateTime.now().plusHours(1))
+        UttaksdataGetForm(),
+        UttaksdataGetForm(1),
+        UttaksdataGetForm(stasjonId = 1),
+        UttaksdataGetForm(partnerId = 1),
+        UttaksdataGetForm(fromDate = LocalDateTime.now()),
+        UttaksdataGetForm(toDate = LocalDateTime.now()),
+        UttaksdataGetForm(fromDate = LocalDateTime.now(), toDate = LocalDateTime.now().plusHours(1))
     )
 
     @ParameterizedTest
     @MethodSource("generateValidForms")
-    fun `validate valid form`(form: ReportGetForm) {
+    fun `validate valid form`(form: UttaksdataGetForm) {
         val result = form.validOrError()
 
         require(result is Either.Right)
@@ -34,16 +33,16 @@ class ReqportGetFormTest {
 
     @Suppress("unused")
     fun generateInvalidForms() = listOf(
-        ReportGetForm(0),
-        ReportGetForm(stasjonId = 0),
-        ReportGetForm(partnerId = 0),
-        ReportGetForm(fromDate = LocalDateTime.now(), toDate = LocalDateTime.now().minusHours(1)),
-        ReportGetForm(1, 1, 1, LocalDateTime.now(), LocalDateTime.now().plusHours(1))
+        UttaksdataGetForm(0),
+        UttaksdataGetForm(stasjonId = 0),
+        UttaksdataGetForm(partnerId = 0),
+        UttaksdataGetForm(fromDate = LocalDateTime.now(), toDate = LocalDateTime.now().minusHours(1)),
+        UttaksdataGetForm(1, 1, 1, LocalDateTime.now(), LocalDateTime.now().plusHours(1))
     )
 
     @ParameterizedTest
     @MethodSource("generateInvalidForms")
-    fun `validate invalid form`(form: ReportGetForm) {
+    fun `validate invalid form`(form: UttaksdataGetForm) {
         val result = form.validOrError()
 
         assertTrue(result is Either.Left)

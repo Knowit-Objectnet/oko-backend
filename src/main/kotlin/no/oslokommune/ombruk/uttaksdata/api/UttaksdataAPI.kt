@@ -10,27 +10,27 @@ import io.ktor.response.respond
 import io.ktor.routing.Routing
 import io.ktor.routing.patch
 import io.ktor.routing.route
-import no.oslokommune.ombruk.uttaksdata.form.ReportGetByIdForm
-import no.oslokommune.ombruk.uttaksdata.form.ReportGetForm
-import no.oslokommune.ombruk.uttaksdata.form.ReportUpdateForm
-import no.oslokommune.ombruk.uttaksdata.service.IReportService
+import no.oslokommune.ombruk.uttaksdata.form.UttaksdataGetByIdForm
+import no.oslokommune.ombruk.uttaksdata.form.UttaksdataGetForm
+import no.oslokommune.ombruk.uttaksdata.form.UttaksdataUpdateForm
+import no.oslokommune.ombruk.uttaksdata.service.IUttaksdataService
 import no.oslokommune.ombruk.shared.api.Authorization
 import no.oslokommune.ombruk.shared.api.Roles
 import no.oslokommune.ombruk.shared.api.generateResponse
 import no.oslokommune.ombruk.shared.api.receiveCatching
 
 @KtorExperimentalLocationsAPI
-fun Routing.uttaksdata(uttaksdataService: IReportService) {
+fun Routing.uttaksdata(uttaksdataService: IUttaksdataService) {
     route("/uttaksdata") {
 
-        get<ReportGetByIdForm> { form ->
+        get<UttaksdataGetByIdForm> { form ->
             form.validOrError()
                 .flatMap { uttaksdataService.getReportById(it.id) }
                 .run { generateResponse(this) }
                 .also { (code, response) -> call.respond(code, response) }
         }
 
-        get<ReportGetForm> { form ->
+        get<UttaksdataGetForm> { form ->
             form.validOrError()
                 .flatMap { uttaksdataService.getReports(it) }
                 .run { generateResponse(this) }
@@ -39,7 +39,7 @@ fun Routing.uttaksdata(uttaksdataService: IReportService) {
 
         authenticate {
             patch {
-                receiveCatching { call.receive<ReportUpdateForm>() }
+                receiveCatching { call.receive<UttaksdataUpdateForm>() }
                     .flatMap { it.validOrError() }
                     .flatMap { form ->
                         Authorization.run {

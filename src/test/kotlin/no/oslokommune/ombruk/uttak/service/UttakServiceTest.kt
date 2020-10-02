@@ -13,8 +13,8 @@ import no.oslokommune.ombruk.uttak.form.UttakPostForm
 import no.oslokommune.ombruk.uttak.form.UttakUpdateForm
 import no.oslokommune.ombruk.uttak.model.Uttak
 import no.oslokommune.ombruk.uttak.model.GjentakelsesRegel
-import no.oslokommune.ombruk.uttaksdata.model.Report
-import no.oslokommune.ombruk.uttaksdata.service.ReportService
+import no.oslokommune.ombruk.uttaksdata.model.Uttaksdata
+import no.oslokommune.ombruk.uttaksdata.service.UttaksdataService
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
 import java.time.DayOfWeek
@@ -29,7 +29,7 @@ class UttakServiceTest {
     @BeforeEach
     fun setup() {
         mockkObject(UttakRepository)
-        mockkObject(ReportService)
+        mockkObject(UttaksdataService)
         mockkObject(GjentakelsesRegels)
     }
 
@@ -149,11 +149,11 @@ class UttakServiceTest {
          * Check that save single uttak calls the repository and returns the saved uttak.
          */
         @Test
-        fun `save single uttak`(@MockK expectedUttak: Uttak, @MockK uttaksdata: Report) {
+        fun `save single uttak`(@MockK expectedUttak: Uttak, @MockK uttaksdata: Uttaksdata) {
             val from = LocalDateTime.parse("2020-09-02T12:00:00Z", DateTimeFormatter.ISO_DATE_TIME)
             val form = UttakPostForm(from, from.plusHours(1), 1, 1)
             every { UttakRepository.insertUttak(form) } returns expectedUttak.right()
-            every { ReportService.saveReport(expectedUttak) } returns uttaksdata.right()
+            every { UttaksdataService.saveReport(expectedUttak) } returns uttaksdata.right()
 
             val actualUttak = UttakService.saveUttak(form)
             require(actualUttak is Either.Right)
@@ -165,13 +165,13 @@ class UttakServiceTest {
          * Check that the repository is called 3 times, because 3 uttak should be saved.
          */
         @Test
-        fun `save recurring uttak`(@MockK expectedUttak: Uttak, @MockK uttaksdata: Report) {
+        fun `save recurring uttak`(@MockK expectedUttak: Uttak, @MockK uttaksdata: Uttaksdata) {
             val rRule = GjentakelsesRegel(count = 3, days = listOf(DayOfWeek.MONDAY))
             val from = LocalDateTime.parse("2020-09-02T12:00:00Z", DateTimeFormatter.ISO_DATE_TIME)
             val form = UttakPostForm(from, from.plusHours(1), 1, 1, gjentakelsesRegel = rRule)
 
             every { GjentakelsesRegels.insertGjentakelsesRegel(rRule) } returns rRule.right()
-            every { ReportService.saveReport(expectedUttak) } returns uttaksdata.right()
+            every { UttaksdataService.saveReport(expectedUttak) } returns uttaksdata.right()
             every { UttakRepository.insertUttak(any()) } returns expectedUttak.right()
 
             val actualUttak = UttakService.saveUttak(form)
@@ -192,7 +192,7 @@ class UttakServiceTest {
             val from = LocalDateTime.parse("2020-09-02T12:00:00Z", DateTimeFormatter.ISO_DATE_TIME)
             val updateForm = UttakUpdateForm(1, from, from.plusHours(1))
 
-            every { ReportService.updateReport(expectedUttak) } returns Unit.right()
+            every { UttaksdataService.updateReport(expectedUttak) } returns Unit.right()
             every { UttakRepository.updateUttak(updateForm) } returns expectedUttak.right()
 
             val actualUttak = UttakService.updateUttak(updateForm)

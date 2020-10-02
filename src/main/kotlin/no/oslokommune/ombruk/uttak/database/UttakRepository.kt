@@ -16,6 +16,7 @@ import no.oslokommune.ombruk.uttak.model.toWeekDayList
 import no.oslokommune.ombruk.partner.database.Partnere
 import no.oslokommune.ombruk.partner.database.toPartner
 import no.oslokommune.ombruk.shared.error.RepositoryError
+import no.oslokommune.ombruk.uttak.model.UttaksType
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.ReferenceOption
@@ -31,6 +32,8 @@ object UttakTable : IntIdTable("uttak") {
     val stasjonID = integer("stasjon_id").references(Stasjoner.id, onDelete = ReferenceOption.CASCADE)
     // Nullable partner. An uttak without a partner is arranged by the stasjon only, like example "Ombruksdager".
     val partnerID = integer("partner_id").references(Partnere.id, onDelete = ReferenceOption.CASCADE).nullable()
+    val type = enumerationByName("type", 64, UttaksType::class)
+    val description = text("description").nullable()
 }
 
 object UttakRepository : IUttakRepository {
@@ -43,6 +46,7 @@ object UttakRepository : IUttakRepository {
             it[gjentakelsesRegelID] = uttakPostForm.gjentakelsesRegel?.id
             it[stasjonID] = uttakPostForm.stasjonId
             it[partnerID] = uttakPostForm.partnerId
+            it[type] = uttakPostForm.type
         }.value
     }
         .onFailure { logger.error("Failed to save uttak to DB; ${it.message}") }
@@ -154,7 +158,8 @@ object UttakRepository : IUttakRepository {
             row[UttakTable.endDateTime],
             toStasjon(row),
             toPartner(row),
-            getGetGjentakelsesRegelFromResultRow(row)
+            getGetGjentakelsesRegelFromResultRow(row),
+            row[UttakTable.type]
         )
     }
 

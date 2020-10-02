@@ -11,7 +11,7 @@ import io.ktor.auth.principal
 import io.ktor.config.HoconApplicationConfig
 import io.ktor.util.KtorExperimentalAPI
 import no.oslokommune.ombruk.uttak.model.Uttak
-import no.oslokommune.ombruk.uttaksdata.model.Report
+import no.oslokommune.ombruk.uttaksdata.model.Uttaksdata
 import no.oslokommune.ombruk.shared.error.AuthorizationError
 import no.oslokommune.ombruk.shared.error.ServiceError
 
@@ -82,13 +82,13 @@ object Authorization {
         }
 
     /**
-     * Ensures that the ID in [role] corresponds to the [Report.partnerId] of the [Report] that is being updated.
+     * Ensures that the ID in [role] corresponds to the [Uttaksdata.partnerId] of the [Uttaksdata] that is being updated.
      *
      * @param role A [Pair] of a [Roles] instance and an [Int] specifying what group they belong to.
-     * @param uttaksdataFunc A function that returns either a [ServiceError] or the [Report] that should be updated.
-     * @return [role] if the ID in [role] corresponds to the [Report.partnerId] from the [uttaksdataFunc]. Else, return [AuthorizationError]
+     * @param uttaksdataFunc A function that returns either a [ServiceError] or the [Uttaksdata] that should be updated.
+     * @return [role] if the ID in [role] corresponds to the [Uttaksdata.partnerId] from the [uttaksdataFunc]. Else, return [AuthorizationError]
      */
-    fun authorizeReportPatchByPartnerId(role: Pair<Roles, Int>, uttaksdataFunc: () -> Either<ServiceError, Report>) =
+    fun authorizeReportPatchByPartnerId(role: Pair<Roles, Int>, uttaksdataFunc: () -> Either<ServiceError, Uttaksdata>) =
         uttaksdataFunc()
             .flatMap {
                 if (role.first == Roles.Partner && it.partnerId != role.second) {

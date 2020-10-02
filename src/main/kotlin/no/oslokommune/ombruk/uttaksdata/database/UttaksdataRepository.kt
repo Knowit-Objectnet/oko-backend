@@ -9,9 +9,9 @@ import no.oslokommune.ombruk.stasjon.database.Stasjoner
 import no.oslokommune.ombruk.stasjon.database.toStasjon
 import no.oslokommune.ombruk.uttak.model.Uttak
 import no.oslokommune.ombruk.partner.database.Partnere
-import no.oslokommune.ombruk.uttaksdata.form.ReportGetForm
-import no.oslokommune.ombruk.uttaksdata.form.ReportUpdateForm
-import no.oslokommune.ombruk.uttaksdata.model.Report
+import no.oslokommune.ombruk.uttaksdata.form.UttaksdataGetForm
+import no.oslokommune.ombruk.uttaksdata.form.UttaksdataUpdateForm
+import no.oslokommune.ombruk.uttaksdata.model.Uttaksdata
 import no.oslokommune.ombruk.shared.error.RepositoryError
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.*
@@ -32,7 +32,7 @@ object Reports : IntIdTable("uttaksdata") {
     val uttaksdataedDateTime = datetime("modified_date_time").nullable()
 }
 
-object ReportRepository : IReportRepository {
+object UttaksdataRepository : IUttaksdataRepository {
 
     override fun insertReport(uttak: Uttak) = runCatching {
         transaction {
@@ -50,7 +50,7 @@ object ReportRepository : IReportRepository {
         .onFailure { logger.error("Failed to insert stasjon to db: ${it.message}") }
         .fold({ getReportByID(it) }, { RepositoryError.InsertError("SQL error").left() })
 
-    override fun updateReport(uttaksdataUpdateForm: ReportUpdateForm): Either<RepositoryError, Report> = runCatching {
+    override fun updateReport(uttaksdataUpdateForm: UttaksdataUpdateForm): Either<RepositoryError, Uttaksdata> = runCatching {
         transaction {
             Reports.update({ Reports.id eq uttaksdataUpdateForm.id }) {
                 it[weight] = uttaksdataUpdateForm.weight
@@ -84,7 +84,7 @@ object ReportRepository : IReportRepository {
             { RepositoryError.UpdateError("Failed to update uttaksdata").left() })
 
 
-    override fun getReportByID(uttaksdataID: Int): Either<RepositoryError, Report> = transaction {
+    override fun getReportByID(uttaksdataID: Int): Either<RepositoryError, Uttaksdata> = transaction {
         runCatching {
             (Reports innerJoin Stasjoner).select { Reports.id eq uttaksdataID }.map { toReport(it) }.firstOrNull()
         }
@@ -96,7 +96,7 @@ object ReportRepository : IReportRepository {
     }
 
 
-    override fun getReports(uttaksdataGetForm: ReportGetForm?): Either<RepositoryError, List<Report>> = transaction {
+    override fun getReports(uttaksdataGetForm: UttaksdataGetForm?): Either<RepositoryError, List<Uttaksdata>> = transaction {
         runCatching {
             val query = (Reports innerJoin Stasjoner).selectAll()
             if (uttaksdataGetForm != null) {
@@ -113,8 +113,8 @@ object ReportRepository : IReportRepository {
     }
 
 
-    private fun toReport(resultRow: ResultRow): Report {
-        return Report(
+    private fun toReport(resultRow: ResultRow): Uttaksdata {
+        return Uttaksdata(
             resultRow[Reports.id].value,
             resultRow[Reports.uttakID],
             resultRow[Reports.partnerID],

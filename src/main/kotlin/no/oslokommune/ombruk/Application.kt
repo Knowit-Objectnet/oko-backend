@@ -35,7 +35,7 @@ import no.oslokommune.ombruk.uttaksforesporsel.api.request
 import no.oslokommune.ombruk.uttaksforesporsel.service.PickupService
 import no.oslokommune.ombruk.uttaksforesporsel.service.UttaksforesporselService
 import no.oslokommune.ombruk.uttaksdata.api.uttaksdata
-import no.oslokommune.ombruk.uttaksdata.service.ReportService
+import no.oslokommune.ombruk.uttaksdata.service.UttaksdataService
 import no.oslokommune.ombruk.shared.api.Authorization
 import no.oslokommune.ombruk.shared.api.JwtMockConfig
 import no.oslokommune.ombruk.shared.database.initDB
@@ -171,7 +171,7 @@ fun Application.module(testing: Boolean = false) {
     routing {
         uttak(UttakService)
         partnere(PartnerService)
-        uttaksdata(ReportService)
+        uttaksdata(UttaksdataService)
         pickup(PickupService)
         stasjoner(StasjonService)
         request(UttaksforesporselService)

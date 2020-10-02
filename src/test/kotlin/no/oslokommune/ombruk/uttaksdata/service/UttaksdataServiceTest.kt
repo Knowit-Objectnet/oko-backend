@@ -10,12 +10,11 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.mockkObject
 import io.mockk.unmockkAll
 import no.oslokommune.ombruk.uttak.model.Uttak
-import no.oslokommune.ombruk.uttaksdata.database.ReportRepository
-import no.oslokommune.ombruk.uttaksdata.form.ReportGetForm
-import no.oslokommune.ombruk.uttaksdata.form.ReportUpdateForm
-import no.oslokommune.ombruk.uttaksdata.model.Report
+import no.oslokommune.ombruk.uttaksdata.database.UttaksdataRepository
+import no.oslokommune.ombruk.uttaksdata.form.UttaksdataGetForm
+import no.oslokommune.ombruk.uttaksdata.form.UttaksdataUpdateForm
+import no.oslokommune.ombruk.uttaksdata.model.Uttaksdata
 import no.oslokommune.ombruk.shared.error.RepositoryError
-import no.oslokommune.ombruk.uttaksdata.service.ReportService
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
 import kotlin.test.assertEquals
@@ -26,7 +25,7 @@ class UttaksdataServiceTest {
 
     @BeforeEach
     fun setup() {
-        mockkObject(ReportRepository)
+        mockkObject(UttaksdataRepository)
     }
 
     @AfterEach
@@ -46,11 +45,11 @@ class UttaksdataServiceTest {
          * Get uttaksdata by ID should return the expected no.oslokommune.ombruk.pickup
          */
         @Test
-        fun `get uttaksdata by id that exists`(@MockK expected: Report) {
+        fun `get uttaksdata by id that exists`(@MockK expected: Uttaksdata) {
             val id = 1
-            every { ReportRepository.getReportByID(id) } returns expected.right()
+            every { UttaksdataRepository.getReportByID(id) } returns expected.right()
 
-            val actualReport = ReportService.getReportById(id)
+            val actualReport = UttaksdataService.getReportById(id)
             require(actualReport is Either.Right)
             assertEquals(expected, actualReport.b)
         }
@@ -62,9 +61,9 @@ class UttaksdataServiceTest {
         fun `get uttaksdata by id that does not exist not found`() {
             val id = 1
             val expected = RepositoryError.NoRowsFound("test")
-            every { ReportRepository.getReportByID(id) } returns expected.left()
+            every { UttaksdataRepository.getReportByID(id) } returns expected.left()
 
-            val result = ReportService.getReportById(id)
+            val result = UttaksdataService.getReportById(id)
             require(result is Either.Left)
             assertEquals(expected, result.a)
         }
@@ -76,9 +75,9 @@ class UttaksdataServiceTest {
         fun `get uttaksdata by id fails`() {
             val id = 1
             val expected = RepositoryError.SelectError("test")
-            every { ReportRepository.getReportByID(id) } returns expected.left()
+            every { UttaksdataRepository.getReportByID(id) } returns expected.left()
 
-            val actual = ReportService.getReportById(id)
+            val actual = UttaksdataService.getReportById(id)
             require(actual is Either.Left)
             assertEquals(expected, actual.a)
         }
@@ -87,12 +86,12 @@ class UttaksdataServiceTest {
          * Get all uttaksdata returns right if valid
          */
         @Test
-        fun `get all uttaksdata valid`(@MockK expectedReports: List<Report>) {
-            every { ReportRepository.getReports(ReportGetForm()) } returns expectedReports.right()
+        fun `get all uttaksdata valid`(@MockK expectedUttaksdata: List<Uttaksdata>) {
+            every { UttaksdataRepository.getReports(UttaksdataGetForm()) } returns expectedUttaksdata.right()
 
-            val actualReports = ReportService.getReports(ReportGetForm())
+            val actualReports = UttaksdataService.getReports(UttaksdataGetForm())
             require(actualReports is Either.Right)
-            assertEquals(expectedReports, actualReports.b)
+            assertEquals(expectedUttaksdata, actualReports.b)
         }
 
         /**
@@ -101,8 +100,8 @@ class UttaksdataServiceTest {
         @Test
         fun `get all uttaksdata fails`() {
             val expected = RepositoryError.SelectError("test")
-            every { ReportRepository.getReports(ReportGetForm()) } returns expected.left()
-            val actual = ReportService.getReports(ReportGetForm())
+            every { UttaksdataRepository.getReports(UttaksdataGetForm()) } returns expected.left()
+            val actual = UttaksdataService.getReports(UttaksdataGetForm())
             require(actual is Either.Left)
             assertEquals(expected, actual.a)
         }
@@ -116,10 +115,10 @@ class UttaksdataServiceTest {
          * A valid uttak should be processed successfully
          */
         @Test
-        fun `Save uttaksdata success`(@MockK uttak: Uttak, @MockK expected: Report) {
-            every { ReportRepository.insertReport(uttak) } returns expected.right()
+        fun `Save uttaksdata success`(@MockK uttak: Uttak, @MockK expected: Uttaksdata) {
+            every { UttaksdataRepository.insertReport(uttak) } returns expected.right()
 
-            val actual = ReportService.saveReport(uttak)
+            val actual = UttaksdataService.saveReport(uttak)
             require(actual is Either.Right)
             assertEquals(expected, actual.b)
         }
@@ -130,9 +129,9 @@ class UttaksdataServiceTest {
         @Test
         fun `Save uttaksdata failure`(@MockK uttak: Uttak) {
             val expected = RepositoryError.DeleteError("test")
-            every { ReportRepository.insertReport(uttak) } returns expected.left()
+            every { UttaksdataRepository.insertReport(uttak) } returns expected.left()
 
-            val actual = ReportService.saveReport(uttak)
+            val actual = UttaksdataService.saveReport(uttak)
             require(actual is Either.Left)
             assertEquals(expected, actual.a)
         }
@@ -146,9 +145,9 @@ class UttaksdataServiceTest {
          */
         @Test
         fun `Update uttaksdata successful`(@MockK uttak: Uttak) {
-            every { ReportRepository.updateReport(uttak) } returns Unit.right()
+            every { UttaksdataRepository.updateReport(uttak) } returns Unit.right()
 
-            val actual = ReportService.updateReport(uttak)
+            val actual = UttaksdataService.updateReport(uttak)
             require(actual is Either.Right)
             assertEquals(Unit, actual.b)
         }
@@ -159,9 +158,9 @@ class UttaksdataServiceTest {
         @Test
         fun `Update uttaksdata failure`(@MockK uttak: Uttak) {
             val expected = RepositoryError.UpdateError("test")
-            every { ReportRepository.updateReport(uttak) } returns expected.left()
+            every { UttaksdataRepository.updateReport(uttak) } returns expected.left()
 
-            val actual = ReportService.updateReport(uttak)
+            val actual = UttaksdataService.updateReport(uttak)
             require(actual is Either.Left)
             assertEquals(expected, actual.a)
         }
@@ -170,10 +169,10 @@ class UttaksdataServiceTest {
          * A successful uttaksdata with a ReportUpdateForm should return the updated uttaksdata
          */
         @Test
-        fun `update uttaksdata with form success`(@MockK form: ReportUpdateForm, @MockK expected: Report) {
-            every { ReportRepository.updateReport(form) } returns expected.right()
+        fun `update uttaksdata with form success`(@MockK form: UttaksdataUpdateForm, @MockK expected: Uttaksdata) {
+            every { UttaksdataRepository.updateReport(form) } returns expected.right()
 
-            val actual = ReportService.updateReport(form)
+            val actual = UttaksdataService.updateReport(form)
             require(actual is Either.Right)
             assertEquals(expected, actual.b)
 
@@ -183,11 +182,11 @@ class UttaksdataServiceTest {
          * A failed uttaksdata update with a ReportUpdateForm should return a RepositoryError.UpdateError
          */
         @Test
-        fun `update uttaksdata with form failure`(@MockK form: ReportUpdateForm) {
+        fun `update uttaksdata with form failure`(@MockK form: UttaksdataUpdateForm) {
             val expected = RepositoryError.UpdateError("test")
-            every { ReportRepository.updateReport(form) } returns expected.left()
+            every { UttaksdataRepository.updateReport(form) } returns expected.left()
 
-            val actual = ReportService.updateReport(form)
+            val actual = UttaksdataService.updateReport(form)
             require(actual is Either.Left)
             assertEquals(expected, actual.a)
         }

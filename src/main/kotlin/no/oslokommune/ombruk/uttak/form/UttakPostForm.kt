@@ -11,6 +11,7 @@ import no.oslokommune.ombruk.shared.error.ValidationError
 import no.oslokommune.ombruk.shared.form.IForm
 import no.oslokommune.ombruk.shared.model.serializer.LocalDateTimeSerializer
 import no.oslokommune.ombruk.shared.utils.validation.*
+import no.oslokommune.ombruk.uttak.model.UttaksType
 import org.valiktor.functions.isGreaterThanOrEqualTo
 import org.valiktor.functions.isNotNull
 import org.valiktor.functions.isPositive
@@ -23,7 +24,8 @@ data class UttakPostForm(
     @Serializable(with = LocalDateTimeSerializer::class) var endDateTime: LocalDateTime,
     val stasjonId: Int,
     val partnerId: Int? = null, // Optional partner. An uttak without a partner is arranged by the stasjon only.
-    var gjentakelsesRegel: GjentakelsesRegel? = null
+    var gjentakelsesRegel: GjentakelsesRegel? = null,
+    val type: UttaksType = UttaksType.GJENTAKENDE
 ) : Iterable<UttakPostForm>, IForm<UttakPostForm> {
     override fun iterator() = when (gjentakelsesRegel) {
         null -> NonRecurringCreateUttakFormIterator(this)

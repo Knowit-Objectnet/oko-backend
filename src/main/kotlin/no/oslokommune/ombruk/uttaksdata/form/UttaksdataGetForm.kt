@@ -10,26 +10,26 @@ import org.valiktor.validate
 import java.time.LocalDateTime
 
 @Location("/")
-data class ReportGetForm(
+data class UttaksdataGetForm(
     var uttakId: Int? = null,
     var stasjonId: Int? = null,
     var partnerId: Int? = null,
     var fromDate: LocalDateTime? = null,
     var toDate: LocalDateTime? = null
-) : IForm<ReportGetForm> {
+) : IForm<UttaksdataGetForm> {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
-            validate(ReportGetForm::uttakId).isGreaterThan(0)
-            validate(ReportGetForm::stasjonId).isGreaterThan(0)
-            validate(ReportGetForm::partnerId).isGreaterThan(0)
+            validate(UttaksdataGetForm::uttakId).isGreaterThan(0)
+            validate(UttaksdataGetForm::stasjonId).isGreaterThan(0)
+            validate(UttaksdataGetForm::partnerId).isGreaterThan(0)
 
-            validate(ReportGetForm::fromDate).isLessThanEndDateTime(toDate)
+            validate(UttaksdataGetForm::fromDate).isLessThanEndDateTime(toDate)
 
             if (uttakId != null) {
-                validate(ReportGetForm::stasjonId).isNull()
-                validate(ReportGetForm::partnerId).isNull()
-                validate(ReportGetForm::fromDate).isNull()
-                validate(ReportGetForm::toDate).isNull()
+                validate(UttaksdataGetForm::stasjonId).isNull()
+                validate(UttaksdataGetForm::partnerId).isNull()
+                validate(UttaksdataGetForm::fromDate).isNull()
+                validate(UttaksdataGetForm::toDate).isNull()
             }
         }
     }

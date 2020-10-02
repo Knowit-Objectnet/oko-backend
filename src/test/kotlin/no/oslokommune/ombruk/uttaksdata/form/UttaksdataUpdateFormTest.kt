@@ -1,7 +1,6 @@
 package no.oslokommune.ombruk.uttaksdata.form
 
 import arrow.core.Either
-import no.oslokommune.ombruk.uttaksdata.form.ReportUpdateForm
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -9,16 +8,16 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class ReportUpdateFormTest {
+class UttaksdataUpdateFormTest {
 
     @Suppress("unused")
     fun generateValidForms() = listOf(
-        ReportUpdateForm(1, 123)
+        UttaksdataUpdateForm(1, 123)
     )
 
     @ParameterizedTest
     @MethodSource("generateValidForms")
-    fun `validate valid form`(form: ReportUpdateForm) {
+    fun `validate valid form`(form: UttaksdataUpdateForm) {
 
         val result = form.validOrError()
         println(result)
@@ -28,14 +27,14 @@ class ReportUpdateFormTest {
 
     @Suppress("unused")
     fun generateInvalidForms() = listOf(
-        ReportUpdateForm(1, 0),
-        ReportUpdateForm(0, 1)
+        UttaksdataUpdateForm(1, 0),
+        UttaksdataUpdateForm(0, 1)
 
     )
 
     @ParameterizedTest
     @MethodSource("generateInvalidForms")
-    fun `validate invalid form`(form: ReportUpdateForm) {
+    fun `validate invalid form`(form: UttaksdataUpdateForm) {
 
         val result = form.validOrError()
 

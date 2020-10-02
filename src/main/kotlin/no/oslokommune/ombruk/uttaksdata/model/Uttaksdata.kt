@@ -6,7 +6,7 @@ import no.oslokommune.ombruk.shared.model.serializer.LocalDateTimeSerializer
 import java.time.LocalDateTime
 
 @Serializable
-data class Report(
+data class Uttaksdata(
         val uttaksdataId: Int = 0,
         val uttakId: Int,
         val partnerId: Int?,

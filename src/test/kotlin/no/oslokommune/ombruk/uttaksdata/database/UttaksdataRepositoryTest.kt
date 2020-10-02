@@ -11,15 +11,13 @@ import no.oslokommune.ombruk.uttak.model.Uttak
 import no.oslokommune.ombruk.stasjon.model.Stasjon
 import no.oslokommune.ombruk.partner.database.Partnere
 import no.oslokommune.ombruk.partner.model.Partner
-import no.oslokommune.ombruk.uttaksdata.form.ReportGetForm
-import no.oslokommune.ombruk.uttaksdata.form.ReportUpdateForm
-import no.oslokommune.ombruk.uttaksdata.model.Report
+import no.oslokommune.ombruk.uttaksdata.form.UttaksdataGetForm
+import no.oslokommune.ombruk.uttaksdata.form.UttaksdataUpdateForm
+import no.oslokommune.ombruk.uttaksdata.model.Uttaksdata
 import no.oslokommune.ombruk.shared.database.initDB
 import no.oslokommune.ombruk.shared.error.RepositoryError
 import no.oslokommune.ombruk.shared.model.serializer.DayOfWeekSerializer
 import no.oslokommune.ombruk.shared.model.serializer.LocalTimeSerializer
-import no.oslokommune.ombruk.uttaksdata.database.ReportRepository
-import no.oslokommune.ombruk.uttaksdata.database.Reports
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -41,9 +39,9 @@ class UttaksdataRepositoryTest {
     lateinit var testPartner2: Partner
     lateinit var testStasjon: Stasjon
     lateinit var testStasjon2: Stasjon
-    lateinit var testReport: Report
-    lateinit var testReport2: Report
-    lateinit var testReport3: Report
+    lateinit var testUttaksdata: Uttaksdata
+    lateinit var testUttaksdata2: Uttaksdata
+    lateinit var testUttaksdata3: Uttaksdata
     lateinit var testUttak: Uttak
     lateinit var testUttak2: Uttak
     lateinit var testUttak3: Uttak
@@ -179,7 +177,7 @@ class UttaksdataRepositoryTest {
             )
             testUttak5 = testUttak5.copy(id = insertTestUttak(testUttak5))
 
-            testReport = Report(
+            testUttaksdata = Uttaksdata(
                 1,
                 testUttak.id,
                 testPartner.id,
@@ -188,7 +186,7 @@ class UttaksdataRepositoryTest {
                 testUttak.endDateTime
             )
 
-            testReport2 = Report(
+            testUttaksdata2 = Uttaksdata(
                 2,
                 testUttak2.id,
                 testPartner.id,
@@ -197,7 +195,7 @@ class UttaksdataRepositoryTest {
                 testUttak2.endDateTime
             )
 
-            testReport3 = Report(
+            testUttaksdata3 = Uttaksdata(
                 3,
                 testUttak3.id,
                 testPartner2.id,
@@ -205,9 +203,9 @@ class UttaksdataRepositoryTest {
                 testUttak3.startDateTime,
                 testUttak3.endDateTime
             )
-            testReport = testReport.copy(uttaksdataId = insertTestReport(testReport))
-            testReport2 = testReport2.copy(uttaksdataId = insertTestReport(testReport2))
-            testReport3 = testReport3.copy(uttaksdataId = insertTestReport(testReport3))
+            testUttaksdata = testUttaksdata.copy(uttaksdataId = insertTestReport(testUttaksdata))
+            testUttaksdata2 = testUttaksdata2.copy(uttaksdataId = insertTestReport(testUttaksdata2))
+            testUttaksdata3 = testUttaksdata3.copy(uttaksdataId = insertTestReport(testUttaksdata3))
         }
     }
 
@@ -219,7 +217,7 @@ class UttaksdataRepositoryTest {
         }
     }
 
-    fun insertTestReport(uttaksdata: Report) =
+    fun insertTestReport(uttaksdata: Uttaksdata) =
         transaction {
             Reports.insertAndGetId {
                 it[weight] = null
@@ -239,6 +237,7 @@ class UttaksdataRepositoryTest {
             it[gjentakelsesRegelID] = uttak.gjentakelsesRegel?.id
             it[stasjonID] = uttak.stasjon.id
             it[partnerID] = uttak.partner?.id
+            it[type] = uttak.type
         }.value
     }
 
@@ -251,8 +250,8 @@ class UttaksdataRepositoryTest {
          */
         @Test
         fun `get Report by valid ID`() {
-            val expected = testReport
-            val result = ReportRepository.getReportByID(expected.uttaksdataId)
+            val expected = testUttaksdata
+            val result = UttaksdataRepository.getReportByID(expected.uttaksdataId)
             require(result is Either.Right)
             assertEquals(expected, result.b)
         }
@@ -263,84 +262,84 @@ class UttaksdataRepositoryTest {
         @Test
         fun `get by invalid ID is left`() {
             val expected = RepositoryError.NoRowsFound("ID 0 does not exist!")
-            val actual = ReportRepository.getReportByID(0)
+            val actual = UttaksdataRepository.getReportByID(0)
             require(actual is Either.Left)
             assertEquals(expected, actual.a)
         }
 
         @Suppress("unused") // referenced in test
         fun generateValidForms() = listOf(
-            Pair(null, listOf(testReport, testReport2, testReport3)),
-            Pair(ReportGetForm(), listOf(testReport, testReport2, testReport3)),
-            Pair(ReportGetForm(uttakId = testReport.uttakId), listOf(testReport)),
-            Pair(ReportGetForm(uttakId = 0), emptyList()),
-            Pair(ReportGetForm(stasjonId = testStasjon.id), listOf(testReport, testReport3)),
-            Pair(ReportGetForm(stasjonId = 0), emptyList()),
-            Pair(ReportGetForm(partnerId = testPartner2.id), listOf(testReport3)),
-            Pair(ReportGetForm(partnerId = 0), emptyList()),
+            Pair(null, listOf(testUttaksdata, testUttaksdata2, testUttaksdata3)),
+            Pair(UttaksdataGetForm(), listOf(testUttaksdata, testUttaksdata2, testUttaksdata3)),
+            Pair(UttaksdataGetForm(uttakId = testUttaksdata.uttakId), listOf(testUttaksdata)),
+            Pair(UttaksdataGetForm(uttakId = 0), emptyList()),
+            Pair(UttaksdataGetForm(stasjonId = testStasjon.id), listOf(testUttaksdata, testUttaksdata3)),
+            Pair(UttaksdataGetForm(stasjonId = 0), emptyList()),
+            Pair(UttaksdataGetForm(partnerId = testPartner2.id), listOf(testUttaksdata3)),
+            Pair(UttaksdataGetForm(partnerId = 0), emptyList()),
             Pair(
-                ReportGetForm(fromDate = LocalDateTime.parse("2018-01-01T12:00:00Z", DateTimeFormatter.ISO_DATE_TIME)),
-                listOf(testReport, testReport2, testReport3)
+                UttaksdataGetForm(fromDate = LocalDateTime.parse("2018-01-01T12:00:00Z", DateTimeFormatter.ISO_DATE_TIME)),
+                listOf(testUttaksdata, testUttaksdata2, testUttaksdata3)
             ),
             Pair(
-                ReportGetForm(toDate = LocalDateTime.parse("2022-06-03T13:28:00Z", DateTimeFormatter.ISO_DATE_TIME)),
-                listOf(testReport, testReport2, testReport3)
+                UttaksdataGetForm(toDate = LocalDateTime.parse("2022-06-03T13:28:00Z", DateTimeFormatter.ISO_DATE_TIME)),
+                listOf(testUttaksdata, testUttaksdata2, testUttaksdata3)
             ),
             Pair(
-                ReportGetForm(toDate = LocalDateTime.parse("2018-06-03T15:32:00Z", DateTimeFormatter.ISO_DATE_TIME)),
+                UttaksdataGetForm(toDate = LocalDateTime.parse("2018-06-03T15:32:00Z", DateTimeFormatter.ISO_DATE_TIME)),
                 emptyList()
             ),
             Pair(
-                ReportGetForm(fromDate = LocalDateTime.parse("2022-08-13T20:33:00Z", DateTimeFormatter.ISO_DATE_TIME)),
+                UttaksdataGetForm(fromDate = LocalDateTime.parse("2022-08-13T20:33:00Z", DateTimeFormatter.ISO_DATE_TIME)),
                 emptyList()
             ),
             Pair(
-                ReportGetForm(fromDate = LocalDateTime.parse("2020-07-07T15:59:00Z", DateTimeFormatter.ISO_DATE_TIME)),
-                listOf(testReport, testReport2)
+                UttaksdataGetForm(fromDate = LocalDateTime.parse("2020-07-07T15:59:00Z", DateTimeFormatter.ISO_DATE_TIME)),
+                listOf(testUttaksdata, testUttaksdata2)
             ),
             Pair(
-                ReportGetForm(fromDate = LocalDateTime.parse("2020-07-07T16:00:00Z", DateTimeFormatter.ISO_DATE_TIME)),
-                listOf(testReport, testReport2)
+                UttaksdataGetForm(fromDate = LocalDateTime.parse("2020-07-07T16:00:00Z", DateTimeFormatter.ISO_DATE_TIME)),
+                listOf(testUttaksdata, testUttaksdata2)
             ),
             Pair(
-                ReportGetForm(fromDate = LocalDateTime.parse("2020-07-07T16:00:01Z", DateTimeFormatter.ISO_DATE_TIME)),
-                listOf(testReport2)
+                UttaksdataGetForm(fromDate = LocalDateTime.parse("2020-07-07T16:00:01Z", DateTimeFormatter.ISO_DATE_TIME)),
+                listOf(testUttaksdata2)
             ),
             Pair(
-                ReportGetForm(toDate = LocalDateTime.parse("2020-07-07T17:59:00Z", DateTimeFormatter.ISO_DATE_TIME)),
-                listOf(testReport3)
+                UttaksdataGetForm(toDate = LocalDateTime.parse("2020-07-07T17:59:00Z", DateTimeFormatter.ISO_DATE_TIME)),
+                listOf(testUttaksdata3)
             ),
             Pair(
-                ReportGetForm(toDate = LocalDateTime.parse("2020-07-07T18:00:00Z", DateTimeFormatter.ISO_DATE_TIME)),
-                listOf(testReport, testReport3)
+                UttaksdataGetForm(toDate = LocalDateTime.parse("2020-07-07T18:00:00Z", DateTimeFormatter.ISO_DATE_TIME)),
+                listOf(testUttaksdata, testUttaksdata3)
             ),
             Pair(
-                ReportGetForm(toDate = LocalDateTime.parse("2020-07-07T18:00:01Z", DateTimeFormatter.ISO_DATE_TIME)),
-                listOf(testReport, testReport3)
+                UttaksdataGetForm(toDate = LocalDateTime.parse("2020-07-07T18:00:01Z", DateTimeFormatter.ISO_DATE_TIME)),
+                listOf(testUttaksdata, testUttaksdata3)
             ),
             Pair(
-                ReportGetForm(
+                UttaksdataGetForm(
                     fromDate = LocalDateTime.parse("2020-07-07T13:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
                     toDate = LocalDateTime.parse("2020-08-09T16:00:00Z", DateTimeFormatter.ISO_DATE_TIME)
                 ),
-                listOf(testReport, testReport2)
+                listOf(testUttaksdata, testUttaksdata2)
             ),
             Pair(
-                ReportGetForm(
+                UttaksdataGetForm(
                     stasjonId = testStasjon.id,
                     partnerId = testPartner.id,
                     fromDate = LocalDateTime.parse("2020-06-03T08:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
                     toDate = LocalDateTime.parse("2020-09-10T15:57:00Z", DateTimeFormatter.ISO_DATE_TIME)
                 ),
-                listOf(testReport)
+                listOf(testUttaksdata)
             )
         )
 
         @ParameterizedTest
         @MethodSource("generateValidForms")
-        fun `valid gets with valid forms`(testData: Pair<ReportGetForm?, List<Report>>) {
+        fun `valid gets with valid forms`(testData: Pair<UttaksdataGetForm?, List<Uttaksdata>>) {
             val expected = testData.second
-            val actual = ReportRepository.getReports(testData.first)
+            val actual = UttaksdataRepository.getReports(testData.first)
             require(actual is Either.Right)
             assertEquals(expected, actual.b)
         }
@@ -349,7 +348,7 @@ class UttaksdataRepositoryTest {
     @Nested
     inner class Update {
 
-        var updateTestReport = Report(
+        var updateTestReport = Uttaksdata(
             0,
             testUttak4.id,
             testPartner.id,
@@ -358,7 +357,7 @@ class UttaksdataRepositoryTest {
             testUttak4.endDateTime
         )
 
-        var updateTestReport2 = Report(
+        var updateTestReport2 = Uttaksdata(
             0,
             testUttak5.id,
             testPartner.id,
@@ -388,8 +387,8 @@ class UttaksdataRepositoryTest {
         @Test
         fun `Update uttaksdata valid`() {
             val expectedWeight = 50
-            val form = ReportUpdateForm(updateTestReport.uttaksdataId, expectedWeight)
-            val result = ReportRepository.updateReport(form)
+            val form = UttaksdataUpdateForm(updateTestReport.uttaksdataId, expectedWeight)
+            val result = UttaksdataRepository.updateReport(form)
             require(result is Either.Right)
             val newReport =
                 updateTestReport.copy(uttaksdataedDateTime = result.b.uttaksdataedDateTime, weight = result.b.weight)
@@ -401,10 +400,10 @@ class UttaksdataRepositoryTest {
          */
         @Test
         fun `Update uttaksdata invalid ID`() {
-            val form = ReportUpdateForm(0, 50)
+            val form = UttaksdataUpdateForm(0, 50)
             val expected = RepositoryError.NoRowsFound("ID 0 does not exist!")
 
-            val result = ReportRepository.updateReport(form)
+            val result = UttaksdataRepository.updateReport(form)
             require(result is Either.Left)
             assert(result.a is RepositoryError.NoRowsFound)
             assertEquals(expected, result.a)
@@ -415,16 +414,16 @@ class UttaksdataRepositoryTest {
          */
         @Test
         fun `update uttaksdata with invalid weight`() {
-            val form = ReportUpdateForm(testReport2.uttaksdataId, 0)
+            val form = UttaksdataUpdateForm(testUttaksdata2.uttaksdataId, 0)
             val expected = RepositoryError.UpdateError("Failed to update uttaksdata")
 
-            val initial = ReportRepository.getReportByID(testReport2.uttaksdataId)
+            val initial = UttaksdataRepository.getReportByID(testUttaksdata2.uttaksdataId)
             require(initial is Either.Right)
 
-            val result = ReportRepository.updateReport(form)
+            val result = UttaksdataRepository.updateReport(form)
             require(result is Either.Left)
             assertEquals(expected, result.a)
-            val after = ReportRepository.getReportByID(testReport2.uttaksdataId)
+            val after = UttaksdataRepository.getReportByID(testUttaksdata2.uttaksdataId)
             require(after is Either.Right)
             assertEquals(initial.b, after.b)
         }
@@ -435,17 +434,17 @@ class UttaksdataRepositoryTest {
         @Test
         fun `update uttaksdata with uttak valid`() {
             val uttak = Uttak(
-                testReport2.uttakId,
+                testUttaksdata2.uttakId,
                 LocalDateTime.parse("2020-05-05T16:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-05-05T18:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
                 testStasjon,
                 testPartner
             )
-            val expected = testReport2.copy(startDateTime = uttak.startDateTime, endDateTime = uttak.endDateTime)
+            val expected = testUttaksdata2.copy(startDateTime = uttak.startDateTime, endDateTime = uttak.endDateTime)
 
-            val result = ReportRepository.updateReport(uttak)
+            val result = UttaksdataRepository.updateReport(uttak)
             require(result is Either.Right)
-            val actual = ReportRepository.getReportByID(expected.uttaksdataId)
+            val actual = UttaksdataRepository.getReportByID(expected.uttaksdataId)
             require(actual is Either.Right)
             assertEquals(expected, actual.b)
         }
@@ -464,7 +463,7 @@ class UttaksdataRepositoryTest {
             )
             val expected = RepositoryError.NoRowsFound("uttakId 0 does not exist!")
 
-            val actual = ReportRepository.updateReport(uttak)
+            val actual = UttaksdataRepository.updateReport(uttak)
             require(actual is Either.Left)
             assertEquals(expected, actual.a)
         }
@@ -479,7 +478,7 @@ class UttaksdataRepositoryTest {
          */
         @Test
         fun `insert uttaksdata valid`() {
-            val actual = ReportRepository.insertReport(testUttak5)
+            val actual = UttaksdataRepository.insertReport(testUttak5)
             require(actual is Either.Right)
             assertEquals(testUttak5.id, actual.b.uttakId)
             assertEquals(testUttak5.partner?.id, actual.b.partnerId)

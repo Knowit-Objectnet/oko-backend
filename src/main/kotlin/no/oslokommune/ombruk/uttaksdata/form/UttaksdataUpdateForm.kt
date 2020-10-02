@@ -7,11 +7,11 @@ import org.valiktor.functions.isGreaterThan
 import org.valiktor.validate
 
 @Serializable
-data class ReportUpdateForm(val id: Int, val weight: Int) : IForm<ReportUpdateForm> {
+data class UttaksdataUpdateForm(val id: Int, val weight: Int) : IForm<UttaksdataUpdateForm> {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
-            validate(ReportUpdateForm::id).isGreaterThan(0)
-            validate(ReportUpdateForm::weight).isGreaterThan(0)
+            validate(UttaksdataUpdateForm::id).isGreaterThan(0)
+            validate(UttaksdataUpdateForm::weight).isGreaterThan(0)
         }
     }
 
