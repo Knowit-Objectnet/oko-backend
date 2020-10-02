@@ -16,8 +16,8 @@ tags:
     description: Calls available in  the /partners/ endpoint
   - name: uttaks
     description: Calls available in the /uttaks/ endpoint
-  - name: reports
-    description: Calls available in the /reports/ endpoint
+  - name: uttaksdata
+    description: Calls available in the /uttaksdata/ endpoint
   - name: stasjoner
     description: Calls available in the /stasjoner/ endpoint
   - name: pickups
@@ -29,7 +29,7 @@ tags:
 #  - name: reuse-stasjon
 #    description: Calls available for reuse stasjon workers.
 #  - name: partner
-#    description: Calls available for partners. Can only access reports that belong to said partner.
+#    description: Calls available for partners. Can only access uttaksdata that belong to said partner.
 #  - name: everyone
 #    description: Calls available for unauthorized users
 paths:
@@ -41,10 +41,10 @@ paths:
     $ref: "./stasjon/stasjoner.yaml"
   /stasjoner{id}:
     $ref: "./stasjon/stasjonerId.yaml"
-  /reports:
-    $ref: "./report/reports.yaml"
-  /reports{id}:
-    $ref: "./report/reportsId.yaml"
+  /uttaksdata:
+    $ref: "./uttaksdata/uttaksdata.yaml"
+  /uttaksdata{id}:
+    $ref: "./uttaksdata/uttaksdataId.yaml"
   /uttaks:
     $ref: "./calendar/uttaks.yaml"
   /uttaks/{id}:
@@ -65,9 +65,9 @@ components:
     PartnerPatch:
       $ref: "./partner/schemas/partnerPatch.yaml"
     Report:
-      $ref: "./report/schemas/report.yaml"
+      $ref: "./uttaksdata/schemas/uttaksdata.yaml"
     ReportPatch:
-      $ref: "./report/schemas/reportPatch.yaml"
+      $ref: "./uttaksdata/schemas/uttaksdataPatch.yaml"
     Stasjon:
       $ref: "./stasjon/schemas/stasjon.yaml"
     StasjonPost:

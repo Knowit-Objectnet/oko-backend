@@ -1,4 +1,4 @@
-package no.oslokommune.ombruk.reporting.form
+package no.oslokommune.ombruk.uttaksdata.form
 
 import kotlinx.serialization.Serializable
 import no.oslokommune.ombruk.shared.form.IForm

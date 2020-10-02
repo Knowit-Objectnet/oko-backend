@@ -63,7 +63,7 @@ post:
     - uttaks
   summary: adds one or more uttaks to the database.
   operationId: addUttaks
-  description: Adds one or more uttaks to the database. This also creates corresponding weight reports with nulled weight.
+  description: Adds one or more uttaks to the database. This also creates corresponding weight uttaksdata with nulled weight.
   responses:
     '200':
       description: item created. Returns the created uttak. If recurring, the first uttak is returned.

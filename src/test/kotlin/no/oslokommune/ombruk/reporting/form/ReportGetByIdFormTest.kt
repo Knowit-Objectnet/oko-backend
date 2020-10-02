@@ -1,7 +1,7 @@
-package no.oslokommune.ombruk.reporting.form
+package no.oslokommune.ombruk.uttaksdata.form
 
 import arrow.core.Either
-import no.oslokommune.ombruk.reporting.form.ReportGetByIdForm
+import no.oslokommune.ombruk.uttaksdata.form.ReportGetByIdForm
 
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance

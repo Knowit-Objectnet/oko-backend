@@ -19,7 +19,6 @@ import no.oslokommune.ombruk.testPost
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 
-@Disabled
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PartnerTest {
 

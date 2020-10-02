@@ -55,12 +55,12 @@ create TABLE requests
 
 );
 
-create TABLE reports
+create TABLE uttaksdata
 (
     id                serial primary key,
     uttak_id          int not null,
     weight            int,
-    reported_date_time timestamp,
+    modified_date_time timestamp,
     start_date_time   timestamp not null,
     end_date_time     timestamp not null,
     partner_id        int not null,
@@ -94,14 +94,14 @@ ALTER TABLE stasjoner
 
 delete from stasjoner;
 
-ALTER TABLE reports
+ALTER TABLE uttaksdata
     ADD CONSTRAINT uttak_id_fk FOREIGN KEY (uttak_id) REFERENCES uttak (id) ON DELETE CASCADE;
 
-ALTER TABLE reports
+ALTER TABLE uttaksdata
     ADD CHECK (weight > 0);
 
 ALTER TABLE uttak
     ALTER column partner_id DROP not null;
 
-ALTER TABLE reports
+ALTER TABLE uttaksdata
     ALTER column partner_id DROP not null;

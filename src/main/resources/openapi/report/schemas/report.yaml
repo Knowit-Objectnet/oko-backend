@@ -1,6 +1,6 @@
 type: object
 properties:
-  reportID:
+  uttaksdataID:
     type: integer
     format: int64
     example: 1
@@ -25,7 +25,7 @@ properties:
   weight:
     type: integer
     format: int64
-  reportedDateTime:
+  uttaksdataedDateTime:
     type: string
     format: date-time
     example: "2020-07-13T17:15:33Z"

@@ -12,7 +12,7 @@ import no.oslokommune.ombruk.uttak.form.UttakGetForm
 import no.oslokommune.ombruk.uttak.form.UttakPostForm
 import no.oslokommune.ombruk.uttak.form.UttakUpdateForm
 import no.oslokommune.ombruk.uttak.model.Uttak
-import no.oslokommune.ombruk.reporting.service.ReportService
+import no.oslokommune.ombruk.uttaksdata.service.ReportService
 import no.oslokommune.ombruk.shared.error.ServiceError
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -30,7 +30,7 @@ object UttakService : IUttakService {
         uttakPostForm.map { form ->
             UttakRepository.insertUttak(form)
                 .flatMap { uttak ->
-                    // Automatically generate a report whenever an uttak is created.
+                    // Automatically generate a uttaksdata whenever an uttak is created.
                     ReportService.saveReport(uttak).fold({ rollback(); it.left() }, { uttak.right() })
                 }
         }.first()
@@ -61,7 +61,7 @@ object UttakService : IUttakService {
     override fun updateUttak(uttakUpdate: UttakUpdateForm): Either<ServiceError, Uttak> = transaction {
         UttakRepository.updateUttak(uttakUpdate)
             .flatMap { uttak ->
-                ReportService.updateReport(uttak)   // automatically update the report. Rollback if this fails.
+                ReportService.updateReport(uttak)   // automatically update the uttaksdata. Rollback if this fails.
                     .fold({ rollback(); it.left() }, { uttak.right() })
             }
     }

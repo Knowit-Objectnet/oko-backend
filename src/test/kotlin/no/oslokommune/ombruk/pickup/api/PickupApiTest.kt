@@ -239,8 +239,8 @@ class UttakAPITest {
         /**
          * Check for 422 when we get an invalid form. End date can't be fore start date
          */
-        @Test
         @Disabled
+        @Test
         fun `post pickup 422`() {
             val form = PickupPostForm(LocalDateTime.now(), LocalDateTime.now().minusDays(1), "test", 1)
 
@@ -330,8 +330,8 @@ class UttakAPITest {
         /**
          * Check for 422 when we get an invalid form. End date can't be fore start date
          */
-        @Test
         @Disabled
+        @Test
         fun `patch pickup 422`() {
             val s = Stasjon(1, "test")
             val initial = Pickup(1, LocalDateTime.now(), LocalDateTime.now().plusDays(1), stasjon = s)

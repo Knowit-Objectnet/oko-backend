@@ -1,4 +1,4 @@
-package no.oslokommune.ombruk.reporting.database
+package no.oslokommune.ombruk.uttaksdata.database
 
 import arrow.core.Either
 import kotlinx.serialization.builtins.ListSerializer
@@ -11,13 +11,15 @@ import no.oslokommune.ombruk.uttak.model.Uttak
 import no.oslokommune.ombruk.stasjon.model.Stasjon
 import no.oslokommune.ombruk.partner.database.Partners
 import no.oslokommune.ombruk.partner.model.Partner
-import no.oslokommune.ombruk.reporting.form.ReportGetForm
-import no.oslokommune.ombruk.reporting.form.ReportUpdateForm
-import no.oslokommune.ombruk.reporting.model.Report
+import no.oslokommune.ombruk.uttaksdata.form.ReportGetForm
+import no.oslokommune.ombruk.uttaksdata.form.ReportUpdateForm
+import no.oslokommune.ombruk.uttaksdata.model.Report
 import no.oslokommune.ombruk.shared.database.initDB
 import no.oslokommune.ombruk.shared.error.RepositoryError
 import no.oslokommune.ombruk.shared.model.serializer.DayOfWeekSerializer
 import no.oslokommune.ombruk.shared.model.serializer.LocalTimeSerializer
+import no.oslokommune.ombruk.uttaksdata.database.ReportRepository
+import no.oslokommune.ombruk.uttaksdata.database.Reports
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -203,9 +205,9 @@ class ReportRepositoryTest {
                 testUttak3.startDateTime,
                 testUttak3.endDateTime
             )
-            testReport = testReport.copy(reportId = insertTestReport(testReport))
-            testReport2 = testReport2.copy(reportId = insertTestReport(testReport2))
-            testReport3 = testReport3.copy(reportId = insertTestReport(testReport3))
+            testReport = testReport.copy(uttaksdataId = insertTestReport(testReport))
+            testReport2 = testReport2.copy(uttaksdataId = insertTestReport(testReport2))
+            testReport3 = testReport3.copy(uttaksdataId = insertTestReport(testReport3))
         }
     }
 
@@ -217,16 +219,16 @@ class ReportRepositoryTest {
         }
     }
 
-    fun insertTestReport(report: Report) =
+    fun insertTestReport(uttaksdata: Report) =
         transaction {
             Reports.insertAndGetId {
                 it[weight] = null
-                it[reportedDateTime] = null
-                it[uttakID] = report.uttakId
-                it[partnerID] = report.partnerId
-                it[stasjonID] = report.stasjon.id
-                it[startDateTime] = report.startDateTime
-                it[endDateTime] = report.endDateTime
+                it[uttaksdataedDateTime] = null
+                it[uttakID] = uttaksdata.uttakId
+                it[partnerID] = uttaksdata.partnerId
+                it[stasjonID] = uttaksdata.stasjon.id
+                it[startDateTime] = uttaksdata.startDateTime
+                it[endDateTime] = uttaksdata.endDateTime
             }.value
         }
 
@@ -245,18 +247,18 @@ class ReportRepositoryTest {
     inner class Get {
 
         /**
-         * Get Report by valid ID returns a report
+         * Get Report by valid ID returns a uttaksdata
          */
         @Test
         fun `get Report by valid ID`() {
             val expected = testReport
-            val result = ReportRepository.getReportByID(expected.reportId)
+            val result = ReportRepository.getReportByID(expected.uttaksdataId)
             require(result is Either.Right)
             assertEquals(expected, result.b)
         }
 
         /**
-         * Get report by non-existing ID should return RepositoryError.NoRowsFound
+         * Get uttaksdata by non-existing ID should return RepositoryError.NoRowsFound
          */
         @Test
         fun `get by invalid ID is left`() {
@@ -375,22 +377,22 @@ class ReportRepositoryTest {
 //        )
 
         init {
-            updateTestReport = updateTestReport.copy(reportId = insertTestReport(updateTestReport))
-            updateTestReport2 = updateTestReport2.copy(reportId = insertTestReport(updateTestReport2))
-//            updateTestReport3 = updateTestReport3.copy(reportId = insertTestReport(updateTestReport3))
+            updateTestReport = updateTestReport.copy(uttaksdataId = insertTestReport(updateTestReport))
+            updateTestReport2 = updateTestReport2.copy(uttaksdataId = insertTestReport(updateTestReport2))
+//            updateTestReport3 = updateTestReport3.copy(uttaksdataId = insertTestReport(updateTestReport3))
         }
 
         /**
          * Valid update
          */
         @Test
-        fun `Update report valid`() {
+        fun `Update uttaksdata valid`() {
             val expectedWeight = 50
-            val form = ReportUpdateForm(updateTestReport.reportId, expectedWeight)
+            val form = ReportUpdateForm(updateTestReport.uttaksdataId, expectedWeight)
             val result = ReportRepository.updateReport(form)
             require(result is Either.Right)
             val newReport =
-                updateTestReport.copy(reportedDateTime = result.b.reportedDateTime, weight = result.b.weight)
+                updateTestReport.copy(uttaksdataedDateTime = result.b.uttaksdataedDateTime, weight = result.b.weight)
             assertEquals(newReport, result.b)
         }
 
@@ -398,7 +400,7 @@ class ReportRepositoryTest {
          * Non-existing ID's should return a RepositoryError.NoRowsFound
          */
         @Test
-        fun `Update report invalid ID`() {
+        fun `Update uttaksdata invalid ID`() {
             val form = ReportUpdateForm(0, 50)
             val expected = RepositoryError.NoRowsFound("ID 0 does not exist!")
 
@@ -412,17 +414,17 @@ class ReportRepositoryTest {
          * Attempting to set a weight that's lesser than 1 should result in a RepositoryError.UpdateError
          */
         @Test
-        fun `update report with invalid weight`() {
-            val form = ReportUpdateForm(testReport2.reportId, 0)
-            val expected = RepositoryError.UpdateError("Failed to update report")
+        fun `update uttaksdata with invalid weight`() {
+            val form = ReportUpdateForm(testReport2.uttaksdataId, 0)
+            val expected = RepositoryError.UpdateError("Failed to update uttaksdata")
 
-            val initial = ReportRepository.getReportByID(testReport2.reportId)
+            val initial = ReportRepository.getReportByID(testReport2.uttaksdataId)
             require(initial is Either.Right)
 
             val result = ReportRepository.updateReport(form)
             require(result is Either.Left)
             assertEquals(expected, result.a)
-            val after = ReportRepository.getReportByID(testReport2.reportId)
+            val after = ReportRepository.getReportByID(testReport2.uttaksdataId)
             require(after is Either.Right)
             assertEquals(initial.b, after.b)
         }
@@ -431,7 +433,7 @@ class ReportRepositoryTest {
          * Test automatic update with uttak
          */
         @Test
-        fun `update report with uttak valid`() {
+        fun `update uttaksdata with uttak valid`() {
             val uttak = Uttak(
                 testReport2.uttakId,
                 LocalDateTime.parse("2020-05-05T16:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
@@ -443,7 +445,7 @@ class ReportRepositoryTest {
 
             val result = ReportRepository.updateReport(uttak)
             require(result is Either.Right)
-            val actual = ReportRepository.getReportByID(expected.reportId)
+            val actual = ReportRepository.getReportByID(expected.uttaksdataId)
             require(actual is Either.Right)
             assertEquals(expected, actual.b)
         }
@@ -452,7 +454,7 @@ class ReportRepositoryTest {
          * Test automatic update with uttak where uttakId does not exist
          */
         @Test
-        fun `update report with uttak invalid uttakId`() {
+        fun `update uttaksdata with uttak invalid uttakId`() {
             val uttak = Uttak(
                 0,
                 LocalDateTime.parse("2020-05-05T16:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
@@ -473,10 +475,10 @@ class ReportRepositoryTest {
     inner class Insert {
 
         /**
-         * Valid insertion should return a report
+         * Valid insertion should return a uttaksdata
          */
         @Test
-        fun `insert report valid`() {
+        fun `insert uttaksdata valid`() {
             val actual = ReportRepository.insertReport(testUttak5)
             require(actual is Either.Right)
             assertEquals(testUttak5.id, actual.b.uttakId)
@@ -484,7 +486,7 @@ class ReportRepositoryTest {
             assertEquals(testUttak5.stasjon, actual.b.stasjon)
             assertEquals(testUttak5.startDateTime, actual.b.startDateTime)
             assertEquals(testUttak5.endDateTime, actual.b.endDateTime)
-            assert(actual.b.reportedDateTime == null)
+            assert(actual.b.uttaksdataedDateTime == null)
             assert(actual.b.weight == null)
         }
     }

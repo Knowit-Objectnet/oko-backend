@@ -1,4 +1,4 @@
-package no.oslokommune.ombruk.reporting.api
+package no.oslokommune.ombruk.uttaksdata.api
 
 import arrow.core.left
 import arrow.core.right
@@ -12,11 +12,11 @@ import io.mockk.unmockkAll
 import kotlinx.serialization.builtins.list
 import kotlinx.serialization.json.Json
 import no.oslokommune.ombruk.stasjon.model.Stasjon
-import no.oslokommune.ombruk.reporting.database.ReportRepository
-import no.oslokommune.ombruk.reporting.form.ReportGetForm
-import no.oslokommune.ombruk.reporting.form.ReportUpdateForm
-import no.oslokommune.ombruk.reporting.model.Report
-import no.oslokommune.ombruk.reporting.service.ReportService
+import no.oslokommune.ombruk.uttaksdata.database.ReportRepository
+import no.oslokommune.ombruk.uttaksdata.form.ReportGetForm
+import no.oslokommune.ombruk.uttaksdata.form.ReportUpdateForm
+import no.oslokommune.ombruk.uttaksdata.model.Report
+import no.oslokommune.ombruk.uttaksdata.service.ReportService
 import no.oslokommune.ombruk.shared.api.JwtMockConfig
 import no.oslokommune.ombruk.shared.error.RepositoryError
 import no.oslokommune.ombruk.shared.error.ServiceError
@@ -30,7 +30,7 @@ import kotlin.test.assertEquals
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockKExtension::class)
-class ReportingApiTest {
+class UttaksdataApiTest {
 
     val json = Json(DefaultJsonConfiguration.copy(prettyPrint = true))
 
@@ -57,7 +57,7 @@ class ReportingApiTest {
          * Check for 200 when getting valid id.
          */
         @Test
-        fun `get report by id 200`() {
+        fun `get uttaksdata by id 200`() {
             val expected = Report(
                 1,
                 1,
@@ -69,7 +69,7 @@ class ReportingApiTest {
 
             every { ReportService.getReportById(1) } returns expected.right()
 
-            testGet("/reports/1") {
+            testGet("/uttaksdata/1") {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(json.stringify(Report.serializer(), expected), response.content)
             }
@@ -79,10 +79,10 @@ class ReportingApiTest {
          * Check for 404 when getting non-existing ID
          */
         @Test
-        fun `get report by id 404`() {
+        fun `get uttaksdata by id 404`() {
             every { ReportService.getReportById(1) } returns RepositoryError.NoRowsFound("1").left()
 
-            testGet("/reports/1") {
+            testGet("/uttaksdata/1") {
                 assertEquals(HttpStatusCode.NotFound, response.status())
                 assertEquals("No rows found with provided ID, 1", response.content)
             }
@@ -92,10 +92,10 @@ class ReportingApiTest {
          * Check for 500 when encountering a serious error.
          */
         @Test
-        fun `get report by id 500`() {
+        fun `get uttaksdata by id 500`() {
             every { ReportService.getReportById(1) } returns ServiceError("test").left()
 
-            testGet("/reports/1") {
+            testGet("/uttaksdata/1") {
                 assertEquals(HttpStatusCode.InternalServerError, response.status())
                 assertEquals("test", response.content)
             }
@@ -105,9 +105,9 @@ class ReportingApiTest {
          * Check for 400 when input cannot be parsed to int
          */
         @Test
-        fun `get report by bad id 400`() {
+        fun `get uttaksdata by bad id 400`() {
 
-            testGet("/reports/asdasd") {
+            testGet("/uttaksdata/asdasd") {
                 assertEquals(HttpStatusCode.BadRequest, response.status())
             }
         }
@@ -116,9 +116,9 @@ class ReportingApiTest {
          * Check for 422 when ID is invalid (ID < 1)
          */
         @Test
-        fun `get report by invalid 422`() {
+        fun `get uttaksdata by invalid 422`() {
 
-            testGet("/reports/-1") {
+            testGet("/uttaksdata/-1") {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
             }
         }
@@ -131,7 +131,7 @@ class ReportingApiTest {
          * Check for 200 when getting all
          */
         @Test
-        fun `get all reports 200`() {
+        fun `get all uttaksdata 200`() {
             val r1 = Report(
                 1,
                 1,
@@ -140,23 +140,23 @@ class ReportingApiTest {
                 LocalDateTime.parse("2020-07-07T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-07-08T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME)
             )
-            val r2 = r1.copy(reportId = 2)
-            val r3 = r1.copy(reportId = 3)
+            val r2 = r1.copy(uttaksdataId = 2)
+            val r3 = r1.copy(uttaksdataId = 3)
             val expected = listOf(r1, r2, r3)
 
             every { ReportService.getReports(any()) } returns expected.right()
 
-            testGet("/reports/") {
+            testGet("/uttaksdata/") {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(json.stringify(Report.serializer().list, expected), response.content)
             }
         }
 
         /**
-         * Check for 200 when getting reports by valid stasjonID
+         * Check for 200 when getting uttaksdata by valid stasjonID
          */
         @Test
-        fun `get all reports by stasjonID 200`() {
+        fun `get all uttaksdata by stasjonID 200`() {
             val r1 = Report(
                 1,
                 1,
@@ -165,13 +165,13 @@ class ReportingApiTest {
                 LocalDateTime.parse("2020-07-07T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-07-08T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME)
             )
-            val r3 = r1.copy(reportId = 3)
+            val r3 = r1.copy(uttaksdataId = 3)
             val expected = listOf(r1, r3)
             val form = ReportGetForm(stasjonId = 1)
 
             every { ReportService.getReports(form) } returns expected.right()
 
-            testGet("/reports/?stasjonId=1") {
+            testGet("/uttaksdata/?stasjonId=1") {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(json.stringify(Report.serializer().list, expected), response.content)
             }
@@ -181,9 +181,9 @@ class ReportingApiTest {
          * Check for 500 when we encounter a serious error
          */
         @Test
-        fun `get reports 500`() {
+        fun `get uttaksdata 500`() {
             every { ReportService.getReports(ReportGetForm()) } returns ServiceError("test").left()
-            testGet("/reports/") {
+            testGet("/uttaksdata/") {
                 assertEquals(HttpStatusCode.InternalServerError, response.status())
                 assertEquals("test", response.content)
             }
@@ -193,8 +193,8 @@ class ReportingApiTest {
          * Check for 400 when we get a form which cannot be parsed. fromDate is not valid
          */
         @Test
-        fun `get reports invalid fromDate 400`() {
-            testGet("/reports/?fromDate=2020-07-0912:13:15Z") {
+        fun `get uttaksdata invalid fromDate 400`() {
+            testGet("/uttaksdata/?fromDate=2020-07-0912:13:15Z") {
                 assertEquals(HttpStatusCode.BadRequest, response.status())
                 assertEquals("fromDate could not be parsed.", response.content)
             }
@@ -203,10 +203,10 @@ class ReportingApiTest {
         /**
          * Check for 422 when we get an invalid form. fromDate is greater than toDate
          */
-        @Test
         @Disabled
-        fun `get reports fromDate larger than endDate 422`() {
-            testGet("/reports/?fromDate=2020-07-07T12:13:15Z&toDate=2020-06-06T12:13:15Z") {
+        @Test
+        fun `get uttaksdata fromDate larger than endDate 422`() {
+            testGet("/uttaksdata/?fromDate=2020-07-07T12:13:15Z&toDate=2020-06-06T12:13:15Z") {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
                 assertEquals("fromDate: has to be less than end datetime", response.content)
             }
@@ -220,7 +220,7 @@ class ReportingApiTest {
          * Patch returns 200 when getting valid form
          */
         @Test
-        fun `patch report 200`() {
+        fun `patch uttaksdata 200`() {
             val initial = Report(
                 1,
                 1,
@@ -235,7 +235,7 @@ class ReportingApiTest {
             every { ReportService.getReportById(1) } returns initial.right()
             every { ReportService.updateReport(form) } returns expected.right()
 
-            testPatch("/reports/", json.stringify(ReportUpdateForm.serializer(), form)) {
+            testPatch("/uttaksdata/", json.stringify(ReportUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(json.stringify(Report.serializer(), expected), response.content)
             }
@@ -246,18 +246,18 @@ class ReportingApiTest {
          */
 
         @Test
-        fun `patch report no bearer 401`() {
+        fun `patch uttaksdata no bearer 401`() {
             val form = ReportUpdateForm(1, 50)
-            testPatch("/reports/", json.stringify(ReportUpdateForm.serializer(), form), null) {
+            testPatch("/uttaksdata/", json.stringify(ReportUpdateForm.serializer(), form), null) {
                 assertEquals(HttpStatusCode.Unauthorized, response.status())
             }
         }
 
         /**
-         * Check for 403 when a partner attempts to edit another partner's report
+         * Check for 403 when a partner attempts to edit another partner's uttaksdata
          */
         @Test
-        fun `patch report of other partner 403`() {
+        fun `patch uttaksdata of other partner 403`() {
             val initial = Report(
                 1,
                 1,
@@ -270,16 +270,16 @@ class ReportingApiTest {
 
             every { ReportService.getReportById(1) } returns initial.right()
 
-            testPatch("/reports/", json.stringify(ReportUpdateForm.serializer(), form), JwtMockConfig.partnerBearer2) {
+            testPatch("/uttaksdata/", json.stringify(ReportUpdateForm.serializer(), form), JwtMockConfig.partnerBearer2) {
                 assertEquals(HttpStatusCode.Forbidden, response.status())
             }
         }
 
         /**
-         * Check for 200 when a partner edits his own report
+         * Check for 200 when a partner edits his own uttaksdata
          */
         @Test
-        fun `patch own report partner 200`() {
+        fun `patch own uttaksdata partner 200`() {
             val initial = Report(
                 1,
                 1,
@@ -294,33 +294,33 @@ class ReportingApiTest {
             every { ReportService.getReportById(1) } returns initial.right()
             every { ReportService.updateReport(form) } returns expected.right()
 
-            testPatch("/reports/", json.stringify(ReportUpdateForm.serializer(), form), JwtMockConfig.partnerBearer1) {
+            testPatch("/uttaksdata/", json.stringify(ReportUpdateForm.serializer(), form), JwtMockConfig.partnerBearer1) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(json.stringify(Report.serializer(), expected), response.content)
             }
         }
 
         /*
-        A report with weight less than 1 should be unprocessable
+        A uttaksdata with weight less than 1 should be unprocessable
          */
         @Test
-        fun `patch report invalid weight 422`() {
+        fun `patch uttaksdata invalid weight 422`() {
             val form = ReportUpdateForm(1, 0)
 
-            testPatch("/reports/", json.stringify(ReportUpdateForm.serializer(), form)) {
+            testPatch("/uttaksdata/", json.stringify(ReportUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
                 assertEquals("weight: Must be greater than 0", response.content)
             }
         }
 
         /*
-        Test 404 when report does not exist
+        Test 404 when uttaksdata does not exist
          */
         @Test
-        fun `patch report not found 404`() {
+        fun `patch uttaksdata not found 404`() {
             val form = ReportUpdateForm(1, 50)
             every { ReportService.updateReport(form) } returns RepositoryError.NoRowsFound("test").left()
-            testPatch("/reports/", json.stringify(ReportUpdateForm.serializer(), form)) {
+            testPatch("/uttaksdata/", json.stringify(ReportUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.NotFound, response.status())
                 assertEquals("No rows found with provided ID, ID 1 does not exist!", response.content)
             }
@@ -330,9 +330,9 @@ class ReportingApiTest {
          * Check for 400 when we get a form that cannot be parsed.
          */
         @Test
-        fun `patch report invalid body 400`() {
+        fun `patch uttaksdata invalid body 400`() {
             val testJson = """ {"id": 1, "weight": "asdf"} """
-            testPatch("/reports/", testJson) {
+            testPatch("/uttaksdata/", testJson) {
                 assertEquals(HttpStatusCode.BadRequest, response.status())
             }
         }
@@ -342,7 +342,7 @@ class ReportingApiTest {
          */
 
         @Test
-        fun `patch report 500`() {
+        fun `patch uttaksdata 500`() {
             val test = Report(
                 1,
                 1,
@@ -355,7 +355,7 @@ class ReportingApiTest {
             every { ReportService.updateReport(form) } returns ServiceError("test").left()
             every { ReportService.getReportById(1) } returns test.right()
 
-            testPatch("/reports/", json.stringify(ReportUpdateForm.serializer(), form)) {
+            testPatch("/uttaksdata/", json.stringify(ReportUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.InternalServerError, response.status())
                 assertEquals("test", response.content)
             }

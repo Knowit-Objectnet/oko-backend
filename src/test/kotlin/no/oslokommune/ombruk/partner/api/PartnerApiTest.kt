@@ -219,8 +219,8 @@ class PartnerApiTest {
         /**
          * Check for 422 when we get an invalid form. Invalid phone number
          */
-        @Test
         @Disabled
+        @Test
         fun `post partner 422`() {
             val form = PartnerPostForm("test", phone = "2143")
 
@@ -304,8 +304,8 @@ class PartnerApiTest {
         /**
          * Check for 422 when we get an invalid form. Invalid phone number
          */
-        @Test
         @Disabled
+        @Test
         fun `patch partner 422`() {
             val form = PartnerUpdateForm(1, "updated", phone = "234")
 

@@ -27,7 +27,6 @@ import kotlin.random.Random
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 
-@Disabled
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PickupTest {
 
@@ -62,7 +61,7 @@ class PickupTest {
     private fun createTestPartners() = (0..9).map {
         val p = PartnerService.savePartner(
             PartnerPostForm(
-                "no.oslokommune.ombruk.pickup.PickupTest Partner$it",
+                "Partner$it",
                 "Description",
                 "1234567$it",
                 "test$it@gmail.com"
@@ -73,7 +72,7 @@ class PickupTest {
     }
 
     private fun createTestStasjoner() = (0..5).map {
-        val s = StasjonService.saveStasjon(StasjonPostForm("no.oslokommune.ombruk.pickup.PickupTest Stasjon$it"))
+        val s = StasjonService.saveStasjon(StasjonPostForm("Stasjon$it"))
         require(s is Either.Right)
         return@map s.b
     }
@@ -85,7 +84,7 @@ class PickupTest {
                 PickupPostForm(
                     LocalDateTime.parse("2020-07-06T15:48:06").plusDays(it),
                     LocalDateTime.parse("2020-07-06T16:48:06").plusDays(it),
-                    "Test no.oslokommune.ombruk.pickup",
+                    "Test",
                     stasjoner[stasjonCounter].id
                 )
             )

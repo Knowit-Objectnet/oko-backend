@@ -13,8 +13,8 @@ import no.oslokommune.ombruk.uttak.form.UttakPostForm
 import no.oslokommune.ombruk.uttak.form.UttakUpdateForm
 import no.oslokommune.ombruk.uttak.model.Uttak
 import no.oslokommune.ombruk.uttak.model.RecurrenceRule
-import no.oslokommune.ombruk.reporting.model.Report
-import no.oslokommune.ombruk.reporting.service.ReportService
+import no.oslokommune.ombruk.uttaksdata.model.Report
+import no.oslokommune.ombruk.uttaksdata.service.ReportService
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
 import java.time.DayOfWeek
@@ -149,11 +149,11 @@ class UttakServiceTest {
          * Check that save single uttaks calls the repository and returns the saved uttak.
          */
         @Test
-        fun `save single uttak`(@MockK expectedUttak: Uttak, @MockK report: Report) {
+        fun `save single uttak`(@MockK expectedUttak: Uttak, @MockK uttaksdata: Report) {
             val from = LocalDateTime.parse("2020-09-02T12:00:00Z", DateTimeFormatter.ISO_DATE_TIME)
             val form = UttakPostForm(from, from.plusHours(1), 1, 1)
             every { UttakRepository.insertUttak(form) } returns expectedUttak.right()
-            every { ReportService.saveReport(expectedUttak) } returns report.right()
+            every { ReportService.saveReport(expectedUttak) } returns uttaksdata.right()
 
             val actualUttak = UttakService.saveUttak(form)
             require(actualUttak is Either.Right)
@@ -165,13 +165,13 @@ class UttakServiceTest {
          * Check that the repository is called 3 times, because 3 uttaks should be saved.
          */
         @Test
-        fun `save recurring uttak`(@MockK expectedUttak: Uttak, @MockK report: Report) {
+        fun `save recurring uttak`(@MockK expectedUttak: Uttak, @MockK uttaksdata: Report) {
             val rRule = RecurrenceRule(count = 3, days = listOf(DayOfWeek.MONDAY))
             val from = LocalDateTime.parse("2020-09-02T12:00:00Z", DateTimeFormatter.ISO_DATE_TIME)
             val form = UttakPostForm(from, from.plusHours(1), 1, 1, recurrenceRule = rRule)
 
             every { RecurrenceRules.insertRecurrenceRule(rRule) } returns rRule.right()
-            every { ReportService.saveReport(expectedUttak) } returns report.right()
+            every { ReportService.saveReport(expectedUttak) } returns uttaksdata.right()
             every { UttakRepository.insertUttak(any()) } returns expectedUttak.right()
 
             val actualUttak = UttakService.saveUttak(form)

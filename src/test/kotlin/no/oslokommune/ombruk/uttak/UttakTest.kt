@@ -37,7 +37,6 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 
-@Disabled
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class UttakTest {
 

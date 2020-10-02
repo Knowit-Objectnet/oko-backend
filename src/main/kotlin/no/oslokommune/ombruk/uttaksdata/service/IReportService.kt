@@ -1,10 +1,10 @@
-package no.oslokommune.ombruk.reporting.service
+package no.oslokommune.ombruk.uttaksdata.service
 
 import arrow.core.Either
 import no.oslokommune.ombruk.uttak.model.Uttak
-import no.oslokommune.ombruk.reporting.form.ReportGetForm
-import no.oslokommune.ombruk.reporting.form.ReportUpdateForm
-import no.oslokommune.ombruk.reporting.model.Report
+import no.oslokommune.ombruk.uttaksdata.form.ReportGetForm
+import no.oslokommune.ombruk.uttaksdata.form.ReportUpdateForm
+import no.oslokommune.ombruk.uttaksdata.model.Report
 import no.oslokommune.ombruk.shared.error.ServiceError
 
 interface IReportService {
@@ -27,24 +27,24 @@ interface IReportService {
     /**
      * Sets the weight of a stored [Report]. Available through the API.
      *
-     * @param reportUpdateForm a [ReportUpdateForm] where the [ReportUpdateForm.id] corresponds to a stored [Report.reportId].
+     * @param uttaksdataUpdateForm a [ReportUpdateForm] where the [ReportUpdateForm.id] corresponds to a stored [Report.uttaksdataId].
      * @return a [ServiceError] on failure and a [Report] on success.
      */
-    fun updateReport(reportUpdateForm: ReportUpdateForm): Either<ServiceError, Report>
+    fun updateReport(uttaksdataUpdateForm: ReportUpdateForm): Either<ServiceError, Report>
 
     /**
-     * Gets a [Report] that corresponds with the specified [reportID].
+     * Gets a [Report] that corresponds with the specified [uttaksdataID].
      *
-     * @param reportID ID of a stored [Report]
+     * @param uttaksdataID ID of a stored [Report]
      * @return A [ServiceError] on failure and a [Report] on success.
      */
-    fun getReportById(reportID: Int): Either<ServiceError, Report>
+    fun getReportById(uttaksdataID: Int): Either<ServiceError, Report>
 
     /**
      * Gets a list of [Report] objects specified by parameters in a [ReportGetForm]
      *
-     * @param reportGetForm a [ReportGetForm] with values used to filter results. Null values are not used for filtering.
+     * @param uttaksdataGetForm a [ReportGetForm] with values used to filter results. Null values are not used for filtering.
      * @return A [ServiceError] on failure and a [List] of [Report] objects on success.
      */
-    fun getReports(reportGetForm: ReportGetForm): Either<ServiceError, List<Report>>
+    fun getReports(uttaksdataGetForm: ReportGetForm): Either<ServiceError, List<Report>>
 }

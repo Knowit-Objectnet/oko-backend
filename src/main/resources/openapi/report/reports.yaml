@@ -1,17 +1,17 @@
 get:
   tags:
     #- everyone
-    - reports
-  summary: Gets all reports
+    - uttaksdata
+  summary: Gets all uttaksdata
   operationId: getReports
   description: |
-    Get functionality that allows for getting reports. If called without parameters, all reports are returned.
-    Each parameter that is passed will be used to filter the output. For instance, one can GET reports within
+    Get functionality that allows for getting uttaksdata. If called without parameters, all uttaksdata are returned.
+    Each parameter that is passed will be used to filter the output. For instance, one can GET uttaksdata within
     a range by specifying from-date and to-date.
   parameters:
     - in: query
       name: uttakId
-      description: Get the report that corresponds to the specified uttak ID.
+      description: Get the uttaksdata that corresponds to the specified uttak ID.
       required: false
       schema:
         type: integer
@@ -19,7 +19,7 @@ get:
       example: 1
     - in: query
       name: stasjonId
-      description: Only get reports belonging at the specified Stasjon ID.
+      description: Only get uttaksdata belonging at the specified Stasjon ID.
       required: false
       schema:
         type: integer
@@ -27,7 +27,7 @@ get:
         example: 2
     - in: query
       name: partnerId
-      description: Only get reports belonging to specified partner ID.
+      description: Only get uttaksdata belonging to specified partner ID.
       required: false
       schema:
         type: integer
@@ -35,7 +35,7 @@ get:
         example: 3
     - in: query
       name: fromDate
-      description: Get reports from the specified date and time.
+      description: Get uttaksdata from the specified date and time.
       required: false
       schema:
         type: string
@@ -43,7 +43,7 @@ get:
         example: "2020-07-10T13:17:39Z"
     - in: query
       name: toDate
-      description: Get reports until the specified date and time.
+      description: Get uttaksdata until the specified date and time.
       required: false
       schema:
         type: string
@@ -51,7 +51,7 @@ get:
         example: "2020-07-20T13:17:39Z"
   responses:
     '200':
-      description: Returns all reports
+      description: Returns all uttaksdata
       content:
         application/json:
           schema:
@@ -66,12 +66,12 @@ patch:
     #- reg-admin
     #- reuse-stasjon
     #- partner
-    - reports
-  summary: Sets the weight of a report
+    - uttaksdata
+  summary: Sets the weight of a uttaksdata
   operationId: patchWeight
   description: |
-    Updates the weight of a report. When weight is updated, it's reportedDateTime field is also updated.
-    Although partners can call this endpoint, they are only able to update reports that belong to their corresponding
+    Updates the weight of a uttaksdata. When weight is updated, it's uttaksdataedDateTime field is also updated.
+    Although partners can call this endpoint, they are only able to update uttaksdata that belong to their corresponding
     partner ID.
   responses:
     '200':

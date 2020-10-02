@@ -11,7 +11,7 @@ import no.oslokommune.ombruk.shared.error.ServiceError
 
 interface IUttakService {
     /**
-     * Saves one or several uttaks and automatically generates corresponding reports.
+     * Saves one or several uttaks and automatically generates corresponding uttaksdata.
      * @param uttakPostForm An [UttakPostForm] that describes the uttaks to be posted.
      * @return A [ServiceError] on failure and an [Uttak] on success. If saved uttak is recurring, the first uttak
      * is returned.

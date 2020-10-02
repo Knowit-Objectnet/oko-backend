@@ -16,8 +16,8 @@ tags:
     description: Calls available in  the /partners/ endpoint
   - name: uttaks
     description: Calls available in the /uttaks/ endpoint
-  - name: reports
-    description: Calls available in the /reports/ endpoint
+  - name: uttaksdata
+    description: Calls available in the /uttaksdata/ endpoint
   - name: stasjoner
     description: Calls available in the /stasjoner/ endpoint
   - name: pickups
@@ -296,20 +296,20 @@ paths:
           description: ID not found
         '500':
           description: Internal server error
-  /reports:
+  /uttaksdata:
     get:
       tags:
-        - reports
-      summary: Gets all reports
+        - uttaksdata
+      summary: Gets all uttaksdata
       operationId: getReports
       description: |
-        Get functionality that allows for getting reports. If called without parameters, all reports are returned.
-        Each parameter that is passed will be used to filter the output. For instance, one can GET reports within
+        Get functionality that allows for getting uttaksdata. If called without parameters, all uttaksdata are returned.
+        Each parameter that is passed will be used to filter the output. For instance, one can GET uttaksdata within
         a range by specifying from-date and to-date.
       parameters:
         - in: query
           name: uttakId
-          description: Get the report that corresponds to the specified uttak ID.
+          description: Get the uttaksdata that corresponds to the specified uttak ID.
           required: false
           schema:
             type: integer
@@ -317,7 +317,7 @@ paths:
           example: 1
         - in: query
           name: stasjonId
-          description: Only get reports belonging at the specified Stasjon ID.
+          description: Only get uttaksdata belonging at the specified Stasjon ID.
           required: false
           schema:
             type: integer
@@ -325,7 +325,7 @@ paths:
             example: 2
         - in: query
           name: partnerId
-          description: Only get reports belonging to specified partner ID.
+          description: Only get uttaksdata belonging to specified partner ID.
           required: false
           schema:
             type: integer
@@ -333,7 +333,7 @@ paths:
             example: 3
         - in: query
           name: fromDate
-          description: Get reports from the specified date and time.
+          description: Get uttaksdata from the specified date and time.
           required: false
           schema:
             type: string
@@ -341,7 +341,7 @@ paths:
             example: '2020-07-10T13:17:39Z'
         - in: query
           name: toDate
-          description: Get reports until the specified date and time.
+          description: Get uttaksdata until the specified date and time.
           required: false
           schema:
             type: string
@@ -349,7 +349,7 @@ paths:
             example: '2020-07-20T13:17:39Z'
       responses:
         '200':
-          description: Returns all reports
+          description: Returns all uttaksdata
           content:
             application/json:
               schema:
@@ -360,12 +360,12 @@ paths:
           description: Internal server error
     patch:
       tags:
-        - reports
-      summary: Sets the weight of a report
+        - uttaksdata
+      summary: Sets the weight of a uttaksdata
       operationId: patchWeight
       description: |
-        Updates the weight of a report. When weight is updated, it's reportedDateTime field is also updated.
-        Although partners can call this endpoint, they are only able to update reports that belong to their corresponding
+        Updates the weight of a uttaksdata. When weight is updated, it's uttaksdataedDateTime field is also updated.
+        Although partners can call this endpoint, they are only able to update uttaksdata that belong to their corresponding
         partner ID.
       responses:
         '200':
@@ -391,11 +391,11 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/ReportPatch'
-  '/reports{id}':
+  '/uttaksdata{id}':
     get:
       tags:
-        - reports
-      summary: fetches a report
+        - uttaksdata
+      summary: fetches a uttaksdata
       operationId: getReport
       parameters:
         - in: path
@@ -479,7 +479,7 @@ paths:
         - uttaks
       summary: adds one or more uttaks to the database.
       operationId: addUttaks
-      description: Adds one or more uttaks to the database. This also creates corresponding weight reports with nulled weight.
+      description: Adds one or more uttaks to the database. This also creates corresponding weight uttaksdata with nulled weight.
       responses:
         '200':
           description: 'item created. Returns the created uttak. If recurring, the first uttak is returned.'
@@ -935,7 +935,7 @@ components:
     Report:
       type: object
       properties:
-        reportID:
+        uttaksdataID:
           type: integer
           format: int64
           example: 1
@@ -960,7 +960,7 @@ components:
         weight:
           type: integer
           format: int64
-        reportedDateTime:
+        uttaksdataedDateTime:
           type: string
           format: date-time
           example: '2020-07-13T17:15:33Z'

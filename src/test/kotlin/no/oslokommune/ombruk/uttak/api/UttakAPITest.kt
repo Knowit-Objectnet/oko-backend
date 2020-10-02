@@ -264,8 +264,8 @@ class UttakAPITest {
         /**
          * Check for 422 when we get an invalid form. The partner with id 1 does not exist.
          */
-        @Test
         @Disabled
+        @Test
         fun `post uttak 422`() {
             val form = UttakPostForm(LocalDateTime.now(), LocalDateTime.now().plusHours(1), 1, 1)
 
