@@ -1,7 +1,7 @@
 package no.oslokommune.ombruk.reporting.service
 
 import arrow.core.Either
-import no.oslokommune.ombruk.event.model.Event
+import no.oslokommune.ombruk.uttak.model.Uttak
 import no.oslokommune.ombruk.reporting.form.ReportGetForm
 import no.oslokommune.ombruk.reporting.form.ReportUpdateForm
 import no.oslokommune.ombruk.reporting.model.Report
@@ -9,20 +9,20 @@ import no.oslokommune.ombruk.shared.error.ServiceError
 
 interface IReportService {
     /**
-     * Saves a [Report] to the database. Only available internally, and is automatically called when an [Event] is created.
+     * Saves a [Report] to the database. Only available internally, and is automatically called when an [Uttak] is created.
      *
-     * @param event A stored [Event] object
+     * @param uttak A stored [Uttak] object
      * @return A [ServiceError] on failure and a [Report] on success.
      */
-    fun saveReport(event: Event): Either<ServiceError, Report>
+    fun saveReport(uttak: Uttak): Either<ServiceError, Report>
 
     /**
-     * Updates a stored [Report]. Only available internally, and is automatically called when an [Event] is updated.
+     * Updates a stored [Report]. Only available internally, and is automatically called when an [Uttak] is updated.
      *
-     * @param event A stored [Event] object.
+     * @param uttak A stored [Uttak] object.
      * @return A [ServiceError] on failure and a [Unit] on success.
      */
-    fun updateReport(event: Event): Either<ServiceError, Unit>
+    fun updateReport(uttak: Uttak): Either<ServiceError, Unit>
 
     /**
      * Sets the weight of a stored [Report]. Available through the API.

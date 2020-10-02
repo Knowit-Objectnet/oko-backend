@@ -331,9 +331,9 @@ class PickupTest {
 
         fun `delete pickup by id`() {
             testDelete("/pickups/92") {
-                val respondedEvents = json.parse(Pickup.serializer().list, response.content!!)
+                val respondedUttaks = json.parse(Pickup.serializer().list, response.content!!)
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(listOf(pickups[92]), respondedEvents)
+                assertEquals(listOf(pickups[92]), respondedUttaks)
                 assertFalse(PickupRepository.exists(pickups[92].id))
             }
         }

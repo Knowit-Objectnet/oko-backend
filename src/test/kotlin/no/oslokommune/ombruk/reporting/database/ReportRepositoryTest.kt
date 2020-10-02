@@ -5,14 +5,12 @@ import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
-import no.oslokommune.ombruk.event.database.Events
+import no.oslokommune.ombruk.uttak.database.UttakTable
 import no.oslokommune.ombruk.station.database.Stations
-import no.oslokommune.ombruk.event.model.Event
+import no.oslokommune.ombruk.uttak.model.Uttak
 import no.oslokommune.ombruk.station.model.Station
 import no.oslokommune.ombruk.partner.database.Partners
 import no.oslokommune.ombruk.partner.model.Partner
-import no.oslokommune.ombruk.reporting.database.ReportRepository
-import no.oslokommune.ombruk.reporting.database.Reports
 import no.oslokommune.ombruk.reporting.form.ReportGetForm
 import no.oslokommune.ombruk.reporting.form.ReportUpdateForm
 import no.oslokommune.ombruk.reporting.model.Report
@@ -44,12 +42,12 @@ class ReportRepositoryTest {
     lateinit var testReport: Report
     lateinit var testReport2: Report
     lateinit var testReport3: Report
-    lateinit var testEvent: Event
-    lateinit var testEvent2: Event
-    lateinit var testEvent3: Event
-    lateinit var testEvent4: Event
-    lateinit var testEvent5: Event
-    lateinit var testEvent6: Event
+    lateinit var testUttak: Uttak
+    lateinit var testUttak2: Uttak
+    lateinit var testUttak3: Uttak
+    lateinit var testUttak4: Uttak
+    lateinit var testUttak5: Uttak
+    lateinit var testUttak6: Uttak
 
     init {
         initDB()
@@ -138,72 +136,72 @@ class ReportRepositoryTest {
                 hours
             )
 
-            testEvent = Event(
+            testUttak = Uttak(
                 0,
                 LocalDateTime.parse("2020-07-07T16:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-07-07T18:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
                 testStation,
                 testPartner
             )
-            testEvent = testEvent.copy(id = insertTestEvent(testEvent))
-            testEvent2 = Event(
+            testUttak = testUttak.copy(id = insertTestUttak(testUttak))
+            testUttak2 = Uttak(
                 0,
                 LocalDateTime.parse("2020-08-08T16:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-08-08T17:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
                 testStation,
                 testPartner
             )
-            testEvent2 = testEvent2.copy(id = insertTestEvent(testEvent2))
-            testEvent3 = Event(
+            testUttak2 = testUttak2.copy(id = insertTestUttak(testUttak2))
+            testUttak3 = Uttak(
                 0,
                 LocalDateTime.parse("2020-05-06T16:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-05-06T18:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
                 testStation,
                 testPartner
             )
-            testEvent3 = testEvent3.copy(id = insertTestEvent(testEvent3))
-            testEvent4 = Event(
+            testUttak3 = testUttak3.copy(id = insertTestUttak(testUttak3))
+            testUttak4 = Uttak(
                 0,
                 LocalDateTime.parse("2020-07-07T16:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-07-07T18:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
                 testStation,
                 testPartner
             )
-            testEvent4 = testEvent4.copy(id = insertTestEvent(testEvent4))
-            testEvent5 = Event(
+            testUttak4 = testUttak4.copy(id = insertTestUttak(testUttak4))
+            testUttak5 = Uttak(
                 0,
                 LocalDateTime.parse("2020-08-08T16:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-08-08T17:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
                 testStation,
                 testPartner
             )
-            testEvent5 = testEvent5.copy(id = insertTestEvent(testEvent5))
+            testUttak5 = testUttak5.copy(id = insertTestUttak(testUttak5))
 
             testReport = Report(
                 1,
-                testEvent.id,
+                testUttak.id,
                 testPartner.id,
                 testStation,
-                testEvent.startDateTime,
-                testEvent.endDateTime
+                testUttak.startDateTime,
+                testUttak.endDateTime
             )
 
             testReport2 = Report(
                 2,
-                testEvent2.id,
+                testUttak2.id,
                 testPartner.id,
                 testStation2,
-                testEvent2.startDateTime,
-                testEvent2.endDateTime
+                testUttak2.startDateTime,
+                testUttak2.endDateTime
             )
 
             testReport3 = Report(
                 3,
-                testEvent3.id,
+                testUttak3.id,
                 testPartner2.id,
                 testStation,
-                testEvent3.startDateTime,
-                testEvent3.endDateTime
+                testUttak3.startDateTime,
+                testUttak3.endDateTime
             )
             testReport = testReport.copy(reportId = insertTestReport(testReport))
             testReport2 = testReport2.copy(reportId = insertTestReport(testReport2))
@@ -224,7 +222,7 @@ class ReportRepositoryTest {
             Reports.insertAndGetId {
                 it[weight] = null
                 it[reportedDateTime] = null
-                it[eventID] = report.eventId
+                it[uttakID] = report.uttakId
                 it[partnerID] = report.partnerId
                 it[stationID] = report.station.id
                 it[startDateTime] = report.startDateTime
@@ -232,13 +230,13 @@ class ReportRepositoryTest {
             }.value
         }
 
-    fun insertTestEvent(event: Event) = transaction {
-        Events.insertAndGetId {
-            it[startDateTime] = event.startDateTime
-            it[endDateTime] = event.endDateTime
-            it[recurrenceRuleID] = event.recurrenceRule?.id
-            it[stationID] = event.station.id
-            it[partnerID] = event.partner?.id
+    fun insertTestUttak(uttak: Uttak) = transaction {
+        UttakTable.insertAndGetId {
+            it[startDateTime] = uttak.startDateTime
+            it[endDateTime] = uttak.endDateTime
+            it[recurrenceRuleID] = uttak.recurrenceRule?.id
+            it[stationID] = uttak.station.id
+            it[partnerID] = uttak.partner?.id
         }.value
     }
 
@@ -272,8 +270,8 @@ class ReportRepositoryTest {
         fun generateValidForms() = listOf(
             Pair(null, listOf(testReport, testReport2, testReport3)),
             Pair(ReportGetForm(), listOf(testReport, testReport2, testReport3)),
-            Pair(ReportGetForm(eventId = testReport.eventId), listOf(testReport)),
-            Pair(ReportGetForm(eventId = 0), emptyList()),
+            Pair(ReportGetForm(uttakId = testReport.uttakId), listOf(testReport)),
+            Pair(ReportGetForm(uttakId = 0), emptyList()),
             Pair(ReportGetForm(stationId = testStation.id), listOf(testReport, testReport3)),
             Pair(ReportGetForm(stationId = 0), emptyList()),
             Pair(ReportGetForm(partnerId = testPartner2.id), listOf(testReport3)),
@@ -351,20 +349,20 @@ class ReportRepositoryTest {
 
         var updateTestReport = Report(
             0,
-            testEvent4.id,
+            testUttak4.id,
             testPartner.id,
             testStation,
-            testEvent4.startDateTime,
-            testEvent4.endDateTime
+            testUttak4.startDateTime,
+            testUttak4.endDateTime
         )
 
         var updateTestReport2 = Report(
             0,
-            testEvent5.id,
+            testUttak5.id,
             testPartner.id,
             testStation2,
-            testEvent5.startDateTime,
-            testEvent5.endDateTime
+            testUttak5.startDateTime,
+            testUttak5.endDateTime
         )
 
 //        var updateTestReport3 = Report(
@@ -430,20 +428,20 @@ class ReportRepositoryTest {
         }
 
         /**
-         * Test automatic update with event
+         * Test automatic update with uttak
          */
         @Test
-        fun `update report with event valid`() {
-            val event = Event(
-                testReport2.eventId,
+        fun `update report with uttak valid`() {
+            val uttak = Uttak(
+                testReport2.uttakId,
                 LocalDateTime.parse("2020-05-05T16:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-05-05T18:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
                 testStation,
                 testPartner
             )
-            val expected = testReport2.copy(startDateTime = event.startDateTime, endDateTime = event.endDateTime)
+            val expected = testReport2.copy(startDateTime = uttak.startDateTime, endDateTime = uttak.endDateTime)
 
-            val result = ReportRepository.updateReport(event)
+            val result = ReportRepository.updateReport(uttak)
             require(result is Either.Right)
             val actual = ReportRepository.getReportByID(expected.reportId)
             require(actual is Either.Right)
@@ -451,20 +449,20 @@ class ReportRepositoryTest {
         }
 
         /**
-         * Test automatic update with event where eventId does not exist
+         * Test automatic update with uttak where uttakId does not exist
          */
         @Test
-        fun `update report with event invalid eventId`() {
-            val event = Event(
+        fun `update report with uttak invalid uttakId`() {
+            val uttak = Uttak(
                 0,
                 LocalDateTime.parse("2020-05-05T16:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-05-05T18:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
                 testStation,
                 testPartner
             )
-            val expected = RepositoryError.NoRowsFound("eventId 0 does not exist!")
+            val expected = RepositoryError.NoRowsFound("uttakId 0 does not exist!")
 
-            val actual = ReportRepository.updateReport(event)
+            val actual = ReportRepository.updateReport(uttak)
             require(actual is Either.Left)
             assertEquals(expected, actual.a)
         }
@@ -479,13 +477,13 @@ class ReportRepositoryTest {
          */
         @Test
         fun `insert report valid`() {
-            val actual = ReportRepository.insertReport(testEvent5)
+            val actual = ReportRepository.insertReport(testUttak5)
             require(actual is Either.Right)
-            assertEquals(testEvent5.id, actual.b.eventId)
-            assertEquals(testEvent5.partner?.id, actual.b.partnerId)
-            assertEquals(testEvent5.station, actual.b.station)
-            assertEquals(testEvent5.startDateTime, actual.b.startDateTime)
-            assertEquals(testEvent5.endDateTime, actual.b.endDateTime)
+            assertEquals(testUttak5.id, actual.b.uttakId)
+            assertEquals(testUttak5.partner?.id, actual.b.partnerId)
+            assertEquals(testUttak5.station, actual.b.station)
+            assertEquals(testUttak5.startDateTime, actual.b.startDateTime)
+            assertEquals(testUttak5.endDateTime, actual.b.endDateTime)
             assert(actual.b.reportedDateTime == null)
             assert(actual.b.weight == null)
         }

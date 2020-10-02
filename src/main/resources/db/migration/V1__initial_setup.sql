@@ -1,0 +1,107 @@
+create TABLE stations
+(
+    id   serial primary key,
+    name varchar(255) not null unique,
+    opening_time varchar(20) not null,
+    closing_time varchar(20) not null
+);
+
+create TABLE partners
+(
+    id   serial primary key,
+    name varchar(255) not null unique,
+    description text not null,
+    phone varchar(20) not null,
+    email varchar(255) not null
+);
+
+create table recurrence_rules
+(
+    id         serial primary key,
+    count      int,
+    until      timestamp,
+    days       varchar(50),
+    "interval" integer not null default 1
+);
+
+create TABLE uttak
+(
+    id                 serial primary key,
+    start_date_time    timestamp not null,
+    end_date_time      timestamp not null,
+    recurrence_rule_id int,
+    station_id         int not null,
+    partner_id         int not null,
+    FOREIGN KEY (recurrence_rule_id) references recurrence_rules on delete cascade,
+    FOREIGN KEY (station_id) references stations on delete cascade,
+    FOREIGN KEY (partner_id) references partners on delete cascade
+);
+
+create TABLE pickups
+(
+    id         serial primary key,
+    start_time timestamp not null,
+    end_time   timestamp not null,
+    station_id int not null,
+    FOREIGN KEY (station_id) references stations on delete cascade
+);
+
+create TABLE requests
+(
+    partner_id int not null,
+    pickup_id  int not null,
+    FOREIGN KEY (pickup_id) references pickups on delete cascade,
+    FOREIGN KEY (partner_id) references partners on delete cascade
+
+);
+
+create TABLE reports
+(
+    id                serial primary key,
+    uttak_id          int not null,
+    weight            int,
+    reported_date_time timestamp,
+    start_date_time   timestamp not null,
+    end_date_time     timestamp not null,
+    partner_id        int not null,
+    station_id        int not null,
+    FOREIGN KEY (station_id) references stations on delete cascade,
+    FOREIGN KEY (partner_id) references partners on delete cascade
+);
+
+ALTER table pickups
+    ADD description text;
+
+ALTER table pickups
+    ADD chosen_partner_id INTEGER references partners;
+ALTER table partners
+    ALTER column description DROP not null;
+
+ALTER table partners
+    ALTER column email DROP not null;
+
+ALTER table partners
+    ALTER column phone DROP not null;
+
+ALTER TABLE stations
+    DROP COLUMN opening_time;
+
+ALTER TABLE stations
+    DROP COLUMN closing_time;
+
+ALTER TABLE stations
+    ADD hours varchar(400);
+
+delete from stations;
+
+ALTER TABLE reports
+    ADD CONSTRAINT uttak_id_fk FOREIGN KEY (uttak_id) REFERENCES uttak (id) ON DELETE CASCADE;
+
+ALTER TABLE reports
+    ADD CHECK (weight > 0);
+
+ALTER TABLE uttak
+    ALTER column partner_id DROP not null;
+
+ALTER TABLE reports
+    ALTER column partner_id DROP not null;

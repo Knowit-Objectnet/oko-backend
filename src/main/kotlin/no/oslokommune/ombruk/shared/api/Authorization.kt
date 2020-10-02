@@ -10,7 +10,7 @@ import io.ktor.auth.jwt.JWTPrincipal
 import io.ktor.auth.principal
 import io.ktor.config.HoconApplicationConfig
 import io.ktor.util.KtorExperimentalAPI
-import no.oslokommune.ombruk.event.model.Event
+import no.oslokommune.ombruk.uttak.model.Uttak
 import no.oslokommune.ombruk.reporting.model.Report
 import no.oslokommune.ombruk.shared.error.AuthorizationError
 import no.oslokommune.ombruk.shared.error.ServiceError
@@ -66,17 +66,17 @@ object Authorization {
     }
 
     /**
-     * Checks if a partner is only attempting to access events that belong to them. If they do not own all the resources,
+     * Checks if a partner is only attempting to access uttaks that belong to them. If they do not own all the resources,
      * they should not be allowed to perform the operation.
      *
      * @param role A [Pair] of a [Roles] and an [Int] specifying what group they belong to.
-     * @param eventsFunc A function that either returns a [ServiceError] or a [List] of [Event] objects.
-     * @return [role] if the only [Event.partner.id] present in the results of [eventsFunc] is the one specified in [role].
+     * @param uttaksFunc A function that either returns a [ServiceError] or a [List] of [Uttak] objects.
+     * @return [role] if the only [Uttak.partner.id] present in the results of [uttaksFunc] is the one specified in [role].
      * Else, return a [AuthorizationError]
      */
-    fun authorizePartnerID(role: Pair<Roles, Int>, eventsFunc: () -> Either<ServiceError, List<Event>>) = eventsFunc()
+    fun authorizePartnerID(role: Pair<Roles, Int>, uttaksFunc: () -> Either<ServiceError, List<Uttak>>) = uttaksFunc()
         .flatMap {
-            if (role.first == Roles.Partner && it.any { event -> event.partner?.id != role.second }) {
+            if (role.first == Roles.Partner && it.any { uttak -> uttak.partner?.id != role.second }) {
                 AuthorizationError.AccessViolationError().left()
             } else role.right()
         }

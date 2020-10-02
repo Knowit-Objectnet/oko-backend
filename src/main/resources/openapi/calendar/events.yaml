@@ -1,12 +1,12 @@
 get:
   tags:
     #- everyone
-    - events
-  summary: Gets events
-  operationId: getEvents
+    - uttaks
+  summary: Gets uttaks
+  operationId: getUttaks
   parameters:
     - in: query
-      name: eventId
+      name: uttakId
       schema:
         type: integer
         format: int64
@@ -43,13 +43,13 @@ get:
       example: 1
   responses:
     '200':
-      description: Returns an array of all the events that matched the query.
+      description: Returns an array of all the uttaks that matched the query.
       content:
         application/json:
           schema:
             type: array
             items:
-              $ref: '../api.yaml#/components/schemas/Event'
+              $ref: '../api.yaml#/components/schemas/Uttak'
     '400':
       description: Bad request body
     '422':
@@ -60,17 +60,17 @@ get:
 post:
   tags:
     #- reg-admin
-    - events
-  summary: adds one or more events to the database.
-  operationId: addEvents
-  description: Adds one or more events to the database. This also creates corresponding weight reports with nulled weight.
+    - uttaks
+  summary: adds one or more uttaks to the database.
+  operationId: addUttaks
+  description: Adds one or more uttaks to the database. This also creates corresponding weight reports with nulled weight.
   responses:
     '200':
-      description: item created. Returns the created event. If recurring, the first event is returned.
+      description: item created. Returns the created uttak. If recurring, the first uttak is returned.
       content:
         application/json:
           schema:
-            $ref: '../api.yaml#/components/schemas/Event'
+            $ref: '../api.yaml#/components/schemas/Uttak'
     '400':
       description: Bad request body
     '401':
@@ -85,24 +85,24 @@ post:
     content:
       application/json:
         schema:
-          $ref: '../api.yaml#/components/schemas/EventPost'
+          $ref: '../api.yaml#/components/schemas/UttakPost'
 
 patch:
   tags:
     #- reg-admin
     #- reuse-station
-    - events
-  summary: Updates an event
-  operationId: patchEvent
+    - uttaks
+  summary: Updates an uttak
+  operationId: patchUttak
   description: |
-    Updates a singular event in the database.
+    Updates a singular uttak in the database.
   responses:
     '200':
-      description: Updated event
+      description: Updated uttak
       content:
         application/json:
           schema:
-            $ref: '../api.yaml#/components/schemas/Event'
+            $ref: '../api.yaml#/components/schemas/Uttak'
     '400':
       description: Bad request body
     '401':
@@ -119,23 +119,23 @@ patch:
     content:
       application/json:
         schema:
-          $ref: '../api.yaml#/components/schemas/EventPatch'
+          $ref: '../api.yaml#/components/schemas/UttakPatch'
 
 delete:
   tags:
 #    - reg-admin
 #    - reuse-station
 #    - partner
-    - events
-  summary: Deletes events
-  operationId: deleteEvents
+    - uttaks
+  summary: Deletes uttaks
+  operationId: deleteUttaks
   description: |
-    Deletes one or several events from the database. Deletion can be specified through the use of query parameters.
-    Reuse station workers and REG admin will be able to delete any event, whilst a partner only has permission to delete
-    their own events.
+    Deletes one or several uttaks from the database. Deletion can be specified through the use of query parameters.
+    Reuse station workers and REG admin will be able to delete any uttak, whilst a partner only has permission to delete
+    their own uttaks.
   parameters:
     - in: query
-      name: eventId
+      name: uttakId
       schema:
         type: integer
         format: int64
@@ -172,14 +172,14 @@ delete:
       example: 1
   responses:
     '200':
-      description: Event(s) deleted
+      description: Uttak(s) deleted
       content:
         application/json:
           schema:
             type: array
             items:
-              $ref: '../api.yaml#/components/schemas/Event'
-            description: A list of deleted events
+              $ref: '../api.yaml#/components/schemas/Uttak'
+            description: A list of deleted uttaks
     '400':
       description: Bad request body
     '401':

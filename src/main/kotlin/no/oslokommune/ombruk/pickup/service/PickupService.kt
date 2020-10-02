@@ -3,8 +3,8 @@ package no.oslokommune.ombruk.pickup.service
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
-import no.oslokommune.ombruk.event.form.EventPostForm
-import no.oslokommune.ombruk.event.service.EventService
+import no.oslokommune.ombruk.uttak.form.UttakPostForm
+import no.oslokommune.ombruk.uttak.service.UttakService
 import no.oslokommune.ombruk.pickup.database.PickupRepository
 import no.oslokommune.ombruk.pickup.form.pickup.*
 import no.oslokommune.ombruk.pickup.model.Pickup
@@ -27,17 +27,17 @@ object PickupService : IPickupService {
 
 
     override fun updatePickup(pickupUpdateForm: PickupUpdateForm): Either<ServiceError, Pickup> = transaction {
-        pickupUpdateForm.chosenPartnerId?.let { // partner has been chosen and no.oslokommune.ombruk.pickup has been filled. Create event.
+        pickupUpdateForm.chosenPartnerId?.let { // partner has been chosen and no.oslokommune.ombruk.pickup has been filled. Create uttak.
             var pickup: Pickup? = null      // used for temp storage
             PickupRepository.updatePickup(pickupUpdateForm)
                 .map {
                     pickup = it
-                    val eventPostForm = EventPostForm(
+                    val uttakPostForm = UttakPostForm(
                         it.startDateTime, it.endDateTime,
                         it.station.id,
                         it.chosenPartner!!.id // chosePartner is always set or we wouldn't be here.
                     )
-                    return@map EventService.saveEvent(eventPostForm) //Creates the event
+                    return@map UttakService.saveUttak(uttakPostForm) //Creates the uttak
                 }
                 .fold(
                     // failure, we rollback and set a left.

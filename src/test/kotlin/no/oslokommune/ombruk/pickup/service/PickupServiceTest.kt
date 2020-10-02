@@ -6,16 +6,15 @@ import arrow.core.right
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import no.oslokommune.ombruk.event.form.EventPostForm
-import no.oslokommune.ombruk.event.model.Event
-import no.oslokommune.ombruk.event.service.EventService
+import no.oslokommune.ombruk.uttak.form.UttakPostForm
+import no.oslokommune.ombruk.uttak.model.Uttak
+import no.oslokommune.ombruk.uttak.service.UttakService
 import no.oslokommune.ombruk.pickup.database.PickupRepository
 import no.oslokommune.ombruk.pickup.form.pickup.PickupDeleteForm
 import no.oslokommune.ombruk.pickup.form.pickup.PickupGetByIdForm
 import no.oslokommune.ombruk.pickup.form.pickup.PickupGetForm
 import no.oslokommune.ombruk.pickup.form.pickup.PickupUpdateForm
 import no.oslokommune.ombruk.pickup.model.Pickup
-import no.oslokommune.ombruk.pickup.service.PickupService
 import no.oslokommune.ombruk.shared.database.initDB
 import no.oslokommune.ombruk.shared.error.RepositoryError
 import no.oslokommune.ombruk.shared.error.ServiceError
@@ -35,7 +34,7 @@ class PickupServiceTest {
     @BeforeEach
     fun setup() {
         mockkObject(PickupRepository)
-        mockkObject(EventService)
+        mockkObject(UttakService)
     }
 
     @AfterEach
@@ -155,13 +154,13 @@ class PickupServiceTest {
          */
         @Test
         fun `update pickup with chosenPartner`(
-                @MockK event: Event,
-                @MockK eventForm: EventPostForm,
+                @MockK uttak: Uttak,
+                @MockK uttakForm: UttakPostForm,
                 @MockK(relaxed = true) expected: Pickup
         ) {
             val form = PickupUpdateForm(1, chosenPartnerId = 1)
             every { PickupRepository.updatePickup(form) } returns expected.right()
-            every { EventService.saveEvent(eventForm) } returns event.right()
+            every { UttakService.saveUttak(uttakForm) } returns uttak.right()
 
             val actual = PickupService.updatePickup(form)
             require(actual is Either.Right)
@@ -197,16 +196,16 @@ class PickupServiceTest {
         }
 
         /**
-         * Check that a RepositoryError is returned when updating no.oslokommune.ombruk.pickup fails at saveEvent
+         * Check that a RepositoryError is returned when updating no.oslokommune.ombruk.pickup fails at saveUttak
          */
         @Test
-        fun `update pickup fails with chosenPartner at saveEvent`(
+        fun `update pickup fails with chosenPartner at saveUttak`(
             @MockK(relaxed = true) pickup: Pickup,
             @MockK expected: ServiceError
         ) {
             val form = PickupUpdateForm(1, LocalDateTime.now(), chosenPartnerId = 1)
             every { PickupRepository.updatePickup(form) } returns pickup.right()
-            every { EventService.saveEvent(any()) } returns expected.left()
+            every { UttakService.saveUttak(any()) } returns expected.left()
             val actual = PickupService.updatePickup(form)
             require(actual is Either.Right)
             println(actual.b)

@@ -1,6 +1,6 @@
 type: object
 properties:
-  eventId:
+  uttakId:
     type: integer
     format: int64
     example: 1

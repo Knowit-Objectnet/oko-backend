@@ -31,7 +31,7 @@ import kotlin.test.assertEquals
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockKExtension::class)
-class EventAPITest {
+class UttakAPITest {
     val json = Json(DefaultJsonConfiguration.copy(prettyPrint = true))
 
     @BeforeEach

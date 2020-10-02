@@ -11,7 +11,7 @@ import java.time.LocalDateTime
 
 @Location("/")
 data class ReportGetForm(
-    var eventId: Int? = null,
+    var uttakId: Int? = null,
     var stationId: Int? = null,
     var partnerId: Int? = null,
     var fromDate: LocalDateTime? = null,
@@ -19,13 +19,13 @@ data class ReportGetForm(
 ) : IForm<ReportGetForm> {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
-            validate(ReportGetForm::eventId).isGreaterThan(0)
+            validate(ReportGetForm::uttakId).isGreaterThan(0)
             validate(ReportGetForm::stationId).isGreaterThan(0)
             validate(ReportGetForm::partnerId).isGreaterThan(0)
 
             validate(ReportGetForm::fromDate).isLessThanEndDateTime(toDate)
 
-            if (eventId != null) {
+            if (uttakId != null) {
                 validate(ReportGetForm::stationId).isNull()
                 validate(ReportGetForm::partnerId).isNull()
                 validate(ReportGetForm::fromDate).isNull()

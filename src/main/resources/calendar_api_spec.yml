@@ -2,11 +2,11 @@ openapi: 3.0.0
 # Added by API Auto Mocking Plugin
 servers:
   - description: SwaggerHub API Auto Mocking
-    url: https://virtserver.swaggerhub.com/oko8/Events/1.0.0
+    url: https://virtserver.swaggerhub.com/oko8/Uttaks/1.0.0
   - description: Actual API
     url: https://tcuk58u5ge.execute-api.eu-central-1.amazonaws.com/staging/calendar/
 info:
-  description: API documentation for the OKO events endpoint
+  description: API documentation for the OKO uttaks endpoint
   version: "1.0.0"
   title: OKO Calendar
   contact:
@@ -28,50 +28,50 @@ paths:
       responses:
         '200':
           description: Service is up
-  /events/{event_id}:
+  /uttaks/{uttak_id}:
     get:
       tags:
         - everyone
-      summary: Get an event by ID
+      summary: Get an uttak by ID
       parameters:
         - in: path
-          name: event_id
+          name: uttak_id
           schema:
             type: integer
           required: true
-          description: "Numeric ID of the event to get"
+          description: "Numeric ID of the uttak to get"
       responses:
         '200':
-          description: "Event matching ID"
+          description: "Uttak matching ID"
           content:
             application/json:
               schema:
                 type: object
-                $ref: '#/components/schemas/Event'
+                $ref: '#/components/schemas/Uttak'
         '400':
           description: bad input parameter
         '404':
           description: not found
 
-  /events/:
+  /uttaks/:
     get:
       tags:
         - everyone
-      summary: fetches events
-      operationId: getEvents
+      summary: fetches uttaks
+      operationId: getUttaks
       description: |
-        Calls without parameters returns all events. Use parameters to narrow
+        Calls without parameters returns all uttaks. Use parameters to narrow
         down search results
       parameters:
         - in: query
           name: stationId
-          description: pass an optional station id for events
+          description: pass an optional station id for uttaks
           required: false
           schema:
             type: integer
         - in: query
           name: partnerId
-          description: pass an optional partner id for events
+          description: pass an optional partner id for uttaks
           required: false
           schema:
             type: integer
@@ -83,57 +83,57 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Event'
+                  $ref: '#/components/schemas/Uttak'
         '400':
           description: bad input parameter
     post:
       tags:
         - everyone
-      summary: Adds a new event
-      operationId: addEvent
-      description: Adds a new event. Can be both recurring or single events.
+      summary: Adds a new uttak
+      operationId: addUttak
+      description: Adds a new uttak. Can be both recurring or single uttaks.
       responses:
         '201':
-          description: Event created
+          description: Uttak created
         '400':
           description: Bad request
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PostEventForm'
-        description: Event to add. Omit recurrenceRule if singular event. The recurrence rule has to specifiy EITHER until or count. The first day of the days array in the recurrence rule has to match the start date of the event.
+              $ref: '#/components/schemas/PostUttakForm'
+        description: Uttak to add. Omit recurrenceRule if singular uttak. The recurrence rule has to specifiy EITHER until or count. The first day of the days array in the recurrence rule has to match the start date of the uttak.
     patch:
       tags:
         - everyone
-      summary: Updates a singular event in the database
-      operationId: updateEvent
+      summary: Updates a singular uttak in the database
+      operationId: updateUttak
       description: |
-        Updates a single event in the database. The only required property is the event ID, which cannot be updated.
+        Updates a single uttak in the database. The only required property is the uttak ID, which cannot be updated.
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateEventForm'
+              $ref: '#/components/schemas/UpdateUttakForm'
       responses:
         '200':
-          description: Event updated successfully
+          description: Uttak updated successfully
         '404':
-          description: Event with specified ID does not exist
+          description: Uttak with specified ID does not exist
         '500':
-          description: Failed to update event
+          description: Failed to update uttak
     delete:
       tags:
         - everyone
-      summary: Wipes events from database
-      operationId: deleteEvents
+      summary: Wipes uttaks from database
+      operationId: deleteUttaks
       description: |
-        Deletes all inserted events and their corresponding recurrence rules
-        (if any). Must pass in either eventId or recurrence-ruleId.
+        Deletes all inserted uttaks and their corresponding recurrence rules
+        (if any). Must pass in either uttakId or recurrence-ruleId.
       parameters:
         - in: query
-          name: eventId
-          description: ID of event to delete
+          name: uttakId
+          description: ID of uttak to delete
           schema:
             type: integer
             format: int64
@@ -141,7 +141,7 @@ paths:
         - in: query
           name: recurrenceRuleId
           description: |
-            Deletes all events that references the specified recurrence
+            Deletes all uttaks that references the specified recurrence
             rule
           schema:
             type: integer
@@ -149,14 +149,14 @@ paths:
             example: 1
         - in: query
           name: fromDate
-          description: Delete events from specified date
+          description: Delete uttaks from specified date
           schema:
             type: string
             format: date-time
             example: "2020-07-10T12:17:39"
         - in: query
           name: toDate
-          description: Delete events up to and including specified date
+          description: Delete uttaks up to and including specified date
           schema:
             type: string
             format: date-time
@@ -165,13 +165,13 @@ paths:
         '200':
           description: Deleted successfully
         '404':
-          description: No events found
+          description: No uttaks found
         '500':
-          description: Failed to delete events
+          description: Failed to delete uttaks
 
 components:
   schemas:
-    PostEventForm:
+    PostUttakForm:
       type: object
       properties:
         startDateTime:
@@ -193,7 +193,7 @@ components:
         recurrenceRule:
           $ref: '#/components/schemas/PostRecurrenceRule'
 
-    Event:
+    Uttak:
       type: object
       properties:
         id:
@@ -214,7 +214,7 @@ components:
         recurrenceRule:
           $ref: '#/components/schemas/RecurrenceRule'
 
-    UpdateEventForm:
+    UpdateUttakForm:
       type: object
       properties:
         id:

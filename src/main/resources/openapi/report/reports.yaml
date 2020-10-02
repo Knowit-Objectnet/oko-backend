@@ -10,8 +10,8 @@ get:
     a range by specifying from-date and to-date.
   parameters:
     - in: query
-      name: eventId
-      description: Get the report that corresponds to the specified event ID.
+      name: uttakId
+      description: Get the report that corresponds to the specified uttak ID.
       required: false
       schema:
         type: integer

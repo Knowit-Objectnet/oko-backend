@@ -1,9 +1,9 @@
 get:
   tags:
     #- everyone
-    - events
-  summary: Get an event with the provided ID
-  operationId: getEvent
+    - uttaks
+  summary: Get an uttak with the provided ID
+  operationId: getUttak
   parameters:
     - in: path
       name: id
@@ -13,11 +13,11 @@ get:
         format: int64
   responses:
     '200':
-      description: Event matching ID
+      description: Uttak matching ID
       content:
         application/json:
           schema:
-            $ref: '../api.yaml#/components/schemas/Event'
+            $ref: '../api.yaml#/components/schemas/Uttak'
     '400':
       description: Bad input parameter
     '404':

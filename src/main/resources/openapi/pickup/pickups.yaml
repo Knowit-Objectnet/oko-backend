@@ -80,7 +80,7 @@ patch:
     - pickups
   summary: Updates a no.oslokommune.ombruk.pickup
   operationId: patchPickup
-  description: Updates a no.oslokommune.ombruk.pickup. If chosenPartnerId is updated, an event is created and the no.oslokommune.ombruk.pickup is "closed".
+  description: Updates a no.oslokommune.ombruk.pickup. If chosenPartnerId is updated, an uttak is created and the no.oslokommune.ombruk.pickup is "closed".
   responses:
     '200':
       description: Updated no.oslokommune.ombruk.pickup

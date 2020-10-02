@@ -4,10 +4,10 @@ import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
-import no.oslokommune.ombruk.event.database.Events
+import no.oslokommune.ombruk.uttak.database.UttakTable
 import no.oslokommune.ombruk.station.database.Stations
 import no.oslokommune.ombruk.station.database.toStation
-import no.oslokommune.ombruk.event.model.Event
+import no.oslokommune.ombruk.uttak.model.Uttak
 import no.oslokommune.ombruk.partner.database.Partners
 import no.oslokommune.ombruk.reporting.form.ReportGetForm
 import no.oslokommune.ombruk.reporting.form.ReportUpdateForm
@@ -23,7 +23,7 @@ import java.time.LocalDateTime
 private val logger = LoggerFactory.getLogger("ombruk.unittest.no.oslokommune.ombruk.reporting.database.ReportRepository")
 
 object Reports : IntIdTable("reports") {
-    val eventID = integer("event_id").references(Events.id)
+    val uttakID = integer("uttak_id").references(UttakTable.id)
     val partnerID = integer("partner_id").references(Partners.id).nullable()
     val stationID = integer("station_id").references(Stations.id)
     val startDateTime = datetime("start_date_time")
@@ -34,16 +34,16 @@ object Reports : IntIdTable("reports") {
 
 object ReportRepository : IReportRepository {
 
-    override fun insertReport(event: Event) = runCatching {
+    override fun insertReport(uttak: Uttak) = runCatching {
         transaction {
             Reports.insertAndGetId {
                 it[weight] = null
                 it[reportedDateTime] = null
-                it[eventID] = event.id
-                it[partnerID] = event.partner?.id
-                it[stationID] = event.station.id
-                it[startDateTime] = event.startDateTime
-                it[endDateTime] = event.endDateTime
+                it[uttakID] = uttak.id
+                it[partnerID] = uttak.partner?.id
+                it[stationID] = uttak.station.id
+                it[startDateTime] = uttak.startDateTime
+                it[endDateTime] = uttak.endDateTime
             }.value
         }
     }
@@ -70,17 +70,17 @@ object ReportRepository : IReportRepository {
         )
     //getReportByID(reportUpdateForm.id)
 
-    override fun updateReport(event: Event): Either<RepositoryError, Unit> = kotlin.runCatching {
+    override fun updateReport(uttak: Uttak): Either<RepositoryError, Unit> = kotlin.runCatching {
         transaction {
-            Reports.update({ Reports.eventID eq event.id }) {
-                it[startDateTime] = event.startDateTime
-                it[endDateTime] = event.endDateTime
+            Reports.update({ Reports.uttakID eq uttak.id }) {
+                it[startDateTime] = uttak.startDateTime
+                it[endDateTime] = uttak.endDateTime
             }
         }
     }
         .onFailure { logger.error("Failed to update report: ${it.message}") }
         .fold(
-            { Either.cond(it > 0, { Unit }, { RepositoryError.NoRowsFound("eventId ${event.id} does not exist!") }) },
+            { Either.cond(it > 0, { Unit }, { RepositoryError.NoRowsFound("uttakId ${uttak.id} does not exist!") }) },
             { RepositoryError.UpdateError("Failed to update report").left() })
 
 
@@ -100,7 +100,7 @@ object ReportRepository : IReportRepository {
         runCatching {
             val query = (Reports innerJoin Stations).selectAll()
             if (reportGetForm != null) {
-                reportGetForm.eventId?.let { query.andWhere { Reports.eventID eq it } }
+                reportGetForm.uttakId?.let { query.andWhere { Reports.uttakID eq it } }
                 reportGetForm.stationId?.let { query.andWhere { Reports.stationID eq it } }
                 reportGetForm.partnerId?.let { query.andWhere { Reports.partnerID eq it } }
                 reportGetForm.fromDate?.let { query.andWhere { Reports.startDateTime.greaterEq(it) } }
@@ -116,7 +116,7 @@ object ReportRepository : IReportRepository {
     private fun toReport(resultRow: ResultRow): Report {
         return Report(
             resultRow[Reports.id].value,
-            resultRow[Reports.eventID],
+            resultRow[Reports.uttakID],
             resultRow[Reports.partnerID],
             toStation(resultRow),
             resultRow[Reports.startDateTime],

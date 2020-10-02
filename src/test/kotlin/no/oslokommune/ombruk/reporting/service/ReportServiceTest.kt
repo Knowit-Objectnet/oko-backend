@@ -9,12 +9,11 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkObject
 import io.mockk.unmockkAll
-import no.oslokommune.ombruk.event.model.Event
+import no.oslokommune.ombruk.uttak.model.Uttak
 import no.oslokommune.ombruk.reporting.database.ReportRepository
 import no.oslokommune.ombruk.reporting.form.ReportGetForm
 import no.oslokommune.ombruk.reporting.form.ReportUpdateForm
 import no.oslokommune.ombruk.reporting.model.Report
-import no.oslokommune.ombruk.reporting.service.ReportService
 import no.oslokommune.ombruk.shared.error.RepositoryError
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
@@ -113,13 +112,13 @@ class ReportServiceTest {
     inner class Insert {
 
         /**
-         * A valid event should be processed successfully
+         * A valid uttak should be processed successfully
          */
         @Test
-        fun `Save report success`(@MockK event: Event, @MockK expected: Report) {
-            every { ReportRepository.insertReport(event) } returns expected.right()
+        fun `Save report success`(@MockK uttak: Uttak, @MockK expected: Report) {
+            every { ReportRepository.insertReport(uttak) } returns expected.right()
 
-            val actual = ReportService.saveReport(event)
+            val actual = ReportService.saveReport(uttak)
             require(actual is Either.Right)
             assertEquals(expected, actual.b)
         }
@@ -128,11 +127,11 @@ class ReportServiceTest {
          * If inserting fails, a Left with a RepositoryError.InsertError should be returned
          */
         @Test
-        fun `Save report failure`(@MockK event: Event) {
+        fun `Save report failure`(@MockK uttak: Uttak) {
             val expected = RepositoryError.DeleteError("test")
-            every { ReportRepository.insertReport(event) } returns expected.left()
+            every { ReportRepository.insertReport(uttak) } returns expected.left()
 
-            val actual = ReportService.saveReport(event)
+            val actual = ReportService.saveReport(uttak)
             require(actual is Either.Left)
             assertEquals(expected, actual.a)
         }
@@ -145,10 +144,10 @@ class ReportServiceTest {
          * A successfull update should return a right
          */
         @Test
-        fun `Update report successful`(@MockK event: Event) {
-            every { ReportRepository.updateReport(event) } returns Unit.right()
+        fun `Update report successful`(@MockK uttak: Uttak) {
+            every { ReportRepository.updateReport(uttak) } returns Unit.right()
 
-            val actual = ReportService.updateReport(event)
+            val actual = ReportService.updateReport(uttak)
             require(actual is Either.Right)
             assertEquals(Unit, actual.b)
         }
@@ -157,11 +156,11 @@ class ReportServiceTest {
          * A failed update should return a RepositoryError.UpdateError
          */
         @Test
-        fun `Update report failure`(@MockK event: Event) {
+        fun `Update report failure`(@MockK uttak: Uttak) {
             val expected = RepositoryError.UpdateError("test")
-            every { ReportRepository.updateReport(event) } returns expected.left()
+            every { ReportRepository.updateReport(uttak) } returns expected.left()
 
-            val actual = ReportService.updateReport(event)
+            val actual = ReportService.updateReport(uttak)
             require(actual is Either.Left)
             assertEquals(expected, actual.a)
         }

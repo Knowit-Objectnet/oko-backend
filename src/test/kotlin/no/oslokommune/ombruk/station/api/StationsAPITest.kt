@@ -62,7 +62,7 @@ class StationsAPITest {
         Check for 200 given a valid ID
          */
         @Test
-        fun `get single event 200`() {
+        fun `get single uttak 200`() {
             val expected = Station(1, "test")
             every { StationService.getStationById(1) } returns expected.right()
 
@@ -74,10 +74,10 @@ class StationsAPITest {
         }
 
         /*
-        Getting a nonexisting event should return a 404
+        Getting a nonexisting uttak should return a 404
          */
         @Test
-        fun `get nonexisting event 404`() {
+        fun `get nonexisting uttak 404`() {
             every { StationService.getStationById(1) } returns RepositoryError.NoRowsFound("test").left()
 
             testGet("/stations/1") {

@@ -14,8 +14,8 @@ servers:
 tags:
   - name: partners
     description: Calls available in  the /partners/ endpoint
-  - name: events
-    description: Calls available in the /events/ endpoint
+  - name: uttaks
+    description: Calls available in the /uttaks/ endpoint
   - name: reports
     description: Calls available in the /reports/ endpoint
   - name: stations
@@ -308,8 +308,8 @@ paths:
         a range by specifying from-date and to-date.
       parameters:
         - in: query
-          name: eventId
-          description: Get the report that corresponds to the specified event ID.
+          name: uttakId
+          description: Get the report that corresponds to the specified uttak ID.
           required: false
           schema:
             type: integer
@@ -416,15 +416,15 @@ paths:
           description: Report not found
         '500':
           description: Internal server error
-  /events:
+  /uttaks:
     get:
       tags:
-        - events
-      summary: Gets events
-      operationId: getEvents
+        - uttaks
+      summary: Gets uttaks
+      operationId: getUttaks
       parameters:
         - in: query
-          name: eventId
+          name: uttakId
           schema:
             type: integer
             format: int64
@@ -461,13 +461,13 @@ paths:
           example: 1
       responses:
         '200':
-          description: Returns an array of all the events that matched the query.
+          description: Returns an array of all the uttaks that matched the query.
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Event'
+                  $ref: '#/components/schemas/Uttak'
         '400':
           description: Bad request body
         '422':
@@ -476,17 +476,17 @@ paths:
           description: Internal server error
     post:
       tags:
-        - events
-      summary: adds one or more events to the database.
-      operationId: addEvents
-      description: Adds one or more events to the database. This also creates corresponding weight reports with nulled weight.
+        - uttaks
+      summary: adds one or more uttaks to the database.
+      operationId: addUttaks
+      description: Adds one or more uttaks to the database. This also creates corresponding weight reports with nulled weight.
       responses:
         '200':
-          description: 'item created. Returns the created event. If recurring, the first event is returned.'
+          description: 'item created. Returns the created uttak. If recurring, the first uttak is returned.'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Event'
+                $ref: '#/components/schemas/Uttak'
         '400':
           description: Bad request body
         '401':
@@ -501,21 +501,21 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EventPost'
+              $ref: '#/components/schemas/UttakPost'
     patch:
       tags:
-        - events
-      summary: Updates an event
-      operationId: patchEvent
+        - uttaks
+      summary: Updates an uttak
+      operationId: patchUttak
       description: |
-        Updates a singular event in the database.
+        Updates a singular uttak in the database.
       responses:
         '200':
-          description: Updated event
+          description: Updated uttak
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Event'
+                $ref: '#/components/schemas/Uttak'
         '400':
           description: Bad request body
         '401':
@@ -532,19 +532,19 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EventPatch'
+              $ref: '#/components/schemas/UttakPatch'
     delete:
       tags:
-        - events
-      summary: Deletes events
-      operationId: deleteEvents
+        - uttaks
+      summary: Deletes uttaks
+      operationId: deleteUttaks
       description: |
-        Deletes one or several events from the database. Deletion can be specified through the use of query parameters.
-        Reuse station workers and REG admin will be able to delete any event, whilst a partner only has permission to delete
-        their own events.
+        Deletes one or several uttaks from the database. Deletion can be specified through the use of query parameters.
+        Reuse station workers and REG admin will be able to delete any uttak, whilst a partner only has permission to delete
+        their own uttaks.
       parameters:
         - in: query
-          name: eventId
+          name: uttakId
           schema:
             type: integer
             format: int64
@@ -581,14 +581,14 @@ paths:
           example: 1
       responses:
         '200':
-          description: Event(s) deleted
+          description: Uttak(s) deleted
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Event'
-                description: A list of deleted events
+                  $ref: '#/components/schemas/Uttak'
+                description: A list of deleted uttaks
         '400':
           description: Bad request body
         '401':
@@ -601,12 +601,12 @@ paths:
           description: Unprocessable request body. Validation of request body failed
         '500':
           description: Internal server error
-  '/events/{id}':
+  '/uttaks/{id}':
     get:
       tags:
-        - events
-      summary: Get an event with the provided ID
-      operationId: getEvent
+        - uttaks
+      summary: Get an uttak with the provided ID
+      operationId: getUttak
       parameters:
         - in: path
           name: id
@@ -616,11 +616,11 @@ paths:
             format: int64
       responses:
         '200':
-          description: Event matching ID
+          description: Uttak matching ID
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Event'
+                $ref: '#/components/schemas/Uttak'
         '400':
           description: Bad input parameter
         '404':
@@ -706,7 +706,7 @@ paths:
         - pickups
       summary: Updates a no.oslokommune.ombruk.pickup
       operationId: patchPickup
-      description: 'Updates a no.oslokommune.ombruk.pickup. If chosenPartnerId is updated, an event is created and the no.oslokommune.ombruk.pickup is "closed".'
+      description: 'Updates a no.oslokommune.ombruk.pickup. If chosenPartnerId is updated, an uttak is created and the no.oslokommune.ombruk.pickup is "closed".'
       responses:
         '200':
           description: Updated no.oslokommune.ombruk.pickup
@@ -939,7 +939,7 @@ components:
           type: integer
           format: int64
           example: 1
-        eventID:
+        uttakID:
           type: integer
           format: int64
           example: 1
@@ -1078,7 +1078,7 @@ components:
               - '20:00:00Z'
       required:
         - id
-    Event:
+    Uttak:
       type: object
       properties:
         id:
@@ -1099,7 +1099,7 @@ components:
           $ref: '#/components/schemas/Station'
         recurrenceRule:
           $ref: '#/components/schemas/RecurrenceRule'
-    EventPatch:
+    UttakPatch:
       type: object
       properties:
         id:
@@ -1116,7 +1116,7 @@ components:
           example: '2020-07-20T15:00:00Z'
       required:
         - id
-    EventPost:
+    UttakPost:
       type: object
       properties:
         startDateTime:
@@ -1181,7 +1181,7 @@ components:
         until:
           type: string
           format: date-time
-          description: Create events until the specified date.
+          description: Create uttaks until the specified date.
           default: null
           example: '2020-07-13T15:00:00Z'
         days:
@@ -1194,14 +1194,14 @@ components:
               - WEDNESDAY
               - THURSDAY
               - FRIDAY
-          description: What days the specified event should occur on.
+          description: What days the specified uttak should occur on.
           default: null
           example:
             - MONDAY
             - TUESDAY
             - FRIDAY
         interval:
-          description: 'Describes at what interval an event should occur. Default is 1, which would mean every week.'
+          description: 'Describes at what interval an uttak should occur. Default is 1, which would mean every week.'
           default: 1
           type: integer
           format: int64
@@ -1209,7 +1209,7 @@ components:
         count:
           type: integer
           format: int64
-          description: 'Amount of times the event should recur. If interval is 1, a value of 5 would mean repeat for 5 weeks.'
+          description: 'Amount of times the uttak should recur. If interval is 1, a value of 5 would mean repeat for 5 weeks.'
           default: null
           example: 5
     PickupPost:

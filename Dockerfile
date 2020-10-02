@@ -15,7 +15,6 @@ FROM openjdk:8-jre-alpine
 WORKDIR /app
 
 ENV APPLICATION_USER ktor
-ENV OKO_DB_MIGRATIONS_LOCATION filesystem:/app/resources/db/migrations
 
 RUN adduser -D -g '' $APPLICATION_USER
 

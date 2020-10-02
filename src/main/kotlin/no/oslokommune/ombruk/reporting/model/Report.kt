@@ -8,7 +8,7 @@ import java.time.LocalDateTime
 @Serializable
 data class Report(
         val reportId: Int = 0,
-        val eventId: Int,
+        val uttakId: Int,
         val partnerId: Int?,
         val station: Station,
         @Serializable(with = LocalDateTimeSerializer::class) val startDateTime: LocalDateTime,

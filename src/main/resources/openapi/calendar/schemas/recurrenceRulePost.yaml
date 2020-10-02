@@ -3,7 +3,7 @@ properties:
   until:
     type: string
     format: date-time
-    description: Create events until the specified date.
+    description: Create uttaks until the specified date.
     default: null
     example: "2020-07-13T15:00:00Z"
   days:
@@ -11,12 +11,12 @@ properties:
     items:
       type: string
       enum: [MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY]
-    description: What days the specified event should occur on.
+    description: What days the specified uttak should occur on.
     default: null
     example: ["MONDAY", "TUESDAY", "FRIDAY"]
 
   interval:
-    description: Describes at what interval an event should occur. Default is 1, which would mean every week.
+    description: Describes at what interval an uttak should occur. Default is 1, which would mean every week.
     default: 1
     type: integer
     format: int64
@@ -24,6 +24,6 @@ properties:
   count:
     type: integer
     format: int64
-    description: Amount of times the event should recur. If interval is 1, a value of 5 would mean repeat for 5 weeks.
+    description: Amount of times the uttak should recur. If interval is 1, a value of 5 would mean repeat for 5 weeks.
     default: null
     example: 5

@@ -5,7 +5,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.DefaultJsonConfiguration
 import kotlinx.serialization.builtins.list
 import kotlinx.serialization.json.Json
-import no.oslokommune.ombruk.event.database.EventRepository
+import no.oslokommune.ombruk.uttak.database.UttakRepository
 import no.oslokommune.ombruk.partner.database.PartnerRepository
 import no.oslokommune.ombruk.partner.form.PartnerPostForm
 import no.oslokommune.ombruk.partner.model.Partner
@@ -291,10 +291,10 @@ class PartnerTest {
         @Test
         fun `delete partner by id`() {
             testDelete("/partners/${partners[3].id}") {
-                val respondedEvents = json.parse(Partner.serializer(), response.content!!)
+                val respondedUttaks = json.parse(Partner.serializer(), response.content!!)
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(partners[3], respondedEvents)
-                assertFalse(EventRepository.exists(partners[3].id))
+                assertEquals(partners[3], respondedUttaks)
+                assertFalse(UttakRepository.exists(partners[3].id))
             }
         }
     }

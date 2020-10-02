@@ -14,8 +14,8 @@ servers:
 tags:
   - name: partners
     description: Calls available in  the /partners/ endpoint
-  - name: events
-    description: Calls available in the /events/ endpoint
+  - name: uttaks
+    description: Calls available in the /uttaks/ endpoint
   - name: reports
     description: Calls available in the /reports/ endpoint
   - name: stations
@@ -45,10 +45,10 @@ paths:
     $ref: "./report/reports.yaml"
   /reports{id}:
     $ref: "./report/reportsId.yaml"
-  /events:
-    $ref: "./calendar/events.yaml"
-  /events/{id}:
-    $ref: "./calendar/eventsId.yaml"
+  /uttaks:
+    $ref: "./calendar/uttaks.yaml"
+  /uttaks/{id}:
+    $ref: "./calendar/uttaksId.yaml"
   /pickups/:
     $ref: "./no.oslokommune.ombruk.pickup/pickups.yaml"
   /pickups/{id}:
@@ -74,12 +74,12 @@ components:
       $ref: "./station/schemas/stationPost.yaml"
     StationPatch:
       $ref: "./station/schemas/stationPatch.yaml"
-    Event:
-      $ref: "./calendar/schemas/event.yaml"
-    EventPatch:
-      $ref: "./calendar/schemas/eventPatch.yaml"
-    EventPost:
-      $ref: "./calendar/schemas/eventPost.yaml"
+    Uttak:
+      $ref: "./calendar/schemas/uttak.yaml"
+    UttakPatch:
+      $ref: "./calendar/schemas/uttakPatch.yaml"
+    UttakPost:
+      $ref: "./calendar/schemas/uttakPost.yaml"
     RecurrenceRule:
       $ref: "./calendar/schemas/recurrenceRule.yaml"
     RecurrenceRulePost:

@@ -44,8 +44,6 @@ private fun migrate() {
         appConfig.property("ktor.db.jdbcUrl").getString(),
         appConfig.property("ktor.db.user").getString(),
         appConfig.property("ktor.db.password").getString()
-    ).locations(
-        appConfig.property("ktor.db.migrationsLocation").getString()
     ).baselineOnMigrate(true)
         .load()
 
