@@ -43,7 +43,7 @@ class PartnerTest {
     private fun createTestPartnere() = (0..9).map {
         val p = PartnerService.savePartner(
             PartnerPostForm(
-                "no.oslokommune.ombruk.partner.PartnerTest Partner$it",
+                "PartnerTest Partner$it",
                 "Description",
                 "1234567$it",
                 "test$it@gmail.com"
@@ -207,7 +207,7 @@ class PartnerTest {
             val body =
                 """{
                     "id": "${partnerToUpdate.id}",
-                    "description": "testing"
+                    "beskrivelse": "testing"
                 }"""
 
             testPatch("/partnere", body) {

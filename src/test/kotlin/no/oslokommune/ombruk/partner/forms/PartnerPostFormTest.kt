@@ -44,11 +44,11 @@ class PartnerPostFormTest {
 
     @Suppress("unused")
     fun generateValidForms() = listOf(
-            PartnerPostForm("test1", "beskrivelse1", "81549301", "test1@test.com"),
-            PartnerPostForm("test2", "beskrivelse2", "81549302", "test2@test.com"),
-            PartnerPostForm("test3", "beskrivelse3", "81549303", "test3@test.com"),
-            PartnerPostForm("test4", "beskrivelse4", "81549304", "test4@test.com"),
-            PartnerPostForm("test5", "beskrivelse5", "81549305", "test5@test.com")
+        PartnerPostForm("test1", "beskrivelse1", "81549301", "test1@test.com"),
+        PartnerPostForm("test2", "beskrivelse2", "81549302", "test2@test.com"),
+        PartnerPostForm("test3", "beskrivelse3", "81549303", "test3@test.com"),
+        PartnerPostForm("test4", "beskrivelse4", "81549304", "test4@test.com"),
+        PartnerPostForm("test5", "beskrivelse5", "81549305", "test5@test.com")
     )
 
     @ParameterizedTest
@@ -63,7 +63,6 @@ class PartnerPostFormTest {
     @Suppress("unused")
     fun generateInvalidForms() = listOf(
         PartnerPostForm("notUnique", "desc", "12345678", "test@test.com"),
-        PartnerPostForm("notUnique", "desc", "12345678", "test@test.com"),
         PartnerPostForm("unique", "desc", "12345678", "test@test.com"),
         PartnerPostForm("badPhoneNo", "desc", "123", "test@test.com"),
         PartnerPostForm("badEmail", "desc", "12345678", "memes")
@@ -72,7 +71,8 @@ class PartnerPostFormTest {
     @ParameterizedTest
     @MethodSource("generateInvalidForms")
     fun `validate invalid form`(form: PartnerPostForm) {
-        every { PartnerRepository.exists("notUnique") } returns true
+        //every { PartnerRepository.exists("notUnique") } returns true
+        every { PartnerRepository.exists(form.navn) } returns true
 
         val result = form.validOrError()
 

@@ -49,7 +49,7 @@ object PartnerRepository : IPartnerRepository {
 
     override fun updatePartner(partner: PartnerUpdateForm) = runCatching {
         transaction {
-            Samarbeidspartnere.update({ Samarbeidspartnere.id eq partner.id and Samarbeidspartnere.slettetTidspunkt.isNotNull() })
+            Samarbeidspartnere.update({ Samarbeidspartnere.id eq partner.id and Samarbeidspartnere.slettetTidspunkt.isNull() })
             { row ->
                 partner.navn?.let { row[navn] = it }
                 partner.beskrivelse?.let { row[beskrivelse] = it }

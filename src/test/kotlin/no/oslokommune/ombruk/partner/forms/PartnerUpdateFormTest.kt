@@ -65,8 +65,7 @@ class PartnerUpdateFormTest {
     @Suppress("unused")
     fun generateInvalidForms() = listOf(
         PartnerUpdateForm(1, "notUnique", "desc", "12345678", "test@test.com"),
-        PartnerUpdateForm(1, "notUnique", "desc", "12345678", "test@test.com"),
-        PartnerUpdateForm(1, "unique", "desc", "12345678", "test@test.com"),
+        PartnerUpdateForm(1, "unique2", "desc", "12345678", "test@test.com"),
         PartnerUpdateForm(1, "badPhoneNo", "desc", "123", "test@test.com"),
         PartnerUpdateForm(1, "badEmail", "desc", "12345678", "memes")
     )
@@ -76,7 +75,10 @@ class PartnerUpdateFormTest {
     fun `validate invalid form`(form: PartnerUpdateForm) {
 
         every { PartnerRepository.getPartnerByID(existingPartner.id) } returns existingPartner.right()
-        every { PartnerRepository.exists("notUnique") } returns true
+        form.navn?.let {
+            every { PartnerRepository.exists(it) } returns true
+            every { PartnerRepository.exists(existingPartner.navn) } returns true
+        }
 
         val result = form.validOrError()
 
