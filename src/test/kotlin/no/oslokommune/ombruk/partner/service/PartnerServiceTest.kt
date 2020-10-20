@@ -15,13 +15,13 @@ import no.oslokommune.ombruk.partner.form.PartnerGetForm
 import no.oslokommune.ombruk.partner.form.PartnerPostForm
 import no.oslokommune.ombruk.partner.form.PartnerUpdateForm
 import no.oslokommune.ombruk.partner.model.Partner
-import no.oslokommune.ombruk.partner.service.PartnerService
 import no.oslokommune.ombruk.shared.api.KeycloakGroupIntegration
 import no.oslokommune.ombruk.shared.database.initDB
 import no.oslokommune.ombruk.shared.error.KeycloakIntegrationError
 import no.oslokommune.ombruk.shared.error.RepositoryError
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
+import kotlin.math.exp
 import kotlin.test.assertEquals
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -55,7 +55,7 @@ class PartnerServiceTest {
         @Test
         fun `save partner success`(@MockK form: PartnerPostForm, @MockK(relaxed = true) expected: Partner) {
             every { PartnerRepository.insertPartner(form) } returns expected.right()
-            every { KeycloakGroupIntegration.createGroup(expected.name, expected.id) } returns 1.right()
+            every { KeycloakGroupIntegration.createGroup(expected.navn, expected.id) } returns 1.right()
 
             val actual = PartnerService.savePartner(form)
 
@@ -83,7 +83,7 @@ class PartnerServiceTest {
             @MockK expected: KeycloakIntegrationError
         ) {
             every { PartnerRepository.insertPartner(form) } returns partner.right()
-            every { KeycloakGroupIntegration.createGroup(partner.name, partner.id) } returns expected.left()
+            every { KeycloakGroupIntegration.createGroup(partner.navn, partner.id) } returns expected.left()
 
             val actual = PartnerService.savePartner(form)
 
@@ -117,7 +117,7 @@ class PartnerServiceTest {
     }
 
     @Nested
-    inner class GetPartnere {
+    inner class GetSamarbeidspartnere {
 
         @Test
         fun `get partnere success`(@MockK expected: List<Partner>) {
@@ -148,7 +148,7 @@ class PartnerServiceTest {
 
             every { PartnerRepository.getPartnerByID(expected.id) } returns expected.right()
             every { PartnerRepository.deletePartner(expected.id) } returns Unit.right()
-            every { KeycloakGroupIntegration.deleteGroup(expected.name) } returns Unit.right()
+            every { KeycloakGroupIntegration.deleteGroup(expected.navn) } returns Unit.right()
 
             val actual = PartnerService.deletePartnerById(expected.id)
 
@@ -181,7 +181,7 @@ class PartnerServiceTest {
             every { PartnerRepository.getPartnerByID(form.id) } returns partner.right()
             every { PartnerRepository.deletePartner(form.id) } returns Unit.right()
 
-            every { KeycloakGroupIntegration.deleteGroup(partner.name) } returns expected.left()
+            every { KeycloakGroupIntegration.deleteGroup(partner.navn) } returns expected.left()
 
             val actual = PartnerService.deletePartnerById(form.id)
 
@@ -198,11 +198,11 @@ class PartnerServiceTest {
             @MockK(relaxed = true) initial: Partner,
             @MockK(relaxed = true) expected: Partner
         ) {
-            val form = PartnerUpdateForm(initial.id, expected.name)
+            val form = PartnerUpdateForm(initial.id, expected.navn, expected.beskrivelse, expected.telefon, expected.epost)
 
             every { PartnerRepository.getPartnerByID(expected.id) } returns initial.right()
             every { PartnerRepository.updatePartner(form) } returns expected.right()
-            every { KeycloakGroupIntegration.updateGroup(initial.name, expected.name) } returns Unit.right()
+            every { KeycloakGroupIntegration.updateGroup(initial.navn, expected.navn) } returns Unit.right()
 
             val actual = PartnerService.updatePartner(form)
 
@@ -235,7 +235,7 @@ class PartnerServiceTest {
 
             every { PartnerRepository.getPartnerByID(form.id) } returns partner.right()
             every { PartnerRepository.updatePartner(form) } returns partner.right()
-            every { KeycloakGroupIntegration.updateGroup(partner.name, form.name) } returns expected.left()
+            every { KeycloakGroupIntegration.updateGroup(partner.navn, form.navn) } returns expected.left()
 
             val actual = PartnerService.updatePartner(form)
 

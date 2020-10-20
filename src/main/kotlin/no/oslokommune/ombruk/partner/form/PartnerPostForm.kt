@@ -12,17 +12,17 @@ import org.valiktor.validate
 
 @Serializable
 data class PartnerPostForm(
-    var name: String,
-    var description: String? = null,
-    var phone: String? = null,
-    var email: String? = null
+        var navn: String,
+        var beskrivelse: String,
+        var telefon: String,
+        var epost: String
 ) : IForm<PartnerPostForm> {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
-            validate(PartnerPostForm::name).isNotBlank().isUniqueInRepository(PartnerRepository)
-            validate(PartnerPostForm::phone).isNorwegianPhoneNumber()
-            validate(PartnerPostForm::email).isEmail()
-            validate(PartnerPostForm::description).isNotBlank()
+            validate(PartnerPostForm::navn).isNotBlank().isUniqueInRepository(PartnerRepository)
+            validate(PartnerPostForm::telefon).isNorwegianPhoneNumber() // TODO: Necessary?
+            validate(PartnerPostForm::epost).isEmail()
+            validate(PartnerPostForm::beskrivelse).isNotBlank()
         }
     }
 

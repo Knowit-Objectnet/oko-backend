@@ -44,11 +44,11 @@ class PartnerPostFormTest {
 
     @Suppress("unused")
     fun generateValidForms() = listOf(
-        PartnerPostForm("unique"),
-        PartnerPostForm("unique", "desc"),
-        PartnerPostForm("unique", phone = "12345678"),
-        PartnerPostForm("unique", email = "test@gmail.com"),
-        PartnerPostForm("unique", "desc", "12345678", "test@gmail.com")
+            PartnerPostForm("test1", "beskrivelse1", "81549301", "test1@test.com"),
+            PartnerPostForm("test2", "beskrivelse2", "81549302", "test2@test.com"),
+            PartnerPostForm("test3", "beskrivelse3", "81549303", "test3@test.com"),
+            PartnerPostForm("test4", "beskrivelse4", "81549304", "test4@test.com"),
+            PartnerPostForm("test5", "beskrivelse5", "81549305", "test5@test.com")
     )
 
     @ParameterizedTest
@@ -62,12 +62,11 @@ class PartnerPostFormTest {
 
     @Suppress("unused")
     fun generateInvalidForms() = listOf(
-        PartnerPostForm(""),
-        PartnerPostForm("notUnique", "desc"),
-        PartnerPostForm("unique", ""),
-        PartnerPostForm("unique", phone = "123456789"),
-        PartnerPostForm("unique", email = "test£gmail.com"),
-        PartnerPostForm("unique", "", "12345678", "test@gmail.com")
+        PartnerPostForm("notUnique", "desc", "12345678", "test@test.com"),
+        PartnerPostForm("notUnique", "desc", "12345678", "test@test.com"),
+        PartnerPostForm("unique", "desc", "12345678", "test@test.com"),
+        PartnerPostForm("badPhoneNo", "desc", "123", "test@test.com"),
+        PartnerPostForm("badEmail", "desc", "12345678", "memes")
     )
 
     @ParameterizedTest

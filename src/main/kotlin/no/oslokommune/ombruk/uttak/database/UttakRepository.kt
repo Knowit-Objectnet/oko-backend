@@ -13,7 +13,7 @@ import no.oslokommune.ombruk.uttak.form.UttakUpdateForm
 import no.oslokommune.ombruk.uttak.model.Uttak
 import no.oslokommune.ombruk.uttak.model.GjentakelsesRegel
 import no.oslokommune.ombruk.uttak.model.toWeekDayList
-import no.oslokommune.ombruk.partner.database.Partnere
+import no.oslokommune.ombruk.partner.database.Samarbeidspartnere
 import no.oslokommune.ombruk.partner.database.toPartner
 import no.oslokommune.ombruk.shared.error.RepositoryError
 import no.oslokommune.ombruk.uttak.model.UttaksType
@@ -31,7 +31,7 @@ object UttakTable : IntIdTable("uttak") {
         integer("gjentakelses_regel_id").references(GjentakelsesRegels.id, onDelete = ReferenceOption.CASCADE).nullable()
     val stasjonID = integer("stasjon_id").references(Stasjoner.id, onDelete = ReferenceOption.CASCADE)
     // Nullable partner. An uttak without a partner is arranged by the stasjon only, like example "Ombruksdager".
-    val partnerID = integer("partner_id").references(Partnere.id, onDelete = ReferenceOption.CASCADE).nullable()
+    val partnerID = integer("partner_id").references(Samarbeidspartnere.id, onDelete = ReferenceOption.CASCADE).nullable()
     val type = enumerationByName("type", 64, UttaksType::class)
     val description = text("description").nullable()
 }
@@ -91,14 +91,14 @@ object UttakRepository : IUttakRepository {
 
                 // Delete and return deleted uttak. Have to handle the case where no statements are sepcified
                 if (statements.isEmpty()) {
-                    val result = (UttakTable innerJoin Stasjoner innerJoin Partnere leftJoin GjentakelsesRegels).selectAll()
+                    val result = (UttakTable innerJoin Stasjoner innerJoin Samarbeidspartnere leftJoin GjentakelsesRegels).selectAll()
                         .mapNotNull { toUttak(it) }
                     UttakTable.deleteAll()
                     return@transaction result
                 } else {
                     val statement = AndOp(statements)
                     val result =
-                        (UttakTable innerJoin Stasjoner innerJoin Partnere leftJoin GjentakelsesRegels).select { statement }
+                        (UttakTable innerJoin Stasjoner innerJoin Samarbeidspartnere leftJoin GjentakelsesRegels).select { statement }
                             .mapNotNull { toUttak(it) }
                     UttakTable.deleteWhere { statement }
                     return@transaction result
@@ -114,7 +114,7 @@ object UttakRepository : IUttakRepository {
     override fun getUttakByID(uttakID: Int): Either<RepositoryError, Uttak> = runCatching {
         transaction {
             // leftJoin GjentakelsesRegels because not all uttak are recurring.
-            (UttakTable innerJoin Stasjoner leftJoin Partnere leftJoin GjentakelsesRegels).select { UttakTable.id eq uttakID }
+            (UttakTable innerJoin Stasjoner leftJoin Samarbeidspartnere leftJoin GjentakelsesRegels).select { UttakTable.id eq uttakID }
                 .map { toUttak(it) }.firstOrNull()
         }
     }
@@ -128,7 +128,7 @@ object UttakRepository : IUttakRepository {
     override fun getUttak(uttakGetForm: UttakGetForm?): Either<RepositoryError, List<Uttak>> =
         runCatching {
             transaction {
-                val query = (UttakTable innerJoin Stasjoner innerJoin Partnere leftJoin GjentakelsesRegels).selectAll()
+                val query = (UttakTable innerJoin Stasjoner innerJoin Samarbeidspartnere leftJoin GjentakelsesRegels).selectAll()
                 if (uttakGetForm != null) {
                     uttakGetForm.uttakId?.let { query.andWhere { UttakTable.id eq it } }
                     uttakGetForm.stasjonId?.let { query.andWhere { UttakTable.stasjonID eq it } }

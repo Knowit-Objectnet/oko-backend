@@ -71,7 +71,7 @@ class UttakAPITest {
         @Test
         fun `get single uttak 200`() {
             val s = Stasjon(1, "test")
-            val p = Partner(1, "test")
+            val p = Partner(1, "test", "beskrivelse", "81549300", "test@test.com")
             val expected = Uttak(1, LocalDateTime.now(), LocalDateTime.now(), s, p, null)
             every { UttakService.getUttakByID(1) } returns expected.right()
 
@@ -138,7 +138,7 @@ class UttakAPITest {
         @Test
         fun `get uttak 200`() {
             val s = Stasjon(1, "test")
-            val p = Partner(1, "test")
+            val p = Partner(1, "test", "beskrivelse", "81549300", "test@test.com")
             val e1 = Uttak(1, LocalDateTime.now(), LocalDateTime.now(), s, p, null)
             val e2 = e1.copy(2)
             val e3 = e1.copy(3)
@@ -197,7 +197,7 @@ class UttakAPITest {
         @Test
         fun `post uttak 200`() {
             val s = Stasjon(id = 1, name = "test", hours = openHours())
-            val p = Partner(1, "test")
+            val p = Partner(1, "test", "beskrivelse", "81549300", "test@test.com")
             val form = UttakPostForm(LocalDateTime.now(), LocalDateTime.now().plusHours(1), s.id, p.id)
             val expected = Uttak(1, form.startDateTime, form.endDateTime, s, p)
 
@@ -301,7 +301,7 @@ class UttakAPITest {
         @Test
         fun `patch uttak 200`() {
             val s = Stasjon(1, "test", hours = openHours())
-            val p = Partner(1, "test")
+            val p = Partner(1, "test", "beskrivelse", "81549300", "test@test.com")
             val initial = Uttak(1, LocalDateTime.now().plusDays(2), LocalDateTime.now().plusDays(2).plusHours(1), s, p)
             val form = UttakUpdateForm(1, LocalDateTime.now(), LocalDateTime.now().plusHours(1))
             val expected = initial.copy(startDateTime = form.startDateTime!!, endDateTime = form.endDateTime!!)
@@ -322,7 +322,7 @@ class UttakAPITest {
         @Test
         fun `patch uttak 500`() {
             val s = Stasjon(1, "test", hours = openHours())
-            val p = Partner(1, "test")
+            val p = Partner(1, "test", "beskrivelse", "81549300", "test@test.com")
             val initial = Uttak(1, LocalDateTime.now().plusDays(2), LocalDateTime.now().plusDays(2).plusHours(1), s, p)
             val form = UttakUpdateForm(1, LocalDateTime.now(), LocalDateTime.now().plusHours(1))
 
@@ -365,7 +365,7 @@ class UttakAPITest {
         @Test
         fun `patch uttak 422`() {
             val s = Stasjon(1, "test")
-            val p = Partner(1, "test")
+            val p = Partner(1, "test", "beskrivelse", "81549300", "test@test.com")
             val initial = Uttak(1, LocalDateTime.now().plusDays(2), LocalDateTime.now().plusDays(3), s, p)
             val form = UttakUpdateForm(-1, LocalDateTime.now(), LocalDateTime.now().plusDays(1))
             val expected = initial.copy(startDateTime = form.startDateTime!!, endDateTime = form.endDateTime!!)
@@ -401,7 +401,7 @@ class UttakAPITest {
         @Test
         fun `delete uttak 200`() {
             val s = Stasjon(1, "test")
-            val p = Partner(1, "test")
+            val p = Partner(1, "test", "beskrivelse", "81549300", "test@test.com")
             val expected = listOf(Uttak(1, LocalDateTime.now(), LocalDateTime.now().plusDays(1), s, p))
 
             every { UttakService.deleteUttak(UttakDeleteForm()) } returns expected.right()
@@ -441,7 +441,7 @@ class UttakAPITest {
         @Test
         fun `delete uttak 404`() {
             val s = Stasjon(1, "test")
-            val p = Partner(1, "test")
+            val p = Partner(1, "test", "beskrivelse", "81549300", "test@test.com")
             val expected = listOf(Uttak(1, LocalDateTime.now(), LocalDateTime.now().plusDays(1), s, p))
 
             every { UttakService.getUttak(UttakGetForm()) } returns expected.right()

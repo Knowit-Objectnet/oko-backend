@@ -9,7 +9,7 @@ import no.oslokommune.ombruk.uttak.database.UttakTable
 import no.oslokommune.ombruk.stasjon.database.Stasjoner
 import no.oslokommune.ombruk.uttak.model.Uttak
 import no.oslokommune.ombruk.stasjon.model.Stasjon
-import no.oslokommune.ombruk.partner.database.Partnere
+import no.oslokommune.ombruk.partner.database.Samarbeidspartnere
 import no.oslokommune.ombruk.partner.model.Partner
 import no.oslokommune.ombruk.uttaksdata.form.UttaksdataGetForm
 import no.oslokommune.ombruk.uttaksdata.form.UttaksdataUpdateForm
@@ -52,11 +52,11 @@ class UttaksdataRepositoryTest {
     init {
         initDB()
         transaction {
-            val testPartnerId = Partnere.insertAndGetId {
-                it[name] = "TestPartner 1"
-                it[description] = "Description of TestPartner 1"
-                it[phone] = "+47 2381931"
-                it[email] = "example@gmail.com"
+            val testPartnerId = Samarbeidspartnere.insertAndGetId {
+                it[navn] = "TestPartner 1"
+                it[beskrivelse] = "Description of TestPartner 1"
+                it[telefon] = "+47 2381931"
+                it[epost] = "example@gmail.com"
             }.value
 
             testPartner =
@@ -68,11 +68,11 @@ class UttaksdataRepositoryTest {
                     "example@gmail.com"
                 )
 
-            val testPartnerId2 = Partnere.insertAndGetId {
-                it[name] = "TestPartner 2"
-                it[description] = "Description of TestPartner 2"
-                it[phone] = "911"
-                it[email] = "example@gmail.com"
+            val testPartnerId2 = Samarbeidspartnere.insertAndGetId {
+                it[navn] = "TestPartner 2"
+                it[beskrivelse] = "Description of TestPartner 2"
+                it[telefon] = "911"
+                it[epost] = "example@gmail.com"
             }.value
 
             testPartner2 =
@@ -212,7 +212,7 @@ class UttaksdataRepositoryTest {
     @AfterAll
     fun cleanPartnereAndStasjonerFromDB() {
         transaction {
-            Partnere.deleteAll()
+            Samarbeidspartnere.deleteAll()
             Stasjoner.deleteAll()
         }
     }

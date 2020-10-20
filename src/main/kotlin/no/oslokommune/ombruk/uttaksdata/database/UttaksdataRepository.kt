@@ -8,7 +8,7 @@ import no.oslokommune.ombruk.uttak.database.UttakTable
 import no.oslokommune.ombruk.stasjon.database.Stasjoner
 import no.oslokommune.ombruk.stasjon.database.toStasjon
 import no.oslokommune.ombruk.uttak.model.Uttak
-import no.oslokommune.ombruk.partner.database.Partnere
+import no.oslokommune.ombruk.partner.database.Samarbeidspartnere
 import no.oslokommune.ombruk.uttaksdata.form.UttaksdataGetForm
 import no.oslokommune.ombruk.uttaksdata.form.UttaksdataUpdateForm
 import no.oslokommune.ombruk.uttaksdata.model.Uttaksdata
@@ -24,7 +24,7 @@ private val logger = LoggerFactory.getLogger("ombruk.unittest.no.oslokommune.omb
 
 object Reports : IntIdTable("uttaksdata") {
     val uttakID = integer("uttak_id").references(UttakTable.id)
-    val partnerID = integer("partner_id").references(Partnere.id).nullable()
+    val partnerID = integer("partner_id").references(Samarbeidspartnere.id).nullable()
     val stasjonID = integer("stasjon_id").references(Stasjoner.id)
     val startDateTime = datetime("start_date_time")
     val endDateTime = datetime("end_date_time")

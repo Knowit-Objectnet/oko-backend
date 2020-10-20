@@ -18,7 +18,7 @@ object PartnerService : IPartnerService {
     @KtorExperimentalAPI
     override fun savePartner(partnerForm: PartnerPostForm): Either<ServiceError, Partner> = transaction {
         PartnerRepository.insertPartner(partnerForm).flatMap { partner ->
-            KeycloakGroupIntegration.createGroup(partner.name, partner.id)
+            KeycloakGroupIntegration.createGroup(partner.navn, partner.id)
                 .bimap({ rollback(); it }, { partner })
         }
     }
@@ -33,7 +33,7 @@ object PartnerService : IPartnerService {
     override fun deletePartnerById(id: Int): Either<ServiceError, Partner> = transaction {
         getPartnerById(id).flatMap { partner ->
             PartnerRepository.deletePartner(id)
-                .flatMap { KeycloakGroupIntegration.deleteGroup(partner.name) }
+                .flatMap { KeycloakGroupIntegration.deleteGroup(partner.navn) }
                 .bimap({ rollback(); it }, { partner })
         }
     }
@@ -43,7 +43,7 @@ object PartnerService : IPartnerService {
     override fun updatePartner(partnerForm: PartnerUpdateForm): Either<ServiceError, Partner> = transaction {
         getPartnerById(partnerForm.id).flatMap { partner ->
             PartnerRepository.updatePartner(partnerForm).flatMap { newPartner ->
-                KeycloakGroupIntegration.updateGroup(partner.name, newPartner.name)
+                KeycloakGroupIntegration.updateGroup(partner.navn, newPartner.navn)
                     .bimap({ rollback(); it }, { newPartner })
             }
         }

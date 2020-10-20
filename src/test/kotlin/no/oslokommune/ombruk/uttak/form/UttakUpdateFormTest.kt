@@ -34,7 +34,7 @@ class UttakUpdateFormTest {
     private val from = LocalDateTime.parse("2020-09-02T12:00:00Z", DateTimeFormatter.ISO_DATE_TIME)
     private val existingStasjon = Stasjon(id = 1, name = "some stasjon", hours = openHours())
     private val existingUttak =
-        Uttak(1, from, from.plusHours(1), existingStasjon, Partner(1, "name"))
+        Uttak(1, from, from.plusHours(1), existingStasjon, Partner(1, "test", "beskrivelse", "81549300", "test@test.com"))
 
 
     init {

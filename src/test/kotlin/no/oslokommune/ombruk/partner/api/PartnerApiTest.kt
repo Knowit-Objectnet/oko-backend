@@ -57,7 +57,7 @@ class PartnerApiTest {
          */
         @Test
         fun `get partner by id 200`() {
-            val expected = Partner(1, "test")
+            val expected = Partner(1, "test", "beskrivelse", "81549300", "test@test.com")
 
             every { PartnerService.getPartnerById(expected.id) } returns expected.right()
 
@@ -124,7 +124,7 @@ class PartnerApiTest {
          */
         @Test
         fun `get partnere 200`() {
-            val expected = listOf(Partner(1, "test"))
+            val expected = listOf(Partner(1, "test", "beskrivelse", "81549300", "test@test.com"))
 
             every { PartnerService.getPartnere(PartnerGetForm()) } returns expected.right()
 
@@ -167,8 +167,8 @@ class PartnerApiTest {
          */
         @Test
         fun `post partner 200`() {
-            val form = PartnerPostForm("test")
-            val expected = Partner(1, "test")
+            val form = PartnerPostForm("test", "beskrivelse", "81549300", "test@test.com")
+            val expected = Partner(1, "test", "beskrivelse", "81549300", "test@test.com")
             every { PartnerService.savePartner(form) } returns expected.right()
 
             testPost("/partnere", json.stringify(PartnerPostForm.serializer(), form)) {
@@ -182,7 +182,7 @@ class PartnerApiTest {
          */
         @Test
         fun `post partner 401`() {
-            val form = PartnerPostForm("test")
+            val form = PartnerPostForm("test", "beskrivelse", "81549300", "test@test.com")
 
             testPost("/partnere", json.stringify(PartnerPostForm.serializer(), form), null) {
                 assertEquals(HttpStatusCode.Unauthorized, response.status())
@@ -194,7 +194,7 @@ class PartnerApiTest {
          */
         @Test
         fun `post partner 403`() {
-            val form = PartnerPostForm("test")
+            val form = PartnerPostForm("test", "beskrivelse", "81549300", "test@test.com")
 
             testPost("/partnere", json.stringify(PartnerPostForm.serializer(), form), JwtMockConfig.partnerBearer1) {
                 assertEquals(HttpStatusCode.Forbidden, response.status())
@@ -207,7 +207,7 @@ class PartnerApiTest {
          */
         @Test
         fun `post partner 500`() {
-            val form = PartnerPostForm("test")
+            val form = PartnerPostForm("test", "beskrivelse", "81549300", "test@test.com")
 
             every { PartnerService.savePartner(form) } returns ServiceError("test").left()
 
@@ -222,7 +222,7 @@ class PartnerApiTest {
         @Disabled
         @Test
         fun `post partner 422`() {
-            val form = PartnerPostForm("test", phone = "2143")
+            val form = PartnerPostForm("test", "beskrivelse", "2113", "test@test.com")
 
             testPost("/partnere", json.stringify(PartnerPostForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
@@ -249,9 +249,9 @@ class PartnerApiTest {
          */
         @Test
         fun `patch partner 200`() {
-            val initial = Partner(1, "test")
-            val form = PartnerUpdateForm(1, "updated")
-            val expected = initial.copy(name = form.name!!)
+            val initial = Partner(1, "test", "beskrivelse", "81549300", "test@test.com")
+            val form = PartnerUpdateForm(1, "updated", "beskrivelse", "81549300", "test@test.com")
+            val expected = initial.copy(navn = form.navn!!)
 
             every { PartnerService.updatePartner(form) } returns expected.right()
             every { PartnerRepository.getPartnere(PartnerGetForm("updated")) } returns listOf<Partner>().right()
@@ -267,7 +267,7 @@ class PartnerApiTest {
          */
         @Test
         fun `patch partner 401`() {
-            val form = PartnerUpdateForm(1, "updated")
+            val form = PartnerUpdateForm(1, "navn", "beskrivelse", "81549300", "test@test.com")
 
             testPatch("/partnere", json.stringify(PartnerUpdateForm.serializer(), form), null) {
                 assertEquals(HttpStatusCode.Unauthorized, response.status())
@@ -279,7 +279,7 @@ class PartnerApiTest {
          */
         @Test
         fun `patch partner 403`() {
-            val form = PartnerUpdateForm(1, "updated")
+            val form = PartnerUpdateForm(1, "navn", "beskrivelse", "81549300", "test@test.com")
 
             testPatch("/partnere", json.stringify(PartnerUpdateForm.serializer(), form), JwtMockConfig.partnerBearer1) {
                 assertEquals(HttpStatusCode.Forbidden, response.status())
@@ -292,7 +292,7 @@ class PartnerApiTest {
          */
         @Test
         fun `patch partner 500`() {
-            val form = PartnerUpdateForm(1, "updated")
+            val form = PartnerUpdateForm(1, "navn", "beskrivelse", "81549300", "test@test.com")
             every { PartnerService.updatePartner(form) } returns ServiceError("test").left()
             every { PartnerRepository.getPartnere(PartnerGetForm("updated")) } returns listOf<Partner>().right()
 
@@ -307,7 +307,7 @@ class PartnerApiTest {
         @Disabled
         @Test
         fun `patch partner 422`() {
-            val form = PartnerUpdateForm(1, "updated", phone = "234")
+            val form = PartnerUpdateForm(1, "navn", "beskrivelse", "213", "test@test.com")
 
             testPatch("/partnere", json.stringify(PartnerUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
@@ -334,7 +334,7 @@ class PartnerApiTest {
          */
         @Test
         fun `delete partner 200`() {
-            val expected = Partner(1, "test")
+            val expected = Partner(1, "test", "beskrivelse", "81549300", "test@test.com")
             every { PartnerService.deletePartnerById(1) } returns expected.right()
 
             testDelete("/partnere/1") {

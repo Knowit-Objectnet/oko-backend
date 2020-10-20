@@ -25,7 +25,7 @@ import kotlin.test.assertTrue
 @ExtendWith(MockKExtension::class)
 class PartnerUpdateFormTest {
 
-    val existingPartner = Partner(1, "unique")
+    val existingPartner = Partner(1, "unique", "beskrivelse", "81549300", "test@test.com")
 
     init {
         initDB()
@@ -48,11 +48,7 @@ class PartnerUpdateFormTest {
 
     @Suppress("unused")
     fun generateValidForms() = listOf(
-        PartnerUpdateForm(1, "unique"),
-        PartnerUpdateForm(1, "unique", "desc"),
-        PartnerUpdateForm(1, "unique", phone = "12345678"),
-        PartnerUpdateForm(1, "unique", email = "test@gmail.com"),
-        PartnerUpdateForm(1, "unique", "desc", "12345678", "test@gmail.com")
+        PartnerUpdateForm(1, "test1", "beskrivelse1", "81549301", "test1@test.com")
     )
 
     @ParameterizedTest
@@ -68,12 +64,11 @@ class PartnerUpdateFormTest {
 
     @Suppress("unused")
     fun generateInvalidForms() = listOf(
-        PartnerUpdateForm(1, ""),
-        PartnerUpdateForm(1, "notUnique", "desc"),
-        PartnerUpdateForm(1, "unique", ""),
-        PartnerUpdateForm(1, "unique", phone = "123456789"),
-        PartnerUpdateForm(1, "unique", email = "test£gmail.com"),
-        PartnerUpdateForm(1, "unique", "", "12345678", "test@gmail.com")
+        PartnerUpdateForm(1, "notUnique", "desc", "12345678", "test@test.com"),
+        PartnerUpdateForm(1, "notUnique", "desc", "12345678", "test@test.com"),
+        PartnerUpdateForm(1, "unique", "desc", "12345678", "test@test.com"),
+        PartnerUpdateForm(1, "badPhoneNo", "desc", "123", "test@test.com"),
+        PartnerUpdateForm(1, "badEmail", "desc", "12345678", "memes")
     )
 
     @ParameterizedTest
