@@ -6,7 +6,7 @@ import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkObject
 import io.mockk.unmockkAll
-import no.oslokommune.ombruk.partner.database.PartnerRepository
+import no.oslokommune.ombruk.partner.database.SamPartnerRepository
 import no.oslokommune.ombruk.partner.form.PartnerPostForm
 import no.oslokommune.ombruk.shared.database.initDB
 import org.junit.jupiter.api.AfterAll
@@ -29,7 +29,7 @@ class PartnerPostFormTest {
 
     @BeforeEach
     fun setup() {
-        mockkObject(PartnerRepository)
+        mockkObject(SamPartnerRepository)
     }
 
     @AfterEach
@@ -72,7 +72,7 @@ class PartnerPostFormTest {
     @MethodSource("generateInvalidForms")
     fun `validate invalid form`(form: PartnerPostForm) {
         //every { PartnerRepository.exists("notUnique") } returns true
-        every { PartnerRepository.exists(form.navn) } returns true
+        every { SamPartnerRepository.exists(form.navn) } returns true
 
         val result = form.validOrError()
 

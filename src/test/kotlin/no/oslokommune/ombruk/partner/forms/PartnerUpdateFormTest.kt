@@ -7,7 +7,7 @@ import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkObject
 import io.mockk.unmockkAll
-import no.oslokommune.ombruk.partner.database.PartnerRepository
+import no.oslokommune.ombruk.partner.database.SamPartnerRepository
 import no.oslokommune.ombruk.partner.form.PartnerUpdateForm
 import no.oslokommune.ombruk.partner.model.Partner
 import no.oslokommune.ombruk.shared.database.initDB
@@ -33,7 +33,7 @@ class PartnerUpdateFormTest {
 
     @BeforeEach
     fun setup() {
-        mockkObject(PartnerRepository)
+        mockkObject(SamPartnerRepository)
     }
 
     @AfterEach
@@ -56,7 +56,7 @@ class PartnerUpdateFormTest {
     fun `validate valid form`(form: PartnerUpdateForm) {
         val result = form.validOrError()
 
-        every { PartnerRepository.getPartnerByID(existingPartner.id) } returns existingPartner.right()
+        every { SamPartnerRepository.getPartnerByID(existingPartner.id) } returns existingPartner.right()
 
         require(result is Either.Right)
         assertEquals(form, result.b)
@@ -74,10 +74,10 @@ class PartnerUpdateFormTest {
     @MethodSource("generateInvalidForms")
     fun `validate invalid form`(form: PartnerUpdateForm) {
 
-        every { PartnerRepository.getPartnerByID(existingPartner.id) } returns existingPartner.right()
+        every { SamPartnerRepository.getPartnerByID(existingPartner.id) } returns existingPartner.right()
         form.navn?.let {
-            every { PartnerRepository.exists(it) } returns true
-            every { PartnerRepository.exists(existingPartner.navn) } returns true
+            every { SamPartnerRepository.exists(it) } returns true
+            every { SamPartnerRepository.exists(existingPartner.navn) } returns true
         }
 
         val result = form.validOrError()

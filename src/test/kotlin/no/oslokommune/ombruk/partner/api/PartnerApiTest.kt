@@ -11,7 +11,7 @@ import io.mockk.mockkObject
 import io.mockk.unmockkAll
 import kotlinx.serialization.builtins.list
 import kotlinx.serialization.json.Json
-import no.oslokommune.ombruk.partner.database.PartnerRepository
+import no.oslokommune.ombruk.partner.database.SamPartnerRepository
 import no.oslokommune.ombruk.partner.form.PartnerGetForm
 import no.oslokommune.ombruk.partner.form.PartnerPostForm
 import no.oslokommune.ombruk.partner.form.PartnerUpdateForm
@@ -36,7 +36,7 @@ class PartnerApiTest {
     @BeforeEach
     fun setup() {
         mockkObject(PartnerService)
-        mockkObject(PartnerRepository)
+        mockkObject(SamPartnerRepository)
     }
 
     @AfterEach
@@ -254,7 +254,7 @@ class PartnerApiTest {
             val expected = initial.copy(navn = form.navn!!)
 
             every { PartnerService.updatePartner(form) } returns expected.right()
-            every { PartnerRepository.getPartnere(PartnerGetForm("updated")) } returns listOf<Partner>().right()
+            every { SamPartnerRepository.getPartnere(PartnerGetForm("updated")) } returns listOf<Partner>().right()
 
             testPatch("/partnere", json.stringify(PartnerUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.OK, response.status())
@@ -294,7 +294,7 @@ class PartnerApiTest {
         fun `patch partner 500`() {
             val form = PartnerUpdateForm(1, "navn", "beskrivelse", "81549300", "test@test.com")
             every { PartnerService.updatePartner(form) } returns ServiceError("test").left()
-            every { PartnerRepository.getPartnere(PartnerGetForm("updated")) } returns listOf<Partner>().right()
+            every { SamPartnerRepository.getPartnere(PartnerGetForm("updated")) } returns listOf<Partner>().right()
 
             testPatch("/partnere", json.stringify(PartnerUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.InternalServerError, response.status())

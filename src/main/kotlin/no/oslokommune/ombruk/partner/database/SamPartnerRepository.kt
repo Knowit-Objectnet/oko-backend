@@ -28,7 +28,7 @@ object Samarbeidspartnere : IntIdTable("samarbeidspartnere") {
     val slettetTidspunkt =  datetime("slettet_tidspunkt").nullable()
 }
 
-object PartnerRepository : IPartnerRepository {
+object SamPartnerRepository : ISamPartnerRepository {
     private val logger = LoggerFactory.getLogger("ombruk.no.oslokommune.ombruk.partner.service.PartnerRepository")
 
     override fun insertPartner(partner: PartnerPostForm) = runCatching {

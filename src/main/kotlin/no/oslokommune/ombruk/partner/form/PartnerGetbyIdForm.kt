@@ -8,7 +8,7 @@ import org.valiktor.functions.isGreaterThan
 import org.valiktor.validate
 
 @KtorExperimentalLocationsAPI
-@Location("/{id}")
+@Location("/{id}") // TODO: remove?
 data class PartnerGetByIdForm(val id: Int) : IForm<PartnerGetByIdForm> {
     override fun validOrError() = runCatchingValidation {
         validate(this) {

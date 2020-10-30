@@ -24,8 +24,8 @@ class UttakPostFormIteratorTest {
         var counter = 0L
         for (actualForm in recurringForm) {
             val expectedForm = recurringForm.copy(
-                recurringForm.startDateTime.plusDays(counter),
-                recurringForm.endDateTime.plusDays(counter)
+                recurringForm.startTidspunkt.plusDays(counter),
+                recurringForm.sluttTidspunkt.plusDays(counter)
             )
 
             assertEquals(expectedForm, actualForm)
@@ -51,8 +51,8 @@ class UttakPostFormIteratorTest {
         var counter = 0L
         for (actualForm in recurringForm) {
             val expectedForm = recurringForm.copy(
-                recurringForm.startDateTime.plusDays(counter),
-                recurringForm.endDateTime.plusDays(counter)
+                recurringForm.startTidspunkt.plusDays(counter),
+                recurringForm.sluttTidspunkt.plusDays(counter)
             )
 
             assertEquals(expectedForm, actualForm)
@@ -83,8 +83,8 @@ class UttakPostFormIteratorTest {
 
         for (actualForm in recurringForm) {
             val expectedForm = recurringForm.copy(
-                recurringForm.startDateTime.plusDays(counter + offset),
-                recurringForm.endDateTime.plusDays(counter + offset)
+                recurringForm.startTidspunkt.plusDays(counter + offset),
+                recurringForm.sluttTidspunkt.plusDays(counter + offset)
             )
 
             assertEquals(expectedForm, actualForm)
@@ -112,8 +112,8 @@ class UttakPostFormIteratorTest {
         var counter = 0L
         for (actualForm in recurringForm) {
             val expectedForm = recurringForm.copy(
-                recurringForm.startDateTime.plusDays(counter),
-                recurringForm.endDateTime.plusDays(counter)
+                recurringForm.startTidspunkt.plusDays(counter),
+                recurringForm.sluttTidspunkt.plusDays(counter)
             )
 
             assertEquals(expectedForm, actualForm)
@@ -139,8 +139,8 @@ class UttakPostFormIteratorTest {
         var counter = 0L
         for (actualForm in recurringForm) {
             val expectedForm = recurringForm.copy(
-                recurringForm.startDateTime.plusDays(counter + 1),
-                recurringForm.endDateTime.plusDays(counter + 1)
+                recurringForm.startTidspunkt.plusDays(counter + 1),
+                recurringForm.sluttTidspunkt.plusDays(counter + 1)
             )
 
             assertEquals(expectedForm, actualForm)
@@ -166,8 +166,8 @@ class UttakPostFormIteratorTest {
         var counter = 0L
         for (actualForm in recurringForm) {
             val expectedForm = recurringForm.copy(
-                recurringForm.startDateTime.plusDays(counter),
-                recurringForm.endDateTime.plusDays(counter)
+                recurringForm.startTidspunkt.plusDays(counter),
+                recurringForm.sluttTidspunkt.plusDays(counter)
             )
 
             assertEquals(expectedForm, actualForm)
@@ -192,8 +192,8 @@ class UttakPostFormIteratorTest {
         var counter = 0L
         for (actualForm in recurringForm) {
             val expectedForm = recurringForm.copy(
-                recurringForm.startDateTime.plusWeeks(counter),
-                recurringForm.endDateTime.plusWeeks(counter)
+                recurringForm.startTidspunkt.plusWeeks(counter),
+                recurringForm.sluttTidspunkt.plusWeeks(counter)
             )
 
             assertEquals(expectedForm, actualForm)
@@ -221,8 +221,8 @@ class UttakPostFormIteratorTest {
         var counter = 0L
         for (actualForm in recurringForm) {
             val expectedForm = recurringForm.copy(
-                recurringForm.startDateTime.plusDays(counter),
-                recurringForm.endDateTime.plusDays(counter)
+                recurringForm.startTidspunkt.plusDays(counter),
+                recurringForm.sluttTidspunkt.plusDays(counter)
             )
 
             assertEquals(expectedForm, actualForm)
@@ -254,8 +254,8 @@ class UttakPostFormIteratorTest {
         var offset = 0L
         for (actualForm in recurringForm) {
             val expectedForm = recurringForm.copy(
-                recurringForm.startDateTime.plusDays(counter + offset),
-                recurringForm.endDateTime.plusDays(counter + offset)
+                recurringForm.startTidspunkt.plusDays(counter + offset),
+                recurringForm.sluttTidspunkt.plusDays(counter + offset)
             )
 
             assertEquals(expectedForm, actualForm)
@@ -287,8 +287,8 @@ class UttakPostFormIteratorTest {
         var offset = 0L
         for (actualForm in recurringForm) {
             val expectedForm = recurringForm.copy(
-                recurringForm.startDateTime.plusDays(counter + offset),
-                recurringForm.endDateTime.plusDays(counter + offset)
+                recurringForm.startTidspunkt.plusDays(counter + offset),
+                recurringForm.sluttTidspunkt.plusDays(counter + offset)
             )
 
             assertEquals(expectedForm, actualForm)
@@ -313,8 +313,8 @@ class UttakPostFormIteratorTest {
         var counter = 0L
         for (actualForm in nonRecurringForm) {
             val expectedForm = nonRecurringForm.copy(
-                nonRecurringForm.startDateTime.plusDays(counter),
-                nonRecurringForm.endDateTime.plusDays(counter)
+                nonRecurringForm.startTidspunkt.plusDays(counter),
+                nonRecurringForm.sluttTidspunkt.plusDays(counter)
             )
             assertEquals(expectedForm, actualForm)
             counter++

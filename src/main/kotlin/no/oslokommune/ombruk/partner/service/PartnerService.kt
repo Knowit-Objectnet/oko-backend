@@ -4,7 +4,7 @@ import arrow.core.Either
 import arrow.core.extensions.either.monad.flatMap
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.util.KtorExperimentalAPI
-import no.oslokommune.ombruk.partner.database.PartnerRepository
+import no.oslokommune.ombruk.partner.database.SamPartnerRepository
 import no.oslokommune.ombruk.partner.form.PartnerGetForm
 import no.oslokommune.ombruk.partner.form.PartnerPostForm
 import no.oslokommune.ombruk.partner.form.PartnerUpdateForm
@@ -17,22 +17,22 @@ object PartnerService : IPartnerService {
 
     @KtorExperimentalAPI
     override fun savePartner(partnerForm: PartnerPostForm): Either<ServiceError, Partner> = transaction {
-        PartnerRepository.insertPartner(partnerForm).flatMap { partner ->
+        SamPartnerRepository.insertPartner(partnerForm).flatMap { partner ->
             KeycloakGroupIntegration.createGroup(partner.navn, partner.id)
                 .bimap({ rollback(); it }, { partner })
         }
     }
 
-    override fun getPartnerById(id: Int): Either<ServiceError, Partner> = PartnerRepository.getPartnerByID(id)
+    override fun getPartnerById(id: Int): Either<ServiceError, Partner> = SamPartnerRepository.getPartnerByID(id)
 
     @KtorExperimentalLocationsAPI
     override fun getPartnere(partnerGetForm: PartnerGetForm): Either<ServiceError, List<Partner>> =
-        PartnerRepository.getPartnere(partnerGetForm)
+        SamPartnerRepository.getPartnere(partnerGetForm)
 
     @KtorExperimentalAPI
     override fun deletePartnerById(id: Int): Either<ServiceError, Partner> = transaction {
         getPartnerById(id).flatMap { partner ->
-            PartnerRepository.deletePartner(id)
+            SamPartnerRepository.deletePartner(id)
                 .flatMap { KeycloakGroupIntegration.deleteGroup(partner.navn) }
                 .bimap({ rollback(); it }, { partner })
         }
@@ -42,7 +42,7 @@ object PartnerService : IPartnerService {
     @KtorExperimentalAPI
     override fun updatePartner(partnerForm: PartnerUpdateForm): Either<ServiceError, Partner> = transaction {
         getPartnerById(partnerForm.id).flatMap { partner ->
-            PartnerRepository.updatePartner(partnerForm).flatMap { newPartner ->
+            SamPartnerRepository.updatePartner(partnerForm).flatMap { newPartner ->
                 KeycloakGroupIntegration.updateGroup(partner.navn, newPartner.navn)
                     .bimap({ rollback(); it }, { newPartner })
             }

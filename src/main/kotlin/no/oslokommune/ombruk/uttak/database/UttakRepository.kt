@@ -17,23 +17,25 @@ import no.oslokommune.ombruk.partner.database.Samarbeidspartnere
 import no.oslokommune.ombruk.partner.database.toPartner
 import no.oslokommune.ombruk.shared.error.RepositoryError
 import no.oslokommune.ombruk.uttak.model.UttaksType
+import no.oslokommune.ombruk.uttaksdata.database.UttaksdataRepository
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.`java-time`.datetime
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 
 object UttakTable : IntIdTable("uttak") {
-    val startDateTime = datetime("start_date_time")
-    val endDateTime = datetime("end_date_time")
-    val gjentakelsesRegelID =
-        integer("gjentakelses_regel_id").references(GjentakelsesRegels.id, onDelete = ReferenceOption.CASCADE).nullable()
-    val stasjonID = integer("stasjon_id").references(Stasjoner.id, onDelete = ReferenceOption.CASCADE)
-    // Nullable partner. An uttak without a partner is arranged by the stasjon only, like example "Ombruksdager".
-    val partnerID = integer("partner_id").references(Samarbeidspartnere.id, onDelete = ReferenceOption.CASCADE).nullable()
+    val endretTidspunkt = datetime("endret_tidspunkt")
+    val slettetTidspunkt = datetime("slettet_tidspunkt").nullable()
     val type = enumerationByName("type", 64, UttaksType::class)
-    val description = text("description").nullable()
+    val samarbeidspartnerID = integer("samarbeidspartner_id").references(Samarbeidspartnere.id).nullable()
+    val startTidspunkt = datetime("start_tidspunkt")
+    val sluttTidspunkt = datetime("slutt_tidspunkt")
+    val stasjonID = integer("stasjon_id").references(Stasjoner.id)
+    val gjentakelsesRegelID = integer("gjentakelsesregel_id").references(GjentakelsesRegelTable.id).nullable()
+    val beskrivelse = text("beskrivelse").nullable()
 }
 
 object UttakRepository : IUttakRepository {
@@ -41,12 +43,13 @@ object UttakRepository : IUttakRepository {
 
     override fun insertUttak(uttakPostForm: UttakPostForm): Either<RepositoryError, Uttak> = runCatching {
         UttakTable.insertAndGetId {
-            it[startDateTime] = uttakPostForm.startDateTime
-            it[endDateTime] = uttakPostForm.endDateTime
+            it[startTidspunkt] = uttakPostForm.startTidspunkt
+            it[sluttTidspunkt] = uttakPostForm.sluttTidspunkt
             it[gjentakelsesRegelID] = uttakPostForm.gjentakelsesRegel?.id
-            it[stasjonID] = uttakPostForm.stasjonId
-            it[partnerID] = uttakPostForm.partnerId
+            it[stasjonID] = uttakPostForm.stasjonID
+            it[samarbeidspartnerID] = uttakPostForm.samarbeidspartnerID
             it[type] = uttakPostForm.type
+            it[endretTidspunkt] = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES)
         }.value
     }
         .onFailure { logger.error("Failed to save uttak to DB; ${it.message}") }
@@ -59,8 +62,21 @@ object UttakRepository : IUttakRepository {
     override fun updateUttak(uttak: UttakUpdateForm): Either<RepositoryError, Uttak> = runCatching {
         transaction {
             UttakTable.update({ UttakTable.id eq uttak.id }) { row ->
-                uttak.startDateTime?.let { row[startDateTime] = uttak.startDateTime }
-                uttak.endDateTime?.let { row[endDateTime] = uttak.endDateTime }
+                uttak.startTidspunkt?.let { row[startTidspunkt] = uttak.startTidspunkt }
+                uttak.sluttTidspunkt?.let { row[sluttTidspunkt] = uttak.sluttTidspunkt }
+                uttak.stasjonID?.let { row[stasjonID] = uttak.stasjonID }
+                uttak.samarbeidspartnerID?.let { row[samarbeidspartnerID] = uttak.samarbeidspartnerID }
+                uttak.gjentakelsesRegel?.let {
+                    row[gjentakelsesRegelID] = uttak.gjentakelsesRegel.id
+                    GjentakelsesRegelTable.update({ GjentakelsesRegelTable.id eq uttak.gjentakelsesRegel.id }) {
+                        gjenRow ->
+                            uttak.gjentakelsesRegel.antall?.let { gjenRow[antall] = uttak.gjentakelsesRegel.antall }
+                            uttak.gjentakelsesRegel.intervall?.let { gjenRow[intervall] = uttak.gjentakelsesRegel.intervall }
+                            uttak.gjentakelsesRegel.dager?.let { gjenRow[dager] = uttak.gjentakelsesRegel.dager.toString() }
+                            uttak.gjentakelsesRegel.sluttTidspunkt?.let { gjenRow[sluttTidspunkt] = uttak.gjentakelsesRegel.sluttTidspunkt }
+                            gjenRow[endretTidspunkt] = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES)
+                    }
+                }
             }
         }
     }
@@ -70,51 +86,26 @@ object UttakRepository : IUttakRepository {
             { RepositoryError.UpdateError(it.message).left() }
         )
 
+    override fun deleteUttak(uttakDeleteForm: UttakDeleteForm): Either<RepositoryError, Unit> =
+            runCatching {
+                transaction {
+                    UttakTable.update({ UttakTable.id eq uttakDeleteForm.id }) { row ->
+                        row[slettetTidspunkt] = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES)
+                    }
+                    GjentakelsesRegelTable.deleteGjentakelsesRegel(uttakDeleteForm.id)
 
-    @KtorExperimentalLocationsAPI
-    override fun deleteUttak(uttakDeleteForm: UttakDeleteForm): Either<RepositoryError, List<Uttak>> =
-        runCatching {
-            transaction {
-                /*
-                This is a conditional delete, and is somewhat special. Essentially, what's being done is building separate
-                operations for each value of the uttakDeleteForm that's not null. These are then added to a list, which is
-                then combined to a full statement that can be ran. Op.build is a bit finicky as to what it accepts
-                as input, so you might have to use function (foo.lessEq(bar)) instead of DSL (foo eq bar) some places.
-                 */
-                val statements = mutableListOf<Op<Boolean>>()
-                uttakDeleteForm.uttakId?.let { statements.add(Op.build { UttakTable.id eq it }) }
-                uttakDeleteForm.gjentakelsesRegelId?.let { statements.add(Op.build { UttakTable.gjentakelsesRegelID eq it }) }
-                uttakDeleteForm.fromDate?.let { statements.add(Op.build { UttakTable.startDateTime.greaterEq(it) }) }
-                uttakDeleteForm.toDate?.let { statements.add(Op.build { UttakTable.startDateTime.lessEq(it) }) }
-                uttakDeleteForm.partnerId?.let { statements.add(Op.build { UttakTable.partnerID eq it }) }
-                uttakDeleteForm.stasjonId?.let { statements.add(Op.build { UttakTable.stasjonID eq it }) }
-
-                // Delete and return deleted uttak. Have to handle the case where no statements are sepcified
-                if (statements.isEmpty()) {
-                    val result = (UttakTable innerJoin Stasjoner innerJoin Samarbeidspartnere leftJoin GjentakelsesRegels).selectAll()
-                        .mapNotNull { toUttak(it) }
-                    UttakTable.deleteAll()
-                    return@transaction result
-                } else {
-                    val statement = AndOp(statements)
-                    val result =
-                        (UttakTable innerJoin Stasjoner innerJoin Samarbeidspartnere leftJoin GjentakelsesRegels).select { statement }
-                            .mapNotNull { toUttak(it) }
-                    UttakTable.deleteWhere { statement }
-                    return@transaction result
                 }
             }
-        }
-            .onFailure { logger.error(it.message) }
+            .onFailure { logger.error("Failed to mark Uttak as deleted:${it.message}") }
             .fold(
-                { Either.cond(it.isNotEmpty(), { it }, { RepositoryError.NoRowsFound("No matches found") }) },
-                { RepositoryError.DeleteError(it.message).left() })
-
+                { Unit.right() },
+                { RepositoryError.DeleteError("Failed to delete uttak.").left() }
+            )
 
     override fun getUttakByID(uttakID: Int): Either<RepositoryError, Uttak> = runCatching {
         transaction {
             // leftJoin GjentakelsesRegels because not all uttak are recurring.
-            (UttakTable innerJoin Stasjoner leftJoin Samarbeidspartnere leftJoin GjentakelsesRegels).select { UttakTable.id eq uttakID }
+            (UttakTable innerJoin Stasjoner leftJoin Samarbeidspartnere leftJoin GjentakelsesRegelTable).select { UttakTable.id eq uttakID }
                 .map { toUttak(it) }.firstOrNull()
         }
     }
@@ -123,28 +114,32 @@ object UttakRepository : IUttakRepository {
             { Either.cond(it != null, { it!! }, { RepositoryError.NoRowsFound("ID does not exist!") }) },
             { RepositoryError.SelectError(it.message).left() })
 
+    override fun getUttakByUttaksDataID(uttaksdataID: Int): Either<RepositoryError, Uttak> =
+        UttaksdataRepository.getUttakByUttaksDataID(uttaksdataID)
 
     @KtorExperimentalLocationsAPI
     override fun getUttak(uttakGetForm: UttakGetForm?): Either<RepositoryError, List<Uttak>> =
-        runCatching {
-            transaction {
-                val query = (UttakTable innerJoin Stasjoner innerJoin Samarbeidspartnere leftJoin GjentakelsesRegels).selectAll()
-                if (uttakGetForm != null) {
-                    uttakGetForm.uttakId?.let { query.andWhere { UttakTable.id eq it } }
-                    uttakGetForm.stasjonId?.let { query.andWhere { UttakTable.stasjonID eq it } }
-                    uttakGetForm.partnerId?.let { query.andWhere { UttakTable.partnerID eq it } }
-                    uttakGetForm.gjentakelsesRegelId?.let { query.andWhere { UttakTable.gjentakelsesRegelID eq it } }
-                    uttakGetForm.fromDate?.let { query.andWhere { UttakTable.startDateTime.greaterEq(it) } }
-                    uttakGetForm.toDate?.let { query.andWhere { UttakTable.endDateTime.lessEq(it) } }
+            runCatching {
+                transaction {
+                    val query = (UttakTable innerJoin Stasjoner innerJoin Samarbeidspartnere leftJoin GjentakelsesRegelTable).selectAll()
+                    if (uttakGetForm != null) {
+                        //  TODO: Stop the debugger here
+                        query.andWhere { UttakTable.slettetTidspunkt.isNull() } // Verify for deleted stasjon, partner, etc...
+                        uttakGetForm.id?.let { query.andWhere { UttakTable.id eq it } }
+                        uttakGetForm.stasjonID?.let { query.andWhere { UttakTable.stasjonID eq it } }
+                        uttakGetForm.partnerID?.let { query.andWhere { UttakTable.samarbeidspartnerID eq it } }
+                        uttakGetForm.gjentakelsesRegelID?.let { query.andWhere { UttakTable.gjentakelsesRegelID eq it } }
+                        uttakGetForm.startTidspunkt?.let { query.andWhere { UttakTable.startDateTime.greaterEq(it) } }
+                        uttakGetForm.sluttTidspunkt?.let { query.andWhere { UttakTable.endDateTime.lessEq(it) } }
+                    }
+                    query.mapNotNull { toUttak(it) }
                 }
-                query.mapNotNull { toUttak(it) }
             }
-        }
-            .onFailure { logger.error(it.message) }
-            .fold(
-                { it.right() },
-                { RepositoryError.SelectError(it.message).left() }
-            )
+                    .onFailure { logger.error(it.message) }
+                    .fold(
+                            { it.right() },
+                            { RepositoryError.SelectError(it.message).left() }
+                    )
 
     override fun exists(id: Int) = transaction { UttakTable.select { UttakTable.id eq id }.count() >= 1 }
 
@@ -165,17 +160,17 @@ object UttakRepository : IUttakRepository {
 
 
     private fun getGetGjentakelsesRegelFromResultRow(row: ResultRow): GjentakelsesRegel? {
-        if (!row.hasValue(GjentakelsesRegels.id) || row.getOrNull(
-                GjentakelsesRegels.id
+        if (!row.hasValue(GjentakelsesRegelTable.id) || row.getOrNull(
+                GjentakelsesRegelTable.id
             ) == null
         ) return null
 
         return GjentakelsesRegel(
-            row[GjentakelsesRegels.id].value,
-            row[GjentakelsesRegels.until],
-            row[GjentakelsesRegels.days]?.toWeekDayList(),
-            row[GjentakelsesRegels.interval],
-            row[GjentakelsesRegels.count]
+            row[GjentakelsesRegelTable.id].value,
+            row[GjentakelsesRegelTable.sluttTidspunkt],
+            row[GjentakelsesRegelTable.dager]?.toWeekDayList(),
+            row[GjentakelsesRegelTable.interval],
+            row[GjentakelsesRegelTable.antall]
         )
     }
 }

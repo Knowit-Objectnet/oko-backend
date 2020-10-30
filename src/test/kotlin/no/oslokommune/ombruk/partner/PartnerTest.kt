@@ -6,7 +6,7 @@ import io.ktor.serialization.DefaultJsonConfiguration
 import kotlinx.serialization.builtins.list
 import kotlinx.serialization.json.Json
 import no.oslokommune.ombruk.uttak.database.UttakRepository
-import no.oslokommune.ombruk.partner.database.PartnerRepository
+import no.oslokommune.ombruk.partner.database.SamPartnerRepository
 import no.oslokommune.ombruk.partner.form.PartnerPostForm
 import no.oslokommune.ombruk.partner.model.Partner
 import no.oslokommune.ombruk.partner.service.PartnerService
@@ -37,7 +37,7 @@ class PartnerTest {
 
     @AfterEach
     fun teardown() {
-        PartnerRepository.deleteAllPartnere()
+        SamPartnerRepository.deleteAllPartnere()
     }
 
     private fun createTestPartnere() = (0..9).map {
@@ -96,7 +96,7 @@ class PartnerTest {
             testPost("/partnere", body) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 val responsePartner = json.parse(Partner.serializer(), response.content!!)
-                val insertedPartner = PartnerRepository.getPartnerByID(responsePartner.id)
+                val insertedPartner = SamPartnerRepository.getPartnerByID(responsePartner.id)
                 require(insertedPartner is Either.Right)
                 assertEquals(responsePartner, insertedPartner.b)
                 assertEquals(name, insertedPartner.b.navn)
@@ -117,7 +117,7 @@ class PartnerTest {
             testPost("/partnere", body) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 val responsePartner = json.parse(Partner.serializer(), response.content!!)
-                val insertedPartner = PartnerRepository.getPartnerByID(responsePartner.id)
+                val insertedPartner = SamPartnerRepository.getPartnerByID(responsePartner.id)
                 require(insertedPartner is Either.Right)
                 assertEquals(responsePartner, insertedPartner.b)
                 assertEquals(name, insertedPartner.b.navn)
@@ -139,7 +139,7 @@ class PartnerTest {
             testPost("/partnere", body) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 val responsePartner = json.parse(Partner.serializer(), response.content!!)
-                val insertedPartner = PartnerRepository.getPartnerByID(responsePartner.id)
+                val insertedPartner = SamPartnerRepository.getPartnerByID(responsePartner.id)
                 require(insertedPartner is Either.Right)
                 assertEquals(responsePartner, insertedPartner.b)
                 assertEquals(name, insertedPartner.b.navn)
@@ -161,7 +161,7 @@ class PartnerTest {
             testPost("/partnere", body) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 val responsePartner = json.parse(Partner.serializer(), response.content!!)
-                val insertedPartner = PartnerRepository.getPartnerByID(responsePartner.id)
+                val insertedPartner = SamPartnerRepository.getPartnerByID(responsePartner.id)
                 require(insertedPartner is Either.Right)
                 assertEquals(responsePartner, insertedPartner.b)
                 assertEquals(name, insertedPartner.b.navn)
@@ -186,7 +186,7 @@ class PartnerTest {
             testPost("/partnere", body) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 val responsePartner = json.parse(Partner.serializer(), response.content!!)
-                val insertedPartner = PartnerRepository.getPartnerByID(responsePartner.id)
+                val insertedPartner = SamPartnerRepository.getPartnerByID(responsePartner.id)
                 require(insertedPartner is Either.Right)
                 assertEquals(responsePartner, insertedPartner.b)
                 assertEquals(name, insertedPartner.b.navn)
@@ -214,7 +214,7 @@ class PartnerTest {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(json.stringify(Partner.serializer(), expectedResponse), response.content)
 
-                val partnerInRepository = PartnerRepository.getPartnerByID(expectedResponse.id)
+                val partnerInRepository = SamPartnerRepository.getPartnerByID(expectedResponse.id)
                 require(partnerInRepository is Either.Right)
                 assertEquals(expectedResponse, partnerInRepository.b)
 
@@ -235,7 +235,7 @@ class PartnerTest {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(json.stringify(Partner.serializer(), expectedResponse), response.content)
 
-                val partnerInRepository = PartnerRepository.getPartnerByID(expectedResponse.id)
+                val partnerInRepository = SamPartnerRepository.getPartnerByID(expectedResponse.id)
                 require(partnerInRepository is Either.Right)
                 assertEquals(expectedResponse, partnerInRepository.b)
 
@@ -256,7 +256,7 @@ class PartnerTest {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(json.stringify(Partner.serializer(), expectedResponse), response.content)
 
-                val partnerInRepository = PartnerRepository.getPartnerByID(expectedResponse.id)
+                val partnerInRepository = SamPartnerRepository.getPartnerByID(expectedResponse.id)
                 require(partnerInRepository is Either.Right)
                 assertEquals(expectedResponse, partnerInRepository.b)
 
@@ -280,7 +280,7 @@ class PartnerTest {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(json.stringify(Partner.serializer(), expectedResponse), response.content)
 
-                val partnerInRepository = PartnerRepository.getPartnerByID(expectedResponse.id)
+                val partnerInRepository = SamPartnerRepository.getPartnerByID(expectedResponse.id)
                 require(partnerInRepository is Either.Right)
                 assertEquals(expectedResponse, partnerInRepository.b)
 

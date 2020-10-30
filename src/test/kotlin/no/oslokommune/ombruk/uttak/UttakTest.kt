@@ -17,7 +17,7 @@ import no.oslokommune.ombruk.uttak.model.GjentakelsesRegel
 import no.oslokommune.ombruk.stasjon.model.Stasjon
 import no.oslokommune.ombruk.uttak.service.UttakService
 import no.oslokommune.ombruk.stasjon.service.StasjonService
-import no.oslokommune.ombruk.partner.database.PartnerRepository
+import no.oslokommune.ombruk.partner.database.SamPartnerRepository
 import no.oslokommune.ombruk.partner.form.PartnerPostForm
 import no.oslokommune.ombruk.partner.model.Partner
 import no.oslokommune.ombruk.partner.service.PartnerService
@@ -64,7 +64,7 @@ class UttakTest {
 
     @AfterAll
     fun finish() {
-        PartnerRepository.deleteAllPartnere()
+        SamPartnerRepository.deleteAllPartnere()
         StasjonRepository.deleteAllStasjoner()
     }
 
@@ -242,7 +242,7 @@ class UttakTest {
             testPost("/uttak", body) {
                 val responseUttak = json.parse(Uttak.serializer(), response.content!!)
                 val insertedUttak =
-                    UttakRepository.getUttak(UttakGetForm(gjentakelsesRegelId = responseUttak.gjentakelsesRegel!!.id))
+                    UttakRepository.getUttak(UttakGetForm(gjentakelsesRegelID = responseUttak.gjentakelsesRegel!!.id))
 
                 assertEquals(HttpStatusCode.OK, response.status())
                 require(insertedUttak is Either.Right)

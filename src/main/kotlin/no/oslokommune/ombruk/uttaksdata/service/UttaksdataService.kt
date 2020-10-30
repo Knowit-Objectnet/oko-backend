@@ -1,26 +1,24 @@
 package no.oslokommune.ombruk.uttaksdata.service
 
 import arrow.core.Either
-import no.oslokommune.ombruk.uttak.model.Uttak
+import no.oslokommune.ombruk.shared.error.RepositoryError
 import no.oslokommune.ombruk.uttaksdata.database.UttaksdataRepository
 import no.oslokommune.ombruk.uttaksdata.form.UttaksdataGetForm
 import no.oslokommune.ombruk.uttaksdata.form.UttaksdataUpdateForm
 import no.oslokommune.ombruk.uttaksdata.model.Uttaksdata
 import no.oslokommune.ombruk.shared.error.ServiceError
+import no.oslokommune.ombruk.uttaksdata.form.UttaksdataPostForm
 
 object UttaksdataService : IUttaksdataService {
 
-    override fun saveReport(uttak: Uttak): Either<ServiceError, Uttaksdata> = UttaksdataRepository.insertReport(uttak)
+    override fun saveUttaksdata(form: UttaksdataPostForm): Either<ServiceError, Uttaksdata> = UttaksdataRepository.insertUttaksdata(form)
 
-    override fun updateReport(uttak: Uttak): Either<ServiceError, Unit> = UttaksdataRepository.updateReport(uttak)
+    override fun updateUttaksdata(form: UttaksdataUpdateForm): Either<RepositoryError, Uttaksdata> = UttaksdataRepository.updateUttaksdata(form)
 
-    override fun updateReport(uttaksdataUpdateForm: UttaksdataUpdateForm): Either<ServiceError, Uttaksdata> =
-        UttaksdataRepository.updateReport(uttaksdataUpdateForm)
+    override fun getUttaksdataById(uttaksdataID: Int): Either<ServiceError, Uttaksdata> = UttaksdataRepository.getUttaksDataByID(uttaksdataID)
 
-    override fun getReportById(uttaksdataID: Int): Either<ServiceError, Uttaksdata> = UttaksdataRepository.getReportByID(uttaksdataID)
-
-    override fun getReports(uttaksdataGetForm: UttaksdataGetForm): Either<ServiceError, List<Uttaksdata>> =
-        UttaksdataRepository.getReports(uttaksdataGetForm)
+    override fun getUttaksdata(form: UttaksdataGetForm): Either<ServiceError, List<Uttaksdata>> =
+        UttaksdataRepository.getUttaksData(form)
 
 
 }

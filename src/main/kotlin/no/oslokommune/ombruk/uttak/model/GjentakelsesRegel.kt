@@ -7,11 +7,17 @@ import java.time.LocalDateTime
 
 @Serializable
 data class GjentakelsesRegel(
-    var id: Int = 0,
-    @Serializable(with = LocalDateTimeSerializer::class) val until: LocalDateTime? = null,
-    val days: List<DayOfWeek>? = null,
-    val interval: Int = 1,
-    val count: Int? = null
+    var id: Int,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val endretTidspunkt: LocalDateTime? = null,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val sluttTidspunkt: LocalDateTime,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val slettetTidspunkt: LocalDateTime? = null,
+    @Serializable
+    val dager: List<DayOfWeek>? = null,
+    val intervall: Int = 1,
+    val antall: Int
 )
 
 fun String.toWeekDayList() = this.split(", ").map { DayOfWeek.valueOf(it) }

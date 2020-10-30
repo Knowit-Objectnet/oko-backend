@@ -78,10 +78,10 @@ fun Routing.uttak(uttakService: IUttakService) {
 @KtorExperimentalLocationsAPI
 private fun UttakDeleteForm.toGetForm() =
     UttakGetForm(
-        uttakId,
-        gjentakelsesRegelId = gjentakelsesRegelId,
-        fromDate = fromDate,
-        toDate = toDate,
-        stasjonId = stasjonId,
-        partnerId = partnerId
+        id,
+        gjentakelsesRegelID = gjentakelsesRegelId,
+        startTidspunkt = fromDate,
+        sluttTidspunkt = toDate,
+        stasjonID = stasjonId,
+        partnerID = partnerId
     )

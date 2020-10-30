@@ -88,12 +88,18 @@ object Authorization {
      * @param uttaksdataFunc A function that returns either a [ServiceError] or the [Uttaksdata] that should be updated.
      * @return [role] if the ID in [role] corresponds to the [Uttaksdata.partnerId] from the [uttaksdataFunc]. Else, return [AuthorizationError]
      */
-    fun authorizeReportPatchByPartnerId(role: Pair<Roles, Int>, uttaksdataFunc: () -> Either<ServiceError, Uttaksdata>) =
+    fun authorizeReportPatchByPartnerId(role: Pair<Roles, Int>, uttaksdataFunc: () -> Either<ServiceError, Uttak>) =
         uttaksdataFunc()
             .flatMap {
-                if (role.first == Roles.Partner && it.partnerId != role.second) {
-                    AuthorizationError.AccessViolationError().left()
-                } else role.right()
+                /**
+                 * If no samarbeidspartnerID, then this is an "ekstra-uttak" and should only
+                 * be patchable by reg employees.
+                 * Otherwise, check if the uttak belongs to the partner
+                 */
+                if (it.samarbeidspartnerID == null && role.first == Roles.RegEmployee || // TODO: Verify with customer
+                        role.first == Roles.Partner && it.samarbeidspartnerID == role.second) {
+                    role.right()
+                } else AuthorizationError.AccessViolationError().left()
             }
 
     /**

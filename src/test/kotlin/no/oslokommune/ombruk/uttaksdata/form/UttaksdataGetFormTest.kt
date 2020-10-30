@@ -18,8 +18,8 @@ class UttaksdataGetFormTest {
         UttaksdataGetForm(stasjonId = 1),
         UttaksdataGetForm(partnerId = 1),
         UttaksdataGetForm(fromDate = LocalDateTime.now()),
-        UttaksdataGetForm(toDate = LocalDateTime.now()),
-        UttaksdataGetForm(fromDate = LocalDateTime.now(), toDate = LocalDateTime.now().plusHours(1))
+        UttaksdataGetForm(fraRapportertTidspunkt = LocalDateTime.now()),
+        UttaksdataGetForm(fromDate = LocalDateTime.now(), fraRapportertTidspunkt = LocalDateTime.now().plusHours(1))
     )
 
     @ParameterizedTest
@@ -36,7 +36,7 @@ class UttaksdataGetFormTest {
         UttaksdataGetForm(0),
         UttaksdataGetForm(stasjonId = 0),
         UttaksdataGetForm(partnerId = 0),
-        UttaksdataGetForm(fromDate = LocalDateTime.now(), toDate = LocalDateTime.now().minusHours(1)),
+        UttaksdataGetForm(fromDate = LocalDateTime.now(), fraRapportertTidspunkt = LocalDateTime.now().minusHours(1)),
         UttaksdataGetForm(1, 1, 1, LocalDateTime.now(), LocalDateTime.now().plusHours(1))
     )
 

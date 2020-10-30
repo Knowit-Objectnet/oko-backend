@@ -18,21 +18,22 @@ import no.oslokommune.ombruk.shared.api.Authorization
 import no.oslokommune.ombruk.shared.api.Roles
 import no.oslokommune.ombruk.shared.api.generateResponse
 import no.oslokommune.ombruk.shared.api.receiveCatching
+import no.oslokommune.ombruk.uttak.service.IUttakService
 
 @KtorExperimentalLocationsAPI
-fun Routing.uttaksdata(uttaksdataService: IUttaksdataService) {
+fun Routing.uttaksdata(uttaksdataService: IUttaksdataService, uttakService: IUttakService) {
     route("/uttaksdata") {
 
         get<UttaksdataGetByIdForm> { form ->
             form.validOrError()
-                .flatMap { uttaksdataService.getReportById(it.id) }
+                .flatMap { uttaksdataService.getUttaksdataById(it.id) }
                 .run { generateResponse(this) }
                 .also { (code, response) -> call.respond(code, response) }
         }
 
         get<UttaksdataGetForm> { form ->
             form.validOrError()
-                .flatMap { uttaksdataService.getReports(it) }
+                .flatMap { uttaksdataService.getUttaksdata(it) }
                 .run { generateResponse(this) }
                 .also { (code, response) -> call.respond(code, response) }
         }
@@ -44,8 +45,8 @@ fun Routing.uttaksdata(uttaksdataService: IUttaksdataService) {
                     .flatMap { form ->
                         Authorization.run {
                             authorizeRole(listOf(Roles.Partner, Roles.RegEmployee, Roles.ReuseStasjon), call)
-                                .flatMap { authorizeReportPatchByPartnerId(it) { uttaksdataService.getReportById(form.id) } }
-                        }.flatMap { uttaksdataService.updateReport(form) }
+                                .flatMap { authorizeReportPatchByPartnerId(it) { uttakService.getUttakByID(form.uttakID) } }
+                        }.flatMap { uttaksdataService.updateUttaksdata(form) }
                     }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }

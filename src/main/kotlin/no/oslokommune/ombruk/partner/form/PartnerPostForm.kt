@@ -1,7 +1,7 @@
 package no.oslokommune.ombruk.partner.form
 
 import kotlinx.serialization.Serializable
-import no.oslokommune.ombruk.partner.database.PartnerRepository
+import no.oslokommune.ombruk.partner.database.SamPartnerRepository
 import no.oslokommune.ombruk.shared.form.IForm
 import no.oslokommune.ombruk.shared.utils.validation.isNorwegianPhoneNumber
 import no.oslokommune.ombruk.shared.utils.validation.isUniqueInRepository
@@ -19,7 +19,7 @@ data class PartnerPostForm(
 ) : IForm<PartnerPostForm> {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
-            validate(PartnerPostForm::navn).isNotBlank().isUniqueInRepository(PartnerRepository)
+            validate(PartnerPostForm::navn).isNotBlank().isUniqueInRepository(SamPartnerRepository)
             validate(PartnerPostForm::telefon).isNorwegianPhoneNumber() // TODO: Necessary?
             validate(PartnerPostForm::epost).isEmail()
             validate(PartnerPostForm::beskrivelse).isNotBlank()

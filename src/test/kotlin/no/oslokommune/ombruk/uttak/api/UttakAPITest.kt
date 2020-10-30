@@ -21,7 +21,7 @@ import no.oslokommune.ombruk.uttak.form.UttakUpdateForm
 import no.oslokommune.ombruk.uttak.model.Uttak
 import no.oslokommune.ombruk.stasjon.model.Stasjon
 import no.oslokommune.ombruk.uttak.service.UttakService
-import no.oslokommune.ombruk.partner.database.PartnerRepository
+import no.oslokommune.ombruk.partner.database.SamPartnerRepository
 import no.oslokommune.ombruk.partner.model.Partner
 import no.oslokommune.ombruk.shared.api.Authorization
 import no.oslokommune.ombruk.shared.api.JwtMockConfig
@@ -49,7 +49,7 @@ class UttakAPITest {
         mockkObject(UttakRepository)
         mockkObject(UttakService)
         mockkObject(StasjonRepository)
-        mockkObject(PartnerRepository)
+        mockkObject(SamPartnerRepository)
         mockkObject(Authorization)
     }
 
@@ -199,10 +199,10 @@ class UttakAPITest {
             val s = Stasjon(id = 1, name = "test", hours = openHours())
             val p = Partner(1, "test", "beskrivelse", "81549300", "test@test.com")
             val form = UttakPostForm(LocalDateTime.now(), LocalDateTime.now().plusHours(1), s.id, p.id)
-            val expected = Uttak(1, form.startDateTime, form.endDateTime, s, p)
+            val expected = Uttak(1, form.startTidspunkt, form.sluttTidspunkt, s, p)
 
             every { UttakService.saveUttak(form) } returns expected.right()
-            every { PartnerRepository.exists(1) } returns true
+            every { SamPartnerRepository.exists(1) } returns true
             every { StasjonRepository.exists(1) } returns true
             every { StasjonRepository.getStasjonById(1) } returns Either.right(s)
 
@@ -219,7 +219,7 @@ class UttakAPITest {
         fun `post uttak 401`() {
             val form = UttakPostForm(LocalDateTime.now(), LocalDateTime.now().plusDays(1), 1, 1)
 
-            every { PartnerRepository.exists(1) } returns true
+            every { SamPartnerRepository.exists(1) } returns true
             every { StasjonRepository.exists(1) } returns true
 
             testPost("/uttak", json.stringify(UttakPostForm.serializer(), form), null) {
@@ -234,7 +234,7 @@ class UttakAPITest {
         fun `post uttak 403`() {
             val form = UttakPostForm(LocalDateTime.now(), LocalDateTime.now().plusDays(1), 1, 1)
 
-            every { PartnerRepository.exists(1) } returns true
+            every { SamPartnerRepository.exists(1) } returns true
             every { StasjonRepository.exists(1) } returns true
 
             testPost("/uttak", json.stringify(UttakPostForm.serializer(), form), JwtMockConfig.partnerBearer2) {
@@ -251,7 +251,7 @@ class UttakAPITest {
 
             val s = Stasjon(id = 1, name = "test", hours = openHours())
             every { UttakService.saveUttak(form) } returns ServiceError("test").left()
-            every { PartnerRepository.exists(1) } returns true
+            every { SamPartnerRepository.exists(1) } returns true
             every { StasjonRepository.exists(s.id) } returns true
             every { StasjonRepository.getStasjonById(1) } returns Either.right(s)
 
@@ -270,7 +270,7 @@ class UttakAPITest {
             val form = UttakPostForm(LocalDateTime.now(), LocalDateTime.now().plusHours(1), 1, 1)
 
             val s = Stasjon(id = 1, name = "test", hours = openHours())
-            every { PartnerRepository.exists(1) } returns false // Partner does not exist
+            every { SamPartnerRepository.exists(1) } returns false // Partner does not exist
             every { StasjonRepository.exists(s.id) } returns true
             every { StasjonRepository.getStasjonById(1) } returns Either.right(s)
 
@@ -304,7 +304,7 @@ class UttakAPITest {
             val p = Partner(1, "test", "beskrivelse", "81549300", "test@test.com")
             val initial = Uttak(1, LocalDateTime.now().plusDays(2), LocalDateTime.now().plusDays(2).plusHours(1), s, p)
             val form = UttakUpdateForm(1, LocalDateTime.now(), LocalDateTime.now().plusHours(1))
-            val expected = initial.copy(startDateTime = form.startDateTime!!, endDateTime = form.endDateTime!!)
+            val expected = initial.copy(startDateTime = form.startTidspunkt!!, endDateTime = form.sluttTidspunkt!!)
 
             every { UttakService.updateUttak(form) } returns expected.right()
             every { UttakRepository.getUttakByID(1) } returns initial.right()
@@ -368,7 +368,7 @@ class UttakAPITest {
             val p = Partner(1, "test", "beskrivelse", "81549300", "test@test.com")
             val initial = Uttak(1, LocalDateTime.now().plusDays(2), LocalDateTime.now().plusDays(3), s, p)
             val form = UttakUpdateForm(-1, LocalDateTime.now(), LocalDateTime.now().plusDays(1))
-            val expected = initial.copy(startDateTime = form.startDateTime!!, endDateTime = form.endDateTime!!)
+            val expected = initial.copy(startDateTime = form.startTidspunkt!!, endDateTime = form.sluttTidspunkt!!)
 
             every { UttakService.updateUttak(form) } returns expected.right()
             every { UttakRepository.getUttakByID(1) } returns initial.right()

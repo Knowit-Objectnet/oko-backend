@@ -203,9 +203,9 @@ class UttaksdataRepositoryTest {
                 testUttak3.startDateTime,
                 testUttak3.endDateTime
             )
-            testUttaksdata = testUttaksdata.copy(uttaksdataId = insertTestReport(testUttaksdata))
-            testUttaksdata2 = testUttaksdata2.copy(uttaksdataId = insertTestReport(testUttaksdata2))
-            testUttaksdata3 = testUttaksdata3.copy(uttaksdataId = insertTestReport(testUttaksdata3))
+            testUttaksdata = testUttaksdata.copy(id = insertTestReport(testUttaksdata))
+            testUttaksdata2 = testUttaksdata2.copy(id = insertTestReport(testUttaksdata2))
+            testUttaksdata3 = testUttaksdata3.copy(id = insertTestReport(testUttaksdata3))
         }
     }
 
@@ -219,8 +219,8 @@ class UttaksdataRepositoryTest {
 
     fun insertTestReport(uttaksdata: Uttaksdata) =
         transaction {
-            Reports.insertAndGetId {
-                it[weight] = null
+            UttaksdataTable.insertAndGetId {
+                it[vekt] = null
                 it[uttaksdataedDateTime] = null
                 it[uttakID] = uttaksdata.uttakId
                 it[partnerID] = uttaksdata.partnerId
@@ -251,7 +251,7 @@ class UttaksdataRepositoryTest {
         @Test
         fun `get Report by valid ID`() {
             val expected = testUttaksdata
-            val result = UttaksdataRepository.getReportByID(expected.uttaksdataId)
+            val result = UttaksdataRepository.getUttaksDataByID(expected.id)
             require(result is Either.Right)
             assertEquals(expected, result.b)
         }
@@ -262,7 +262,7 @@ class UttaksdataRepositoryTest {
         @Test
         fun `get by invalid ID is left`() {
             val expected = RepositoryError.NoRowsFound("ID 0 does not exist!")
-            val actual = UttaksdataRepository.getReportByID(0)
+            val actual = UttaksdataRepository.getUttaksDataByID(0)
             require(actual is Either.Left)
             assertEquals(expected, actual.a)
         }
@@ -282,11 +282,11 @@ class UttaksdataRepositoryTest {
                 listOf(testUttaksdata, testUttaksdata2, testUttaksdata3)
             ),
             Pair(
-                UttaksdataGetForm(toDate = LocalDateTime.parse("2022-06-03T13:28:00Z", DateTimeFormatter.ISO_DATE_TIME)),
+                UttaksdataGetForm(fraRapportertTidspunkt = LocalDateTime.parse("2022-06-03T13:28:00Z", DateTimeFormatter.ISO_DATE_TIME)),
                 listOf(testUttaksdata, testUttaksdata2, testUttaksdata3)
             ),
             Pair(
-                UttaksdataGetForm(toDate = LocalDateTime.parse("2018-06-03T15:32:00Z", DateTimeFormatter.ISO_DATE_TIME)),
+                UttaksdataGetForm(fraRapportertTidspunkt = LocalDateTime.parse("2018-06-03T15:32:00Z", DateTimeFormatter.ISO_DATE_TIME)),
                 emptyList()
             ),
             Pair(
@@ -306,21 +306,21 @@ class UttaksdataRepositoryTest {
                 listOf(testUttaksdata2)
             ),
             Pair(
-                UttaksdataGetForm(toDate = LocalDateTime.parse("2020-07-07T17:59:00Z", DateTimeFormatter.ISO_DATE_TIME)),
+                UttaksdataGetForm(fraRapportertTidspunkt = LocalDateTime.parse("2020-07-07T17:59:00Z", DateTimeFormatter.ISO_DATE_TIME)),
                 listOf(testUttaksdata3)
             ),
             Pair(
-                UttaksdataGetForm(toDate = LocalDateTime.parse("2020-07-07T18:00:00Z", DateTimeFormatter.ISO_DATE_TIME)),
+                UttaksdataGetForm(fraRapportertTidspunkt = LocalDateTime.parse("2020-07-07T18:00:00Z", DateTimeFormatter.ISO_DATE_TIME)),
                 listOf(testUttaksdata, testUttaksdata3)
             ),
             Pair(
-                UttaksdataGetForm(toDate = LocalDateTime.parse("2020-07-07T18:00:01Z", DateTimeFormatter.ISO_DATE_TIME)),
+                UttaksdataGetForm(fraRapportertTidspunkt = LocalDateTime.parse("2020-07-07T18:00:01Z", DateTimeFormatter.ISO_DATE_TIME)),
                 listOf(testUttaksdata, testUttaksdata3)
             ),
             Pair(
                 UttaksdataGetForm(
                     fromDate = LocalDateTime.parse("2020-07-07T13:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
-                    toDate = LocalDateTime.parse("2020-08-09T16:00:00Z", DateTimeFormatter.ISO_DATE_TIME)
+                    fraRapportertTidspunkt = LocalDateTime.parse("2020-08-09T16:00:00Z", DateTimeFormatter.ISO_DATE_TIME)
                 ),
                 listOf(testUttaksdata, testUttaksdata2)
             ),
@@ -329,7 +329,7 @@ class UttaksdataRepositoryTest {
                     stasjonId = testStasjon.id,
                     partnerId = testPartner.id,
                     fromDate = LocalDateTime.parse("2020-06-03T08:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
-                    toDate = LocalDateTime.parse("2020-09-10T15:57:00Z", DateTimeFormatter.ISO_DATE_TIME)
+                    fraRapportertTidspunkt = LocalDateTime.parse("2020-09-10T15:57:00Z", DateTimeFormatter.ISO_DATE_TIME)
                 ),
                 listOf(testUttaksdata)
             )
@@ -339,7 +339,7 @@ class UttaksdataRepositoryTest {
         @MethodSource("generateValidForms")
         fun `valid gets with valid forms`(testData: Pair<UttaksdataGetForm?, List<Uttaksdata>>) {
             val expected = testData.second
-            val actual = UttaksdataRepository.getReports(testData.first)
+            val actual = UttaksdataRepository.getUttaksData(testData.first)
             require(actual is Either.Right)
             assertEquals(expected, actual.b)
         }
@@ -376,8 +376,8 @@ class UttaksdataRepositoryTest {
 //        )
 
         init {
-            updateTestReport = updateTestReport.copy(uttaksdataId = insertTestReport(updateTestReport))
-            updateTestReport2 = updateTestReport2.copy(uttaksdataId = insertTestReport(updateTestReport2))
+            updateTestReport = updateTestReport.copy(id = insertTestReport(updateTestReport))
+            updateTestReport2 = updateTestReport2.copy(id = insertTestReport(updateTestReport2))
 //            updateTestReport3 = updateTestReport3.copy(uttaksdataId = insertTestReport(updateTestReport3))
         }
 
@@ -387,11 +387,11 @@ class UttaksdataRepositoryTest {
         @Test
         fun `Update uttaksdata valid`() {
             val expectedWeight = 50
-            val form = UttaksdataUpdateForm(updateTestReport.uttaksdataId, expectedWeight)
-            val result = UttaksdataRepository.updateReport(form)
+            val form = UttaksdataUpdateForm(updateTestReport.id, expectedWeight)
+            val result = UttaksdataRepository.updateUttaksdata(form)
             require(result is Either.Right)
             val newReport =
-                updateTestReport.copy(uttaksdataedDateTime = result.b.uttaksdataedDateTime, weight = result.b.weight)
+                updateTestReport.copy(rapportertTidspunkt = result.b.rapportertTidspunkt, vekt = result.b.vekt)
             assertEquals(newReport, result.b)
         }
 
@@ -403,7 +403,7 @@ class UttaksdataRepositoryTest {
             val form = UttaksdataUpdateForm(0, 50)
             val expected = RepositoryError.NoRowsFound("ID 0 does not exist!")
 
-            val result = UttaksdataRepository.updateReport(form)
+            val result = UttaksdataRepository.updateUttaksdata(form)
             require(result is Either.Left)
             assert(result.a is RepositoryError.NoRowsFound)
             assertEquals(expected, result.a)
@@ -414,16 +414,16 @@ class UttaksdataRepositoryTest {
          */
         @Test
         fun `update uttaksdata with invalid weight`() {
-            val form = UttaksdataUpdateForm(testUttaksdata2.uttaksdataId, 0)
+            val form = UttaksdataUpdateForm(testUttaksdata2.id, 0)
             val expected = RepositoryError.UpdateError("Failed to update uttaksdata")
 
-            val initial = UttaksdataRepository.getReportByID(testUttaksdata2.uttaksdataId)
+            val initial = UttaksdataRepository.getUttaksDataByID(testUttaksdata2.id)
             require(initial is Either.Right)
 
-            val result = UttaksdataRepository.updateReport(form)
+            val result = UttaksdataRepository.updateUttaksdata(form)
             require(result is Either.Left)
             assertEquals(expected, result.a)
-            val after = UttaksdataRepository.getReportByID(testUttaksdata2.uttaksdataId)
+            val after = UttaksdataRepository.getUttaksDataByID(testUttaksdata2.id)
             require(after is Either.Right)
             assertEquals(initial.b, after.b)
         }
@@ -442,9 +442,9 @@ class UttaksdataRepositoryTest {
             )
             val expected = testUttaksdata2.copy(startDateTime = uttak.startDateTime, endDateTime = uttak.endDateTime)
 
-            val result = UttaksdataRepository.updateReport(uttak)
+            val result = UttaksdataRepository.updateUttaksdata(uttak)
             require(result is Either.Right)
-            val actual = UttaksdataRepository.getReportByID(expected.uttaksdataId)
+            val actual = UttaksdataRepository.getUttaksDataByID(expected.id)
             require(actual is Either.Right)
             assertEquals(expected, actual.b)
         }
@@ -463,7 +463,7 @@ class UttaksdataRepositoryTest {
             )
             val expected = RepositoryError.NoRowsFound("uttakId 0 does not exist!")
 
-            val actual = UttaksdataRepository.updateReport(uttak)
+            val actual = UttaksdataRepository.updateUttaksdata(uttak)
             require(actual is Either.Left)
             assertEquals(expected, actual.a)
         }
@@ -478,15 +478,15 @@ class UttaksdataRepositoryTest {
          */
         @Test
         fun `insert uttaksdata valid`() {
-            val actual = UttaksdataRepository.insertReport(testUttak5)
+            val actual = UttaksdataRepository.insertUttaksdata(testUttak5)
             require(actual is Either.Right)
             assertEquals(testUttak5.id, actual.b.uttakId)
             assertEquals(testUttak5.partner?.id, actual.b.partnerId)
             assertEquals(testUttak5.stasjon, actual.b.stasjon)
             assertEquals(testUttak5.startDateTime, actual.b.startDateTime)
             assertEquals(testUttak5.endDateTime, actual.b.endDateTime)
-            assert(actual.b.uttaksdataedDateTime == null)
-            assert(actual.b.weight == null)
+            assert(actual.b.rapportertTidspunkt == null)
+            assert(actual.b.vekt == null)
         }
     }
 }

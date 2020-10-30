@@ -43,13 +43,15 @@ create table uttak
     id                                   serial primary key,
     endret_tidspunkt                     timestamp with time zone not null,
     slettet_tidspunkt                    timestamp with time zone,
-    type_id                              int not null,
+    -- Disabled for now - varchar works nicely with exposed's enumerationByName
+    --type_id                              int not null,
+    type                                 varchar(64),
     start_tidspunkt                      timestamp with time zone not null,
     slutt_tidspunkt                      timestamp with time zone not null,
     stasjon_id                           int not null,
     samarbeidspartner_id                 int,
     gjentakelsesregel_id                 int,
-    foreign key (type_id)                references uttakstype,
+    --foreign key (type_id)                references uttakstype,
     foreign key (samarbeidspartner_id)   references samarbeidspartnere,
     foreign key (stasjon_id)             references stasjoner,
     foreign key (gjentakelsesregel_id)   references gjentakelsesregler

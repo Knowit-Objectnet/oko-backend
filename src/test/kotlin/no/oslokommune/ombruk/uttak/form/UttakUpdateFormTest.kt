@@ -61,7 +61,7 @@ class UttakUpdateFormTest {
     fun generateValidForms(): List<UttakUpdateForm> {
         return listOf(
             UttakUpdateForm(1, from),
-            UttakUpdateForm(1, endDateTime = from.plusHours(1)),
+            UttakUpdateForm(1, sluttTidspunkt = from.plusHours(1)),
             UttakUpdateForm(1, from, from.plusHours(1))
 
         )
@@ -84,7 +84,7 @@ class UttakUpdateFormTest {
     fun generateInvalidForms() = listOf(
         UttakUpdateForm(1),
         UttakUpdateForm(1, from.plusHours(2)),
-        UttakUpdateForm(1, endDateTime = from.minusHours(2)),
+        UttakUpdateForm(1, sluttTidspunkt = from.minusHours(2)),
         UttakUpdateForm(1, from, from.minusHours(1))
     )
 

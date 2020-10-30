@@ -1,7 +1,7 @@
 package no.oslokommune.ombruk.partner.form
 
 import kotlinx.serialization.Serializable
-import no.oslokommune.ombruk.partner.database.PartnerRepository
+import no.oslokommune.ombruk.partner.database.SamPartnerRepository
 import no.oslokommune.ombruk.shared.form.IForm
 import no.oslokommune.ombruk.shared.utils.validation.isNorwegianPhoneNumber
 import no.oslokommune.ombruk.shared.utils.validation.isUniqueInRepository
@@ -27,8 +27,8 @@ data class PartnerUpdateForm(
             validate(PartnerUpdateForm::telefon).isNotBlank().isNorwegianPhoneNumber()
             validate(PartnerUpdateForm::epost).isNotBlank().isEmail()
 
-            PartnerRepository.getPartnerByID(id).map {
-                if (it.navn != navn) validate(PartnerUpdateForm::navn).isUniqueInRepository(PartnerRepository)
+            SamPartnerRepository.getPartnerByID(id).map {
+                if (it.navn != navn) validate(PartnerUpdateForm::navn).isUniqueInRepository(SamPartnerRepository)
             }
         }
     }

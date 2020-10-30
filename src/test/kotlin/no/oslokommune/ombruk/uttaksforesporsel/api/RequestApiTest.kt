@@ -1,33 +1,8 @@
 package no.oslokommune.ombruk.uttaksforesporsel.api
 
-import arrow.core.left
-import arrow.core.right
-import io.ktor.http.HttpStatusCode
-import io.ktor.serialization.DefaultJsonConfiguration
-import io.mockk.clearAllMocks
-import io.mockk.every
 import io.mockk.junit5.MockKExtension
-import io.mockk.mockkObject
-import io.mockk.unmockkAll
-import kotlinx.serialization.builtins.list
-import kotlinx.serialization.json.Json
-import no.oslokommune.ombruk.stasjon.model.Stasjon
-import no.oslokommune.ombruk.partner.database.PartnerRepository
-import no.oslokommune.ombruk.partner.model.Partner
-import no.oslokommune.ombruk.uttaksforesporsel.form.uttaksforesporsel.UttaksforesporselDeleteForm
-import no.oslokommune.ombruk.uttaksforesporsel.form.uttaksforesporsel.UttaksforesporselGetForm
-import no.oslokommune.ombruk.uttaksforesporsel.form.uttaksforesporsel.UttaksforesporselPostForm
-import no.oslokommune.ombruk.uttaksforesporsel.model.Uttaksforesporsel
-import no.oslokommune.ombruk.uttaksforesporsel.service.UttaksforesporselService
-import no.oslokommune.ombruk.shared.api.JwtMockConfig
-import no.oslokommune.ombruk.shared.error.ServiceError
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
-import no.oslokommune.ombruk.testDelete
-import no.oslokommune.ombruk.testGet
-import no.oslokommune.ombruk.testPost
-import java.time.LocalDateTime
-import kotlin.test.assertEquals
 
 @Disabled
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)

@@ -35,7 +35,7 @@ interface IUttakRepository : IRepository {
      * @param uttakDeleteForm A [UttakDeleteForm] containing the query constraints.
      * @return An [Either] object consisting of a [RepositoryError] on failure and [List] of deleted [Uttak] objects on success.
      */
-    fun deleteUttak(uttakDeleteForm: UttakDeleteForm): Either<RepositoryError, List<Uttak>>
+    fun deleteUttak(uttakDeleteForm: UttakDeleteForm): Either<RepositoryError, Unit>
 
     /**
      * Fetches a specific [Uttak].
@@ -51,4 +51,6 @@ interface IUttakRepository : IRepository {
      * @return An [Either] object consisting of a [RepositoryError] on failure and a [List] of [Uttak] objects on success.
      */
     fun getUttak(uttakGetForm: UttakGetForm?): Either<RepositoryError, List<Uttak>>
+
+    fun getUttakByUttaksDataID(uttaksdataID: Int): Either<RepositoryError, Uttak>
 }

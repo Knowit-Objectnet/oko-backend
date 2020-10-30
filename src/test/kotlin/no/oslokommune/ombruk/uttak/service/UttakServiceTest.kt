@@ -6,7 +6,7 @@ import io.mockk.*
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import no.oslokommune.ombruk.uttak.database.UttakRepository
-import no.oslokommune.ombruk.uttak.database.GjentakelsesRegels
+import no.oslokommune.ombruk.uttak.database.GjentakelsesRegelTable
 import no.oslokommune.ombruk.uttak.form.UttakDeleteForm
 import no.oslokommune.ombruk.uttak.form.UttakGetForm
 import no.oslokommune.ombruk.uttak.form.UttakPostForm
@@ -30,7 +30,7 @@ class UttakServiceTest {
     fun setup() {
         mockkObject(UttakRepository)
         mockkObject(UttaksdataService)
-        mockkObject(GjentakelsesRegels)
+        mockkObject(GjentakelsesRegelTable)
     }
 
     @AfterEach
@@ -77,7 +77,7 @@ class UttakServiceTest {
          */
         @Test
         fun `get by stasjon id`(@MockK expectedUttak: List<Uttak>) {
-            val form = UttakGetForm(stasjonId = 1)
+            val form = UttakGetForm(stasjonID = 1)
             every { UttakRepository.getUttak(form) } returns expectedUttak.right()
 
             val actualUttak = UttakService.getUttak(form)
@@ -90,7 +90,7 @@ class UttakServiceTest {
          */
         @Test
         fun `get by partner id`(@MockK expectedUttak: List<Uttak>) {
-            val form = UttakGetForm(partnerId = 1)
+            val form = UttakGetForm(partnerID = 1)
             every { UttakRepository.getUttak(form) } returns expectedUttak.right()
 
             val actualUttak = UttakService.getUttak(form)
@@ -103,7 +103,7 @@ class UttakServiceTest {
          */
         @Test
         fun `get by partner and stasjon id`(@MockK expectedUttak: List<Uttak>) {
-            val form = UttakGetForm(partnerId = 1, stasjonId = 1)
+            val form = UttakGetForm(partnerID = 1, stasjonID = 1)
             every { UttakRepository.getUttak(form) } returns expectedUttak.right()
 
             val actualUttak = UttakService.getUttak(form)
@@ -117,8 +117,8 @@ class UttakServiceTest {
         @Test
         fun `get by datetime range`(@MockK expectedUttak: List<Uttak>) {
             val form = UttakGetForm(
-                fromDate = LocalDateTime.parse("2020-08-15T15:30:00", DateTimeFormatter.ISO_DATE_TIME),
-                toDate = LocalDateTime.parse("2020-08-20T15:30:00", DateTimeFormatter.ISO_DATE_TIME)
+                startTidspunkt = LocalDateTime.parse("2020-08-15T15:30:00", DateTimeFormatter.ISO_DATE_TIME),
+                sluttTidspunkt = LocalDateTime.parse("2020-08-20T15:30:00", DateTimeFormatter.ISO_DATE_TIME)
             )
             every { UttakRepository.getUttak(form) } returns expectedUttak.right()
 
@@ -132,7 +132,7 @@ class UttakServiceTest {
          */
         @Test
         fun `get by gjentakelsesRegel id`(@MockK expectedUttak: List<Uttak>) {
-            val form = UttakGetForm(gjentakelsesRegelId = 1)
+            val form = UttakGetForm(gjentakelsesRegelID = 1)
             every { UttakRepository.getUttak(form) } returns expectedUttak.right()
 
             val actualUttak = UttakService.getUttak(form)
@@ -153,7 +153,7 @@ class UttakServiceTest {
             val from = LocalDateTime.parse("2020-09-02T12:00:00Z", DateTimeFormatter.ISO_DATE_TIME)
             val form = UttakPostForm(from, from.plusHours(1), 1, 1)
             every { UttakRepository.insertUttak(form) } returns expectedUttak.right()
-            every { UttaksdataService.saveReport(expectedUttak) } returns uttaksdata.right()
+            every { UttaksdataService.saveUttaksdata(expectedUttak) } returns uttaksdata.right()
 
             val actualUttak = UttakService.saveUttak(form)
             require(actualUttak is Either.Right)
@@ -170,8 +170,8 @@ class UttakServiceTest {
             val from = LocalDateTime.parse("2020-09-02T12:00:00Z", DateTimeFormatter.ISO_DATE_TIME)
             val form = UttakPostForm(from, from.plusHours(1), 1, 1, gjentakelsesRegel = rRule)
 
-            every { GjentakelsesRegels.insertGjentakelsesRegel(rRule) } returns rRule.right()
-            every { UttaksdataService.saveReport(expectedUttak) } returns uttaksdata.right()
+            every { GjentakelsesRegelTable.insertGjentakelsesRegel(rRule) } returns rRule.right()
+            every { UttaksdataService.saveUttaksdata(expectedUttak) } returns uttaksdata.right()
             every { UttakRepository.insertUttak(any()) } returns expectedUttak.right()
 
             val actualUttak = UttakService.saveUttak(form)
@@ -192,7 +192,7 @@ class UttakServiceTest {
             val from = LocalDateTime.parse("2020-09-02T12:00:00Z", DateTimeFormatter.ISO_DATE_TIME)
             val updateForm = UttakUpdateForm(1, from, from.plusHours(1))
 
-            every { UttaksdataService.updateReport(expectedUttak) } returns Unit.right()
+            every { UttaksdataService.updateUttaksdata(expectedUttak) } returns Unit.right()
             every { UttakRepository.updateUttak(updateForm) } returns expectedUttak.right()
 
             val actualUttak = UttakService.updateUttak(updateForm)

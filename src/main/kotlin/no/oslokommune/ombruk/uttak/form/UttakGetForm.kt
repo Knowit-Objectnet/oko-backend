@@ -9,6 +9,7 @@ import no.oslokommune.ombruk.shared.form.IForm
 import no.oslokommune.ombruk.shared.model.serializer.LocalDateTimeSerializer
 import no.oslokommune.ombruk.shared.utils.validation.isLessThanEndDateTime
 import no.oslokommune.ombruk.shared.utils.validation.runCatchingValidation
+import no.oslokommune.ombruk.uttak.model.UttaksType
 import org.valiktor.functions.isGreaterThan
 import org.valiktor.functions.isNull
 import org.valiktor.validate
@@ -18,29 +19,32 @@ import java.time.LocalDateTime
 @KtorExperimentalLocationsAPI
 @Location("/")
 data class UttakGetForm(
-    val uttakId: Int? = null,
-    val stasjonId: Int? = null,
-    val partnerId: Int? = null,
-    val gjentakelsesRegelId: Int? = null,
-    @Serializable(with = LocalDateTimeSerializer::class) val fromDate: LocalDateTime? = null,
-    @Serializable(with = LocalDateTimeSerializer::class) val toDate: LocalDateTime? = null
+        val id: Int? = null,
+        val stasjonID: Int? = null,
+        val partnerID: Int? = null,
+        val beskrivelse: String? = null,
+        val gjentakelsesRegelID: Int? = null,
+        val type: UttaksType? = null,
+        @Serializable(with = LocalDateTimeSerializer::class) val startTidspunkt: LocalDateTime? = null,
+        @Serializable(with = LocalDateTimeSerializer::class) val sluttTidspunkt: LocalDateTime? = null
 ) : IForm<UttakGetForm> {
 
     override fun validOrError(): Either<ValidationError, UttakGetForm> = runCatchingValidation {
         validate(this) {
-            validate(UttakGetForm::uttakId).isGreaterThan(0)
-            validate(UttakGetForm::stasjonId).isGreaterThan(0)
-            validate(UttakGetForm::partnerId).isGreaterThan(0)
-            validate(UttakGetForm::gjentakelsesRegelId).isGreaterThan(0)
+            validate(UttakGetForm::id).isGreaterThan(0)
+            validate(UttakGetForm::stasjonID).isGreaterThan(0)
+            validate(UttakGetForm::partnerID).isGreaterThan(0)
+            validate(UttakGetForm::gjentakelsesRegelID).isGreaterThan(0)
 
-            if (fromDate != null && toDate != null) validate(UttakGetForm::fromDate).isLessThanEndDateTime(toDate)
+            if (startTidspunkt != null && sluttTidspunkt != null) validate(UttakGetForm::startTidspunkt).isLessThanEndDateTime(sluttTidspunkt)
 
-            if (uttakId != null) {
-                validate(UttakGetForm::stasjonId).isNull()
-                validate(UttakGetForm::partnerId).isNull()
-                validate(UttakGetForm::gjentakelsesRegelId).isNull()
-                validate(UttakGetForm::fromDate).isNull()
-                validate(UttakGetForm::toDate).isNull()
+            // TODO: This might not make sense with the new model
+            if (id != null) {
+                validate(UttakGetForm::stasjonID).isNull()
+                validate(UttakGetForm::partnerID).isNull()
+                validate(UttakGetForm::gjentakelsesRegelID).isNull()
+                validate(UttakGetForm::startTidspunkt).isNull()
+                validate(UttakGetForm::sluttTidspunkt).isNull()
             }
 
         }

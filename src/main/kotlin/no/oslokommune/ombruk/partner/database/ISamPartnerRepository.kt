@@ -10,7 +10,7 @@ import no.oslokommune.ombruk.shared.database.IRepository
 import no.oslokommune.ombruk.shared.database.IRepositoryUniqueName
 import no.oslokommune.ombruk.shared.error.RepositoryError
 
-interface IPartnerRepository : IRepository, IRepositoryUniqueName {
+interface ISamPartnerRepository : IRepository, IRepositoryUniqueName {
 
     /**
      * Inserts a [Partner] into the database. The ID passed in the [PartnerPostForm] will be overriden, and a serial

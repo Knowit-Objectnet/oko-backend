@@ -11,37 +11,55 @@ import no.oslokommune.ombruk.shared.utils.validation.isLessThanEndDateTime
 import no.oslokommune.ombruk.shared.utils.validation.isSameDateAs
 import no.oslokommune.ombruk.shared.utils.validation.isWithinOpeningHoursOf
 import no.oslokommune.ombruk.shared.utils.validation.runCatchingValidation
+import no.oslokommune.ombruk.uttak.model.GjentakelsesRegel
+import no.oslokommune.ombruk.uttak.model.UttaksType
 import org.valiktor.functions.isGreaterThan
 import org.valiktor.functions.isNotNull
 import org.valiktor.validate
+import java.time.DayOfWeek
 import java.time.LocalDateTime
 
 @Serializable
 data class UttakUpdateForm(
-    val id: Int,
-    @Serializable(with = LocalDateTimeSerializer::class) val startDateTime: LocalDateTime? = null,
-    @Serializable(with = LocalDateTimeSerializer::class) val endDateTime: LocalDateTime? = null
+        val id: Int,
+        val type: UttaksType? = null,
+        val stasjonID: Int? = null,
+        val samarbeidspartnerID: Int? = null,
+        val beskrivelse: Int? = null,
+        val gjentakelsesRegel: GjentakelsesRegelUpdate? = null,
+        @Serializable(with = LocalDateTimeSerializer::class) val startTidspunkt: LocalDateTime? = null,
+        @Serializable(with = LocalDateTimeSerializer::class) val sluttTidspunkt: LocalDateTime? = null
 ) : IForm<UttakUpdateForm> {
     override fun validOrError(): Either<ValidationError, UttakUpdateForm> = runCatchingValidation {
         validate(this) {
             validate(UttakUpdateForm::id).isGreaterThan(0)
-            if (startDateTime == null) validate(UttakUpdateForm::endDateTime).isNotNull()
-            if (endDateTime == null) validate(UttakUpdateForm::startDateTime).isNotNull()
+            if (startTidspunkt == null) validate(UttakUpdateForm::sluttTidspunkt).isNotNull()
+            if (sluttTidspunkt == null) validate(UttakUpdateForm::startTidspunkt).isNotNull()
 
             UttakRepository.getUttakByID(id).map { uttak ->
-                val newStartDateTime = startDateTime ?: uttak.startDateTime
-                val newEndDateTime = endDateTime ?: uttak.endDateTime
-                validate(UttakUpdateForm::startDateTime).isLessThanEndDateTime(newEndDateTime)
-                validate(UttakUpdateForm::endDateTime).isSameDateAs(startDateTime)
-                validate(UttakUpdateForm::endDateTime).isGreaterThanStartDateTime(newStartDateTime)
+                val newStartDateTime = startTidspunkt ?: uttak.startDateTime
+                val newEndDateTime = sluttTidspunkt ?: uttak.endDateTime
+                validate(UttakUpdateForm::startTidspunkt).isLessThanEndDateTime(newEndDateTime)
+                validate(UttakUpdateForm::sluttTidspunkt).isSameDateAs(startTidspunkt)
+                validate(UttakUpdateForm::sluttTidspunkt).isGreaterThanStartDateTime(newStartDateTime)
 
-                validate(UttakUpdateForm::startDateTime).isWithinOpeningHoursOf(uttak.stasjon.id)
-                validate(UttakUpdateForm::endDateTime).isWithinOpeningHoursOf(uttak.stasjon.id)
+                validate(UttakUpdateForm::startTidspunkt).isWithinOpeningHoursOf(uttak.stasjon.id)
+                validate(UttakUpdateForm::sluttTidspunkt).isWithinOpeningHoursOf(uttak.stasjon.id)
             }
         }
     }
 }
 
+@Serializable
+data class GjentakelsesRegelUpdate(
+        var id: Int,
+        val intervall: Int? = null,
+        val antall: Int? = null,
+        @Serializable
+        val dager: List<DayOfWeek>? = null,
+        @Serializable(with = LocalDateTimeSerializer::class)
+        val sluttTidspunkt: LocalDateTime? = null
+)
 
 
 

@@ -6,7 +6,7 @@ import no.oslokommune.ombruk.stasjon.database.StasjonRepository
 import no.oslokommune.ombruk.uttak.model.GjentakelsesRegel
 import no.oslokommune.ombruk.uttak.utils.CreateUttakFormIterator
 import no.oslokommune.ombruk.uttak.utils.NonRecurringCreateUttakFormIterator
-import no.oslokommune.ombruk.partner.database.PartnerRepository
+import no.oslokommune.ombruk.partner.database.SamPartnerRepository
 import no.oslokommune.ombruk.shared.error.ValidationError
 import no.oslokommune.ombruk.shared.form.IForm
 import no.oslokommune.ombruk.shared.model.serializer.LocalDateTimeSerializer
@@ -20,12 +20,12 @@ import java.time.LocalDateTime
 
 @Serializable
 data class UttakPostForm(
-    @Serializable(with = LocalDateTimeSerializer::class) var startDateTime: LocalDateTime,
-    @Serializable(with = LocalDateTimeSerializer::class) var endDateTime: LocalDateTime,
-    val stasjonId: Int,
-    val partnerId: Int? = null, // Optional partner. An uttak without a partner is arranged by the stasjon only.
-    var gjentakelsesRegel: GjentakelsesRegel? = null,
-    val type: UttaksType = UttaksType.GJENTAKENDE
+        val stasjonID: Int,
+        val samarbeidspartnerID: Int? = null, // Optional partner. An uttak without a partner is arranged by the stasjon only.
+        var gjentakelsesRegel: GjentakelsesRegel? = null,
+        val type: UttaksType = UttaksType.GJENTAKENDE,
+        @Serializable(with = LocalDateTimeSerializer::class) var startTidspunkt: LocalDateTime,
+        @Serializable(with = LocalDateTimeSerializer::class) var sluttTidspunkt: LocalDateTime
 ) : Iterable<UttakPostForm>, IForm<UttakPostForm> {
     override fun iterator() = when (gjentakelsesRegel) {
         null -> NonRecurringCreateUttakFormIterator(this)
@@ -34,17 +34,17 @@ data class UttakPostForm(
 
     override fun validOrError(): Either<ValidationError, UttakPostForm> = runCatchingValidation {
         validate(this) {
-            validate(UttakPostForm::endDateTime).isGreaterThanStartDateTime(startDateTime)
-            validate(UttakPostForm::endDateTime).isSameDateAs(startDateTime)
+            validate(UttakPostForm::sluttTidspunkt).isGreaterThanStartDateTime(startTidspunkt)
+            validate(UttakPostForm::sluttTidspunkt).isSameDateAs(startTidspunkt)
 
-            validate(UttakPostForm::startDateTime).isWithinOpeningHoursOf(it.stasjonId)
-            validate(UttakPostForm::endDateTime).isWithinOpeningHoursOf(it.stasjonId)
+            validate(UttakPostForm::startTidspunkt).isWithinOpeningHoursOf(it.stasjonID)
+            validate(UttakPostForm::sluttTidspunkt).isWithinOpeningHoursOf(it.stasjonID)
 
-            validate(UttakPostForm::stasjonId).isPositive()
+            validate(UttakPostForm::stasjonID).isPositive()
 
-            validate(UttakPostForm::stasjonId).isInRepository(StasjonRepository)
-            validate(UttakPostForm::partnerId).isInRepository(PartnerRepository)
-            gjentakelsesRegel?.validateSelf(startDateTime)
+            validate(UttakPostForm::stasjonID).isInRepository(StasjonRepository)
+            validate(UttakPostForm::samarbeidspartnerID).isInRepository(SamPartnerRepository)
+            gjentakelsesRegel?.validateSelf(startTidspunkt)
         }
     }
 }
