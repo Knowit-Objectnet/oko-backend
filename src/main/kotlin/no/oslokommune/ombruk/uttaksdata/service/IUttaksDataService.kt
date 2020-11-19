@@ -8,7 +8,7 @@ import no.oslokommune.ombruk.shared.error.ServiceError
 import no.oslokommune.ombruk.uttaksdata.form.UttaksdataPostForm
 import no.oslokommune.ombruk.uttaksdata.form.UttaksdataUpdateForm
 
-interface IUttaksdataService {
+interface IUttaksDataService {
     /**
      * Saves a [Uttaksdata] to the database. Only available internally, and is automatically called when an [Uttak] is created.
      *
@@ -40,4 +40,6 @@ interface IUttaksdataService {
      * @return A [ServiceError] on failure and a [List] of [Uttaksdata] objects on success.
      */
     fun getUttaksdata(uttaksdataGetForm: UttaksdataGetForm): Either<ServiceError, List<Uttaksdata>>
+
+    fun deleteByUttakId(uttakId: Int): Either<ServiceError, Unit>
 }

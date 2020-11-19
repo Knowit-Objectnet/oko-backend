@@ -16,6 +16,8 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.time.DayOfWeek
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -45,7 +47,12 @@ class StasjonPostFormTest {
     @Suppress("unused")
     fun generateValidForms() = listOf(
         StasjonPostForm("unique", emptyMap()),
-        StasjonPostForm("unique")
+        StasjonPostForm("unique", mapOf(
+            Pair(DayOfWeek.MONDAY, listOf(
+                LocalTime.parse("09:00", DateTimeFormatter.ISO_TIME),
+                LocalTime.parse("20:00", DateTimeFormatter.ISO_TIME)
+            ))
+        ))
     )
 
     @ParameterizedTest
@@ -59,8 +66,8 @@ class StasjonPostFormTest {
 
     @Suppress("unused")
     fun generateInvalidForms() = listOf(
-        StasjonPostForm(""),
-        StasjonPostForm("notUnique"),
+        StasjonPostForm("", emptyMap()),
+        StasjonPostForm("notUnique", emptyMap()),
         StasjonPostForm("", mapOf(DayOfWeek.MONDAY to emptyList()))
     )
 

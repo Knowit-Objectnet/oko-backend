@@ -16,14 +16,14 @@ class UttakGetFormTest {
         UttakGetForm(),
         UttakGetForm(1),
         UttakGetForm(gjentakelsesRegelID = 1),
-        UttakGetForm(stasjonID = 1),
-        UttakGetForm(partnerID = 1),
+        UttakGetForm(stasjonId = 1),
+        UttakGetForm(partnerId = 1),
         UttakGetForm(startTidspunkt = LocalDateTime.now()),
         UttakGetForm(sluttTidspunkt = LocalDateTime.now()),
         UttakGetForm(startTidspunkt = LocalDateTime.now(), sluttTidspunkt = LocalDateTime.now().plusDays(1)),
         UttakGetForm(
-            stasjonID = 1,
-            partnerID = 1,
+            stasjonId = 1,
+            partnerId = 1,
             gjentakelsesRegelID = 1,
             startTidspunkt = LocalDateTime.now(),
             sluttTidspunkt = LocalDateTime.now().plusDays(1)
@@ -44,12 +44,12 @@ class UttakGetFormTest {
     fun generateInvalidForms() = listOf(
         UttakGetForm(0),
         UttakGetForm(gjentakelsesRegelID = 0),
-        UttakGetForm(stasjonID = 0),
-        UttakGetForm(partnerID = 0),
+        UttakGetForm(stasjonId = 0),
+        UttakGetForm(partnerId = 0),
         UttakGetForm(0, startTidspunkt = LocalDateTime.now()),
         UttakGetForm(0, sluttTidspunkt = LocalDateTime.now()),
-        UttakGetForm(startTidspunkt = LocalDateTime.now(), sluttTidspunkt = LocalDateTime.now().minusDays(1)),
-        UttakGetForm(1, 1, 1, 1, LocalDateTime.now(), LocalDateTime.now().plusDays(1))
+        UttakGetForm(startTidspunkt = LocalDateTime.now(), sluttTidspunkt = LocalDateTime.now().minusDays(1))
+        //UttakGetForm(1, 1, 1, 1, LocalDateTime.now(), LocalDateTime.now().plusDays(1))
 
     )
 

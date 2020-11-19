@@ -9,26 +9,17 @@ import java.time.LocalDateTime
 
 @Serializable
 data class Uttak(
-   val id: Int,
-   @Serializable(with = LocalDateTimeSerializer::class) var startDateTime: LocalDateTime,
-   @Serializable(with = LocalDateTimeSerializer::class) var endDateTime: LocalDateTime,
-   val stasjon: Stasjon,
-   val partner: Partner?, // Optional partner. An uttak without a partner is arranged by the stasjon only.
-   val samarbeidspartnerID: Int? = null,
-   var gjentakelsesRegel: GjentakelsesRegel? = null,
-   val type: UttaksType = UttaksType.GJENTAKENDE,
-   val description: String? = null
+    val id: Int,
+    @Serializable(with = LocalDateTimeSerializer::class) val startTidspunkt: LocalDateTime,
+    @Serializable(with = LocalDateTimeSerializer::class) val sluttTidspunkt: LocalDateTime,
+    val stasjon: Stasjon,
+    val partner: Partner?, // Optional partner. An uttak without a partner is arranged by the stasjon only.
+    var gjentakelsesRegel: GjentakelsesRegel? = null,
+    val type: UttaksType = UttaksType.GJENTAKENDE,
+    val beskrivelse: String? = null,
+    @Serializable(with = LocalDateTimeSerializer::class) val endretTidspunkt: LocalDateTime? = null
 )
 
-/*
-@Serializable
-enum class UttaksType(val type: String) {
-   ENKELT("ENKELT"),
-   GJENTAKENDE("GJENTAKENDE"),
-   EKSTRA("EKSTRA"),
-   OMBRUKSDAG("OMBRUKSDAG")
-}
-*/
 @Serializable
 enum class UttaksType {
    ENKELT,

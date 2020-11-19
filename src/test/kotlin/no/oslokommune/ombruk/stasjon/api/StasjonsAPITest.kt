@@ -69,7 +69,7 @@ class StasjonerAPITest {
             testGet("/stasjoner/1") {
                 val receivedStasjon: Stasjon = json.parse(Stasjon.serializer(), response.content!!)
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(expected.name, receivedStasjon.name)
+                assertEquals(expected.navn, receivedStasjon.navn)
             }
         }
 
@@ -155,7 +155,7 @@ class StasjonerAPITest {
 
             every { StasjonService.getStasjoner(StasjonGetForm("Test 2")) } returns expected.right()
 
-            testGet("/stasjoner/?name=Test+2") {
+            testGet("/stasjoner/?navn=Test+2") {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(json.stringify(Stasjon.serializer().list, expected), response.content)
             }
@@ -197,24 +197,7 @@ class StasjonerAPITest {
     inner class Post {
 
         /*
-        A valid post should return 200
-         */
-        @Test
-        fun `post stasjon only name 200`() {
-            val expected = Stasjon(1, "Haraldrud")
-            val form = StasjonPostForm("Haraldrud")
-
-            every { StasjonRepository.exists(1) } returns false
-            every { StasjonService.saveStasjon(form) } returns expected.right()
-
-            testPost("/stasjoner/", json.stringify(StasjonPostForm.serializer(), form)) {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Stasjon.serializer(), expected), response.content)
-            }
-        }
-
-        /*
-       A valid post should return 200
+           A valid post should return 200
         */
         @Test
         fun `post stasjon 200`() {
@@ -332,7 +315,13 @@ class StasjonerAPITest {
      */
         @Test
         fun `post without bearer 401`() {
-            val form = StasjonPostForm("Haraldrud")
+            val hours = mapOf<DayOfWeek, List<LocalTime>>(
+                Pair(DayOfWeek.MONDAY, listOf(
+                    LocalTime.parse("09:00", DateTimeFormatter.ISO_TIME),
+                    LocalTime.parse("20:00", DateTimeFormatter.ISO_TIME)
+                ))
+            )
+            val form = StasjonPostForm("Haraldrud", hours)
 
             every { StasjonRepository.exists(1) } returns false
 
@@ -346,7 +335,13 @@ class StasjonerAPITest {
      */
         @Test
         fun `post with invalid bearer 401`() {
-            val form = StasjonPostForm("Haraldrud")
+            val hours = mapOf<DayOfWeek, List<LocalTime>>(
+                Pair(DayOfWeek.MONDAY, listOf(
+                    LocalTime.parse("09:00", DateTimeFormatter.ISO_TIME),
+                    LocalTime.parse("20:00", DateTimeFormatter.ISO_TIME)
+                ))
+            )
+            val form = StasjonPostForm("Haraldrud", hours)
 
             every { StasjonRepository.exists(1) } returns false
 
@@ -364,7 +359,13 @@ class StasjonerAPITest {
      */
         @Test
         fun `post stasjon as partner 403`() {
-            val form = StasjonPostForm("Haraldrud")
+            val hours = mapOf<DayOfWeek, List<LocalTime>>(
+                Pair(DayOfWeek.MONDAY, listOf(
+                    LocalTime.parse("09:00", DateTimeFormatter.ISO_TIME),
+                    LocalTime.parse("20:00", DateTimeFormatter.ISO_TIME)
+                ))
+            )
+            val form = StasjonPostForm("Haraldrud", hours)
 
             every { StasjonRepository.exists(1) } returns false
 
@@ -378,7 +379,13 @@ class StasjonerAPITest {
      */
         @Test
         fun `post stasjon as reuse stasjon 403`() {
-            val form = StasjonPostForm("Haraldrud")
+            val hours = mapOf<DayOfWeek, List<LocalTime>>(
+                Pair(DayOfWeek.MONDAY, listOf(
+                    LocalTime.parse("09:00", DateTimeFormatter.ISO_TIME),
+                    LocalTime.parse("20:00", DateTimeFormatter.ISO_TIME)
+                ))
+            )
+            val form = StasjonPostForm("Haraldrud", hours)
 
             every { StasjonRepository.exists(1) } returns false
 

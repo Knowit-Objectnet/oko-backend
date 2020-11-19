@@ -11,15 +11,15 @@ import org.valiktor.validate
 
 @KtorExperimentalLocationsAPI
 @Location("/")
-data class UttaksforesporselGetForm(
+data class UttaksForesporselGetForm(
     // if none are set, get all requests.
     val pickupId: Int? = null,  // if set, get all requests for a no.oslokommune.ombruk.pickup.
     val partnerId: Int? = null  // if set, get all requests for a partner
-) : IForm<UttaksforesporselGetForm> {
-    override fun validOrError(): Either<ValidationError, UttaksforesporselGetForm> = runCatchingValidation {
+) : IForm<UttaksForesporselGetForm> {
+    override fun validOrError(): Either<ValidationError, UttaksForesporselGetForm> = runCatchingValidation {
         validate(this) {
-            validate(UttaksforesporselGetForm::pickupId).isGreaterThan(0)
-            validate(UttaksforesporselGetForm::partnerId).isGreaterThan(0)
+            validate(UttaksForesporselGetForm::pickupId).isGreaterThan(0)
+            validate(UttaksForesporselGetForm::partnerId).isGreaterThan(0)
         }
     }
 }

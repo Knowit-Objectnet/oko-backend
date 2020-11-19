@@ -72,7 +72,7 @@ class StasjonTest {
 
         @Test
         fun `get stasjon by name`() {
-            testGet("/stasjoner?name=${stasjoner[6].name}") {
+            testGet("/stasjoner?navn=${stasjoner[6].navn}") {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(json.stringify(Stasjon.serializer().list, listOf(stasjoner[6])), response.content)
             }
@@ -83,29 +83,13 @@ class StasjonTest {
     inner class Post {
 
         @Test
-        fun `create stasjon with name`() {
-            val name = "MyStasjon"
-
-            val body = """{"name": "$name"}"""
-
-            testPost("/stasjoner", body) {
-                assertEquals(HttpStatusCode.OK, response.status())
-                val responseStasjon = json.parse(Stasjon.serializer(), response.content!!)
-                val insertedStasjon = StasjonRepository.getStasjonById(responseStasjon.id)
-                require(insertedStasjon is Either.Right)
-                assertEquals(responseStasjon, insertedStasjon.b)
-                assertEquals(name, insertedStasjon.b.name)
-            }
-        }
-
-        @Test
         fun `create stasjon with hours`() {
             val name = "MyStasjon"
             val hours = mapOf(DayOfWeek.TUESDAY to listOf(LocalTime.MIDNIGHT, LocalTime.NOON))
             val body =
                 """{
-                    "name": "$name",
-                    "hours": {"TUESDAY": ["00:00:00Z", "12:00:00Z"]}
+                    "navn": "$name",
+                    "aapningstider": {"TUESDAY": ["00:00:00Z", "12:00:00Z"]}
                 }"""
 
             testPost("/stasjoner", body) {
@@ -114,8 +98,8 @@ class StasjonTest {
                 val insertedStasjon = StasjonRepository.getStasjonById(responseStasjon.id)
                 require(insertedStasjon is Either.Right)
                 assertEquals(responseStasjon, insertedStasjon.b)
-                assertEquals(name, insertedStasjon.b.name)
-                assertEquals(hours, insertedStasjon.b.hours)
+                assertEquals(name, insertedStasjon.b.navn)
+                assertEquals(hours, insertedStasjon.b.aapningstider)
             }
         }
 
@@ -126,11 +110,11 @@ class StasjonTest {
         @Test
         fun `update stasjon hours`() {
             val stasjonToUpdate = stasjoner[9]
-            val expectedResponse = stasjonToUpdate.copy(hours = mapOf(DayOfWeek.TUESDAY to listOf(LocalTime.MIDNIGHT, LocalTime.NOON)))
+            val expectedResponse = stasjonToUpdate.copy(aapningstider = mapOf(DayOfWeek.TUESDAY to listOf(LocalTime.MIDNIGHT, LocalTime.NOON)))
             val body =
                 """{
                     "id": "${stasjonToUpdate.id}",
-                    "hours": {"TUESDAY": ["00:00:00Z", "12:00:00Z"]}
+                    "aapningstider": {"TUESDAY": ["00:00:00Z", "12:00:00Z"]}
                 }"""
 
             testPatch("/stasjoner", body) {
@@ -147,11 +131,11 @@ class StasjonTest {
         @Test
         fun `update stasjon name`() {
             val stasjonToUpdate = stasjoner[9]
-            val expectedResponse = stasjonToUpdate.copy(name = "testing")
+            val expectedResponse = stasjonToUpdate.copy(navn = "testing")
             val body =
                 """{
                     "id": "${stasjonToUpdate.id}",
-                    "name": "testing"
+                    "navn": "testing"
                 }"""
 
             testPatch("/stasjoner", body) {

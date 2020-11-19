@@ -21,7 +21,7 @@ import java.time.temporal.ChronoUnit
  * deleted when the corresponding uttak are deleted through cascading delete. Thus, only insertion is needed.
  */
 object GjentakelsesRegelTable : IntIdTable("gjentakelsesregler") {
-    val dager = varchar("dager", 50).nullable()
+    val dager = varchar("dager", 50)
     val antall = integer("antall").nullable()
     val sluttTidspunkt = datetime("slutt_tidspunkt")
     val endretTidspunkt = datetime("endret_tidspunkt")
@@ -32,9 +32,9 @@ object GjentakelsesRegelTable : IntIdTable("gjentakelsesregler") {
 
     fun insertGjentakelsesRegel(gjentakelsesRegel: GjentakelsesRegel): Either<RepositoryError, GjentakelsesRegel> = runCatching {
         GjentakelsesRegelTable.insertAndGetId {
-            it[dager] = gjentakelsesRegel.dager?.joinToString()
+            it[dager] = gjentakelsesRegel.dager.joinToString()
             it[antall] = gjentakelsesRegel.antall
-            it[sluttTidspunkt] = gjentakelsesRegel.sluttTidspunkt
+            it[sluttTidspunkt] = gjentakelsesRegel.sluttTidspunkt!!
             it[intervall] = gjentakelsesRegel.intervall
             it[endretTidspunkt] = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES)
         }
@@ -47,13 +47,26 @@ object GjentakelsesRegelTable : IntIdTable("gjentakelsesregler") {
             },
             { RepositoryError.InsertError(it.message).left() })
 
+    /*
+    fun updateSluttTidspunkt(id: Int, newSluttTidspunkt: LocalDateTime): Either<RepositoryError, Unit> = runCatching {
+       GjentakelsesRegelTable.update({ GjentakelsesRegelTable.id eq id and slettetTidspunkt.isNotNull()}) {
+            row ->
+            row[sluttTidspunkt] = newSluttTidspunkt
+       }
+    }
+        .onFailure { logger.error(it.message) }
+        .fold(
+            { Unit.right() },
+            { RepositoryError.InsertError(it.message).left() })
+     */
+
     fun deleteGjentakelsesRegel(id: Int): Either<RepositoryError, Unit> =
             runCatching {
                 transaction {
                     GjentakelsesRegelTable.update({
                         GjentakelsesRegelTable.id eq id and slettetTidspunkt.isNotNull()
                     }) { row ->
-                        row[slettetTidspunkt] = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES)
+                        row[slettetTidspunkt] = LocalDateTime.now()
                     }
                 }
             }
@@ -62,5 +75,4 @@ object GjentakelsesRegelTable : IntIdTable("gjentakelsesregler") {
                     { Unit.right() },
                     { RepositoryError.DeleteError("Failed to delete uttak.").left()}
             )
-
 }

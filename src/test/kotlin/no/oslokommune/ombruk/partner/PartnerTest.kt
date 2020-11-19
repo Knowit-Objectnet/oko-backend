@@ -6,7 +6,7 @@ import io.ktor.serialization.DefaultJsonConfiguration
 import kotlinx.serialization.builtins.list
 import kotlinx.serialization.json.Json
 import no.oslokommune.ombruk.uttak.database.UttakRepository
-import no.oslokommune.ombruk.partner.database.SamPartnerRepository
+import no.oslokommune.ombruk.partner.database.PartnerRepository
 import no.oslokommune.ombruk.partner.form.PartnerPostForm
 import no.oslokommune.ombruk.partner.model.Partner
 import no.oslokommune.ombruk.partner.service.PartnerService
@@ -37,7 +37,7 @@ class PartnerTest {
 
     @AfterEach
     fun teardown() {
-        SamPartnerRepository.deleteAllPartnere()
+        PartnerRepository.deleteAllPartnere()
     }
 
     private fun createTestPartnere() = (0..9).map {
@@ -73,7 +73,7 @@ class PartnerTest {
 
         @Test
         fun `get partner by name`() {
-            testGet("/partnere?name=${partnere[6].navn}") {
+            testGet("/partnere?navn=${partnere[6].navn}") {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(json.stringify(Partner.serializer().list, listOf(partnere[6])), response.content)
             }
@@ -82,92 +82,6 @@ class PartnerTest {
 
     @Nested
     inner class Post {
-
-        @Disabled
-        @Test
-        fun `create partner with name`() {
-            val name = "MyPartner"
-
-            val body =
-                """{
-                    "name": "$name"
-                }"""
-
-            testPost("/partnere", body) {
-                assertEquals(HttpStatusCode.OK, response.status())
-                val responsePartner = json.parse(Partner.serializer(), response.content!!)
-                val insertedPartner = SamPartnerRepository.getPartnerByID(responsePartner.id)
-                require(insertedPartner is Either.Right)
-                assertEquals(responsePartner, insertedPartner.b)
-                assertEquals(name, insertedPartner.b.navn)
-            }
-        }
-
-        @Disabled
-        @Test
-        fun `create partner with description`() {
-            val name = "MyPartner"
-            val description = "This is a desc."
-            val body =
-                """{
-                    "name": "$name",
-                    "description": "$description"
-                }"""
-
-            testPost("/partnere", body) {
-                assertEquals(HttpStatusCode.OK, response.status())
-                val responsePartner = json.parse(Partner.serializer(), response.content!!)
-                val insertedPartner = SamPartnerRepository.getPartnerByID(responsePartner.id)
-                require(insertedPartner is Either.Right)
-                assertEquals(responsePartner, insertedPartner.b)
-                assertEquals(name, insertedPartner.b.navn)
-                assertEquals(description, insertedPartner.b.beskrivelse)
-            }
-        }
-
-        @Disabled
-        @Test
-        fun `create partner with phone`() {
-            val name = "MyPartner"
-            val phone = "+4712345678"
-            val body =
-                """{
-                    "name": "$name",
-                    "phone": "$phone"
-                }"""
-
-            testPost("/partnere", body) {
-                assertEquals(HttpStatusCode.OK, response.status())
-                val responsePartner = json.parse(Partner.serializer(), response.content!!)
-                val insertedPartner = SamPartnerRepository.getPartnerByID(responsePartner.id)
-                require(insertedPartner is Either.Right)
-                assertEquals(responsePartner, insertedPartner.b)
-                assertEquals(name, insertedPartner.b.navn)
-                assertEquals(phone, insertedPartner.b.telefon)
-            }
-        }
-
-        @Disabled
-        @Test
-        fun `create partner with email`() {
-            val name = "MyPartner"
-            val email = "test@gmail.com"
-            val body =
-                """{
-                    "name": "$name",
-                    "email": "$email"
-                }"""
-
-            testPost("/partnere", body) {
-                assertEquals(HttpStatusCode.OK, response.status())
-                val responsePartner = json.parse(Partner.serializer(), response.content!!)
-                val insertedPartner = SamPartnerRepository.getPartnerByID(responsePartner.id)
-                require(insertedPartner is Either.Right)
-                assertEquals(responsePartner, insertedPartner.b)
-                assertEquals(name, insertedPartner.b.navn)
-                assertEquals(email, insertedPartner.b.epost)
-            }
-        }
 
         @Test
         fun `create partner with everything`() {
@@ -186,7 +100,7 @@ class PartnerTest {
             testPost("/partnere", body) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 val responsePartner = json.parse(Partner.serializer(), response.content!!)
-                val insertedPartner = SamPartnerRepository.getPartnerByID(responsePartner.id)
+                val insertedPartner = PartnerRepository.getPartnerByID(responsePartner.id)
                 require(insertedPartner is Either.Right)
                 assertEquals(responsePartner, insertedPartner.b)
                 assertEquals(name, insertedPartner.b.navn)
@@ -195,94 +109,196 @@ class PartnerTest {
                 assertEquals(description, insertedPartner.b.beskrivelse)
             }
         }
-
     }
 
     @Nested
     inner class Patch {
-        @Test
-        fun `update partner description`() {
-            val partnerToUpdate = partnere[9]
-            val expectedResponse = partnerToUpdate.copy(beskrivelse = "testing")
-            val body =
-                """{
-                    "id": "${partnerToUpdate.id}",
-                    "beskrivelse": "testing"
-                }"""
-
-            testPatch("/partnere", body) {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Partner.serializer(), expectedResponse), response.content)
-
-                val partnerInRepository = SamPartnerRepository.getPartnerByID(expectedResponse.id)
-                require(partnerInRepository is Either.Right)
-                assertEquals(expectedResponse, partnerInRepository.b)
-
-            }
-        }
-
-        @Test
-        fun `update partner email`() {
-            val partnerToUpdate = partnere[1]
-            val expectedResponse = partnerToUpdate.copy(epost = "test@gmail.com")
-            val body =
-                """{
-                    "id": "${partnerToUpdate.id}",
-                    "epost": "test@gmail.com"
-                }"""
-
-            testPatch("/partnere", body) {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Partner.serializer(), expectedResponse), response.content)
-
-                val partnerInRepository = SamPartnerRepository.getPartnerByID(expectedResponse.id)
-                require(partnerInRepository is Either.Right)
-                assertEquals(expectedResponse, partnerInRepository.b)
-
-            }
-        }
-
-        @Test
-        fun `update partner phone`() {
-            val partnerToUpdate = partnere[1]
-            val expectedResponse = partnerToUpdate.copy(telefon = "54612876")
-            val body =
-                """{
-                    "id": "${partnerToUpdate.id}",
-                    "telefon": "54612876"
-                }"""
-
-            testPatch("/partnere", body) {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Partner.serializer(), expectedResponse), response.content)
-
-                val partnerInRepository = SamPartnerRepository.getPartnerByID(expectedResponse.id)
-                require(partnerInRepository is Either.Right)
-                assertEquals(expectedResponse, partnerInRepository.b)
-
-            }
-        }
 
         @Test
         fun `update partner everything`() {
-            val partnerToUpdate = partnere[1]
-            val expectedResponse =
-                partnerToUpdate.copy(epost = "test@gmail.com", telefon = "12345678", beskrivelse = "testing")
+            val updatedNavn = "Donald Duck 123"
+            val updatedBeskrivelse = "vel vel vel"
+            val updatedTelefon = "81549300"
+            val updatedEpost = "hestejente@gmail.com"
+
+            val expectedResponse = partnere[1].copy(
+                navn = updatedNavn,
+                beskrivelse = updatedBeskrivelse,
+                telefon = updatedTelefon,
+                epost = updatedEpost
+            )
             val body =
                 """{
-                    "id": "${partnerToUpdate.id}",
-                    "epost": "test@gmail.com",
-                    "telefon": "12345678",
-                    "beskrivelse": "testing"
+                    "id": "${expectedResponse.id}",
+                    "navn": "$updatedNavn",
+                    "beskrivelse": "$updatedBeskrivelse",
+                    "telefon": "$updatedTelefon",
+                    "epost": "$updatedEpost"
                 }"""
 
             testPatch("/partnere", body) {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Partner.serializer(), expectedResponse), response.content)
 
-                val partnerInRepository = SamPartnerRepository.getPartnerByID(expectedResponse.id)
+                val responsePartner = json.parse(Partner.serializer(), response.content!!)
+                assertEquals(expectedResponse.id, responsePartner.id)
+                assertEquals(expectedResponse.navn, responsePartner.navn)
+                assertEquals(expectedResponse.beskrivelse, responsePartner.beskrivelse)
+                assertEquals(expectedResponse.telefon, responsePartner.telefon)
+                assertEquals(expectedResponse.epost, responsePartner.epost)
+                assertEquals(expectedResponse.slettetTidspunkt, responsePartner.slettetTidspunkt)
+
+                val partnerInRepository = PartnerRepository.getPartnerByID(expectedResponse.id)
                 require(partnerInRepository is Either.Right)
-                assertEquals(expectedResponse, partnerInRepository.b)
+                assertEquals(expectedResponse.id, partnerInRepository.b.id)
+                assertEquals(expectedResponse.navn, partnerInRepository.b.navn)
+                assertEquals(expectedResponse.beskrivelse, partnerInRepository.b.beskrivelse)
+                assertEquals(expectedResponse.telefon, partnerInRepository.b.telefon)
+                assertEquals(expectedResponse.epost, partnerInRepository.b.epost)
+                assertEquals(expectedResponse.slettetTidspunkt, partnerInRepository.b.slettetTidspunkt)
+
+            }
+        }
+
+        @Test
+        fun `update partner navn`() {
+            val updatedNavn = "Donald Duck"
+
+            val expectedResponse = partnere[1].copy(
+                navn = updatedNavn
+            )
+            val body =
+                """{
+                    "id": "${expectedResponse.id}",
+                    "navn": "$updatedNavn"
+                }"""
+
+            testPatch("/partnere", body) {
+                assertEquals(HttpStatusCode.OK, response.status())
+
+                val responsePartner = json.parse(Partner.serializer(), response.content!!)
+                assertEquals(expectedResponse.id, responsePartner.id)
+                assertEquals(expectedResponse.navn, responsePartner.navn)
+                assertEquals(expectedResponse.beskrivelse, responsePartner.beskrivelse)
+                assertEquals(expectedResponse.telefon, responsePartner.telefon)
+                assertEquals(expectedResponse.epost, responsePartner.epost)
+                assertEquals(expectedResponse.slettetTidspunkt, responsePartner.slettetTidspunkt)
+
+                val partnerInRepository = PartnerRepository.getPartnerByID(expectedResponse.id)
+                require(partnerInRepository is Either.Right)
+                assertEquals(expectedResponse.id, partnerInRepository.b.id)
+                assertEquals(expectedResponse.navn, partnerInRepository.b.navn)
+                assertEquals(expectedResponse.beskrivelse, partnerInRepository.b.beskrivelse)
+                assertEquals(expectedResponse.telefon, partnerInRepository.b.telefon)
+                assertEquals(expectedResponse.epost, partnerInRepository.b.epost)
+                assertEquals(expectedResponse.slettetTidspunkt, partnerInRepository.b.slettetTidspunkt)
+
+            }
+        }
+
+        @Test
+        fun `update partner beskrivelse`() {
+            val updatedBeskrivelse = "vel vel vel"
+
+            val expectedResponse = partnere[1].copy(
+                beskrivelse = updatedBeskrivelse
+            )
+            val body =
+                """{
+                    "id": "${expectedResponse.id}",
+                    "beskrivelse": "$updatedBeskrivelse"
+                }"""
+
+            testPatch("/partnere", body) {
+                assertEquals(HttpStatusCode.OK, response.status())
+
+                val responsePartner = json.parse(Partner.serializer(), response.content!!)
+                assertEquals(expectedResponse.id, responsePartner.id)
+                assertEquals(expectedResponse.navn, responsePartner.navn)
+                assertEquals(expectedResponse.beskrivelse, responsePartner.beskrivelse)
+                assertEquals(expectedResponse.telefon, responsePartner.telefon)
+                assertEquals(expectedResponse.epost, responsePartner.epost)
+                assertEquals(expectedResponse.slettetTidspunkt, responsePartner.slettetTidspunkt)
+
+                val partnerInRepository = PartnerRepository.getPartnerByID(expectedResponse.id)
+                require(partnerInRepository is Either.Right)
+                assertEquals(expectedResponse.id, partnerInRepository.b.id)
+                assertEquals(expectedResponse.navn, partnerInRepository.b.navn)
+                assertEquals(expectedResponse.beskrivelse, partnerInRepository.b.beskrivelse)
+                assertEquals(expectedResponse.telefon, partnerInRepository.b.telefon)
+                assertEquals(expectedResponse.epost, partnerInRepository.b.epost)
+                assertEquals(expectedResponse.slettetTidspunkt, partnerInRepository.b.slettetTidspunkt)
+
+            }
+        }
+
+        @Test
+        fun `update partner telefon`() {
+            val updatedTelefon = "81549300"
+
+            val expectedResponse = partnere[1].copy(
+                telefon = updatedTelefon
+            )
+            val body =
+                """{
+                    "id": "${expectedResponse.id}",
+                    "telefon": "$updatedTelefon"
+                }"""
+
+            testPatch("/partnere", body) {
+                assertEquals(HttpStatusCode.OK, response.status())
+
+                val responsePartner = json.parse(Partner.serializer(), response.content!!)
+                assertEquals(expectedResponse.id, responsePartner.id)
+                assertEquals(expectedResponse.navn, responsePartner.navn)
+                assertEquals(expectedResponse.beskrivelse, responsePartner.beskrivelse)
+                assertEquals(expectedResponse.telefon, responsePartner.telefon)
+                assertEquals(expectedResponse.epost, responsePartner.epost)
+                assertEquals(expectedResponse.slettetTidspunkt, responsePartner.slettetTidspunkt)
+
+                val partnerInRepository = PartnerRepository.getPartnerByID(expectedResponse.id)
+                require(partnerInRepository is Either.Right)
+                assertEquals(expectedResponse.id, partnerInRepository.b.id)
+                assertEquals(expectedResponse.navn, partnerInRepository.b.navn)
+                assertEquals(expectedResponse.beskrivelse, partnerInRepository.b.beskrivelse)
+                assertEquals(expectedResponse.telefon, partnerInRepository.b.telefon)
+                assertEquals(expectedResponse.epost, partnerInRepository.b.epost)
+                assertEquals(expectedResponse.slettetTidspunkt, partnerInRepository.b.slettetTidspunkt)
+
+            }
+        }
+
+        @Test
+        fun `update partner epost`() {
+            val updatedEpost = "hestejente@gmail.com"
+
+            val expectedResponse = partnere[1].copy(
+                epost = updatedEpost
+            )
+            val body =
+                """{
+                    "id": "${expectedResponse.id}",
+                    "epost": "${updatedEpost}"
+                }"""
+
+            testPatch("/partnere", body) {
+                assertEquals(HttpStatusCode.OK, response.status())
+
+                val responsePartner = json.parse(Partner.serializer(), response.content!!)
+                assertEquals(expectedResponse.id, responsePartner.id)
+                assertEquals(expectedResponse.navn, responsePartner.navn)
+                assertEquals(expectedResponse.beskrivelse, responsePartner.beskrivelse)
+                assertEquals(expectedResponse.telefon, responsePartner.telefon)
+                assertEquals(expectedResponse.epost, responsePartner.epost)
+                assertEquals(expectedResponse.slettetTidspunkt, responsePartner.slettetTidspunkt)
+
+                val partnerInRepository = PartnerRepository.getPartnerByID(expectedResponse.id)
+                require(partnerInRepository is Either.Right)
+                assertEquals(expectedResponse.id, partnerInRepository.b.id)
+                assertEquals(expectedResponse.navn, partnerInRepository.b.navn)
+                assertEquals(expectedResponse.beskrivelse, partnerInRepository.b.beskrivelse)
+                assertEquals(expectedResponse.telefon, partnerInRepository.b.telefon)
+                assertEquals(expectedResponse.epost, partnerInRepository.b.epost)
+                assertEquals(expectedResponse.slettetTidspunkt, partnerInRepository.b.slettetTidspunkt)
 
             }
         }

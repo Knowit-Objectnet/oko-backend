@@ -19,7 +19,7 @@ fun <E> Validator<E>.Property<Map<DayOfWeek, List<LocalTime>>?>.isValid() =
 fun <E> Validator<E>.Property<LocalDateTime?>.isWithinOpeningHoursOf(stasjonId: Int) =
     this.validate(TimeIsWithinOpeningHours(stasjonId)) { dateTime ->
         dateTime == null ||
-                StasjonRepository.getStasjonById(stasjonId).exists { stasjon -> dateTime.isWithin(stasjon.hours!!) }
+                StasjonRepository.getStasjonById(stasjonId).exists { stasjon -> dateTime.isWithin(stasjon.aapningstider!!) }
     }
 
 fun LocalDateTime.isWithin(openHours: Map<DayOfWeek, List<LocalTime>>): Boolean =

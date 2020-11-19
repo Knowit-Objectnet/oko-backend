@@ -4,7 +4,10 @@ import kotlinx.serialization.Serializable
 import no.oslokommune.ombruk.shared.form.IForm
 import no.oslokommune.ombruk.shared.model.serializer.LocalDateTimeSerializer
 import no.oslokommune.ombruk.shared.utils.validation.runCatchingValidation
+import no.oslokommune.ombruk.uttak.database.UttakRepository
 import org.valiktor.functions.isGreaterThan
+import org.valiktor.functions.isLessThan
+import org.valiktor.functions.isValid
 import org.valiktor.validate
 import java.time.LocalDateTime
 
@@ -19,8 +22,11 @@ data class UttaksdataUpdateForm(
     override fun validOrError() = runCatchingValidation {
         validate(this) {
             validate(UttaksdataUpdateForm::id).isGreaterThan(0)
-            validate(UttaksdataUpdateForm::uttakID).isGreaterThan(0)
+            validate(UttaksdataUpdateForm::uttakID).isGreaterThan(0).isValid {
+                UttakRepository.exists(it)
+            }
             validate(UttaksdataUpdateForm::vekt).isGreaterThan(0)
+            validate(UttaksdataUpdateForm::rapportertTidspukt).isLessThan(LocalDateTime.now())
         }
     }
 

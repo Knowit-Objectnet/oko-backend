@@ -9,7 +9,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkObject
 import io.mockk.unmockkAll
-import no.oslokommune.ombruk.partner.database.SamPartnerRepository
+import no.oslokommune.ombruk.partner.database.PartnerRepository
 import no.oslokommune.ombruk.partner.form.PartnerDeleteForm
 import no.oslokommune.ombruk.partner.form.PartnerGetForm
 import no.oslokommune.ombruk.partner.form.PartnerPostForm
@@ -34,7 +34,7 @@ class PartnerServiceTest {
 
     @BeforeEach
     fun setup() {
-        mockkObject(SamPartnerRepository)
+        mockkObject(PartnerRepository)
         mockkObject(KeycloakGroupIntegration)
     }
 
@@ -53,7 +53,7 @@ class PartnerServiceTest {
 
         @Test
         fun `save partner success`(@MockK form: PartnerPostForm, @MockK(relaxed = true) expected: Partner) {
-            every { SamPartnerRepository.insertPartner(form) } returns expected.right()
+            every { PartnerRepository.insertPartner(form) } returns expected.right()
             every { KeycloakGroupIntegration.createGroup(expected.navn, expected.id) } returns 1.right()
 
             val actual = PartnerService.savePartner(form)
@@ -67,7 +67,7 @@ class PartnerServiceTest {
             @MockK form: PartnerPostForm,
             @MockK expected: RepositoryError.InsertError
         ) {
-            every { SamPartnerRepository.insertPartner(form) } returns expected.left()
+            every { PartnerRepository.insertPartner(form) } returns expected.left()
 
             val actual = PartnerService.savePartner(form)
 
@@ -81,7 +81,7 @@ class PartnerServiceTest {
             @MockK form: PartnerPostForm,
             @MockK expected: KeycloakIntegrationError
         ) {
-            every { SamPartnerRepository.insertPartner(form) } returns partner.right()
+            every { PartnerRepository.insertPartner(form) } returns partner.right()
             every { KeycloakGroupIntegration.createGroup(partner.navn, partner.id) } returns expected.left()
 
             val actual = PartnerService.savePartner(form)
@@ -96,7 +96,7 @@ class PartnerServiceTest {
 
         @Test
         fun `get partner by id success`(@MockK expected: Partner) {
-            every { SamPartnerRepository.getPartnerByID(1) } returns expected.right()
+            every { PartnerRepository.getPartnerByID(1) } returns expected.right()
 
             val actual = PartnerService.getPartnerById(1)
 
@@ -106,7 +106,7 @@ class PartnerServiceTest {
 
         @Test
         fun `get partner by id repository error`(@MockK expected: RepositoryError.NoRowsFound) {
-            every { SamPartnerRepository.getPartnerByID(1) } returns expected.left()
+            every { PartnerRepository.getPartnerByID(1) } returns expected.left()
 
             val actual = PartnerService.getPartnerById(1)
 
@@ -116,11 +116,11 @@ class PartnerServiceTest {
     }
 
     @Nested
-    inner class GetSamarbeidspartnere {
+    inner class GetPartnere {
 
         @Test
         fun `get partnere success`(@MockK expected: List<Partner>) {
-            every { SamPartnerRepository.getPartnere(PartnerGetForm()) } returns expected.right()
+            every { PartnerRepository.getPartnere(PartnerGetForm()) } returns expected.right()
 
             val actual = PartnerService.getPartnere()
 
@@ -130,7 +130,7 @@ class PartnerServiceTest {
 
         @Test
         fun `get partner repository error`(@MockK expected: RepositoryError.SelectError) {
-            every { SamPartnerRepository.getPartnere(PartnerGetForm()) } returns expected.left()
+            every { PartnerRepository.getPartnere(PartnerGetForm()) } returns expected.left()
 
             val actual = PartnerService.getPartnere()
 
@@ -145,8 +145,8 @@ class PartnerServiceTest {
         @Test
         fun `delete partner success`(@MockK(relaxed = true) expected: Partner) {
 
-            every { SamPartnerRepository.getPartnerByID(expected.id) } returns expected.right()
-            every { SamPartnerRepository.deletePartner(expected.id) } returns Unit.right()
+            every { PartnerRepository.getPartnerByID(expected.id) } returns expected.right()
+            every { PartnerRepository.deletePartner(expected.id) } returns expected.right()
             every { KeycloakGroupIntegration.deleteGroup(expected.navn) } returns Unit.right()
 
             val actual = PartnerService.deletePartnerById(expected.id)
@@ -162,8 +162,8 @@ class PartnerServiceTest {
             @MockK expected: RepositoryError.DeleteError
         ) {
 
-            every { SamPartnerRepository.getPartnerByID(form.id) } returns partner.right()
-            every { SamPartnerRepository.deletePartner(form.id) } returns expected.left()
+            every { PartnerRepository.getPartnerByID(form.id) } returns partner.right()
+            every { PartnerRepository.deletePartner(form.id) } returns expected.left()
 
             val actual = PartnerService.deletePartnerById(form.id)
 
@@ -177,8 +177,8 @@ class PartnerServiceTest {
             @MockK(relaxed = true) form: PartnerDeleteForm,
             @MockK expected: KeycloakIntegrationError
         ) {
-            every { SamPartnerRepository.getPartnerByID(form.id) } returns partner.right()
-            every { SamPartnerRepository.deletePartner(form.id) } returns Unit.right()
+            every { PartnerRepository.getPartnerByID(form.id) } returns partner.right()
+            every { PartnerRepository.deletePartner(form.id) } returns partner.right()
 
             every { KeycloakGroupIntegration.deleteGroup(partner.navn) } returns expected.left()
 
@@ -199,8 +199,8 @@ class PartnerServiceTest {
         ) {
             val form = PartnerUpdateForm(initial.id, expected.navn, expected.beskrivelse, expected.telefon, expected.epost)
 
-            every { SamPartnerRepository.getPartnerByID(expected.id) } returns initial.right()
-            every { SamPartnerRepository.updatePartner(form) } returns expected.right()
+            every { PartnerRepository.getPartnerByID(expected.id) } returns initial.right()
+            every { PartnerRepository.updatePartner(form) } returns expected.right()
             every { KeycloakGroupIntegration.updateGroup(initial.navn, expected.navn) } returns Unit.right()
 
             val actual = PartnerService.updatePartner(form)
@@ -216,8 +216,8 @@ class PartnerServiceTest {
             @MockK expected: RepositoryError.UpdateError
         ) {
 
-            every { SamPartnerRepository.getPartnerByID(form.id) } returns partner.right()
-            every { SamPartnerRepository.updatePartner(form) } returns expected.left()
+            every { PartnerRepository.getPartnerByID(form.id) } returns partner.right()
+            every { PartnerRepository.updatePartner(form) } returns expected.left()
 
             val actual = PartnerService.updatePartner(form)
 
@@ -232,8 +232,8 @@ class PartnerServiceTest {
             @MockK expected: KeycloakIntegrationError
         ) {
 
-            every { SamPartnerRepository.getPartnerByID(form.id) } returns partner.right()
-            every { SamPartnerRepository.updatePartner(form) } returns partner.right()
+            every { PartnerRepository.getPartnerByID(form.id) } returns partner.right()
+            every { PartnerRepository.updatePartner(form) } returns partner.right()
             every { KeycloakGroupIntegration.updateGroup(partner.navn, form.navn) } returns expected.left()
 
             val actual = PartnerService.updatePartner(form)

@@ -10,8 +10,9 @@ import io.mockk.unmockkAll
 import no.oslokommune.ombruk.stasjon.database.StasjonRepository
 import no.oslokommune.ombruk.uttak.model.GjentakelsesRegel
 import no.oslokommune.ombruk.stasjon.model.Stasjon
-import no.oslokommune.ombruk.partner.database.SamPartnerRepository
+import no.oslokommune.ombruk.partner.database.PartnerRepository
 import no.oslokommune.ombruk.shared.database.initDB
+import no.oslokommune.ombruk.uttak.model.UttaksType
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -30,7 +31,7 @@ import kotlin.test.assertTrue
 @ExtendWith(MockKExtension::class)
 class UttakPostFormTest {
 
-    private val existingStasjon = Stasjon(id = 1, name = "some stasjon", hours = openHours())
+    private val existingStasjon = Stasjon(id = 1, navn = "some stasjon", aapningstider = openHours())
 
     init {
         initDB()
@@ -39,7 +40,7 @@ class UttakPostFormTest {
     @BeforeEach
     fun setup() {
         mockkObject(StasjonRepository)
-        mockkObject(SamPartnerRepository)
+        mockkObject(PartnerRepository)
     }
 
     @AfterEach
@@ -56,26 +57,23 @@ class UttakPostFormTest {
     fun generateValidForms(): List<UttakPostForm> {
         val from = LocalDateTime.parse("2020-09-02T12:00:00Z", DateTimeFormatter.ISO_DATE_TIME)
         return listOf(
-            UttakPostForm(from, from.plusHours(1), 1, 1),
             UttakPostForm(
-                from, from.plusHours(1), 1, 1,
-                GjentakelsesRegel(1, count = 1)
-            ),
-            UttakPostForm(
-                from, from.plusHours(1), 1, 1,
-                GjentakelsesRegel(1, count = 1, interval = 1)
-            ),
-            UttakPostForm(
-                from, from.plusHours(1), 1, 1,
-                GjentakelsesRegel(1, until = LocalDateTime.now().plusDays(1))
-            )
+                stasjonId = 1,
+                partnerId = 1,
+                gjentakelsesRegel = GjentakelsesRegel(
+                    sluttTidspunkt = LocalDateTime.now().plusDays(1),
+                    dager = listOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY)
+                ),
+                type = UttaksType.GJENTAKENDE,
+                startTidspunkt = from,
+                sluttTidspunkt = from.plusHours(5))
         )
     }
 
     @ParameterizedTest
     @MethodSource("generateValidForms")
     fun `validate valid form`(form: UttakPostForm) {
-        every { SamPartnerRepository.exists(1) } returns true
+        every { PartnerRepository.exists(1) } returns true
         every { StasjonRepository.exists(existingStasjon.id) } returns true
         every { StasjonRepository.getStasjonById(1) } returns existingStasjon.right()
 
@@ -89,12 +87,19 @@ class UttakPostFormTest {
     fun generateInvalidForms(): List<UttakPostForm> {
         val from = LocalDateTime.parse("2020-09-02T12:00:00Z", DateTimeFormatter.ISO_DATE_TIME)
         return listOf(
-            UttakPostForm(from, from.plusHours(1), 1, 2),
-            UttakPostForm(from, from.plusHours(1), 2, 1),
-            UttakPostForm(from, from.minusHours(1), 1, 1),
-            UttakPostForm(from, from.plusHours(1), 1, 1, GjentakelsesRegel(1)),
-            UttakPostForm(from, from.plusHours(1), 1, 1, GjentakelsesRegel(1, count = 0)),
-            UttakPostForm(from, from.plusHours(1), 1, 1, GjentakelsesRegel(1, count = 1, interval = 0))
+            UttakPostForm(
+                -2,
+                1,
+                GjentakelsesRegel(
+                    1,
+                    LocalDateTime.now(),
+                    LocalDateTime.now().plusHours(1),
+                    null,
+                    listOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY)
+                ),
+                UttaksType.GJENTAKENDE,
+                LocalDateTime.now(),
+                LocalDateTime.now().plusHours(1))
         )
     }
 
@@ -102,9 +107,9 @@ class UttakPostFormTest {
     @MethodSource("generateInvalidForms")
     fun `validate invalid form`(form: UttakPostForm) {
         every { StasjonRepository.exists(1) } returns true
-        every { SamPartnerRepository.exists(1) } returns true
+        every { PartnerRepository.exists(1) } returns true
         every { StasjonRepository.getStasjonById(1) } returns Either.right(Stasjon(
-            id = 1, name = "some stasjon", hours = openHours()
+            id = 1, navn = "some stasjon", aapningstider = openHours()
         ))
 
         val result = form.validOrError()

@@ -8,19 +8,18 @@ import io.ktor.locations.delete
 import io.ktor.locations.get
 import io.ktor.request.receive
 import io.ktor.response.respond
-import io.ktor.routing.Routing
-import io.ktor.routing.patch
-import io.ktor.routing.post
-import io.ktor.routing.route
+import io.ktor.routing.*
 import no.oslokommune.ombruk.uttak.form.*
 import no.oslokommune.ombruk.uttak.service.IUttakService
 import no.oslokommune.ombruk.shared.api.generateResponse
 import no.oslokommune.ombruk.shared.api.receiveCatching
 import no.oslokommune.ombruk.shared.api.Authorization
 import no.oslokommune.ombruk.shared.api.Roles
+import no.oslokommune.ombruk.uttak.service.UttakService.deleteUttak
+import no.oslokommune.ombruk.uttaksdata.service.IUttaksDataService
 
 @KtorExperimentalLocationsAPI
-fun Routing.uttak(uttakService: IUttakService) {
+fun Routing.uttak(uttakService: IUttakService, uttaksDataService: IUttaksDataService) {
     route("/uttak") {
         get<UttakGetByIdForm> { form ->
             form.validOrError()
@@ -30,11 +29,11 @@ fun Routing.uttak(uttakService: IUttakService) {
         }
 
         get<UttakGetForm> { form ->
-            form.validOrError()
-                .flatMap { uttakService.getUttak(it) }
-                .run { generateResponse(this) }
-                .also { (code, response) -> call.respond(code, response) }
-        }
+                form.validOrError()
+                    .flatMap { uttakService.getUttak(it) }
+                    .run { generateResponse(this) }
+                    .also { (code, response) -> call.respond(code, response) }
+            }
 
         authenticate {
             post("/") {
@@ -63,14 +62,68 @@ fun Routing.uttak(uttakService: IUttakService) {
         authenticate {
             delete<UttakDeleteForm> { form ->
                 Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.ReuseStasjon, Roles.Partner), call)
+                    .flatMap { auth ->
+                        form.validOrError()
+                            .flatMap {
+                                Authorization.authorizePartnerID(auth) {
+                                    uttakService.getUttak(form.toGetForm())
+                                }
+                                .flatMap { uttakList -> deleteUttak(uttakList) }
+                            }
+                    }
+                    .run { generateResponse(this) }
+                    .also { (code, response) -> call.respond(code, response) }
+
+            }
+        }
+
+        /*
+        authenticate {
+            delete<UttakDeleteForm> { form ->
+                Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.ReuseStasjon, Roles.Partner), call)
+                    .map {
+                        Authorization.authorizePartnerID(it) {
+                            form.validOrError()
+                                .flatMap { uttakService.getUttak(form.toGetForm()) }
+                        }
+                        .flatMap { uttakList -> deleteUttak(uttakList) }
+                                /*
+                        .flatMap { uttakList ->
+                            uttakList.map { uttak ->
+                                uttakService.deleteUttak(uttak)
+                            }.right()
+                        }
+
+                                 */
+                    }
+                    .run { generateResponse(this) }
+                    .also { (code, response) ->
+                        print("aaaa")
+                        call.respond(code)
+                    }
+            }
+        }
+
+         */
+
+        /*
+        authenticate {
+            delete<UttakDeleteForm> { form ->
+                Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.ReuseStasjon, Roles.Partner), call)
                     .map { if (it.first == Roles.Partner) form.partnerId = it.second; it }
-                    .flatMap { Authorization.authorizePartnerID(it) { uttakService.getUttak(form.toGetForm()) } }
-                    .flatMap { form.validOrError() }
-                    .flatMap { uttakService.deleteUttak(it) }
+                    .flatMap {
+                        Authorization.authorizePartnerID(it) {
+                            form.validOrError()
+                            .flatMap { uttakService.getUttak(form.toGetForm()) }
+                        }
+                    }
+                    //.flatMap { form.validOrError() }
+                    .flatMap { uttakService.deleteUttak() }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }
         }
+        */
     }
 }
 
@@ -80,8 +133,8 @@ private fun UttakDeleteForm.toGetForm() =
     UttakGetForm(
         id,
         gjentakelsesRegelID = gjentakelsesRegelId,
-        startTidspunkt = fromDate,
-        sluttTidspunkt = toDate,
-        stasjonID = stasjonId,
-        partnerID = partnerId
+        startTidspunkt = startTidspunkt,
+        sluttTidspunkt = sluttTidspunkt,
+        stasjonId = stasjonId,
+        partnerId = partnerId
     )

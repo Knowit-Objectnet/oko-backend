@@ -11,7 +11,7 @@ import java.time.LocalDateTime
 @Location("/")
 data class UttaksdataGetForm(
     val uttakId: Int? = null,
-    val minVekt: Int? = 0,
+    val minVekt: Int? = null,
     val maxVekt: Int? = Integer.MAX_VALUE,
     val fraRapportertTidspunkt: LocalDateTime? = LocalDateTime.MIN,
     val tilRapportertTidspunkt: LocalDateTime? = LocalDateTime.MAX
@@ -19,8 +19,13 @@ data class UttaksdataGetForm(
     override fun validOrError() = runCatchingValidation {
         validate(this) {
             validate(UttaksdataGetForm::uttakId).isGreaterThan(0)
+
             validate(UttaksdataGetForm::minVekt).isGreaterThan(0)
-            validate(UttaksdataGetForm::fraRapportertTidspunkt).isLessThanEndDateTime(tilRapportertTidspunkt)
+            validate(UttaksdataGetForm::maxVekt).isGreaterThan(0)
+            if (minVekt != null && maxVekt !== null) validate(UttaksdataGetForm::maxVekt).isGreaterThan(minVekt)
+
+            if (fraRapportertTidspunkt != null && tilRapportertTidspunkt != null)
+                validate(UttaksdataGetForm::fraRapportertTidspunkt).isLessThanEndDateTime(tilRapportertTidspunkt)
         }
     }
 }

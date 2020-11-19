@@ -4,9 +4,9 @@ import arrow.core.Either
 import kotlinx.serialization.Serializable
 import no.oslokommune.ombruk.stasjon.database.StasjonRepository
 import no.oslokommune.ombruk.uttak.model.GjentakelsesRegel
-import no.oslokommune.ombruk.uttak.utils.CreateUttakFormIterator
+import no.oslokommune.ombruk.uttak.utils.PostUttakFormIterator
 import no.oslokommune.ombruk.uttak.utils.NonRecurringCreateUttakFormIterator
-import no.oslokommune.ombruk.partner.database.SamPartnerRepository
+import no.oslokommune.ombruk.partner.database.PartnerRepository
 import no.oslokommune.ombruk.shared.error.ValidationError
 import no.oslokommune.ombruk.shared.form.IForm
 import no.oslokommune.ombruk.shared.model.serializer.LocalDateTimeSerializer
@@ -20,16 +20,16 @@ import java.time.LocalDateTime
 
 @Serializable
 data class UttakPostForm(
-        val stasjonID: Int,
-        val samarbeidspartnerID: Int? = null, // Optional partner. An uttak without a partner is arranged by the stasjon only.
-        var gjentakelsesRegel: GjentakelsesRegel? = null,
-        val type: UttaksType = UttaksType.GJENTAKENDE,
-        @Serializable(with = LocalDateTimeSerializer::class) var startTidspunkt: LocalDateTime,
-        @Serializable(with = LocalDateTimeSerializer::class) var sluttTidspunkt: LocalDateTime
+    val stasjonId: Int,
+    val partnerId: Int? = null, // Optional partner. An uttak without a partner is arranged by the stasjon only.
+    val gjentakelsesRegel: GjentakelsesRegel? = null,
+    val type: UttaksType = UttaksType.GJENTAKENDE,
+    @Serializable(with = LocalDateTimeSerializer::class) val startTidspunkt: LocalDateTime,
+    @Serializable(with = LocalDateTimeSerializer::class) val sluttTidspunkt: LocalDateTime
 ) : Iterable<UttakPostForm>, IForm<UttakPostForm> {
     override fun iterator() = when (gjentakelsesRegel) {
         null -> NonRecurringCreateUttakFormIterator(this)
-        else -> CreateUttakFormIterator(this)
+        else -> PostUttakFormIterator(this)
     }
 
     override fun validOrError(): Either<ValidationError, UttakPostForm> = runCatchingValidation {
@@ -37,13 +37,13 @@ data class UttakPostForm(
             validate(UttakPostForm::sluttTidspunkt).isGreaterThanStartDateTime(startTidspunkt)
             validate(UttakPostForm::sluttTidspunkt).isSameDateAs(startTidspunkt)
 
-            validate(UttakPostForm::startTidspunkt).isWithinOpeningHoursOf(it.stasjonID)
-            validate(UttakPostForm::sluttTidspunkt).isWithinOpeningHoursOf(it.stasjonID)
+            validate(UttakPostForm::startTidspunkt).isWithinOpeningHoursOf(it.stasjonId)
+            validate(UttakPostForm::sluttTidspunkt).isWithinOpeningHoursOf(it.stasjonId)
 
-            validate(UttakPostForm::stasjonID).isPositive()
+            validate(UttakPostForm::stasjonId).isPositive()
 
-            validate(UttakPostForm::stasjonID).isInRepository(StasjonRepository)
-            validate(UttakPostForm::samarbeidspartnerID).isInRepository(SamPartnerRepository)
+            validate(UttakPostForm::stasjonId).isInRepository(StasjonRepository)
+            validate(UttakPostForm::partnerId).isInRepository(PartnerRepository)
             gjentakelsesRegel?.validateSelf(startTidspunkt)
         }
     }
@@ -52,11 +52,11 @@ data class UttakPostForm(
 
 private fun GjentakelsesRegel.validateSelf(startDateTime: LocalDateTime) = validate(this) {
 
-    validate(GjentakelsesRegel::interval).isGreaterThanOrEqualTo(1)
-    validate(GjentakelsesRegel::count).isGreaterThanOrEqualTo(1)
-    validate(GjentakelsesRegel::until).isGreaterThanStartDateTime(startDateTime)
+    validate(GjentakelsesRegel::intervall).isGreaterThanOrEqualTo(1)
+    validate(GjentakelsesRegel::antall).isGreaterThanOrEqualTo(1)
+    validate(GjentakelsesRegel::sluttTidspunkt).isGreaterThanStartDateTime(startDateTime)
 
-    if (count == null) validate(GjentakelsesRegel::until).isNotNull()
-    if (until == null) validate(GjentakelsesRegel::count).isNotNull()
+    if (antall == null) validate(GjentakelsesRegel::sluttTidspunkt).isNotNull()
+    if (sluttTidspunkt == null) validate(GjentakelsesRegel::antall).isNotNull()
 }
 

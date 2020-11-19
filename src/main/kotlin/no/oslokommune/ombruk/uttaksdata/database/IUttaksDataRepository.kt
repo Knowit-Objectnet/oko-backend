@@ -6,9 +6,10 @@ import no.oslokommune.ombruk.uttaksdata.form.UttaksdataGetForm
 import no.oslokommune.ombruk.uttaksdata.form.UttaksdataUpdateForm
 import no.oslokommune.ombruk.uttaksdata.model.Uttaksdata
 import no.oslokommune.ombruk.shared.error.RepositoryError
+import no.oslokommune.ombruk.shared.error.ServiceError
 import no.oslokommune.ombruk.uttaksdata.form.UttaksdataPostForm
 
-interface IUttaksdataRepository {
+interface IUttaksDataRepository {
 
     /**
      * Inserts a uttaksdata into the database. This function is automatically called when an uttak is saved, and should not
@@ -46,4 +47,5 @@ interface IUttaksdataRepository {
      */
     fun getUttaksData(uttaksdataGetForm: UttaksdataGetForm?): Either<RepositoryError, List<Uttaksdata>>
 
+    fun deleteByUttakId(uttakId: Int): Either<ServiceError, Unit>
 }

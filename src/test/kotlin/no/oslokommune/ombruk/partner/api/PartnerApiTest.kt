@@ -11,7 +11,7 @@ import io.mockk.mockkObject
 import io.mockk.unmockkAll
 import kotlinx.serialization.builtins.list
 import kotlinx.serialization.json.Json
-import no.oslokommune.ombruk.partner.database.SamPartnerRepository
+import no.oslokommune.ombruk.partner.database.PartnerRepository
 import no.oslokommune.ombruk.partner.form.PartnerGetForm
 import no.oslokommune.ombruk.partner.form.PartnerPostForm
 import no.oslokommune.ombruk.partner.form.PartnerUpdateForm
@@ -36,7 +36,7 @@ class PartnerApiTest {
     @BeforeEach
     fun setup() {
         mockkObject(PartnerService)
-        mockkObject(SamPartnerRepository)
+        mockkObject(PartnerRepository)
     }
 
     @AfterEach
@@ -152,9 +152,10 @@ class PartnerApiTest {
          */
         @Test
         fun `get partnere 422`() {
-            testGet("/partnere?name=") {
+            testGet("/partnere?navn=") {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
-                assertEquals("name: Must not be blank", response.content)
+                var text = response.content
+                assertEquals("navn: Must not be blank", response.content)
             }
         }
     }
@@ -219,14 +220,13 @@ class PartnerApiTest {
         /**
          * Check for 422 when we get an invalid form. Invalid phone number
          */
-        @Disabled
         @Test
         fun `post partner 422`() {
             val form = PartnerPostForm("test", "beskrivelse", "2113", "test@test.com")
 
             testPost("/partnere", json.stringify(PartnerPostForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
-                assertEquals("phone: has to be valid Norwegian phone number", response.content)
+                assertEquals("telefon: has to be valid Norwegian phone number", response.content)
             }
         }
 
@@ -254,7 +254,7 @@ class PartnerApiTest {
             val expected = initial.copy(navn = form.navn!!)
 
             every { PartnerService.updatePartner(form) } returns expected.right()
-            every { SamPartnerRepository.getPartnere(PartnerGetForm("updated")) } returns listOf<Partner>().right()
+            every { PartnerRepository.getPartnere(PartnerGetForm("updated")) } returns listOf<Partner>().right()
 
             testPatch("/partnere", json.stringify(PartnerUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.OK, response.status())
@@ -294,7 +294,7 @@ class PartnerApiTest {
         fun `patch partner 500`() {
             val form = PartnerUpdateForm(1, "navn", "beskrivelse", "81549300", "test@test.com")
             every { PartnerService.updatePartner(form) } returns ServiceError("test").left()
-            every { SamPartnerRepository.getPartnere(PartnerGetForm("updated")) } returns listOf<Partner>().right()
+            every { PartnerRepository.getPartnere(PartnerGetForm("updated")) } returns listOf<Partner>().right()
 
             testPatch("/partnere", json.stringify(PartnerUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.InternalServerError, response.status())
@@ -304,14 +304,13 @@ class PartnerApiTest {
         /**
          * Check for 422 when we get an invalid form. Invalid phone number
          */
-        @Disabled
         @Test
         fun `patch partner 422`() {
             val form = PartnerUpdateForm(1, "navn", "beskrivelse", "213", "test@test.com")
 
             testPatch("/partnere", json.stringify(PartnerUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
-                assertEquals("phone: has to be valid Norwegian phone number", response.content)
+                assertEquals("telefon: has to be valid Norwegian phone number", response.content)
             }
         }
 

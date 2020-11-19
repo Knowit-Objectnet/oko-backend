@@ -2,12 +2,14 @@ package no.oslokommune.ombruk.uttak.service
 
 import arrow.core.Either
 import io.ktor.locations.KtorExperimentalLocationsAPI
+import no.oslokommune.ombruk.shared.error.RepositoryError
 import no.oslokommune.ombruk.uttak.form.UttakDeleteForm
 import no.oslokommune.ombruk.uttak.form.UttakGetForm
 import no.oslokommune.ombruk.uttak.form.UttakPostForm
 import no.oslokommune.ombruk.uttak.form.UttakUpdateForm
 import no.oslokommune.ombruk.uttak.model.Uttak
 import no.oslokommune.ombruk.shared.error.ServiceError
+import no.oslokommune.ombruk.uttak.model.GjentakelsesRegel
 
 interface IUttakService {
     /**
@@ -41,7 +43,9 @@ interface IUttakService {
      * @return A [ServiceError] on failure and a [List] of the deleted [Uttak] objects on success.
      */
     @KtorExperimentalLocationsAPI
-    fun deleteUttak(uttakDeleteForm: UttakDeleteForm): Either<ServiceError, List<Uttak>>
+    fun deleteUttak(uttak: Uttak): Either<ServiceError, Unit>
+
+    fun deleteUttakById(id: Int): Either<ServiceError, Unit>
 
     /**
      * Updates a singular uttak. Must be called several times to update all uttak belonging to a recurrence rule.

@@ -8,6 +8,6 @@ import java.time.LocalTime
 @Serializable
 data class Stasjon(
     val id: Int,
-    var name: String,
-    val hours: Map<DayOfWeek, List<@Serializable(with = LocalTimeSerializer::class) LocalTime>>? = null
+    var navn: String,
+    val aapningstider: Map<DayOfWeek, List<@Serializable(with = LocalTimeSerializer::class) LocalTime>>? = null
 )

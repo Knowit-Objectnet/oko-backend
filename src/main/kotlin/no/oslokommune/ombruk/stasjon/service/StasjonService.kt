@@ -24,7 +24,7 @@ object StasjonService : IStasjonService {
     @KtorExperimentalAPI
     override fun saveStasjon(stasjonPostForm: StasjonPostForm): Either<ServiceError, Stasjon> = transaction {
         StasjonRepository.insertStasjon(stasjonPostForm).flatMap { stasjon ->
-            KeycloakGroupIntegration.createGroup(stasjon.name, stasjon.id)
+            KeycloakGroupIntegration.createGroup(stasjon.navn, stasjon.id)
                 .bimap({ rollback(); it }, { stasjon })
         }
     }
@@ -33,7 +33,7 @@ object StasjonService : IStasjonService {
     override fun updateStasjon(stasjonUpdateForm: StasjonUpdateForm): Either<ServiceError, Stasjon> = transaction {
         getStasjonById(stasjonUpdateForm.id).flatMap { stasjon ->
             StasjonRepository.updateStasjon(stasjonUpdateForm).flatMap { newStasjon ->
-                KeycloakGroupIntegration.updateGroup(stasjon.name, newStasjon.name)
+                KeycloakGroupIntegration.updateGroup(stasjon.navn, newStasjon.navn)
                     .bimap({ rollback(); it }, { newStasjon })
             }
         }
@@ -43,7 +43,7 @@ object StasjonService : IStasjonService {
     override fun deleteStasjonById(id: Int): Either<ServiceError, Stasjon> = transaction {
         getStasjonById(id).flatMap { stasjon ->
             StasjonRepository.deleteStasjon(id)
-                .flatMap { KeycloakGroupIntegration.deleteGroup(stasjon.name) }
+                .flatMap { KeycloakGroupIntegration.deleteGroup(stasjon.navn) }
                 .bimap({ rollback(); it }, { stasjon })
         }
     }

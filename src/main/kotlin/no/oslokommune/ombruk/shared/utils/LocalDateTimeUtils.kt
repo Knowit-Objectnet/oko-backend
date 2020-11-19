@@ -1,5 +1,6 @@
 package no.oslokommune.ombruk.shared.utils
 
+import java.time.DayOfWeek
 import java.time.LocalDateTime
 
 
@@ -46,3 +47,10 @@ class LocalDateTimeProgression(
  */
 operator fun LocalDateTime.rangeTo(other: LocalDateTime) =
     LocalDateTimeProgression(this, other)
+
+fun ClosedRange<LocalDateTime>.getNumberOfWorkdaysBetween() =
+    (this.start..this.endInclusive).filter {
+        it.dayOfWeek in listOf(
+            DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY,
+            DayOfWeek.THURSDAY, DayOfWeek.FRIDAY)
+    }.size

@@ -25,7 +25,7 @@ data class UttaksdataPostForm(
             validate(UttaksdataPostForm::vekt).isGreaterThan(0)
 
             validate(UttaksdataPostForm::uttakID).isGreaterThan(0).isValid {
-                UttakRepository.getUttakByID(uttakID).isRight()
+                UttakRepository.exists(uttakID)
             }
         }
     }

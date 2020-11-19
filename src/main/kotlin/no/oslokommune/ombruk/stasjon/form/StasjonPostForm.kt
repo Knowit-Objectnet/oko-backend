@@ -14,14 +14,14 @@ import java.time.LocalTime
 
 @Serializable
 data class StasjonPostForm(
-    val name: String,
-    val hours: Map<DayOfWeek, List<@Serializable(with = LocalTimeSerializer::class) LocalTime>>? = null
+    val navn: String,
+    val aapningstider: Map<DayOfWeek, List<@Serializable(with = LocalTimeSerializer::class) LocalTime>>
 ) : IForm<StasjonPostForm> {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
-            validate(StasjonPostForm::name).isNotBlank()
-            validate(StasjonPostForm::hours).isValid()
-            validate(StasjonPostForm::name).isUniqueInRepository(StasjonRepository)
+            validate(StasjonPostForm::navn).isNotBlank()
+            validate(StasjonPostForm::aapningstider).isValid()
+            validate(StasjonPostForm::navn).isUniqueInRepository(StasjonRepository)
         }
     }
 }

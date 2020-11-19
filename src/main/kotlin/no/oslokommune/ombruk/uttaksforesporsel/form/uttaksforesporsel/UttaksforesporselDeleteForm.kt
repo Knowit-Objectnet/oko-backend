@@ -3,7 +3,7 @@ package no.oslokommune.ombruk.uttaksforesporsel.form.uttaksforesporsel
 import arrow.core.Either
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.locations.Location
-import no.oslokommune.ombruk.partner.database.SamPartnerRepository
+import no.oslokommune.ombruk.partner.database.PartnerRepository
 import no.oslokommune.ombruk.shared.error.ValidationError
 import no.oslokommune.ombruk.shared.form.IForm
 import no.oslokommune.ombruk.shared.utils.validation.isInRepository
@@ -23,7 +23,7 @@ data class UttaksforesporselDeleteForm(
             validate(UttaksforesporselDeleteForm::uttaksId).isGreaterThan(0)
             validate(UttaksforesporselDeleteForm::partnerId).isGreaterThan(0)
             validate(UttaksforesporselDeleteForm::uttaksId).isInRepository(UttakRepository)
-            validate(UttaksforesporselDeleteForm::partnerId).isInRepository(SamPartnerRepository)
+            validate(UttaksforesporselDeleteForm::partnerId).isInRepository(PartnerRepository)
         }
     }
 }

@@ -13,6 +13,7 @@ import no.oslokommune.ombruk.uttak.model.Uttak
 import no.oslokommune.ombruk.stasjon.model.Stasjon
 import no.oslokommune.ombruk.partner.model.Partner
 import no.oslokommune.ombruk.shared.database.initDB
+import no.oslokommune.ombruk.uttak.model.UttaksType
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -32,9 +33,19 @@ import kotlin.test.assertTrue
 class UttakUpdateFormTest {
 
     private val from = LocalDateTime.parse("2020-09-02T12:00:00Z", DateTimeFormatter.ISO_DATE_TIME)
-    private val existingStasjon = Stasjon(id = 1, name = "some stasjon", hours = openHours())
+    private val existingStasjon = Stasjon(id = 1, navn = "some stasjon", aapningstider = openHours())
     private val existingUttak =
-        Uttak(1, from, from.plusHours(1), existingStasjon, Partner(1, "test", "beskrivelse", "81549300", "test@test.com"))
+        Uttak(
+            1,
+            from,
+            from.plusHours(1),
+            existingStasjon,
+            Partner(1, "test", "beskrivelse", "81549300", "test@test.com"),
+            null,
+            UttaksType.GJENTAKENDE,
+            "Beskrivelse",
+            null
+        )
 
 
     init {
@@ -60,9 +71,8 @@ class UttakUpdateFormTest {
     @Suppress("unused")
     fun generateValidForms(): List<UttakUpdateForm> {
         return listOf(
-            UttakUpdateForm(1, from),
-            UttakUpdateForm(1, sluttTidspunkt = from.plusHours(1)),
-            UttakUpdateForm(1, from, from.plusHours(1))
+            UttakUpdateForm(1, startTidspunkt = from, sluttTidspunkt = from.plusHours(3)),
+            UttakUpdateForm(1, startTidspunkt = from, sluttTidspunkt = from.plusHours(1))
 
         )
     }
@@ -82,10 +92,9 @@ class UttakUpdateFormTest {
 
     @Suppress("unused")
     fun generateInvalidForms() = listOf(
-        UttakUpdateForm(1),
-        UttakUpdateForm(1, from.plusHours(2)),
+        UttakUpdateForm(1, startTidspunkt = from.plusHours(2)),
         UttakUpdateForm(1, sluttTidspunkt = from.minusHours(2)),
-        UttakUpdateForm(1, from, from.minusHours(1))
+        UttakUpdateForm(1, startTidspunkt = from, sluttTidspunkt = from.minusHours(1))
     )
 
     @ParameterizedTest

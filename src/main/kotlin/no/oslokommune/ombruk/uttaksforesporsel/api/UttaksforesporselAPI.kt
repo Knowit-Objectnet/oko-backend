@@ -12,7 +12,7 @@ import io.ktor.routing.Routing
 import io.ktor.routing.post
 import io.ktor.routing.route
 import no.oslokommune.ombruk.uttaksforesporsel.form.uttaksforesporsel.UttaksforesporselDeleteForm
-import no.oslokommune.ombruk.uttaksforesporsel.form.uttaksforesporsel.UttaksforesporselGetForm
+import no.oslokommune.ombruk.uttaksforesporsel.form.uttaksforesporsel.UttaksForesporselGetForm
 import no.oslokommune.ombruk.uttaksforesporsel.form.uttaksforesporsel.UttaksforesporselPostForm
 import no.oslokommune.ombruk.uttaksforesporsel.service.IUttaksforesporselService
 import no.oslokommune.ombruk.shared.api.Authorization
@@ -24,7 +24,7 @@ import no.oslokommune.ombruk.shared.api.receiveCatching
 @KtorExperimentalLocationsAPI
 fun Routing.request(uttaksforesporselService: IUttaksforesporselService) {
 
-    route("/requests") {
+    route("/uttaksforesporsel") {
 
         authenticate {
             post {
@@ -39,7 +39,7 @@ fun Routing.request(uttaksforesporselService: IUttaksforesporselService) {
             }
         }
 
-        get<UttaksforesporselGetForm> { form ->
+        get<UttaksForesporselGetForm> { form ->
             form.validOrError()
                 .flatMap { uttaksforesporselService.getRequests(form) }
                 .run { generateResponse(this) }

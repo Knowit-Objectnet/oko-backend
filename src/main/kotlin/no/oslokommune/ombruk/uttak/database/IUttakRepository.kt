@@ -8,6 +8,7 @@ import no.oslokommune.ombruk.uttak.form.UttakUpdateForm
 import no.oslokommune.ombruk.uttak.model.Uttak
 import no.oslokommune.ombruk.shared.database.IRepository
 import no.oslokommune.ombruk.shared.error.RepositoryError
+import no.oslokommune.ombruk.uttak.model.GjentakelsesRegel
 
 interface IUttakRepository : IRepository {
     /**
@@ -35,7 +36,9 @@ interface IUttakRepository : IRepository {
      * @param uttakDeleteForm A [UttakDeleteForm] containing the query constraints.
      * @return An [Either] object consisting of a [RepositoryError] on failure and [List] of deleted [Uttak] objects on success.
      */
-    fun deleteUttak(uttakDeleteForm: UttakDeleteForm): Either<RepositoryError, Unit>
+    fun deleteUttak(uttak: Uttak): Either<RepositoryError, Unit>
+
+    fun deleteUttakById(id: Int): Either<RepositoryError, Unit>
 
     /**
      * Fetches a specific [Uttak].

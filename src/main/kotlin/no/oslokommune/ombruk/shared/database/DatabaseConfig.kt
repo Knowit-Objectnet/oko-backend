@@ -26,6 +26,7 @@ fun initDB() {
 
     Class.forName("org.postgresql.Driver")
     Class.forName("org.h2.Driver")
+    val test = hikariConfig.jdbcUrl
     Database.connect(HikariDataSource(hikariConfig))
 
     migrate()

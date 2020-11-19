@@ -33,7 +33,7 @@ import no.oslokommune.ombruk.partner.service.PartnerService
 import no.oslokommune.ombruk.uttaksforesporsel.api.request
 import no.oslokommune.ombruk.uttaksforesporsel.service.UttaksforesporselService
 import no.oslokommune.ombruk.uttaksdata.api.uttaksdata
-import no.oslokommune.ombruk.uttaksdata.service.UttaksdataService
+import no.oslokommune.ombruk.uttaksdata.service.UttaksDataService
 import no.oslokommune.ombruk.shared.api.Authorization
 import no.oslokommune.ombruk.shared.api.JwtMockConfig
 import no.oslokommune.ombruk.shared.database.initDB
@@ -65,11 +65,9 @@ fun Application.module(testing: Boolean = false) {
 
     install(DataConversion) {
         convert<LocalDateTime> {
-
             decode { values, _ ->
                 values.singleOrNull()?.let { LocalDateTime.parse(it, DateTimeFormatter.ISO_DATE_TIME) }
             }
-
             encode { value ->
                 when (value) {
                     null -> listOf()
@@ -80,11 +78,9 @@ fun Application.module(testing: Boolean = false) {
         }
 
         convert<LocalTime> {
-
             decode { values, _ ->
                 values.singleOrNull()?.let { LocalTime.parse(it, DateTimeFormatter.ISO_TIME) }
             }
-
             encode { value ->
                 when (value) {
                     null -> listOf()
@@ -93,6 +89,15 @@ fun Application.module(testing: Boolean = false) {
                 }
             }
         }
+
+        /*
+        convert<UttaksType> {
+            //decode { values, type -> values.firstOrNull()?.let { UttaksType(it.toUpperCase()) } }
+            decode { values, type -> UttaksType.values().first { it.name.toUpperCase() in values } }
+            encode { if (it == null) emptyList() else listOf((it as UttaksType).name.toUpperCase()) }
+        }
+         */
+
     }
 
 
@@ -167,9 +172,9 @@ fun Application.module(testing: Boolean = false) {
     }
 
     routing {
-        uttak(UttakService)
+        uttak(UttakService, UttaksDataService)
         partnere(PartnerService)
-        uttaksdata(UttaksdataService)
+        uttaksdata(UttaksDataService, UttakService)
         stasjoner(StasjonService)
         request(UttaksforesporselService)
         get("/health_check") {

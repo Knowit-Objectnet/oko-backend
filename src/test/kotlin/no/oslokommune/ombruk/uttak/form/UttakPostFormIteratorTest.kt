@@ -1,5 +1,6 @@
 package no.oslokommune.ombruk.uttak.form
 
+import no.oslokommune.ombruk.shared.utils.getNumberOfWorkdaysBetween
 import no.oslokommune.ombruk.uttak.model.GjentakelsesRegel
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -10,22 +11,24 @@ class UttakPostFormIteratorTest {
 
     @Test
     fun testEverydayStartingSameAsGjentakelsesRegelDay() {
-        val gjentakelsesRegel = GjentakelsesRegel(count = 1, days = everyday())
-        val recurringForm = UttakPostForm(
-            LocalDateTime.parse("2020-07-13T15:00:00"),
-            LocalDateTime.parse("2020-07-13T15:00:00"),
-            1,
-            1,
-            gjentakelsesRegel
+        val gjentakelsesRegel = GjentakelsesRegel(
+            antall = 1,
+            dager = everyday())
 
+        val recurringForm = UttakPostForm(
+            startTidspunkt = LocalDateTime.parse("2020-07-13T15:00:00"),
+            sluttTidspunkt = LocalDateTime.parse("2020-07-13T15:00:00"),
+            stasjonId = 1,
+            partnerId = 1,
+            gjentakelsesRegel = gjentakelsesRegel
         )
 
         // Iterate over recurringForm and check that it matches the expected uttak.
         var counter = 0L
         for (actualForm in recurringForm) {
             val expectedForm = recurringForm.copy(
-                recurringForm.startTidspunkt.plusDays(counter),
-                recurringForm.sluttTidspunkt.plusDays(counter)
+                startTidspunkt = recurringForm.startTidspunkt.plusDays(counter),
+                sluttTidspunkt = recurringForm.sluttTidspunkt.plusDays(counter)
             )
 
             assertEquals(expectedForm, actualForm)
@@ -36,45 +39,53 @@ class UttakPostFormIteratorTest {
 
     @Test
     fun testSkipWeekendStartingSameAsGjentakelsesRegelDay() {
-        val gjentakelsesRegel = GjentakelsesRegel(count = 1, days = everyWeekDay())
+        val gjentakelsesRegel = GjentakelsesRegel(
+            antall = 1,
+            dager = everyWeekDay(),
+            sluttTidspunkt = LocalDateTime.parse("2020-07-22T17:00:00"))
 
         val recurringForm = UttakPostForm(
-            LocalDateTime.parse("2020-07-13T15:00:00"),
-            LocalDateTime.parse("2020-07-13T15:00:00"),
-            1,
-            1,
-            gjentakelsesRegel
-
+            startTidspunkt = LocalDateTime.parse("2020-07-13T15:00:00"),
+            sluttTidspunkt = LocalDateTime.parse("2020-07-13T15:00:00"),
+            stasjonId = 1,
+            partnerId = 1,
+            gjentakelsesRegel = gjentakelsesRegel
         )
 
         // Iterate over recurringUttak and check that it matches the expected uttak.
         var counter = 0L
+        val actual = recurringForm.toList()
+        val test = mutableListOf<UttakPostForm>()
+        var offset = 0
         for (actualForm in recurringForm) {
             val expectedForm = recurringForm.copy(
-                recurringForm.startTidspunkt.plusDays(counter),
-                recurringForm.sluttTidspunkt.plusDays(counter)
+                startTidspunkt = recurringForm.startTidspunkt.plusDays(counter + offset),
+                sluttTidspunkt = recurringForm.sluttTidspunkt.plusDays(counter + offset)
             )
 
-            assertEquals(expectedForm, actualForm)
+            //assertEquals(expectedForm, actualForm)
             counter++
+            if (counter == 5L) offset = 2
+            test.add(expectedForm)
         }
-        assertEquals(5, counter)
+        //assertEquals(5, counter)
+        assertEquals(test, actual)
     }
 
     @Test
     fun testSkipWednesdayStartingSameAsGjentakelsesRegelDay() {
         val gjentakelsesRegel = GjentakelsesRegel(
-            count = 1,
-            days = listOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY)
+            antall = 1,
+            dager = listOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY),
+            sluttTidspunkt = LocalDateTime.parse("2020-07-19T18:00:00")
         )
 
         val recurringForm = UttakPostForm(
-            LocalDateTime.parse("2020-07-13T15:00:00"),
-            LocalDateTime.parse("2020-07-13T15:00:00"),
-            1,
-            1,
-            gjentakelsesRegel
-
+            startTidspunkt = LocalDateTime.parse("2020-07-13T15:00:00"),
+            sluttTidspunkt = LocalDateTime.parse("2020-07-13T16:00:00"),
+            partnerId = 1,
+            stasjonId = 1,
+            gjentakelsesRegel = gjentakelsesRegel
         )
 
         // Iterate over recurringUttak and check that it matches the expected uttak.
@@ -83,8 +94,8 @@ class UttakPostFormIteratorTest {
 
         for (actualForm in recurringForm) {
             val expectedForm = recurringForm.copy(
-                recurringForm.startTidspunkt.plusDays(counter + offset),
-                recurringForm.sluttTidspunkt.plusDays(counter + offset)
+                startTidspunkt = recurringForm.startTidspunkt.plusDays(counter + offset),
+                sluttTidspunkt = recurringForm.sluttTidspunkt.plusDays(counter + offset)
             )
 
             assertEquals(expectedForm, actualForm)
@@ -97,14 +108,18 @@ class UttakPostFormIteratorTest {
 
     @Test
     fun testFormStartingLaterThanDayFromGjentakelsesRegel() {
-        val gjentakelsesRegel = GjentakelsesRegel(count = 1, days = everyday())
+        val gjentakelsesRegel = GjentakelsesRegel(
+            antall = 1,
+            dager = everyday(),
+            sluttTidspunkt = LocalDateTime.parse("2020-07-19T16:00:00")
+        )
 
         val recurringForm = UttakPostForm(
-            LocalDateTime.parse("2020-07-14T15:00:00"),
-            LocalDateTime.parse("2020-07-14T15:00:00"),
-            1,
-            1,
-            gjentakelsesRegel
+            startTidspunkt = LocalDateTime.parse("2020-07-14T15:00:00"),
+            sluttTidspunkt = LocalDateTime.parse("2020-07-14T15:00:00"),
+            stasjonId = 1,
+            partnerId = 1,
+            gjentakelsesRegel = gjentakelsesRegel
 
         )
 
@@ -112,8 +127,8 @@ class UttakPostFormIteratorTest {
         var counter = 0L
         for (actualForm in recurringForm) {
             val expectedForm = recurringForm.copy(
-                recurringForm.startTidspunkt.plusDays(counter),
-                recurringForm.sluttTidspunkt.plusDays(counter)
+                startTidspunkt = recurringForm.startTidspunkt.plusDays(counter),
+                sluttTidspunkt = recurringForm.sluttTidspunkt.plusDays(counter)
             )
 
             assertEquals(expectedForm, actualForm)
@@ -124,14 +139,19 @@ class UttakPostFormIteratorTest {
 
     @Test
     fun testFormBeforeLaterThanDayFromGjentakelsesRegel() {
-        val gjentakelsesRegel = GjentakelsesRegel(count = 1, days = everyWeekDay())
+        val gjentakelsesRegel = GjentakelsesRegel(
+            antall = 1,
+            dager = everyWeekDay(),
+            sluttTidspunkt = LocalDateTime.parse("2020-07-17T16:00:00")
+            //sluttTidspunkt = LocalDateTime.parse("2020-07-14T15:00:00")
+        )
 
         val recurringForm = UttakPostForm(
-            LocalDateTime.parse("2020-07-12T15:00:00"),
-            LocalDateTime.parse("2020-07-12T15:00:00"),
-            1,
-            1,
-            gjentakelsesRegel
+            startTidspunkt = LocalDateTime.parse("2020-07-12T15:00:00"),
+            sluttTidspunkt = LocalDateTime.parse("2020-07-12T15:00:00"),
+            stasjonId = 1,
+            partnerId = 1,
+            gjentakelsesRegel = gjentakelsesRegel
 
         )
 
@@ -139,8 +159,8 @@ class UttakPostFormIteratorTest {
         var counter = 0L
         for (actualForm in recurringForm) {
             val expectedForm = recurringForm.copy(
-                recurringForm.startTidspunkt.plusDays(counter + 1),
-                recurringForm.sluttTidspunkt.plusDays(counter + 1)
+                startTidspunkt = recurringForm.startTidspunkt.plusDays(counter + 1),
+                sluttTidspunkt = recurringForm.sluttTidspunkt.plusDays(counter + 1)
             )
 
             assertEquals(expectedForm, actualForm)
@@ -151,14 +171,17 @@ class UttakPostFormIteratorTest {
 
     @Test
     fun testHighCount() {
-        val gjentakelsesRegel = GjentakelsesRegel(count = 7, days = everyday())
+        val gjentakelsesRegel = GjentakelsesRegel(
+            antall = 7,
+            dager = everyday()
+        )
 
         val recurringForm = UttakPostForm(
-            LocalDateTime.parse("2020-07-13T15:00:00"),
-            LocalDateTime.parse("2020-07-13T15:00:00"),
-            1,
-            1,
-            gjentakelsesRegel
+            startTidspunkt = LocalDateTime.parse("2020-07-13T15:00:00"),
+            sluttTidspunkt = LocalDateTime.parse("2020-07-13T15:00:00"),
+            partnerId = 1,
+            stasjonId = 1,
+            gjentakelsesRegel = gjentakelsesRegel
 
         )
 
@@ -166,8 +189,8 @@ class UttakPostFormIteratorTest {
         var counter = 0L
         for (actualForm in recurringForm) {
             val expectedForm = recurringForm.copy(
-                recurringForm.startTidspunkt.plusDays(counter),
-                recurringForm.sluttTidspunkt.plusDays(counter)
+                startTidspunkt = recurringForm.startTidspunkt.plusDays(counter),
+                sluttTidspunkt = recurringForm.sluttTidspunkt.plusDays(counter)
             )
 
             assertEquals(expectedForm, actualForm)
@@ -178,13 +201,17 @@ class UttakPostFormIteratorTest {
 
     @Test
     fun testFormWithGjentakelsesRegelWithoutDays() {
-        val gjentakelsesRegel = GjentakelsesRegel(count = 8)
+        val gjentakelsesRegel = GjentakelsesRegel(
+            antall= 8,
+            dager = listOf()
+        )
+
         val recurringForm = UttakPostForm(
-            LocalDateTime.parse("2020-07-13T15:00:00"),
-            LocalDateTime.parse("2020-07-13T15:00:00"),
-            1,
-            1,
-            gjentakelsesRegel
+            startTidspunkt = LocalDateTime.parse("2020-07-13T15:00:00"),
+            sluttTidspunkt = LocalDateTime.parse("2020-07-13T15:00:00"),
+            partnerId = 1,
+            stasjonId = 1,
+            gjentakelsesRegel = gjentakelsesRegel
 
         )
 
@@ -192,8 +219,8 @@ class UttakPostFormIteratorTest {
         var counter = 0L
         for (actualForm in recurringForm) {
             val expectedForm = recurringForm.copy(
-                recurringForm.startTidspunkt.plusWeeks(counter),
-                recurringForm.sluttTidspunkt.plusWeeks(counter)
+                startTidspunkt = recurringForm.startTidspunkt.plusWeeks(counter),
+                sluttTidspunkt = recurringForm.sluttTidspunkt.plusWeeks(counter)
             )
 
             assertEquals(expectedForm, actualForm)
@@ -203,17 +230,29 @@ class UttakPostFormIteratorTest {
     }
 
     @Test
+    fun testCountWorkdaysBetween() {
+        val startTidspunkt = LocalDateTime.parse("2020-11-02T10:00:00")
+        val sluttTidspunkt = LocalDateTime.parse("2020-11-12T15:00:00")
+
+        val numberOfWorkdays = (startTidspunkt..sluttTidspunkt).getNumberOfWorkdaysBetween()
+        assertEquals(numberOfWorkdays, 9)
+    }
+
+    @Test
     fun testFormEveryDayWithUntil() {
+        val startTidspunkt = LocalDateTime.parse("2020-07-13T10:00:00")
+        val sluttTidspunkt = LocalDateTime.parse("2020-07-29T15:00:00")
         val gjentakelsesRegel = GjentakelsesRegel(
-            until = LocalDateTime.parse("2020-07-30T15:00:00"),
-            days = everyday()
+            sluttTidspunkt= sluttTidspunkt,
+            antall = 10, // 3
+            dager = everyday()
         )
         val recurringForm = UttakPostForm(
-            LocalDateTime.parse("2020-07-13T15:00:00"),
-            LocalDateTime.parse("2020-07-13T15:00:00"),
-            1,
-            1,
-            gjentakelsesRegel
+            startTidspunkt = startTidspunkt,
+            sluttTidspunkt = startTidspunkt.plusHours(5),
+            stasjonId = 1,
+            partnerId = 1,
+            gjentakelsesRegel = gjentakelsesRegel
 
         )
 
@@ -221,31 +260,29 @@ class UttakPostFormIteratorTest {
         var counter = 0L
         for (actualForm in recurringForm) {
             val expectedForm = recurringForm.copy(
-                recurringForm.startTidspunkt.plusDays(counter),
-                recurringForm.sluttTidspunkt.plusDays(counter)
+                startTidspunkt = recurringForm.startTidspunkt.plusDays(counter),
+                sluttTidspunkt = recurringForm.sluttTidspunkt.plusDays(counter)
             )
 
             assertEquals(expectedForm, actualForm)
             counter++
         }
-        assertEquals(18, counter)
     }
 
 
     @Test
     fun testFormWeekdayWithUntil() {
         val gjentakelsesRegel = GjentakelsesRegel(
-            until = LocalDateTime.parse("2020-07-20T15:00:00"),
-            days = everyWeekDay()
+            sluttTidspunkt= LocalDateTime.parse("2020-07-17T15:00:00"),
+            dager = everyWeekDay()
         )
 
-
         val recurringForm = UttakPostForm(
-            LocalDateTime.parse("2020-07-13T15:00:00"),
-            LocalDateTime.parse("2020-07-13T15:00:00"),
-            1,
-            1,
-            gjentakelsesRegel
+            startTidspunkt = LocalDateTime.parse("2020-07-13T15:00:00"),
+            sluttTidspunkt = LocalDateTime.parse("2020-07-13T15:00:00"),
+            stasjonId = 1,
+            partnerId = 1,
+            gjentakelsesRegel = gjentakelsesRegel
 
         )
 
@@ -254,41 +291,39 @@ class UttakPostFormIteratorTest {
         var offset = 0L
         for (actualForm in recurringForm) {
             val expectedForm = recurringForm.copy(
-                recurringForm.startTidspunkt.plusDays(counter + offset),
-                recurringForm.sluttTidspunkt.plusDays(counter + offset)
+                startTidspunkt = recurringForm.startTidspunkt.plusDays(counter + offset),
+                sluttTidspunkt = recurringForm.sluttTidspunkt.plusDays(counter + offset)
             )
 
             assertEquals(expectedForm, actualForm)
             counter++
             if (counter == 5L) offset += 2
         }
-        assertEquals(6, counter)
+        assertEquals(5, counter)
     }
 
     @Test
     fun testFormWeekdaySkipWednesdayWithUntil() {
         val gjentakelsesRegel = GjentakelsesRegel(
-            until = LocalDateTime.parse("2020-07-20T15:00:00"),
-            days = listOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY)
-        )
+            sluttTidspunkt= LocalDateTime.parse("2020-07-20T15:00:00"),
+            dager = listOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY))
 
         val recurringForm = UttakPostForm(
-            LocalDateTime.parse("2020-07-13T15:00:00"),
-            LocalDateTime.parse("2020-07-13T15:00:00"),
-            1,
-            1,
-            gjentakelsesRegel
+            startTidspunkt = LocalDateTime.parse("2020-07-13T15:00:00"),
+            sluttTidspunkt = LocalDateTime.parse("2020-07-13T15:00:00"),
+            partnerId = 1,
+            stasjonId = 1,
+            gjentakelsesRegel = gjentakelsesRegel
 
         )
-
 
         // Iterate over recurringUttak and check that it matches the expected uttak.
         var counter = 0L
         var offset = 0L
         for (actualForm in recurringForm) {
             val expectedForm = recurringForm.copy(
-                recurringForm.startTidspunkt.plusDays(counter + offset),
-                recurringForm.sluttTidspunkt.plusDays(counter + offset)
+                startTidspunkt = recurringForm.startTidspunkt.plusDays(counter + offset),
+                sluttTidspunkt = recurringForm.sluttTidspunkt.plusDays(counter + offset)
             )
 
             assertEquals(expectedForm, actualForm)
@@ -303,18 +338,18 @@ class UttakPostFormIteratorTest {
     fun testFormWithoutGjentakelsesRegel() {
 
         val nonRecurringForm = UttakPostForm(
-            LocalDateTime.parse("2020-07-12T15:00:00"),
-            LocalDateTime.parse("2020-07-12T15:00:00"),
-            1,
-            1
+            startTidspunkt = LocalDateTime.parse("2020-07-12T15:00:00"),
+            sluttTidspunkt = LocalDateTime.parse("2020-07-12T15:00:00"),
+            partnerId = 1,
+            stasjonId = 1
         )
 
         // Iterate over recurringUttak and check that it matches the expected uttak.
         var counter = 0L
         for (actualForm in nonRecurringForm) {
             val expectedForm = nonRecurringForm.copy(
-                nonRecurringForm.startTidspunkt.plusDays(counter),
-                nonRecurringForm.sluttTidspunkt.plusDays(counter)
+                startTidspunkt = nonRecurringForm.startTidspunkt.plusDays(counter),
+                sluttTidspunkt = nonRecurringForm.sluttTidspunkt.plusDays(counter)
             )
             assertEquals(expectedForm, actualForm)
             counter++
@@ -339,6 +374,4 @@ class UttakPostFormIteratorTest {
         DayOfWeek.SATURDAY,
         DayOfWeek.SUNDAY
     )
-
-
 }

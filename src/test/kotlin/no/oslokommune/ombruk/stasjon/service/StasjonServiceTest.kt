@@ -101,7 +101,7 @@ class StasjonServiceTest {
         @Test
         fun `save stasjon success`(@MockK(relaxed = true) expected: Stasjon, @MockK form: StasjonPostForm) {
             every { StasjonRepository.insertStasjon(form) } returns expected.right()
-            every { KeycloakGroupIntegration.createGroup(expected.name, expected.id) } returns 1.right()
+            every { KeycloakGroupIntegration.createGroup(expected.navn, expected.id) } returns 1.right()
 
             val actual = StasjonService.saveStasjon(form)
             require(actual is Either.Right)
@@ -133,7 +133,7 @@ class StasjonServiceTest {
                 @MockK form: StasjonPostForm
         ) {
             every { StasjonRepository.insertStasjon(form) } returns stasjon.right()
-            every { KeycloakGroupIntegration.createGroup(stasjon.name, stasjon.id) } returns expected.left()
+            every { KeycloakGroupIntegration.createGroup(stasjon.navn, stasjon.id) } returns expected.left()
 
             val actual = StasjonService.saveStasjon(form)
             require(actual is Either.Left)
@@ -152,7 +152,7 @@ class StasjonServiceTest {
 
             every { StasjonRepository.deleteStasjon(1) } returns 1.right()
             every { StasjonRepository.getStasjonById(1) } returns expected.right()
-            every { KeycloakGroupIntegration.deleteGroup(expected.name) } returns 1.right()
+            every { KeycloakGroupIntegration.deleteGroup(expected.navn) } returns 1.right()
 
             val actual = StasjonService.deleteStasjonById(1)
             require(actual is Either.Right)
@@ -185,7 +185,7 @@ class StasjonServiceTest {
         ) {
             every { StasjonRepository.getStasjonById(1) } returns stasjon.right()
             every { StasjonRepository.deleteStasjon(stasjon.id) } returns 1.right()
-            every { KeycloakGroupIntegration.deleteGroup(stasjon.name) } returns expected.left()
+            every { KeycloakGroupIntegration.deleteGroup(stasjon.navn) } returns expected.left()
 
             val actual = StasjonService.deleteStasjonById(1)
             require(actual is Either.Left)
@@ -207,7 +207,7 @@ class StasjonServiceTest {
         ) {
             every { StasjonRepository.getStasjonById(form.id) } returns initial.right()
             every { StasjonRepository.updateStasjon(form) } returns expected.right()
-            every { KeycloakGroupIntegration.updateGroup(initial.name, expected.name) } returns Unit.right()
+            every { KeycloakGroupIntegration.updateGroup(initial.navn, expected.navn) } returns Unit.right()
 
             val actual = StasjonService.updateStasjon(form)
             require(actual is Either.Right)
@@ -243,7 +243,7 @@ class StasjonServiceTest {
         ) {
             every { StasjonRepository.getStasjonById(form.id) } returns initial.right()
             every { StasjonRepository.updateStasjon(form) } returns updated.right()
-            every { KeycloakGroupIntegration.updateGroup(initial.name, updated.name) } returns expected.left()
+            every { KeycloakGroupIntegration.updateGroup(initial.navn, updated.navn) } returns expected.left()
 
             val actual = StasjonService.updateStasjon(form)
             require(actual is Either.Left)

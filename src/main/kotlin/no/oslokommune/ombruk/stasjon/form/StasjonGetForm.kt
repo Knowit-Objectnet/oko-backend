@@ -9,10 +9,10 @@ import org.valiktor.validate
 
 @KtorExperimentalLocationsAPI
 @Location("/")
-data class StasjonGetForm(val name: String? = null) : IForm<StasjonGetForm> {
+data class StasjonGetForm(val navn: String? = null) : IForm<StasjonGetForm> {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
-            validate(StasjonGetForm::name).isNotBlank()
+            validate(StasjonGetForm::navn).isNotBlank()
         }
     }
 }

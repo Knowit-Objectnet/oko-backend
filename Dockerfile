@@ -7,7 +7,7 @@ COPY gradle.properties .
 COPY settings.gradle.kts .
 COPY src src
 
-RUN gradle build 
+RUN gradle build -x test
 
 
 FROM openjdk:8-jre-alpine

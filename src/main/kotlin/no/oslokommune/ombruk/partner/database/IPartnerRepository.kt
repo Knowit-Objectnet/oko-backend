@@ -10,7 +10,7 @@ import no.oslokommune.ombruk.shared.database.IRepository
 import no.oslokommune.ombruk.shared.database.IRepositoryUniqueName
 import no.oslokommune.ombruk.shared.error.RepositoryError
 
-interface ISamPartnerRepository : IRepository, IRepositoryUniqueName {
+interface IPartnerRepository : IRepository, IRepositoryUniqueName {
 
     /**
      * Inserts a [Partner] into the database. The ID passed in the [PartnerPostForm] will be overriden, and a serial
@@ -35,7 +35,7 @@ interface ISamPartnerRepository : IRepository, IRepositoryUniqueName {
      * @param partnerID The ID of the partner to be deleted.
      * @return An [Either] object consisting of a [RepositoryError] on failure and [Unit] on success.
      */
-    fun deletePartner(partnerID: Int): Either<RepositoryError, Unit>
+    fun deletePartner(partnerID: Int): Either<RepositoryError, Partner>
 
     /**
      * Fetches a specific partner by its ID.
@@ -43,7 +43,7 @@ interface ISamPartnerRepository : IRepository, IRepositoryUniqueName {
      * @param partnerID The partner that should be fetched.
      * @return An [Either] object consisting of a [RepositoryError] on failure and a [Partner] on success.
      */
-    fun getPartnerByID(partnerID: Int): Either<RepositoryError, Partner>
+    fun getPartnerByID(partnerID: Int, showDeleted: Boolean = false): Either<RepositoryError, Partner>
 
     /**
      * Fetches all partnere. Supports getting partner by name.
@@ -51,5 +51,5 @@ interface ISamPartnerRepository : IRepository, IRepositoryUniqueName {
      * @return An [Either] object consisting of a [RepositoryError] on failure and a [List] of [Partner] objects on success.
      */
     @KtorExperimentalLocationsAPI
-    fun getPartnere(partnerGetForm: PartnerGetForm): Either<RepositoryError, List<Partner>>
+    fun getPartnere(partnerGetForm: PartnerGetForm, showDeleted: Boolean = false): Either<RepositoryError, List<Partner>>
 }

@@ -3,37 +3,35 @@ package no.oslokommune.ombruk.uttaksdata.api
 import arrow.core.flatMap
 import io.ktor.application.call
 import io.ktor.auth.authenticate
-import io.ktor.locations.KtorExperimentalLocationsAPI
-import io.ktor.locations.get
+import io.ktor.locations.*
 import io.ktor.request.receive
 import io.ktor.response.respond
-import io.ktor.routing.Routing
-import io.ktor.routing.patch
-import io.ktor.routing.route
+import io.ktor.routing.*
 import no.oslokommune.ombruk.uttaksdata.form.UttaksdataGetByIdForm
 import no.oslokommune.ombruk.uttaksdata.form.UttaksdataGetForm
 import no.oslokommune.ombruk.uttaksdata.form.UttaksdataUpdateForm
-import no.oslokommune.ombruk.uttaksdata.service.IUttaksdataService
+import no.oslokommune.ombruk.uttaksdata.service.IUttaksDataService
 import no.oslokommune.ombruk.shared.api.Authorization
 import no.oslokommune.ombruk.shared.api.Roles
 import no.oslokommune.ombruk.shared.api.generateResponse
 import no.oslokommune.ombruk.shared.api.receiveCatching
 import no.oslokommune.ombruk.uttak.service.IUttakService
+import no.oslokommune.ombruk.uttaksdata.form.UttaksdataPostForm
 
 @KtorExperimentalLocationsAPI
-fun Routing.uttaksdata(uttaksdataService: IUttaksdataService, uttakService: IUttakService) {
+fun Routing.uttaksdata(uttaksDataService: IUttaksDataService, uttakService: IUttakService) {
     route("/uttaksdata") {
 
         get<UttaksdataGetByIdForm> { form ->
             form.validOrError()
-                .flatMap { uttaksdataService.getUttaksdataById(it.id) }
+                .flatMap { uttaksDataService.getUttaksdataById(it.id) }
                 .run { generateResponse(this) }
                 .also { (code, response) -> call.respond(code, response) }
         }
 
         get<UttaksdataGetForm> { form ->
             form.validOrError()
-                .flatMap { uttaksdataService.getUttaksdata(it) }
+                .flatMap { uttaksDataService.getUttaksdata(it) }
                 .run { generateResponse(this) }
                 .also { (code, response) -> call.respond(code, response) }
         }
@@ -45,8 +43,23 @@ fun Routing.uttaksdata(uttaksdataService: IUttaksdataService, uttakService: IUtt
                     .flatMap { form ->
                         Authorization.run {
                             authorizeRole(listOf(Roles.Partner, Roles.RegEmployee, Roles.ReuseStasjon), call)
-                                .flatMap { authorizeReportPatchByPartnerId(it) { uttakService.getUttakByID(form.uttakID) } }
-                        }.flatMap { uttaksdataService.updateUttaksdata(form) }
+                                .flatMap { authorizeUttaksDataByPartnerId(it) { uttakService.getUttakByID(form.uttakID) } }
+                        }.flatMap { uttaksDataService.updateUttaksdata(form) }
+                    }
+                    .run { generateResponse(this) }
+                    .also { (code, response) -> call.respond(code, response) }
+            }
+        }
+
+        authenticate {
+            post("/") {
+                receiveCatching { call.receive<UttaksdataPostForm>() }
+                    .flatMap { it.validOrError() }
+                    .flatMap { form ->
+                        Authorization.run {
+                            authorizeRole(listOf(Roles.Partner, Roles.RegEmployee, Roles.ReuseStasjon), call)
+                                .flatMap { authorizeUttaksDataByPartnerId(it) { uttakService.getUttakByID(form.uttakID) } }
+                        }.flatMap { uttaksDataService.saveUttaksdata(form) }
                     }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }

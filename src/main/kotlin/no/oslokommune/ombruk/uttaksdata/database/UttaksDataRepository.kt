@@ -5,7 +5,6 @@ import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
 import no.oslokommune.ombruk.uttak.database.UttakTable
-import no.oslokommune.ombruk.stasjon.database.Stasjoner
 import no.oslokommune.ombruk.uttaksdata.form.UttaksdataGetForm
 import no.oslokommune.ombruk.uttaksdata.form.UttaksdataUpdateForm
 import no.oslokommune.ombruk.uttaksdata.model.Uttaksdata
@@ -18,26 +17,28 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.`java-time`.datetime
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
 
 private val logger = LoggerFactory.getLogger("ombruk.unittest.no.oslokommune.ombruk.uttaksdata.database.ReportRepository")
 
 object UttaksdataTable : IntIdTable("uttaksdata") {
-    val uttakID = integer("uttak_id").references(UttakTable.id)
-    val vekt = integer("vekt")
-    val rapportertTidspunkt = datetime("rapportert_tidspunkt")
+    val uttakID =               integer("uttak_id").references(UttakTable.id)
+    val vekt =                  integer("vekt")
+    val rapportertTidspunkt =   datetime("rapportert_tidspunkt")
+    val slettetTidspunkt =      datetime("slettet_tidspunkt").nullable()
 }
 
-object UttaksdataRepository : IUttaksdataRepository {
+object UttaksDataRepository : IUttaksDataRepository {
 
     override fun insertUttaksdata(form: UttaksdataPostForm) = runCatching {
-        transaction {
-            UttaksdataTable.insertAndGetId {
-                it[vekt] = form.vekt
-                it[uttakID] = form.uttakID
-                it[rapportertTidspunkt] = form.rapportertTidspunkt
-            }.value
+            transaction {
+                UttaksdataTable.insertAndGetId {
+                    it[vekt] = form.vekt
+                    it[uttakID] = form.uttakID
+                    it[rapportertTidspunkt] = form.rapportertTidspunkt
+                }.value
+            }
         }
-    }
         .onFailure { logger.error("Failed to insert stasjon to db: ${it.message}") }
         .fold({ getUttaksDataByID(it) }, { RepositoryError.InsertError("SQL error").left() })
 
@@ -64,7 +65,7 @@ object UttaksdataRepository : IUttaksdataRepository {
 
     override fun getUttaksDataByID(uttaksdataID: Int): Either<RepositoryError, Uttaksdata> = transaction {
         runCatching {
-            (UttaksdataTable innerJoin Stasjoner).select {
+            UttaksdataTable.select {
                 UttaksdataTable.id eq uttaksdataID and UttaksdataTable.rapportertTidspunkt.isNotNull()
             }.map { toUttaksdata(it) }.firstOrNull()
         }
@@ -103,6 +104,24 @@ object UttaksdataRepository : IUttaksdataRepository {
             .onFailure { logger.error(it.message) }
             .fold({ it.right() }, { RepositoryError.SelectError(it.message).left() })
     }
+
+    override fun deleteByUttakId(uttakId: Int): Either<RepositoryError, Unit> = runCatching {
+        transaction {
+            UttaksdataTable.update({ UttaksdataTable.id eq uttakId and UttaksdataTable.slettetTidspunkt.isNotNull()}) { row ->
+                row[slettetTidspunkt] = LocalDateTime.now()
+            }
+        }
+    }
+        .onFailure { logger.error("Failed to update uttaksdata: ${it.message}") }
+        .fold(
+            {
+                Either.cond(
+                    it > 0,
+                    { Unit.right() },
+                    { RepositoryError.NoRowsFound("ID $uttakId does not exist!") }).flatMap { it }
+            },
+            { RepositoryError.UpdateError("Failed to update uttaksdata").left() }
+        )
 
 
     private fun toUttaksdata(resultRow: ResultRow): Uttaksdata {

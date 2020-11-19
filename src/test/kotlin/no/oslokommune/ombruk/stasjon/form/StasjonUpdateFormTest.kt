@@ -46,7 +46,7 @@ class StasjonUpdateFormTest {
     fun generateValidForms() = listOf(
         StasjonUpdateForm(1, "unique"),
         StasjonUpdateForm(1, "unique", emptyMap()),
-        StasjonUpdateForm(1, hours = emptyMap())
+        StasjonUpdateForm(1, aapningstider = emptyMap())
     )
 
     @ParameterizedTest
@@ -63,7 +63,7 @@ class StasjonUpdateFormTest {
         StasjonUpdateForm(0),
         StasjonUpdateForm(1, ""),
         StasjonUpdateForm(1, "notUnique"),
-        StasjonUpdateForm(1, hours = mapOf(DayOfWeek.MONDAY to emptyList()))
+        StasjonUpdateForm(1, aapningstider = mapOf(DayOfWeek.MONDAY to emptyList()))
     )
 
     @ParameterizedTest

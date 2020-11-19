@@ -5,16 +5,17 @@ import arrow.core.right
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import no.oslokommune.ombruk.shared.database.initDB
 import no.oslokommune.ombruk.uttak.database.UttakRepository
 import no.oslokommune.ombruk.uttak.database.GjentakelsesRegelTable
-import no.oslokommune.ombruk.uttak.form.UttakDeleteForm
 import no.oslokommune.ombruk.uttak.form.UttakGetForm
 import no.oslokommune.ombruk.uttak.form.UttakPostForm
-import no.oslokommune.ombruk.uttak.form.UttakUpdateForm
 import no.oslokommune.ombruk.uttak.model.Uttak
 import no.oslokommune.ombruk.uttak.model.GjentakelsesRegel
+import no.oslokommune.ombruk.uttak.model.UttaksType
+import no.oslokommune.ombruk.uttaksdata.form.UttaksdataPostForm
 import no.oslokommune.ombruk.uttaksdata.model.Uttaksdata
-import no.oslokommune.ombruk.uttaksdata.service.UttaksdataService
+import no.oslokommune.ombruk.uttaksdata.service.UttaksDataService
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
 import java.time.DayOfWeek
@@ -26,10 +27,14 @@ import kotlin.test.assertEquals
 @ExtendWith(MockKExtension::class)
 class UttakServiceTest {
 
+    init {
+        initDB()
+    }
+
     @BeforeEach
     fun setup() {
         mockkObject(UttakRepository)
-        mockkObject(UttaksdataService)
+        mockkObject(UttaksDataService)
         mockkObject(GjentakelsesRegelTable)
     }
 
@@ -77,7 +82,7 @@ class UttakServiceTest {
          */
         @Test
         fun `get by stasjon id`(@MockK expectedUttak: List<Uttak>) {
-            val form = UttakGetForm(stasjonID = 1)
+            val form = UttakGetForm(stasjonId = 1)
             every { UttakRepository.getUttak(form) } returns expectedUttak.right()
 
             val actualUttak = UttakService.getUttak(form)
@@ -90,7 +95,7 @@ class UttakServiceTest {
          */
         @Test
         fun `get by partner id`(@MockK expectedUttak: List<Uttak>) {
-            val form = UttakGetForm(partnerID = 1)
+            val form = UttakGetForm(partnerId = 1)
             every { UttakRepository.getUttak(form) } returns expectedUttak.right()
 
             val actualUttak = UttakService.getUttak(form)
@@ -103,7 +108,7 @@ class UttakServiceTest {
          */
         @Test
         fun `get by partner and stasjon id`(@MockK expectedUttak: List<Uttak>) {
-            val form = UttakGetForm(partnerID = 1, stasjonID = 1)
+            val form = UttakGetForm(partnerId = 1, stasjonId = 1)
             every { UttakRepository.getUttak(form) } returns expectedUttak.right()
 
             val actualUttak = UttakService.getUttak(form)
@@ -150,71 +155,27 @@ class UttakServiceTest {
          */
         @Test
         fun `save single uttak`(@MockK expectedUttak: Uttak, @MockK uttaksdata: Uttaksdata) {
-            val from = LocalDateTime.parse("2020-09-02T12:00:00Z", DateTimeFormatter.ISO_DATE_TIME)
-            val form = UttakPostForm(from, from.plusHours(1), 1, 1)
+            val from = LocalDateTime.parse("2020-09-01T10:00:00Z", DateTimeFormatter.ISO_DATE_TIME)
+            val form = UttakPostForm(
+                stasjonId = 1,
+                partnerId = 1,
+                gjentakelsesRegel = GjentakelsesRegel(
+                    dager = listOf(DayOfWeek.TUESDAY),
+                    sluttTidspunkt = from.plusDays(1)
+                ),
+                type = UttaksType.GJENTAKENDE,
+                startTidspunkt = from,
+                sluttTidspunkt = from.plusHours(5)
+                )
+            val dataForm = UttaksdataPostForm(1, 100, LocalDateTime.now().plusMinutes(30))
+
             every { UttakRepository.insertUttak(form) } returns expectedUttak.right()
-            every { UttaksdataService.saveUttaksdata(expectedUttak) } returns uttaksdata.right()
+            every { UttaksDataService.saveUttaksdata(dataForm) } returns uttaksdata.right()
 
             val actualUttak = UttakService.saveUttak(form)
             require(actualUttak is Either.Right)
             verify(exactly = 1) { UttakRepository.insertUttak(form) }
             assertEquals(expectedUttak, actualUttak.b)
-        }
-
-        /**
-         * Check that the repository is called 3 times, because 3 uttak should be saved.
-         */
-        @Test
-        fun `save recurring uttak`(@MockK expectedUttak: Uttak, @MockK uttaksdata: Uttaksdata) {
-            val rRule = GjentakelsesRegel(count = 3, days = listOf(DayOfWeek.MONDAY))
-            val from = LocalDateTime.parse("2020-09-02T12:00:00Z", DateTimeFormatter.ISO_DATE_TIME)
-            val form = UttakPostForm(from, from.plusHours(1), 1, 1, gjentakelsesRegel = rRule)
-
-            every { GjentakelsesRegelTable.insertGjentakelsesRegel(rRule) } returns rRule.right()
-            every { UttaksdataService.saveUttaksdata(expectedUttak) } returns uttaksdata.right()
-            every { UttakRepository.insertUttak(any()) } returns expectedUttak.right()
-
-            val actualUttak = UttakService.saveUttak(form)
-            require(actualUttak is Either.Right)
-            verify(exactly = 3) { UttakRepository.insertUttak(any()) }
-        }
-
-    }
-
-    @Nested
-    inner class UpdateUttakTable {
-
-        /**
-         * Check that update uttak returns the updated uttak.
-         */
-        @Test
-        fun `update single uttak`(@MockK expectedUttak: Uttak) {
-            val from = LocalDateTime.parse("2020-09-02T12:00:00Z", DateTimeFormatter.ISO_DATE_TIME)
-            val updateForm = UttakUpdateForm(1, from, from.plusHours(1))
-
-            every { UttaksdataService.updateUttaksdata(expectedUttak) } returns Unit.right()
-            every { UttakRepository.updateUttak(updateForm) } returns expectedUttak.right()
-
-            val actualUttak = UttakService.updateUttak(updateForm)
-
-            require(actualUttak is Either.Right)
-            assertEquals(expectedUttak, actualUttak.b)
-        }
-    }
-
-    @Nested
-    inner class DeleteUttakTable {
-
-        /**
-         * Delete uttak doesn't really have any logic so we just have to check if it actually calls
-         * the repository.
-         */
-        @Test
-        fun `delete uttak by id`() {
-            val deleteForm = UttakDeleteForm(1)
-
-            UttakService.deleteUttak(deleteForm)
-            verify(exactly = 1) { UttakRepository.deleteUttak(deleteForm) }
         }
 
     }
