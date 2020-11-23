@@ -89,15 +89,6 @@ fun Application.module(testing: Boolean = false) {
                 }
             }
         }
-
-        /*
-        convert<UttaksType> {
-            //decode { values, type -> values.firstOrNull()?.let { UttaksType(it.toUpperCase()) } }
-            decode { values, type -> UttaksType.values().first { it.name.toUpperCase() in values } }
-            encode { if (it == null) emptyList() else listOf((it as UttaksType).name.toUpperCase()) }
-        }
-         */
-
     }
 
 
@@ -154,7 +145,7 @@ fun Application.module(testing: Boolean = false) {
         host(
             host = "oko.knowit.no",
             schemes = listOf("http", "https"),
-            subDomains = listOf("staging")
+            subDomains = listOf("staging", "test")
         )
         host(
             host = "0.0.0.0:8080",
