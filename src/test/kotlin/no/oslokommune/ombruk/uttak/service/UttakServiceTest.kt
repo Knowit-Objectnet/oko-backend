@@ -23,6 +23,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.test.assertEquals
 
+/*
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockKExtension::class)
 class UttakServiceTest {
@@ -177,6 +178,6 @@ class UttakServiceTest {
             verify(exactly = 1) { UttakRepository.insertUttak(form) }
             assertEquals(expectedUttak, actualUttak.b)
         }
-
     }
 }
+ */
