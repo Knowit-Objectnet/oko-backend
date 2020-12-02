@@ -61,6 +61,12 @@ fun Application.module(testing: Boolean = false) {
 
     initDB()
 
+    print("""
+        
+        Debug mode enabled: $debug
+        
+    """.trimIndent())
+
     install(Locations)
 
     install(DataConversion) {
