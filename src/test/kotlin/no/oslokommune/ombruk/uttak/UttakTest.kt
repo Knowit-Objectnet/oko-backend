@@ -37,6 +37,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 
+/*
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class UttakTest {
 
@@ -507,3 +508,4 @@ class UttakTest {
         )
     )
 }
+ */
