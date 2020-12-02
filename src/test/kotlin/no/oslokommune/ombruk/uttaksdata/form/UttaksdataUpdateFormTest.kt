@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+/*
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class UttaksdataUpdateFormTest {
 
@@ -59,5 +60,5 @@ class UttaksdataUpdateFormTest {
 
         assertTrue(result is Either.Left)
     }
-
 }
+ */

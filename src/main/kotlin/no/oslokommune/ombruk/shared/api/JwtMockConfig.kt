@@ -13,7 +13,7 @@ import java.util.*
 object JwtMockConfig {
 
     private const val secret = "testing123456789"
-    private val algorithm = Algorithm.HMAC256(secret)
+    private val algorithm = Algorithm.HMAC512(secret)
     val partnerBearer1 =
         "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJhdWQiOiJhY2NvdW50Iiwic3ViIjoiQXV0aGVudGljYXRpb24iLCJyb2xlcyI6WyJwYXJ0bmVyIl0sImV4cCI6OTIyMzM3MjAzNjg1NDc3NSwiR3JvdXBJRCI6MX0.cHb5E8Jr1qOr6Lxen93y4a6640Arv8dl0mLdzEvtTnE_Oj4tWOI1zxW02Mst0HE066fQhwgfNJVHLYYcS21Yfg"
     val partnerBearer2 =

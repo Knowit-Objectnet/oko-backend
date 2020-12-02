@@ -19,6 +19,7 @@ import org.junit.jupiter.params.provider.MethodSource
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+/*
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockKExtension::class)
 class PartnerPostFormTest {
@@ -78,5 +79,5 @@ class PartnerPostFormTest {
 
         assertTrue(result is Either.Left)
     }
-
 }
+ */
