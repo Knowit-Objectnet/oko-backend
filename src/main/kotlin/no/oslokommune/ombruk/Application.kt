@@ -61,12 +61,6 @@ fun Application.module(testing: Boolean = false) {
 
     initDB()
 
-    print("""
-        
-        Debug mode enabled: $debug
-        
-    """.trimIndent())
-
     install(Locations)
 
     install(DataConversion) {
@@ -151,12 +145,19 @@ fun Application.module(testing: Boolean = false) {
         host(
             host = "oko.knowit.no",
             schemes = listOf("http", "https"),
-            subDomains = listOf("staging", "test")
+            subDomains = listOf("staging", "test", "production")
         )
         host(
             host = "0.0.0.0:8080",
-            schemes = listOf("http", "https")
+            schemes = listOf("http", "https"),
+            subDomains = listOf("staging", "test", "production")
         )
+        host(
+            host = "localhost:8080",
+            schemes = listOf("http", "https"),
+            subDomains = listOf("staging", "test", "production")
+        )
+
         allowCredentials = true
         allowNonSimpleContentTypes = true
     }
@@ -195,6 +196,12 @@ fun Application.module(testing: Boolean = false) {
         }
 
     }
+
+    print("""
+        
+        Debug mode enabled: $debug
+        
+    """.trimIndent())
 }
 
 class AuthenticationException : RuntimeException()
