@@ -19,6 +19,7 @@ import no.oslokommune.ombruk.testPost
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 
+/*
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PartnerTest {
 
@@ -318,3 +319,4 @@ class PartnerTest {
         }
     }
 }
+ */

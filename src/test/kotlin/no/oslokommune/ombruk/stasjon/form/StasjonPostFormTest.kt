@@ -21,6 +21,7 @@ import java.time.format.DateTimeFormatter
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+/*
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockKExtension::class)
 class StasjonPostFormTest {
@@ -82,3 +83,4 @@ class StasjonPostFormTest {
     }
 
 }
+ */

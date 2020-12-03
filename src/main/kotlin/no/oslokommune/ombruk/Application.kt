@@ -105,7 +105,8 @@ fun Application.module(testing: Boolean = false) {
             }
         } else {
             val jwkIssuer = URL("${keycloakUrl}realms/$keycloakRealm/protocol/openid-connect/certs")
-            val jwkRealm = "OKO backend"
+            //val jwkRealm = "OKO backend"
+            val jwkRealm = "test"
             val jwkProvider = JwkProviderBuilder(jwkIssuer)
                 .cached(10, 24, TimeUnit.HOURS)
                 .rateLimited(10, 1, TimeUnit.HOURS)
@@ -145,12 +146,19 @@ fun Application.module(testing: Boolean = false) {
         host(
             host = "oko.knowit.no",
             schemes = listOf("http", "https"),
-            subDomains = listOf("staging", "test")
+            subDomains = listOf("staging", "test", "production")
         )
         host(
             host = "0.0.0.0:8080",
-            schemes = listOf("http", "https")
+            schemes = listOf("http", "https"),
+            subDomains = listOf("staging", "test", "production")
         )
+        host(
+            host = "localhost:8080",
+            schemes = listOf("http", "https"),
+            subDomains = listOf("staging", "test", "production")
+        )
+
         allowCredentials = true
         allowNonSimpleContentTypes = true
     }
@@ -189,6 +197,12 @@ fun Application.module(testing: Boolean = false) {
         }
 
     }
+
+    print("""
+        
+        Debug mode enabled: $debug
+        
+    """.trimIndent())
 }
 
 class AuthenticationException : RuntimeException()
