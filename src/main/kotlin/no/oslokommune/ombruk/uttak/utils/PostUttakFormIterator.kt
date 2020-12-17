@@ -2,7 +2,6 @@ package no.oslokommune.ombruk.uttak.utils
 
 import no.oslokommune.ombruk.uttak.form.UttakPostForm
 import no.oslokommune.ombruk.uttak.model.GjentakelsesRegel
-import java.time.DayOfWeek
 import java.time.temporal.TemporalAdjusters
 
 
@@ -25,7 +24,7 @@ class PostUttakFormIterator(postForm: UttakPostForm) : Iterator<UttakPostForm> {
     }
 
     override fun hasNext(): Boolean {
-        if (rRule.sluttTidspunkt != null) return (currentForm.startTidspunkt <= rRule.sluttTidspunkt)
+        if (rRule.until != null) return (currentForm.startTidspunkt <= rRule.until)
         else if (rRule.antall != null) return (currentCount <= rRule.antall!!)
         //else if (rRule.antall != null) return ((currentCount/rRule.intervall) <= (rRule.antall!! * rRule.intervall))
         return false

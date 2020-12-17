@@ -1,0 +1,137 @@
+openapi: 3.0.1
+info:
+  title: OpenAPIDefinition annotation is required only once in a project
+  description: |2-
+
+    ### markdown is supported</br>
+    ---
+  version: "1"
+paths:
+  /partnere:
+    get:
+      tags:
+      - partner
+      summary: Fetches partners, filtered by the passed parameterssss
+      operationId: getPartnere
+      parameters:
+      - name: navn
+        in: query
+        schema:
+          type: string
+          nullable: true
+          exampleSetFlag: false
+      - name: beskrivelse
+        in: query
+        schema:
+          type: string
+          nullable: true
+          exampleSetFlag: false
+      - name: telefon
+        in: query
+        schema:
+          type: string
+          nullable: true
+          exampleSetFlag: false
+      - name: epost
+        in: query
+        schema:
+          type: string
+          nullable: true
+          exampleSetFlag: false
+      responses:
+        "200":
+          description: Partner was found
+          content:
+            application/json:
+              schema:
+                type: array
+                exampleSetFlag: false
+                items:
+                  $ref: '#/components/schemas/Partner'
+        "400":
+          description: Bad input parameter
+        "500":
+          description: Internal server error
+  /stasjoner:
+    get:
+      operationId: getStasjoner
+      responses:
+        default:
+          description: default response
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/EitherServiceErrorListStasjon'
+components:
+  schemas:
+    Partner:
+      type: object
+      properties:
+        id:
+          minimum: 1
+          type: integer
+          description: ID of partner
+          format: int32
+          exampleSetFlag: false
+        navn:
+          type: string
+          description: The name of a partner
+          exampleSetFlag: false
+        beskrivelse:
+          type: string
+          description: Describes the partner
+          exampleSetFlag: false
+        telefon:
+          type: string
+          description: The phone number of a partner
+          exampleSetFlag: false
+        epost:
+          type: string
+          description: The e-mail of a partner
+          exampleSetFlag: false
+        endretTidspunkt:
+          type: string
+          description: The time of which a partner was updated. If null, partner is
+            original
+          format: date-time
+          nullable: true
+          exampleSetFlag: false
+        slettetTidspunkt:
+          type: string
+          description: The time of which a partner was deleted. If null, partner exists
+          format: date-time
+          nullable: true
+          exampleSetFlag: false
+      exampleSetFlag: false
+    EitherServiceErrorListPartner:
+      type: object
+      properties:
+        right$arrow_core_data:
+          type: boolean
+          exampleSetFlag: false
+        left$arrow_core_data:
+          type: boolean
+          exampleSetFlag: false
+        left:
+          type: boolean
+          exampleSetFlag: false
+        right:
+          type: boolean
+          exampleSetFlag: false
+      exampleSetFlag: false
+    EitherServiceErrorListStasjon:
+      type: object
+      properties:
+        right$arrow_core_data:
+          type: boolean
+          exampleSetFlag: false
+        left$arrow_core_data:
+          type: boolean
+          exampleSetFlag: false
+        left:
+          type: boolean
+          exampleSetFlag: false
+        right:
+          type: boolean
+          exampleSetFlag: false
+      exampleSetFlag: false

@@ -36,9 +36,9 @@ interface IUttakRepository : IRepository {
      * @param uttakDeleteForm A [UttakDeleteForm] containing the query constraints.
      * @return An [Either] object consisting of a [RepositoryError] on failure and [List] of deleted [Uttak] objects on success.
      */
-    fun deleteUttak(uttak: Uttak): Either<RepositoryError, Unit>
+    fun deleteUttak(uttakDeleteForm: UttakDeleteForm): Either<RepositoryError, List<Uttak>>
 
-    fun deleteUttakById(id: Int): Either<RepositoryError, Unit>
+//    fun deleteUttakById(id: Int): Either<RepositoryError, Unit>
 
     /**
      * Fetches a specific [Uttak].

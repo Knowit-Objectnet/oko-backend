@@ -2,14 +2,26 @@ package no.oslokommune.ombruk.partner.form
 
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.locations.Location
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.enums.ParameterIn
+import io.swagger.v3.oas.annotations.media.Schema
 import no.oslokommune.ombruk.shared.form.IForm
 import no.oslokommune.ombruk.shared.utils.validation.runCatchingValidation
 import org.valiktor.functions.isGreaterThan
 import org.valiktor.validate
+import javax.ws.rs.PathParam
 
 @KtorExperimentalLocationsAPI
 @Location("/{id}") // TODO: remove?
-data class PartnerGetByIdForm(val id: Int) : IForm<PartnerGetByIdForm> {
+data class PartnerGetByIdForm(
+    @get:Parameter(
+        `in` = ParameterIn.PATH,
+        name = "id",
+        schema = Schema(type = "int32", nullable = false),
+        description = "ID of Partner to get",
+        required = true
+    ) val id: Int
+) : IForm<PartnerGetByIdForm> {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
             validate(PartnerGetByIdForm::id).isGreaterThan(0)

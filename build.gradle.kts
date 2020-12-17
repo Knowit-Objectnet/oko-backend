@@ -11,7 +11,6 @@ plugins {
     kotlin("jvm") version "1.3.70"
     kotlin("plugin.serialization") version "1.3.61"
     id("com.github.johnrengelman.shadow") version "5.0.0"
-    jacoco
 }
 
 application {
@@ -40,6 +39,8 @@ dependencies {
     implementation(exposed("dao"))
     implementation(exposed("jdbc"))
     implementation(exposed("java-time"))
+    implementation("io.swagger.core.v3:swagger-jaxrs2:2.1.1")
+    implementation("javax.ws.rs:javax.ws.rs-api:2.1")
 
     implementation(valiktor("core"))
     implementation(valiktor("javatime"))

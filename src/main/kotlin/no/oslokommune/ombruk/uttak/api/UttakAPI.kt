@@ -15,6 +15,7 @@ import no.oslokommune.ombruk.shared.api.generateResponse
 import no.oslokommune.ombruk.shared.api.receiveCatching
 import no.oslokommune.ombruk.shared.api.Authorization
 import no.oslokommune.ombruk.shared.api.Roles
+import no.oslokommune.ombruk.uttak.service.UttakService
 import no.oslokommune.ombruk.uttak.service.UttakService.deleteUttak
 import no.oslokommune.ombruk.uttaksdata.service.IUttaksDataService
 
@@ -62,17 +63,24 @@ fun Routing.uttak(uttakService: IUttakService, uttaksDataService: IUttaksDataSer
         authenticate {
             delete<UttakDeleteForm> { form ->
                 Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.ReuseStasjon, Roles.Partner), call)
-                    .flatMap { auth ->
-                        form.validOrError()
-                            .flatMap {
-                                Authorization.authorizePartnerID(auth) {
-                                    uttakService.getUttak(form.toGetForm())
-                                }
-                                .flatMap { uttakList -> deleteUttak(uttakList) }
-                            }
-                    }
+                    .map { if (it.first == Roles.Partner) form.partnerId = it.second; it }
+                    .flatMap { Authorization.authorizePartnerID(it) {UttakService.getUttak(form.toGetForm())} }
+                    .flatMap { form.validOrError() }
+                    .flatMap { deleteUttak(form) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
+//                Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.ReuseStasjon, Roles.Partner), call)
+//                    .flatMap { auth ->
+//                        form.validOrError()
+//                            .flatMap {
+//                                Authorization.authorizePartnerID(auth) {
+//                                    uttakService.getUttak(form.toGetForm())
+//                                }
+//                                .flatMap { uttakList -> deleteUttak(uttakList) }
+//                            }
+//                    }
+//                    .run { generateResponse(this) }
+//                    .also { (code, response) -> call.respond(code, response) }
 
             }
         }

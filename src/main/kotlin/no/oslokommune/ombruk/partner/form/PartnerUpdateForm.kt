@@ -1,5 +1,6 @@
 package no.oslokommune.ombruk.partner.form
 
+import io.swagger.v3.oas.annotations.media.Schema
 import kotlinx.serialization.Serializable
 import no.oslokommune.ombruk.partner.database.PartnerRepository
 import no.oslokommune.ombruk.shared.form.IForm
@@ -13,11 +14,11 @@ import org.valiktor.validate
 
 @Serializable
 data class PartnerUpdateForm(
-        val id: Int,
-        var navn: String? = null,
-        var beskrivelse: String? = null,
-        var telefon: String? = null,
-        var epost: String? = null
+    @field:Schema(required = true, example = "1") val id: Int,
+    @field:Schema(required = false, example = "Jobben") var navn: String? = null,
+    @field:Schema(required = false, example = "Jobben driver med en annen ting") var beskrivelse: String? = null,
+    @field:Schema(required = false, example = "87654321") var telefon: String? = null,
+    @field:Schema(required = false, example = "Jobben@Jobben.no") var epost: String? = null
 ) : IForm<PartnerUpdateForm> {
     override fun validOrError() = runCatchingValidation {
         validate(this) {

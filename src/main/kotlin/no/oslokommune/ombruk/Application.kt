@@ -14,36 +14,64 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.content.files
+import io.ktor.http.content.static
+import io.ktor.http.content.staticRootFolder
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.locations.Locations
 import io.ktor.response.respond
+import io.ktor.response.respondRedirect
+import io.ktor.response.respondText
 import io.ktor.routing.get
 import io.ktor.routing.routing
 import io.ktor.serialization.DefaultJsonConfiguration
 import io.ktor.serialization.json
 import io.ktor.util.DataConversionException
 import io.ktor.util.KtorExperimentalAPI
+import io.swagger.v3.core.converter.ModelConverters
+import io.swagger.v3.core.filter.OpenAPISpecFilter
+import io.swagger.v3.core.filter.SpecFilter
+import io.swagger.v3.core.util.Yaml
+import io.swagger.v3.jaxrs2.Reader
+import io.swagger.v3.jaxrs2.ext.OpenAPIExtension
+import io.swagger.v3.jaxrs2.ext.OpenAPIExtensions
+import io.swagger.v3.oas.integration.SwaggerConfiguration
+import io.swagger.v3.oas.models.Components
+import io.swagger.v3.oas.models.OpenAPI
 import kotlinx.serialization.json.Json
-import no.oslokommune.ombruk.uttak.api.uttak
-import no.oslokommune.ombruk.stasjon.api.stasjoner
-import no.oslokommune.ombruk.uttak.service.UttakService
-import no.oslokommune.ombruk.stasjon.service.StasjonService
 import no.oslokommune.ombruk.partner.api.partnere
+import no.oslokommune.ombruk.partner.model.Partner
+import no.oslokommune.ombruk.partner.service.IPartnerService
 import no.oslokommune.ombruk.partner.service.PartnerService
-import no.oslokommune.ombruk.uttaksforesporsel.api.request
-import no.oslokommune.ombruk.uttaksforesporsel.service.UttaksforesporselService
-import no.oslokommune.ombruk.uttaksdata.api.uttaksdata
-import no.oslokommune.ombruk.uttaksdata.service.UttaksDataService
 import no.oslokommune.ombruk.shared.api.Authorization
 import no.oslokommune.ombruk.shared.api.JwtMockConfig
 import no.oslokommune.ombruk.shared.database.initDB
+import no.oslokommune.ombruk.shared.swagger.EitherFilter
+import no.oslokommune.ombruk.shared.swagger.LocalTimeConverter
+import no.oslokommune.ombruk.shared.swagger.Modifier
+import no.oslokommune.ombruk.shared.swagger.extensions.DefaultResponseExtension
+import no.oslokommune.ombruk.shared.swagger.extensions.ParameterFileExtraction
+import no.oslokommune.ombruk.stasjon.api.stasjoner
+import no.oslokommune.ombruk.stasjon.service.IStasjonService
+import no.oslokommune.ombruk.stasjon.service.StasjonService
+import no.oslokommune.ombruk.uttak.api.uttak
+import no.oslokommune.ombruk.uttak.service.IUttakService
+import no.oslokommune.ombruk.uttak.service.UttakService
+import no.oslokommune.ombruk.uttaksdata.api.uttaksdata
+import no.oslokommune.ombruk.uttaksdata.service.IUttaksDataService
+import no.oslokommune.ombruk.uttaksdata.service.UttaksDataService
+import no.oslokommune.ombruk.uttaksforesporsel.api.request
+import no.oslokommune.ombruk.uttaksforesporsel.service.UttaksforesporselService
 import org.valiktor.ConstraintViolationException
 import org.valiktor.i18n.mapToMessage
+import java.io.File
 import java.net.URL
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.reflect.jvm.jvmName
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -58,6 +86,25 @@ var keycloakRealm = appConfig.property("ktor.keycloak.keycloakRealm").getString(
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
 fun Application.module(testing: Boolean = false) {
+
+    //Seems like you can only load one extension at a time..
+
+    val config = SwaggerConfiguration()
+    config.openAPI = OpenAPI()
+    println(config.openAPI)
+    config.openAPI.components = Components()
+    val reader = Reader(config)
+    ModelConverters.getInstance().addConverter(LocalTimeConverter())
+    OpenAPIExtensions.getExtensions().add(ParameterFileExtraction(reader.openAPI))
+    val openAPI: OpenAPI = reader.read(
+        setOf(
+            IPartnerService::class.java,
+            IStasjonService::class.java,
+            Modifier::class.java,
+            IUttakService::class.java,
+            IUttaksDataService::class.java
+        )
+    )
 
     initDB()
 
@@ -179,6 +226,16 @@ fun Application.module(testing: Boolean = false) {
         get("/health_check") {
             call.respond(HttpStatusCode.OK)
         }
+        static("swagger-ui") {
+            staticRootFolder = File("src/main/resources/static")
+            files(File("dist"))
+        }
+        get("/openapi") {
+            call.respondText { Yaml.pretty(openAPI) }
+        }
+        get("/") {
+            call.respondRedirect("/swagger-ui/index.html?url=/openapi")
+        }
 
         install(StatusPages) {
             exception<AuthenticationException> { call.respond(HttpStatusCode.Unauthorized) }
@@ -198,11 +255,13 @@ fun Application.module(testing: Boolean = false) {
 
     }
 
-    print("""
+    print(
+        """
         
         Debug mode enabled: $debug
         
-    """.trimIndent())
+    """.trimIndent()
+    )
 }
 
 class AuthenticationException : RuntimeException()

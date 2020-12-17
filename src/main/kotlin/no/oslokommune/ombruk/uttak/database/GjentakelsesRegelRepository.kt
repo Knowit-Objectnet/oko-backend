@@ -34,7 +34,7 @@ object GjentakelsesRegelTable : IntIdTable("gjentakelsesregler") {
         GjentakelsesRegelTable.insertAndGetId {
             it[dager] = gjentakelsesRegel.dager.joinToString()
             it[antall] = gjentakelsesRegel.antall
-            it[sluttTidspunkt] = gjentakelsesRegel.sluttTidspunkt!!
+            it[sluttTidspunkt] = gjentakelsesRegel.until!!
             it[intervall] = gjentakelsesRegel.intervall
             it[endretTidspunkt] = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES)
         }

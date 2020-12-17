@@ -1,13 +1,20 @@
 package no.oslokommune.ombruk.uttaksforesporsel.service
 
 import arrow.core.Either
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.parameters.RequestBody
 import no.oslokommune.ombruk.uttaksforesporsel.form.uttaksforesporsel.UttaksforesporselDeleteForm
 import no.oslokommune.ombruk.uttaksforesporsel.form.uttaksforesporsel.UttaksForesporselGetForm
 import no.oslokommune.ombruk.uttaksforesporsel.form.uttaksforesporsel.UttaksforesporselPostForm
 import no.oslokommune.ombruk.uttaksforesporsel.model.UttaksForesporsel
 import no.oslokommune.ombruk.shared.error.ServiceError
+import no.oslokommune.ombruk.shared.swagger.annotations.DefaultResponse
+import javax.ws.rs.POST
+import javax.ws.rs.Path
 
-
+@Path("/uttaksforesporsel")
 interface IUttaksforesporselService {
 
     /**
@@ -16,6 +23,18 @@ interface IUttaksforesporselService {
      * @param requestPostForm A [UttaksforesporselPostForm] that specifies what partner should be added to what uttaksforesporsel.
      * @return A [ServiceError] on failure and the stored [UttaksForesporsel] on success.
      */
+    @POST
+    @DefaultResponse(okResponseBody = UttaksForesporsel::class, okResponseDescription = "UttaksForesporsel created")
+    @Operation(
+        summary = "Creates a new UttaksForesporsel",
+        tags = ["uttaksforesporsel"],
+        requestBody = RequestBody(
+            content = [Content(
+                mediaType = "application/json",
+                schema = Schema(implementation = UttaksforesporselPostForm::class)
+            )]
+        )
+    )
     fun saveRequest(requestPostForm: UttaksforesporselPostForm): Either<ServiceError, UttaksForesporsel>
 
     /**

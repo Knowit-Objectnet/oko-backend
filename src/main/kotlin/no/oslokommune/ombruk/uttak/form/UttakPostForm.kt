@@ -1,6 +1,7 @@
 package no.oslokommune.ombruk.uttak.form
 
 import arrow.core.Either
+import io.swagger.v3.oas.annotations.media.Schema
 import kotlinx.serialization.Serializable
 import no.oslokommune.ombruk.stasjon.database.StasjonRepository
 import no.oslokommune.ombruk.uttak.model.GjentakelsesRegel
@@ -20,11 +21,36 @@ import java.time.LocalDateTime
 
 @Serializable
 data class UttakPostForm(
-    val stasjonId: Int,
-    val partnerId: Int? = null, // Optional partner. An uttak without a partner is arranged by the stasjon only.
-    val gjentakelsesRegel: GjentakelsesRegel? = null,
-    val type: UttaksType = UttaksType.GJENTAKENDE,
-    @Serializable(with = LocalDateTimeSerializer::class) val startTidspunkt: LocalDateTime,
+    @field:Schema(required = true, example = "1", nullable = false) val stasjonId: Int,
+    @field:Schema(
+        required = false,
+        example = "1",
+        nullable = false,
+        description = "Posting an Uttak with a partnerId means that the Uttak is not assigned to a Partner yet."
+    ) val partnerId: Int? = null, // Optional partner. An uttak without a partner is arranged by the stasjon only.
+    @field:Schema(
+        required = true,
+        example = "1",
+        nullable = false,
+        description = "By omitting gjentakelsesRegel, you specify that the Uttak will only occur once. By including it, you define at what times the Uttak should occur",
+        implementation = GjentakelsesRegel::class
+    ) val gjentakelsesRegel: GjentakelsesRegel? = null,
+    @field:Schema(
+        required = true,
+        defaultValue = "GJENTAKENDE",
+        example = "ENKELT",
+        description = "Denotes what kind of Uttak should be created",
+        implementation = UttaksType::class
+    )val type: UttaksType = UttaksType.GJENTAKENDE,
+    @get:Schema(
+        required = true,
+        description = "The date of the first (or only) Uttak"
+    ) @Serializable(with = LocalDateTimeSerializer::class) val startTidspunkt: LocalDateTime,
+    @field:Schema(
+        required = true,
+        description = "The date of the final Uttak. Must be after startTidspunkt. If the Uttak only occurs once," +
+                "the date of sluttTidspunkt must correspond with startTidspunkt"
+    )
     @Serializable(with = LocalDateTimeSerializer::class) val sluttTidspunkt: LocalDateTime
 ) : Iterable<UttakPostForm>, IForm<UttakPostForm> {
     override fun iterator() = when (gjentakelsesRegel) {
@@ -54,9 +80,9 @@ private fun GjentakelsesRegel.validateSelf(startDateTime: LocalDateTime) = valid
 
     validate(GjentakelsesRegel::intervall).isGreaterThanOrEqualTo(1)
     validate(GjentakelsesRegel::antall).isGreaterThanOrEqualTo(1)
-    validate(GjentakelsesRegel::sluttTidspunkt).isGreaterThanStartDateTime(startDateTime)
+    validate(GjentakelsesRegel::until).isGreaterThanStartDateTime(startDateTime)
 
-    if (antall == null) validate(GjentakelsesRegel::sluttTidspunkt).isNotNull()
-    if (sluttTidspunkt == null) validate(GjentakelsesRegel::antall).isNotNull()
+    if (antall == null) validate(GjentakelsesRegel::until).isNotNull()
+    if (until == null) validate(GjentakelsesRegel::antall).isNotNull()
 }
 

@@ -27,11 +27,11 @@ class UttaksdataGetFormTest {
         assertEquals(form, result.b)
     }
 
-    @Suppress("unused")
-    fun generateInvalidForms() = listOf(
-        UttaksdataGetForm(0),
-        UttaksdataGetForm(1, -100, 0, LocalDateTime.now(), LocalDateTime.now().plusHours(1))
-    )
+//    @Suppress("unused")
+//    fun generateInvalidForms() = listOf(
+//        UttaksdataGetForm(0),
+//        UttaksdataGetForm(1, -100, 0, LocalDateTime.now(), LocalDateTime.now().plusHours(1))
+//    )
 
     @ParameterizedTest
     @MethodSource("generateInvalidForms")

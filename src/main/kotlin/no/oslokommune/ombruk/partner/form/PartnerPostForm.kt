@@ -1,5 +1,6 @@
 package no.oslokommune.ombruk.partner.form
 
+import io.swagger.v3.oas.annotations.media.Schema
 import kotlinx.serialization.ContextualSerialization
 import kotlinx.serialization.Serializable
 import no.oslokommune.ombruk.partner.database.PartnerRepository
@@ -14,10 +15,10 @@ import java.time.LocalDateTime
 
 @Serializable
 data class PartnerPostForm(
-        val navn: String,
-        val beskrivelse: String,
-        val telefon: String,
-        val epost: String
+    @field:Schema(required = true, example = "Fretex", nullable = false) val navn: String,
+    @field:Schema(required = true, example = "Fretex driver med gjenbruk", nullable = false) val beskrivelse: String,
+    @field:Schema(required = true, example = "12345678", nullable = false) val telefon: String,
+    @field:Schema(required = true, example = "Fretex@Fretex.no", nullable = false) val epost: String
 ) : IForm<PartnerPostForm> {
     override fun validOrError() = runCatchingValidation {
         validate(this) {

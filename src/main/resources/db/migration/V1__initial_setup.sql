@@ -62,7 +62,7 @@ create table uttaksdata
 (
     id                      serial primary key,
     uttak_id                int not null,
-    vekt                    int not null,
+    vekt                    int,
     rapportert_tidspunkt    timestamp,
     slettet_tidspunkt       timestamp,
     check                   (vekt > 0),

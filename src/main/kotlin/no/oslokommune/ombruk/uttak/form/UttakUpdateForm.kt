@@ -1,6 +1,7 @@
 package no.oslokommune.ombruk.uttak.form
 
 import arrow.core.Either
+import io.swagger.v3.oas.annotations.media.Schema
 import kotlinx.serialization.Serializable
 import no.oslokommune.ombruk.uttak.database.UttakRepository
 import no.oslokommune.ombruk.shared.error.ValidationError
@@ -22,14 +23,23 @@ import java.time.LocalDateTime
 
 @Serializable
 data class UttakUpdateForm(
-        val id: Int,
-        val type: String? = null, // Uttakstype
-        val stasjonID: Int? = null,
-        val samarbeidspartnerID: Int? = null,
-        val beskrivelse: String? = null,
-        val gjentakelsesRegel: GjentakelsesRegelUpdate? = null,
-        @Serializable(with = LocalDateTimeSerializer::class) val startTidspunkt: LocalDateTime? = null,
-        @Serializable(with = LocalDateTimeSerializer::class) val sluttTidspunkt: LocalDateTime? = null
+    @field:Schema(description = "The ID of the Uttak to be edited", required = true) val id: Int,
+    @field:Schema(
+        description = "The type of the Uttak",
+        implementation = UttaksType::class
+    ) val type: String? = null, // Uttakstype. WHy would you allow the the client to alter the type? Should the server not handle this?
+//    @field:Schema(description = "Changes the station that a specific Uttak belongs to") val stasjonId: Int? = null,
+//    @field:Schema(description = "Changes the partner that a specific Uttak belongs to") val partnerId: Int? = null,
+//    @field:Schema(description = "Changes the description of an Uttak") val beskrivelse: String? = null,
+//    @field:Schema(
+//        description = "Alters the GjentakelsesRegel of an Uttak"
+//    ) val gjentakelsesRegel: GjentakelsesRegelUpdate? = null, // Why would you need to update a GjentakelsesRegel?
+    @field:Schema(
+        description = "Alters the start date time of an Uttak"
+    ) @Serializable(with = LocalDateTimeSerializer::class) val startTidspunkt: LocalDateTime? = null,
+    @field:Schema(
+        description = "Alters the end date time of an Uttak"
+    ) @Serializable(with = LocalDateTimeSerializer::class) val sluttTidspunkt: LocalDateTime? = null
 ) : IForm<UttakUpdateForm> {
     override fun validOrError(): Either<ValidationError, UttakUpdateForm> = runCatchingValidation {
         validate(this) {
@@ -59,13 +69,13 @@ data class UttakUpdateForm(
 
 @Serializable
 data class GjentakelsesRegelUpdate(
-        var id: Int,
-        val intervall: Int? = null,
-        val antall: Int? = null,
-        @Serializable
-        val dager: List<DayOfWeek>? = null,
-        @Serializable(with = LocalDateTimeSerializer::class)
-        val sluttTidspunkt: LocalDateTime? = null
+    var id: Int,
+    val intervall: Int? = null,
+    val antall: Int? = null,
+    @Serializable
+    val dager: List<DayOfWeek>? = null,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val sluttTidspunkt: LocalDateTime? = null
 )
 
 

@@ -42,7 +42,7 @@ class UttakPostFormIteratorTest {
         val gjentakelsesRegel = GjentakelsesRegel(
             antall = 1,
             dager = everyWeekDay(),
-            sluttTidspunkt = LocalDateTime.parse("2020-07-22T17:00:00"))
+            until = LocalDateTime.parse("2020-07-22T17:00:00"))
 
         val recurringForm = UttakPostForm(
             startTidspunkt = LocalDateTime.parse("2020-07-13T15:00:00"),
@@ -77,7 +77,7 @@ class UttakPostFormIteratorTest {
         val gjentakelsesRegel = GjentakelsesRegel(
             antall = 1,
             dager = listOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY),
-            sluttTidspunkt = LocalDateTime.parse("2020-07-19T18:00:00")
+            until = LocalDateTime.parse("2020-07-19T18:00:00")
         )
 
         val recurringForm = UttakPostForm(
@@ -111,7 +111,7 @@ class UttakPostFormIteratorTest {
         val gjentakelsesRegel = GjentakelsesRegel(
             antall = 1,
             dager = everyday(),
-            sluttTidspunkt = LocalDateTime.parse("2020-07-19T16:00:00")
+            until = LocalDateTime.parse("2020-07-19T16:00:00")
         )
 
         val recurringForm = UttakPostForm(
@@ -142,7 +142,7 @@ class UttakPostFormIteratorTest {
         val gjentakelsesRegel = GjentakelsesRegel(
             antall = 1,
             dager = everyWeekDay(),
-            sluttTidspunkt = LocalDateTime.parse("2020-07-17T16:00:00")
+            until = LocalDateTime.parse("2020-07-17T16:00:00")
             //sluttTidspunkt = LocalDateTime.parse("2020-07-14T15:00:00")
         )
 
@@ -243,7 +243,7 @@ class UttakPostFormIteratorTest {
         val startTidspunkt = LocalDateTime.parse("2020-07-13T10:00:00")
         val sluttTidspunkt = LocalDateTime.parse("2020-07-29T15:00:00")
         val gjentakelsesRegel = GjentakelsesRegel(
-            sluttTidspunkt= sluttTidspunkt,
+            until= sluttTidspunkt,
             antall = 10, // 3
             dager = everyday()
         )
@@ -273,7 +273,7 @@ class UttakPostFormIteratorTest {
     @Test
     fun testFormWeekdayWithUntil() {
         val gjentakelsesRegel = GjentakelsesRegel(
-            sluttTidspunkt= LocalDateTime.parse("2020-07-17T15:00:00"),
+            until= LocalDateTime.parse("2020-07-17T15:00:00"),
             dager = everyWeekDay()
         )
 
@@ -305,7 +305,7 @@ class UttakPostFormIteratorTest {
     @Test
     fun testFormWeekdaySkipWednesdayWithUntil() {
         val gjentakelsesRegel = GjentakelsesRegel(
-            sluttTidspunkt= LocalDateTime.parse("2020-07-20T15:00:00"),
+            until= LocalDateTime.parse("2020-07-20T15:00:00"),
             dager = listOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY))
 
         val recurringForm = UttakPostForm(

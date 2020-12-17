@@ -1,12 +1,11 @@
 package no.oslokommune.ombruk.uttaksdata.form
 
-import arrow.core.right
+import io.swagger.v3.oas.annotations.media.Schema
 import kotlinx.serialization.Serializable
 import no.oslokommune.ombruk.shared.form.IForm
 import no.oslokommune.ombruk.shared.model.serializer.LocalDateTimeSerializer
 import no.oslokommune.ombruk.shared.utils.validation.runCatchingValidation
 import no.oslokommune.ombruk.uttak.database.UttakRepository
-import no.oslokommune.ombruk.uttak.model.Uttak
 import org.valiktor.functions.isGreaterThan
 import org.valiktor.functions.isValid
 import org.valiktor.validate
@@ -14,10 +13,15 @@ import java.time.LocalDateTime
 
 @Serializable
 data class UttaksdataPostForm(
-    val uttakID: Int,
-    val vekt: Int,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val rapportertTidspunkt: LocalDateTime
+    @field:Schema(
+        description = "The ID of the UttaksData",
+        required = true
+    ) val uttakID: Int, //Not sure why this is exposed?
+    @field:Schema(description = "The weight of the UttaksData", required = true) val vekt: Int,
+    @field:Schema(
+        description = "The time at which the weight was reported",
+        required = true
+    ) @Serializable(with = LocalDateTimeSerializer::class) val rapportertTidspunkt: LocalDateTime
 ) : IForm<UttaksdataPostForm> {
     override fun validOrError() = runCatchingValidation {
         validate(this) {

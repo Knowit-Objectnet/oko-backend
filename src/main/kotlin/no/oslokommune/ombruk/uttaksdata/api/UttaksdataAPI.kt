@@ -43,23 +43,8 @@ fun Routing.uttaksdata(uttaksDataService: IUttaksDataService, uttakService: IUtt
                     .flatMap { form ->
                         Authorization.run {
                             authorizeRole(listOf(Roles.Partner, Roles.RegEmployee, Roles.ReuseStasjon), call)
-                                .flatMap { authorizeUttaksDataByPartnerId(it) { uttakService.getUttakByID(form.uttakID) } }
+                                .flatMap { authorizeUttaksDataByPartnerId(it) { uttakService.getUttakByID(form.id) } }
                         }.flatMap { uttaksDataService.updateUttaksdata(form) }
-                    }
-                    .run { generateResponse(this) }
-                    .also { (code, response) -> call.respond(code, response) }
-            }
-        }
-
-        authenticate {
-            post("/") {
-                receiveCatching { call.receive<UttaksdataPostForm>() }
-                    .flatMap { it.validOrError() }
-                    .flatMap { form ->
-                        Authorization.run {
-                            authorizeRole(listOf(Roles.Partner, Roles.RegEmployee, Roles.ReuseStasjon), call)
-                                .flatMap { authorizeUttaksDataByPartnerId(it) { uttakService.getUttakByID(form.uttakID) } }
-                        }.flatMap { uttaksDataService.saveUttaksdata(form) }
                     }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
