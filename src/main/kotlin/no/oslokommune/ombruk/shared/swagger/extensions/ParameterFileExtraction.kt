@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.models.Components
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.Operation
+import io.swagger.v3.oas.models.media.ArraySchema
 import io.swagger.v3.oas.models.media.Content
 import io.swagger.v3.oas.models.media.MediaType
 import io.swagger.v3.oas.models.media.Schema
@@ -56,6 +57,15 @@ class ParameterFileExtraction(val openAPI: OpenAPI) : AbstractOpenAPIExtension()
 
     }
 
+    private fun generateSchema(annotation: DefaultResponse): Schema<*> {
+        val schema = AnnotationsUtils.resolveSchemaFromType(
+            annotation.okResponseBody.java,
+            openAPI.components,
+            null
+        )
+        return if (annotation.okArrayResponse) ArraySchema().items(schema) else schema
+    }
+
     private fun addResponses(operation: Operation, annotation: DefaultResponse) {
         val defaultResponses = listOf<HttpStatusCode>(
             HttpStatusCode.BadRequest,
@@ -75,11 +85,7 @@ class ParameterFileExtraction(val openAPI: OpenAPI) : AbstractOpenAPIExtension()
                 content = Content().addMediaType(
                     "application/json",
                     MediaType().schema(
-                        AnnotationsUtils.resolveSchemaFromType(
-                            annotation.okResponseBody.java,
-                            openAPI.components,
-                            null
-                        )
+                        generateSchema(annotation)
                     )
                 )
             }

@@ -6,6 +6,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.DefaultJsonConfiguration
 import kotlinx.serialization.builtins.list
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.stringify
 import no.oslokommune.ombruk.uttak.database.UttakRepository
 import no.oslokommune.ombruk.stasjon.database.StasjonRepository
 import no.oslokommune.ombruk.uttak.form.UttakGetForm
@@ -26,6 +27,7 @@ import no.oslokommune.ombruk.testGet
 import no.oslokommune.ombruk.testPatch
 import no.oslokommune.ombruk.testPost
 import no.oslokommune.ombruk.uttak.model.UttaksType
+import no.oslokommune.ombruk.uttaksdata.database.UttaksDataRepository
 import org.json.simple.JSONArray
 import java.time.DayOfWeek
 import java.time.LocalDateTime
@@ -37,7 +39,6 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 
-/*
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class UttakTest {
 
@@ -241,7 +242,7 @@ class UttakTest {
                     "startTidspunkt": "$startDateTime",
                     "sluttTidspunkt": "$endDateTime",
                     "gjentakelsesRegel": {
-                        "sluttTidspunkt": "2020-08-01T12:00:00",
+                        "until": "2020-08-01T12:00:00",
                         "dager": ["MONDAY"],
                         "intervall": "1",
                         "antall": "$antall"
@@ -278,16 +279,16 @@ class UttakTest {
 
             val body =
                 """{
-                "stasjonId": "$stasjonId",
-                "partnerId": "$partnerId",
-                "startTidspunkt": "$startDateTime",
-                "sluttTidspunkt": "$endDateTime",
-                "gjentakelsesRegel": {
-                    "dager": ["MONDAY"],
-                    "intervall": "1",
-                    "antall": "$antall"
-                }
-            }"""
+                    "stasjonId": "$stasjonId",
+                    "partnerId": "$partnerId",
+                    "startTidspunkt": "$startDateTime",
+                    "sluttTidspunkt": "$endDateTime",
+                    "gjentakelsesRegel": {
+                        "dager": ["MONDAY"],
+                        "intervall": "1",
+                        "antall": "$antall"
+                    }
+                }"""
 
             testPost("/uttak", body) {
                 val responseUttak = json.parse(Uttak.serializer(), response.content!!)
@@ -326,18 +327,20 @@ class UttakTest {
                 "startTidspunkt": "$startDateTime",
                 "sluttTidspunkt": "$endDateTime",
                 "gjentakelsesRegel": {
-                    "dager": ${JSONArray.toJSONString(dager)},
+                    "dager": $dager,
                     "intervall": "$intervall",
                     "antall": "$antall"
                 }
             }"""
 
             testPost("/uttak", body) {
+                assertEquals(HttpStatusCode.OK, response.status())
                 val responseUttak = json.parse(Uttak.serializer(), response.content!!)
                 val insertedUttak =
                     UttakRepository.getUttak(UttakGetForm(gjentakelsesRegelID = responseUttak.gjentakelsesRegel!!.id))
 
-                assertEquals(HttpStatusCode.OK, response.status())
+
+
                 require(insertedUttak is Either.Right)
                 assertTrue { insertedUttak.b.contains(responseUttak) }
 
@@ -361,11 +364,11 @@ class UttakTest {
         @Test
         fun `delete uttak by stasjon id`() {
             testDelete("/uttak?stasjonId=${stasjoner[1].id}") {
-                //val respondedUttak = json.parse(Uttak.serializer().list, response.content!!)
+//                val respondedUttak = json.parse(Uttak.serializer().list, response.content!!)
                 val text = response.content
                 val deletedUttak = uttak.filter { it.stasjon.id == stasjoner[1].id }
                 assertEquals(HttpStatusCode.OK, response.status())
-                //assertEquals(deletedUttak, respondedUttak)
+//                assertEquals(deletedUttak, respondedUttak)
                 deletedUttak.forEach {
                     assertFalse(UttakRepository.exists(it.id))
                 }
@@ -508,4 +511,3 @@ class UttakTest {
         )
     )
 }
- */

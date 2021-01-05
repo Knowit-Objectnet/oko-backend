@@ -23,7 +23,7 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
 import kotlin.test.assertEquals
 
-/*
+
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockKExtension::class)
 class PartnerServiceTest {
@@ -244,4 +244,3 @@ class PartnerServiceTest {
         }
     }
 }
- */

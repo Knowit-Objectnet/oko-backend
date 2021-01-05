@@ -30,7 +30,8 @@ object UttakService : IUttakService {
                         .map { uttak.uttaksData = it; uttak }
                         .fold({ it.left() }, { uttak.right() })
                 }
-        }.sequence(Either.applicative()).fix()
+        }.sequence(Either.applicative())
+            .fix()
             .map { it.fix() }
             .fold({ rollback(); it.left() }, { it.first().right() })
     }

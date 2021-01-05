@@ -28,7 +28,7 @@ import no.oslokommune.ombruk.testPatch
 import no.oslokommune.ombruk.testPost
 import kotlin.test.assertEquals
 
-/*
+
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockKExtension::class)
 class PartnerApiTest {
@@ -403,4 +403,3 @@ class PartnerApiTest {
     }
 
 }
- */

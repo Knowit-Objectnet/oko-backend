@@ -30,22 +30,23 @@ object GjentakelsesRegelTable : IntIdTable("gjentakelsesregler") {
 
     private val logger = LoggerFactory.getLogger("ombruk.backend.service.PartnerRepository")
 
-    fun insertGjentakelsesRegel(gjentakelsesRegel: GjentakelsesRegel): Either<RepositoryError, GjentakelsesRegel> = runCatching {
-        GjentakelsesRegelTable.insertAndGetId {
-            it[dager] = gjentakelsesRegel.dager.joinToString()
-            it[antall] = gjentakelsesRegel.antall
-            it[sluttTidspunkt] = gjentakelsesRegel.until!!
-            it[intervall] = gjentakelsesRegel.intervall
-            it[endretTidspunkt] = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES)
+    fun insertGjentakelsesRegel(gjentakelsesRegel: GjentakelsesRegel): Either<RepositoryError, GjentakelsesRegel> =
+        runCatching {
+            GjentakelsesRegelTable.insertAndGetId {
+                it[dager] = gjentakelsesRegel.dager.joinToString()
+                it[antall] = gjentakelsesRegel.antall
+                gjentakelsesRegel.until?.let { until -> it[sluttTidspunkt] = until }
+                it[intervall] = gjentakelsesRegel.intervall
+                it[endretTidspunkt] = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES)
+            }
         }
-    }
-        .onFailure { logger.error(it.message) }
-        .fold(
-            {
-                gjentakelsesRegel.id = it.value
-                gjentakelsesRegel.right()
-            },
-            { RepositoryError.InsertError(it.message).left() })
+            .onFailure { logger.error(it.message) }
+            .fold(
+                {
+                    gjentakelsesRegel.id = it.value
+                    gjentakelsesRegel.right()
+                },
+                { RepositoryError.InsertError("SQL error ${it.message}").left() })
 
     /*
     fun updateSluttTidspunkt(id: Int, newSluttTidspunkt: LocalDateTime): Either<RepositoryError, Unit> = runCatching {
@@ -61,18 +62,18 @@ object GjentakelsesRegelTable : IntIdTable("gjentakelsesregler") {
      */
 
     fun deleteGjentakelsesRegel(id: Int): Either<RepositoryError, Unit> =
-            runCatching {
-                transaction {
-                    GjentakelsesRegelTable.update({
-                        GjentakelsesRegelTable.id eq id and slettetTidspunkt.isNotNull()
-                    }) { row ->
-                        row[slettetTidspunkt] = LocalDateTime.now()
-                    }
+        runCatching {
+            transaction {
+                GjentakelsesRegelTable.update({
+                    GjentakelsesRegelTable.id eq id and slettetTidspunkt.isNotNull()
+                }) { row ->
+                    row[slettetTidspunkt] = LocalDateTime.now()
                 }
             }
+        }
             .onFailure { logger.error("Failed to mark Uttak as deleted:${it.message}") }
             .fold(
-                    { Unit.right() },
-                    { RepositoryError.DeleteError("Failed to delete uttak.").left()}
+                { Unit.right() },
+                { RepositoryError.DeleteError("Failed to delete uttak.").left() }
             )
 }

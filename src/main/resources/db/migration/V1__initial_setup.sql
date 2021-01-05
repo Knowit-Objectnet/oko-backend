@@ -33,7 +33,7 @@ create table gjentakelsesregler
     antall              int,
     endret_tidspunkt    timestamp not null,
     slettet_tidspunkt   timestamp,
-    slutt_tidspunkt     timestamp not null,
+    slutt_tidspunkt     timestamp,
     dager               text not null,
     intervall           integer not null
 );
@@ -60,7 +60,6 @@ create table uttak
 
 create table uttaksdata
 (
-    id                      serial primary key,
     uttak_id                int not null,
     vekt                    int,
     rapportert_tidspunkt    timestamp,

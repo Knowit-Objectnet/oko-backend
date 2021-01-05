@@ -5,14 +5,11 @@ import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
 import no.oslokommune.ombruk.uttak.database.UttakTable
-import no.oslokommune.ombruk.uttaksdata.form.UttaksdataGetForm
-import no.oslokommune.ombruk.uttaksdata.form.UttaksdataUpdateForm
-import no.oslokommune.ombruk.uttaksdata.model.Uttaksdata
+import no.oslokommune.ombruk.uttaksdata.form.UttaksDataGetForm
+import no.oslokommune.ombruk.uttaksdata.form.UttaksDataUpdateForm
+import no.oslokommune.ombruk.uttaksdata.model.UttaksData
 import no.oslokommune.ombruk.shared.error.RepositoryError
-import no.oslokommune.ombruk.uttak.database.UttakRepository.toUttak
 import no.oslokommune.ombruk.uttak.model.Uttak
-import no.oslokommune.ombruk.uttaksdata.form.UttaksdataPostForm
-import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.`java-time`.datetime
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -22,8 +19,8 @@ import java.time.LocalDateTime
 private val logger =
     LoggerFactory.getLogger("ombruk.unittest.no.oslokommune.ombruk.uttaksdata.database.ReportRepository")
 
-object UttaksdataTable : IntIdTable("uttaksdata") {
-    val uttakID = integer("uttak_id").references(UttakTable.id)
+object UttaksDataTable : Table("uttaksdata") {
+    val uttakId = integer("uttak_id").references(UttakTable.id)
     val vekt = integer("vekt").nullable()
     val rapportertTidspunkt = datetime("rapportert_tidspunkt")
     val slettetTidspunkt = datetime("slettet_tidspunkt").nullable()
@@ -31,33 +28,22 @@ object UttaksdataTable : IntIdTable("uttaksdata") {
 
 object UttaksDataRepository : IUttaksDataRepository {
 
-    override fun insertUttaksdata(form: UttaksdataPostForm) = runCatching {
-        transaction {
-            UttaksdataTable.insertAndGetId {
-                it[vekt] = form.vekt
-                it[uttakID] = form.uttakID
-                it[rapportertTidspunkt] = LocalDateTime.now()
-            }.value
-        }
-    }
-        .onFailure { logger.error("Failed to insert stasjon to db: ${it.message}") }
-        .fold({ getUttaksDataByID(it) }, { RepositoryError.InsertError("SQL error").left() })
-
     fun insertUttaksdata(uttak: Uttak) = runCatching {
         transaction {
-            UttaksdataTable.insertAndGetId {
-                it[uttakID] = uttak.id
-            }.value
+            UttaksDataTable.insert {
+                it[uttakId] = uttak.id
+            }
         }
     }
         .onFailure { logger.error("Failed to insert UttaksData: ${it.message}") }
         .fold(
-            { getUttaksDataByID(uttak.id) },
+            { getUttaksDataById(uttak.id) },
             { RepositoryError.InsertError("SQL error").left() })
 
-    override fun updateUttaksdata(form: UttaksdataUpdateForm): Either<RepositoryError, Uttaksdata> = runCatching {
+    override fun updateUttaksData(form: UttaksDataUpdateForm): Either<RepositoryError, UttaksData> = runCatching {
+        println(form.uttakId)
         transaction {
-            UttaksdataTable.update({ UttaksdataTable.id eq form.id }) { row ->
+            UttaksDataTable.update({ UttaksDataTable.uttakId eq form.uttakId }) { row ->
                 form.vekt?.let {
                     row[vekt] = it
                     row[rapportertTidspunkt] = LocalDateTime.now()
@@ -70,55 +56,39 @@ object UttaksDataRepository : IUttaksDataRepository {
             {
                 Either.cond(
                     it > 0,
-                    { getUttaksDataByID(form.id) },
-                    { RepositoryError.NoRowsFound("ID ${form.id} does not exist!") }).flatMap { it }
+                    { getUttaksDataById(form.uttakId) },
+                    { RepositoryError.NoRowsFound("ID ${form.uttakId} does not exist!") }).flatMap { it }
             },
             { RepositoryError.UpdateError("Failed to update uttaksdata").left() }
         )
 
-    override fun getUttaksDataByID(uttaksdataID: Int): Either<RepositoryError, Uttaksdata> = transaction {
+    override fun getUttaksDataById(uttaksdataId: Int): Either<RepositoryError, UttaksData> = transaction {
         runCatching {
-            UttaksdataTable.select { UttaksdataTable.uttakID eq uttaksdataID }.map { toUttaksdata(it) }.firstOrNull()
+            UttaksDataTable.select { UttaksDataTable.uttakId eq uttaksdataId }.map { toUttaksdata(it) }.firstOrNull()
         }
             .onFailure { logger.error(it.message) }
             .fold(
                 {
-                    Either.cond(
-                        it != null,
+                    Either.cond(it != null,
                         { it!! },
-                        { RepositoryError.NoRowsFound("ID $uttaksdataID does not exist!") })
+                        { RepositoryError.NoRowsFound("ID $uttaksdataId does not exist!") })
                 },
                 { RepositoryError.SelectError(it.message).left() }
             )
     }
 
-    override fun getUttakByUttaksDataID(uttaksdataID: Int): Either<RepositoryError, Uttak> = transaction {
+    override fun getUttaksData(form: UttaksDataGetForm?): Either<RepositoryError, List<UttaksData>> = transaction {
         runCatching {
-            (UttakTable innerJoin UttaksdataTable).select {
-                UttakTable.id eq UttaksdataTable.uttakID
-            }.map { toUttak(it) }.firstOrNull()
-        }
-            .onFailure { logger.error(it.message) }
-            .fold(
-                {
-                    Either.cond(
-                        it != null,
-                        { it!! },
-                        { RepositoryError.NoRowsFound("ID $uttaksdataID does not exist!") })
-                },
-                { RepositoryError.SelectError(it.message).left() }
-            )
-    }
-
-    override fun getUttaksData(form: UttaksdataGetForm?): Either<RepositoryError, List<Uttaksdata>> = transaction {
-        runCatching {
-            val query = UttaksdataTable.selectAll()
+            val query = (UttaksDataTable innerJoin UttakTable).selectAll()
+            query.andWhere { UttakTable.slettetTidspunkt.isNull() }
             if (form != null) {
-                form.uttakId?.let { query.andWhere { UttaksdataTable.uttakID eq it } }
-                form.minVekt?.let { query.andWhere { UttaksdataTable.vekt.greaterEq(it) } }
-                form.maxVekt?.let { query.andWhere { UttaksdataTable.vekt.lessEq(it) } }
-                form.fraRapportertTidspunkt?.let { query.andWhere { UttaksdataTable.rapportertTidspunkt.lessEq(it) } }
-                form.tilRapportertTidspunkt?.let { query.andWhere { UttaksdataTable.rapportertTidspunkt.greaterEq(it) } }
+                form.uttakId?.let { query.andWhere { UttaksDataTable.uttakId eq it } }
+                form.minVekt?.let { query.andWhere { UttaksDataTable.vekt.greaterEq(it) } }
+                form.maxVekt?.let { query.andWhere { UttaksDataTable.vekt.lessEq(it) } }
+                form.stasjonId?.let { query.andWhere { UttakTable.stasjonID eq it } }
+                form.partnerId?.let { query.andWhere { UttakTable.partnerID eq it } }
+                form.fraRapportertTidspunkt?.let { query.andWhere { UttaksDataTable.rapportertTidspunkt.greaterEq(it) } }
+                form.tilRapportertTidspunkt?.let { query.andWhere { UttaksDataTable.rapportertTidspunkt.lessEq(it) } }
             }
             query.mapNotNull { toUttaksdata(it) }
         }
@@ -128,7 +98,7 @@ object UttaksDataRepository : IUttaksDataRepository {
 
     override fun deleteByUttakId(uttakId: Int): Either<RepositoryError, Unit> = runCatching {
         transaction {
-            UttaksdataTable.update({ UttaksdataTable.id eq uttakId and UttaksdataTable.slettetTidspunkt.isNotNull() }) { row ->
+            UttaksDataTable.update({ UttaksDataTable.uttakId eq uttakId and UttaksDataTable.slettetTidspunkt.isNotNull() }) { row ->
                 row[slettetTidspunkt] = LocalDateTime.now()
             }
         }
@@ -145,12 +115,11 @@ object UttaksDataRepository : IUttaksDataRepository {
         )
 
 
-    private fun toUttaksdata(resultRow: ResultRow): Uttaksdata {
-        return Uttaksdata(
-            resultRow[UttaksdataTable.id].value,
-            resultRow[UttaksdataTable.uttakID],
-            resultRow[UttaksdataTable.vekt],
-            resultRow[UttaksdataTable.rapportertTidspunkt]
+    private fun toUttaksdata(resultRow: ResultRow): UttaksData {
+        return UttaksData(
+            resultRow[UttaksDataTable.uttakId],
+            resultRow[UttaksDataTable.vekt],
+            resultRow[UttaksDataTable.rapportertTidspunkt]
         )
     }
 }

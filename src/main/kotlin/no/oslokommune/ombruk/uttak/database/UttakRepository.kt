@@ -1,6 +1,7 @@
 package no.oslokommune.ombruk.uttak.database
 
 import arrow.core.Either
+import arrow.core.extensions.either.foldable.isNotEmpty
 import arrow.core.left
 import arrow.core.right
 import com.typesafe.config.ConfigFactory
@@ -20,8 +21,8 @@ import no.oslokommune.ombruk.shared.error.RepositoryError
 import no.oslokommune.ombruk.uttak.form.UttakDeleteForm
 import no.oslokommune.ombruk.uttak.model.UttaksType
 import no.oslokommune.ombruk.uttaksdata.database.UttaksDataRepository
-import no.oslokommune.ombruk.uttaksdata.database.UttaksdataTable
-import no.oslokommune.ombruk.uttaksdata.model.Uttaksdata
+import no.oslokommune.ombruk.uttaksdata.database.UttaksDataTable
+import no.oslokommune.ombruk.uttaksdata.model.UttaksData
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.`java-time`.datetime
@@ -93,6 +94,26 @@ object UttakRepository : IUttakRepository {
             { RepositoryError.UpdateError(it.message).left() }
         )
 
+//    override fun deleteUttak(uttakDeleteForm: UttakDeleteForm): Either<RepositoryError, List<Uttak>> = runCatching {
+//        transaction {
+//            val query = UttakTable.selectAll()
+//            uttakDeleteForm.partnerId?.let { query.andWhere { UttakTable.partnerID eq it } }
+//
+//            val results = query.mapNotNull { toUttak(it) }
+//
+//            UttakTable.update({query}){}
+//
+//
+//            UttakTable.update(query)
+//
+//            return@transaction results
+//        }
+//    }
+//        .onFailure { logger.error(it.message) }
+//        .fold(
+//            { Either.cond(it.isNotEmpty(), { it }, { RepositoryError.NoRowsFound("No matches found") }) },
+//            { RepositoryError.DeleteError(it.message).left() })
+
     override fun deleteUttak(uttakDeleteForm: UttakDeleteForm): Either<RepositoryError, List<Uttak>> = runCatching {
         transaction {
             /*
@@ -104,24 +125,27 @@ object UttakRepository : IUttakRepository {
             val statements = mutableListOf<Op<Boolean>>()
             uttakDeleteForm.id?.let { statements.add(Op.build { UttakTable.id eq it }) }
             uttakDeleteForm.gjentakelsesRegelId?.let { statements.add(Op.build { UttakTable.gjentakelsesRegelID eq it }) }
-            uttakDeleteForm.sluttTidspunkt?.let { statements.add(Op.build { UttakTable.startTidspunkt.greaterEq(it) }) }
-            uttakDeleteForm.sluttTidspunkt?.let { statements.add(Op.build { UttakTable.startTidspunkt.lessEq(it) }) }
+            uttakDeleteForm.startTidspunkt?.let { statements.add(Op.build { UttakTable.startTidspunkt.greaterEq(it) }) }
+            uttakDeleteForm.sluttTidspunkt?.let { statements.add(Op.build { UttakTable.sluttTidspunkt.lessEq(it) }) }
             uttakDeleteForm.partnerId?.let { statements.add(Op.build { UttakTable.partnerID eq it }) }
             uttakDeleteForm.stasjonId?.let { statements.add(Op.build { UttakTable.stasjonID eq it }) }
 
             // Delete and return deleted events. Have to handle the case where no statements are sepcified
             if (statements.isEmpty()) {
                 val result =
-                    (UttakTable innerJoin Stasjoner innerJoin Partnere leftJoin GjentakelsesRegelTable).selectAll()
+                    (UttakTable innerJoin Stasjoner innerJoin Partnere innerJoin UttaksDataTable leftJoin GjentakelsesRegelTable).selectAll()
                         .mapNotNull { toUttak(it) }
-                UttakTable.deleteAll()
+                UttakTable.update { it[endretTidspunkt] = LocalDateTime.now() }
                 return@transaction result
             } else {
                 val statement = AndOp(statements)
                 val result =
-                    (UttakTable innerJoin Stasjoner innerJoin Partnere leftJoin GjentakelsesRegelTable).select { statement }
+                    (UttakTable innerJoin Stasjoner innerJoin Partnere innerJoin UttaksDataTable leftJoin GjentakelsesRegelTable).select { statement }
                         .mapNotNull { toUttak(it) }
-                UttakTable.deleteWhere { statement }
+
+                UttakTable.update({ statement }) {
+                    it[slettetTidspunkt] = LocalDateTime.now()
+                }
                 return@transaction result
             }
         }
@@ -164,24 +188,21 @@ object UttakRepository : IUttakRepository {
     override fun getUttakByID(uttakID: Int): Either<RepositoryError, Uttak> = runCatching {
         transaction {
             // leftJoin GjentakelsesRegels because not all uttak are recurring.
-            (UttakTable innerJoin Stasjoner leftJoin Partnere leftJoin GjentakelsesRegelTable leftJoin UttaksdataTable)
+            (UttakTable innerJoin Stasjoner leftJoin Partnere leftJoin GjentakelsesRegelTable leftJoin UttaksDataTable)
                 .select { UttakTable.id eq uttakID and UttakTable.slettetTidspunkt.isNull() }
                 .map { toUttak(it) }.firstOrNull()
         }
     }
         .onFailure { logger.error(it.message) }
         .fold(
-            { Either.cond(it != null, { it!! }, { RepositoryError.NoRowsFound("ID does not exist!") }) },
+            { Either.cond(it != null, { it!! }, { RepositoryError.NoRowsFound("$uttakID does not exist!") }) },
             { RepositoryError.SelectError(it.message).left() })
-
-    override fun getUttakByUttaksDataID(uttaksdataID: Int): Either<RepositoryError, Uttak> =
-        UttaksDataRepository.getUttakByUttaksDataID(uttaksdataID)
 
     override fun getUttak(uttakGetForm: UttakGetForm?): Either<RepositoryError, List<Uttak>> =
         runCatching {
             transaction {
                 val query =
-                    (UttakTable leftJoin Stasjoner leftJoin Partnere leftJoin GjentakelsesRegelTable leftJoin UttaksdataTable).selectAll()
+                    (UttakTable leftJoin Stasjoner leftJoin Partnere leftJoin GjentakelsesRegelTable leftJoin UttaksDataTable).selectAll()
 
                 query.andWhere { UttakTable.slettetTidspunkt.isNull() }
 
@@ -221,13 +242,12 @@ object UttakRepository : IUttakRepository {
         )
     }
 
-    private fun toUttaksData(row: ResultRow): Uttaksdata? {
-        if (!row.hasValue(UttaksdataTable.id) || row.getOrNull(UttaksdataTable.id) == null) return null
-        return Uttaksdata(
-            row[UttaksdataTable.id].value,
-            row[UttaksdataTable.uttakID],
-            row[UttaksdataTable.vekt],
-            row[UttaksdataTable.rapportertTidspunkt]
+    private fun toUttaksData(row: ResultRow): UttaksData? {
+        if (!row.hasValue(UttaksDataTable.uttakId) || row.getOrNull(UttaksDataTable.uttakId) == null) return null
+        return UttaksData(
+            row[UttaksDataTable.uttakId],
+            row[UttaksDataTable.vekt],
+            row[UttaksDataTable.rapportertTidspunkt]
         )
 
 
@@ -260,8 +280,10 @@ object UttakRepository : IUttakRepository {
             throw Exception()
         }
         transaction {
-            UttakTable.deleteAll()
-            GjentakelsesRegelTable.deleteAll()
+            UttakTable.update({ UttakTable.slettetTidspunkt.isNull() }) {
+                it[slettetTidspunkt] = LocalDateTime.now()
+            }
+//            GjentakelsesRegelTable.deleteAll()
         }
     }
         .onFailure { logger.error(it.message) }

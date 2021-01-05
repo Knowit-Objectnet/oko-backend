@@ -1,12 +1,11 @@
 package no.oslokommune.ombruk.uttak.model
 
 import io.swagger.v3.oas.annotations.media.Schema
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.oslokommune.ombruk.stasjon.model.Stasjon
 import no.oslokommune.ombruk.partner.model.Partner
 import no.oslokommune.ombruk.shared.model.serializer.LocalDateTimeSerializer
-import no.oslokommune.ombruk.uttaksdata.model.Uttaksdata
+import no.oslokommune.ombruk.uttaksdata.model.UttaksData
 import java.time.LocalDateTime
 
 @Serializable
@@ -29,9 +28,9 @@ data class Uttak(
         nullable = true
     ) var gjentakelsesRegel: GjentakelsesRegel? = null,
     @field:Schema(
-        implementation = Uttaksdata::class,
+        implementation = UttaksData::class,
         nullable = true
-    ) var uttaksData: Uttaksdata? = null,
+    ) var uttaksData: UttaksData? = null,
     @field:Schema(
         defaultValue = "GJENTAKENDE",
 //        example = "ENKELT",

@@ -61,6 +61,7 @@ import no.oslokommune.ombruk.uttaksdata.api.uttaksdata
 import no.oslokommune.ombruk.uttaksdata.service.IUttaksDataService
 import no.oslokommune.ombruk.uttaksdata.service.UttaksDataService
 import no.oslokommune.ombruk.uttaksforesporsel.api.request
+import no.oslokommune.ombruk.uttaksforesporsel.service.IUttaksforesporselService
 import no.oslokommune.ombruk.uttaksforesporsel.service.UttaksforesporselService
 import org.valiktor.ConstraintViolationException
 import org.valiktor.i18n.mapToMessage
@@ -102,7 +103,8 @@ fun Application.module(testing: Boolean = false) {
             IStasjonService::class.java,
             Modifier::class.java,
             IUttakService::class.java,
-            IUttaksDataService::class.java
+            IUttaksDataService::class.java,
+            IUttaksforesporselService::class.java
         )
     )
 

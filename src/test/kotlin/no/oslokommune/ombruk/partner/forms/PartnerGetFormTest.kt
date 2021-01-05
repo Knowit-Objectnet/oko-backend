@@ -13,7 +13,26 @@ import kotlin.test.assertTrue
 class PartnerGetFormTest {
 
     @Suppress("unused")
-    fun generateValidForms() = listOf(PartnerGetForm(), PartnerGetForm("notBlank"))
+    fun generateValidForms() =
+        listOf(
+            PartnerGetForm(),
+            PartnerGetForm("notBlank"),
+            PartnerGetForm(telefon = "12345678"),
+            PartnerGetForm(telefon = "+4712345678"),
+            PartnerGetForm(beskrivelse = "Vil ha denne"),
+            PartnerGetForm(epost = "meg@example.com")
+        )
+
+    fun generateInvalidForms() = listOf(
+        PartnerGetForm(navn = ""),
+        PartnerGetForm(telefon = ""),
+        PartnerGetForm(telefon = "1234567"),
+        PartnerGetForm(telefon = "+471234567"),
+        PartnerGetForm(telefon = "+4712345a78"),
+        PartnerGetForm(beskrivelse = ""),
+        PartnerGetForm(epost = ""),
+        PartnerGetForm(epost = "meg.example.com")
+    )
 
     @ParameterizedTest
     @MethodSource("generateValidForms")
@@ -24,11 +43,10 @@ class PartnerGetFormTest {
         assertEquals(form, result.b)
     }
 
-    @Test
-    fun `validate invalid form`() {
-        val form = PartnerGetForm("")
+    @ParameterizedTest
+    @MethodSource("generateInvalidForms")
+    fun `validate invalid form`(form: PartnerGetForm) {
         val result = form.validOrError()
-
         assertTrue(result is Either.Left)
     }
 

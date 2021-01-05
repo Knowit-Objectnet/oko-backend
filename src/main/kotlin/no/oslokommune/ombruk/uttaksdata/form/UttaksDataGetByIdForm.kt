@@ -10,19 +10,18 @@ import org.valiktor.functions.isGreaterThan
 import org.valiktor.validate
 
 @Location("/{id}")
-data class UttaksdataGetByIdForm(
+data class UttaksDataGetByIdForm(
     @get:Parameter(
         `in` = ParameterIn.PATH,
-        name = "id",
+        name = "uttakId",
         schema = Schema(type = "int32"),
         required = true,
         description = "The ID of the Uttaksdata to get"
     ) var id: Int
-) : IForm<UttaksdataGetByIdForm> {
+) : IForm<UttaksDataGetByIdForm> {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
-            validate(UttaksdataGetByIdForm::id).isGreaterThan(0)
-
+            validate(UttaksDataGetByIdForm::id).isGreaterThan(0)
         }
     }
 }

@@ -1,26 +1,48 @@
 package no.oslokommune.ombruk.uttaksdata.api
 
+import arrow.core.left
+import arrow.core.right
+import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.DefaultJsonConfiguration
 import io.mockk.clearAllMocks
+import io.mockk.every
+import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkObject
 import io.mockk.unmockkAll
+import kotlinx.serialization.builtins.list
 import kotlinx.serialization.json.Json
+import no.oslokommune.ombruk.shared.api.JwtMockConfig
+import no.oslokommune.ombruk.shared.error.RepositoryError
+import no.oslokommune.ombruk.shared.error.ServiceError
+import no.oslokommune.ombruk.testGet
+import no.oslokommune.ombruk.testPatch
+import no.oslokommune.ombruk.uttak.database.UttakRepository
+import no.oslokommune.ombruk.uttak.model.Uttak
+import no.oslokommune.ombruk.uttak.service.UttakService
 import no.oslokommune.ombruk.uttaksdata.database.UttaksDataRepository
+import no.oslokommune.ombruk.uttaksdata.form.UttaksDataGetForm
+import no.oslokommune.ombruk.uttaksdata.form.UttaksDataUpdateForm
+import no.oslokommune.ombruk.uttaksdata.model.UttaksData
 import no.oslokommune.ombruk.uttaksdata.service.UttaksDataService
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockKExtension::class)
-class UttaksdataApiTest {
+class UttaksDataApiTest {
 
     val json = Json(DefaultJsonConfiguration.copy(prettyPrint = true))
 
     @BeforeEach
     fun setup() {
         mockkObject(UttaksDataService)
-        mockkObject(UttaksDataRepository)
+        mockkObject(UttakService)
+        mockkObject(UttakRepository)
     }
 
     @AfterEach
@@ -33,7 +55,7 @@ class UttaksdataApiTest {
         unmockkAll()
     }
 
-    /*
+
     @Nested
     inner class GetById {
 
@@ -42,20 +64,17 @@ class UttaksdataApiTest {
          */
         @Test
         fun `get uttaksdata by id 200`() {
-            val expected = Uttaksdata(
+            val expected = UttaksData(
                 1,
                 1,
-                1,
-                Stasjon(1, "Test"),
-                LocalDateTime.parse("2020-07-07T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME),
-                LocalDateTime.parse("2020-07-08T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME)
+                LocalDateTime.parse("2020-07-07T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME)
             )
 
-            every { UttaksdataService.getUttaksdataById(1) } returns expected.right()
+            every { UttaksDataService.getUttaksDataById(1) } returns expected.right()
 
             testGet("/uttaksdata/1") {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Uttaksdata.serializer(), expected), response.content)
+                assertEquals(json.stringify(UttaksData.serializer(), expected), response.content)
             }
         }
 
@@ -64,7 +83,7 @@ class UttaksdataApiTest {
          */
         @Test
         fun `get uttaksdata by id 404`() {
-            every { UttaksdataService.getUttaksdataById(1) } returns RepositoryError.NoRowsFound("1").left()
+            every { UttaksDataService.getUttaksDataById(1) } returns RepositoryError.NoRowsFound("1").left()
 
             testGet("/uttaksdata/1") {
                 assertEquals(HttpStatusCode.NotFound, response.status())
@@ -77,7 +96,7 @@ class UttaksdataApiTest {
          */
         @Test
         fun `get uttaksdata by id 500`() {
-            every { UttaksdataService.getUttaksdataById(1) } returns ServiceError("test").left()
+            every { UttaksDataService.getUttaksDataById(1) } returns ServiceError("test").left()
 
             testGet("/uttaksdata/1") {
                 assertEquals(HttpStatusCode.InternalServerError, response.status())
@@ -116,23 +135,20 @@ class UttaksdataApiTest {
          */
         @Test
         fun `get all uttaksdata 200`() {
-            val r1 = Uttaksdata(
+            val r1 = UttaksData(
                 1,
                 1,
-                1,
-                Stasjon(1, "Test"),
-                LocalDateTime.parse("2020-07-07T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME),
-                LocalDateTime.parse("2020-07-08T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME)
+                LocalDateTime.parse("2020-07-07T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME)
             )
-            val r2 = r1.copy(id = 2)
-            val r3 = r1.copy(id = 3)
+            val r2 = r1.copy(uttakId = 2)
+            val r3 = r1.copy(uttakId = 3)
             val expected = listOf(r1, r2, r3)
 
-            every { UttaksdataService.getUttaksdata(any()) } returns expected.right()
+            every { UttaksDataService.getUttaksData(any()) } returns expected.right()
 
             testGet("/uttaksdata/") {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Uttaksdata.serializer().list, expected), response.content)
+                assertEquals(json.stringify(UttaksData.serializer().list, expected), response.content)
             }
         }
 
@@ -141,23 +157,20 @@ class UttaksdataApiTest {
          */
         @Test
         fun `get all uttaksdata by stasjonID 200`() {
-            val r1 = Uttaksdata(
+            val r1 = UttaksData(
                 1,
                 1,
-                1,
-                Stasjon(1, "Test"),
-                LocalDateTime.parse("2020-07-07T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME),
-                LocalDateTime.parse("2020-07-08T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME)
+                LocalDateTime.parse("2020-07-07T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME)
             )
-            val r3 = r1.copy(id = 3)
+            val r3 = r1.copy(uttakId = 3)
             val expected = listOf(r1, r3)
-            val form = UttaksdataGetForm(stasjonId = 1)
+            val form = UttaksDataGetForm(stasjonId = 1)
 
-            every { UttaksdataService.getUttaksdata(form) } returns expected.right()
+            every { UttaksDataService.getUttaksData(form) } returns expected.right()
 
             testGet("/uttaksdata/?stasjonId=1") {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Uttaksdata.serializer().list, expected), response.content)
+                assertEquals(json.stringify(UttaksData.serializer().list, expected), response.content)
             }
         }
 
@@ -166,7 +179,7 @@ class UttaksdataApiTest {
          */
         @Test
         fun `get uttaksdata 500`() {
-            every { UttaksdataService.getUttaksdata(UttaksdataGetForm()) } returns ServiceError("test").left()
+            every { UttaksDataService.getUttaksData(UttaksDataGetForm()) } returns ServiceError("test").left()
             testGet("/uttaksdata/") {
                 assertEquals(HttpStatusCode.InternalServerError, response.status())
                 assertEquals("test", response.content)
@@ -178,21 +191,20 @@ class UttaksdataApiTest {
          */
         @Test
         fun `get uttaksdata invalid fromDate 400`() {
-            testGet("/uttaksdata/?fromDate=2020-07-0912:13:15Z") {
+            testGet("/uttaksdata/?fraRapportertTidspunkt=2020-07-0912:13:15Z") {
                 assertEquals(HttpStatusCode.BadRequest, response.status())
-                assertEquals("fromDate could not be parsed.", response.content)
+                assertEquals("fraRapportertTidspunkt could not be parsed.", response.content)
             }
         }
 
         /**
          * Check for 422 when we get an invalid form. fromDate is greater than toDate
          */
-        @Disabled
         @Test
         fun `get uttaksdata fromDate larger than endDate 422`() {
-            testGet("/uttaksdata/?fromDate=2020-07-07T12:13:15Z&toDate=2020-06-06T12:13:15Z") {
+            testGet("/uttaksdata/?fraRapportertTidspunkt=2020-07-07T12:13:15Z&tilRapportertTidspunkt=2020-06-06T12:13:15Z") {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
-                assertEquals("fromDate: has to be less than end datetime", response.content)
+                assertEquals("fraRapportertTidspunkt: has to be less than end datetime", response.content)
             }
         }
     }
@@ -204,24 +216,22 @@ class UttaksdataApiTest {
          * Patch returns 200 when getting valid form
          */
         @Test
-        fun `patch uttaksdata 200`() {
-            val initial = Uttaksdata(
+        fun `patch uttaksdata 200`(@MockK uttak: Uttak) {
+            val initial = UttaksData(
                 1,
                 1,
-                1,
-                Stasjon(1, "Test"),
-                LocalDateTime.parse("2020-07-07T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME),
-                LocalDateTime.parse("2020-07-08T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME)
+                LocalDateTime.parse("2020-07-07T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME)
             )
-            val form = UttaksdataUpdateForm(1, 50)
+            val form = UttaksDataUpdateForm(1, 50)
             val expected = initial.copy(vekt = 50)
 
-            every { UttaksdataService.getUttaksdataById(1) } returns initial.right()
-            every { UttaksdataService.updateReport(form) } returns expected.right()
+            every { UttaksDataService.updateUttaksData(form) } returns expected.right()
+            every { UttakService.getUttakByID(form.uttakId) } returns uttak.right()
+            every { UttakRepository.exists(1) } returns true
 
-            testPatch("/uttaksdata/", json.stringify(UttaksdataUpdateForm.serializer(), form)) {
+            testPatch("/uttaksdata/", json.stringify(UttaksDataUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Uttaksdata.serializer(), expected), response.content)
+                assertEquals(json.stringify(UttaksData.serializer(), expected), response.content)
             }
         }
 
@@ -231,8 +241,8 @@ class UttaksdataApiTest {
 
         @Test
         fun `patch uttaksdata no bearer 401`() {
-            val form = UttaksdataUpdateForm(1, 50)
-            testPatch("/uttaksdata/", json.stringify(UttaksdataUpdateForm.serializer(), form), null) {
+            val form = UttaksDataUpdateForm(1, 50)
+            testPatch("/uttaksdata/", json.stringify(UttaksDataUpdateForm.serializer(), form), null) {
                 assertEquals(HttpStatusCode.Unauthorized, response.status())
             }
         }
@@ -241,20 +251,24 @@ class UttaksdataApiTest {
          * Check for 403 when a partner attempts to edit another partner's uttaksdata
          */
         @Test
-        fun `patch uttaksdata of other partner 403`() {
-            val initial = Uttaksdata(
+        fun `patch uttaksdata of other partner 403`(@MockK uttak: Uttak) {
+            val initial = UttaksData(
                 1,
                 1,
-                1,
-                Stasjon(1, "Test"),
-                LocalDateTime.parse("2020-07-07T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME),
-                LocalDateTime.parse("2020-07-08T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME)
+                LocalDateTime.parse("2020-07-07T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME)
             )
-            val form = UttaksdataUpdateForm(1, 50)
 
-            every { UttaksdataService.getUttaksdataById(1) } returns initial.right()
+            every { uttak.partner!!.id } answers { 1 }
+            val form = UttaksDataUpdateForm(1, 50)
 
-            testPatch("/uttaksdata/", json.stringify(UttaksdataUpdateForm.serializer(), form), JwtMockConfig.partnerBearer2) {
+            every { UttaksDataService.getUttaksDataById(1) } returns initial.right()
+            every { UttakService.getUttakByID(any()) } returns uttak.right()
+
+            testPatch(
+                "/uttaksdata/",
+                json.stringify(UttaksDataUpdateForm.serializer(), form),
+                JwtMockConfig.partnerBearer2
+            ) {
                 assertEquals(HttpStatusCode.Forbidden, response.status())
             }
         }
@@ -263,24 +277,27 @@ class UttaksdataApiTest {
          * Check for 200 when a partner edits his own uttaksdata
          */
         @Test
-        fun `patch own uttaksdata partner 200`() {
-            val initial = Uttaksdata(
+        fun `patch own uttaksdata partner 200`(@MockK uttak: Uttak) {
+            val initial = UttaksData(
                 1,
                 1,
-                1,
-                Stasjon(1, "Test"),
-                LocalDateTime.parse("2020-07-07T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME),
-                LocalDateTime.parse("2020-07-08T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME)
+                LocalDateTime.parse("2020-07-07T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME)
             )
-            val form = UttaksdataUpdateForm(1, 50)
+            val form = UttaksDataUpdateForm(1, 50)
             val expected = initial.copy(vekt = 50)
 
-            every { UttaksdataService.getUttaksdataById(1) } returns initial.right()
-            every { UttaksdataService.updateReport(form) } returns expected.right()
+            every { UttaksDataService.getUttaksDataById(1) } returns initial.right()
+            every { UttakService.getUttakByID(any()) } returns uttak.right()
+            every { uttak.partner!!.id } answers { 1 }
+            every { UttaksDataService.updateUttaksData(form) } returns expected.right()
 
-            testPatch("/uttaksdata/", json.stringify(UttaksdataUpdateForm.serializer(), form), JwtMockConfig.partnerBearer1) {
+            testPatch(
+                "/uttaksdata/",
+                json.stringify(UttaksDataUpdateForm.serializer(), form),
+                JwtMockConfig.partnerBearer1
+            ) {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Uttaksdata.serializer(), expected), response.content)
+                assertEquals(json.stringify(UttaksData.serializer(), expected), response.content)
             }
         }
 
@@ -289,11 +306,11 @@ class UttaksdataApiTest {
          */
         @Test
         fun `patch uttaksdata invalid weight 422`() {
-            val form = UttaksdataUpdateForm(1, 0)
+            val form = UttaksDataUpdateForm(1, 0)
 
-            testPatch("/uttaksdata/", json.stringify(UttaksdataUpdateForm.serializer(), form)) {
+            testPatch("/uttaksdata/", json.stringify(UttaksDataUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
-                assertEquals("weight: Must be greater than 0", response.content)
+                assertEquals("vekt: Must be greater than 0", response.content)
             }
         }
 
@@ -302,11 +319,11 @@ class UttaksdataApiTest {
          */
         @Test
         fun `patch uttaksdata not found 404`() {
-            val form = UttaksdataUpdateForm(1, 50)
-            every { UttaksdataService.updateReport(form) } returns RepositoryError.NoRowsFound("test").left()
-            testPatch("/uttaksdata/", json.stringify(UttaksdataUpdateForm.serializer(), form)) {
+            val form = UttaksDataUpdateForm(1, 50)
+            every { UttakRepository.exists(1) } returns false
+            testPatch("/uttaksdata/", json.stringify(UttaksDataUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.NotFound, response.status())
-                assertEquals("No rows found with provided ID, ID 1 does not exist!", response.content)
+                assertEquals("No rows found with provided ID, ${form.uttakId} does not exist!", response.content)
             }
         }
 
@@ -326,24 +343,23 @@ class UttaksdataApiTest {
          */
 
         @Test
-        fun `patch uttaksdata 500`() {
-            val test = Uttaksdata(
+        fun `patch uttaksdata 500`(@MockK uttak: Uttak) {
+            val test = UttaksData(
                 1,
                 1,
-                1,
-                Stasjon(1, "Test"),
-                LocalDateTime.parse("2020-07-07T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME),
-                LocalDateTime.parse("2020-07-08T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME)
+                LocalDateTime.parse("2020-07-07T15:15:15Z", DateTimeFormatter.ISO_DATE_TIME)
             )
-            val form = UttaksdataUpdateForm(1, 50)
-            every { UttaksdataService.updateReport(form) } returns ServiceError("test").left()
-            every { UttaksdataService.getUttaksdataById(1) } returns test.right()
+            val form = UttaksDataUpdateForm(1, 50)
+            every { UttaksDataService.updateUttaksData(form) } returns ServiceError("test").left()
+            every { UttaksDataService.getUttaksDataById(1) } returns test.right()
+            every { UttakService.getUttakByID(any()) } returns uttak.right()
+            every { UttakRepository.exists(1) } returns true
 
-            testPatch("/uttaksdata/", json.stringify(UttaksdataUpdateForm.serializer(), form)) {
+            testPatch("/uttaksdata/", json.stringify(UttaksDataUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.InternalServerError, response.status())
                 assertEquals("test", response.content)
             }
         }
     }
-     */
+
 }

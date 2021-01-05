@@ -11,7 +11,7 @@ import io.ktor.auth.principal
 import io.ktor.config.HoconApplicationConfig
 import io.ktor.util.KtorExperimentalAPI
 import no.oslokommune.ombruk.uttak.model.Uttak
-import no.oslokommune.ombruk.uttaksdata.model.Uttaksdata
+import no.oslokommune.ombruk.uttaksdata.model.UttaksData
 import no.oslokommune.ombruk.shared.error.AuthorizationError
 import no.oslokommune.ombruk.shared.error.ServiceError
 
@@ -82,11 +82,11 @@ object Authorization {
         }
 
     /**
-     * Ensures that the ID in [role] corresponds to the [Uttaksdata.partnerId] of the [Uttaksdata] that is being updated.
+     * Ensures that the ID in [role] corresponds to the [UttaksData.partnerId] of the [UttaksData] that is being updated.
      *
      * @param role A [Pair] of a [Roles] instance and an [Int] specifying what group they belong to.
-     * @param uttaksdataFunc A function that returns either a [ServiceError] or the [Uttaksdata] that should be updated.
-     * @return [role] if the ID in [role] corresponds to the [Uttaksdata.partnerId] from the [uttaksdataFunc]. Else, return [AuthorizationError]
+     * @param uttaksdataFunc A function that returns either a [ServiceError] or the [UttaksData] that should be updated.
+     * @return [role] if the ID in [role] corresponds to the [UttaksData.partnerId] from the [uttaksdataFunc]. Else, return [AuthorizationError]
      */
     fun authorizeUttaksDataByPartnerId(role: Pair<Roles, Int>, uttaksdataFunc: () -> Either<ServiceError, Uttak>) =
         uttaksdataFunc()

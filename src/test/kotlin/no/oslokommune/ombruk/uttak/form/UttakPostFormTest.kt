@@ -27,7 +27,6 @@ import java.time.format.DateTimeFormatter
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-/*
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockKExtension::class)
 class UttakPostFormTest {
@@ -62,7 +61,7 @@ class UttakPostFormTest {
                 stasjonId = 1,
                 partnerId = 1,
                 gjentakelsesRegel = GjentakelsesRegel(
-                    sluttTidspunkt = LocalDateTime.now().plusDays(1),
+                    until = LocalDateTime.now().plusDays(1),
                     dager = listOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY)
                 ),
                 type = UttaksType.GJENTAKENDE,
@@ -93,9 +92,7 @@ class UttakPostFormTest {
                 1,
                 GjentakelsesRegel(
                     1,
-                    LocalDateTime.now(),
                     LocalDateTime.now().plusHours(1),
-                    null,
                     listOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY)
                 ),
                 UttaksType.GJENTAKENDE,
@@ -156,4 +153,3 @@ class UttakPostFormTest {
         )
     )
 }
- */

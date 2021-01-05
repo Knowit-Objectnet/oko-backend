@@ -1,44 +1,57 @@
 package no.oslokommune.ombruk.uttaksdata.database
 
+import arrow.core.Either
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
-import no.oslokommune.ombruk.uttak.database.UttakTable
-import no.oslokommune.ombruk.stasjon.database.Stasjoner
-import no.oslokommune.ombruk.uttak.model.Uttak
-import no.oslokommune.ombruk.stasjon.model.Stasjon
+import no.oslokommune.ombruk.partner.database.PartnerRepository
 import no.oslokommune.ombruk.partner.database.Partnere
 import no.oslokommune.ombruk.partner.model.Partner
-import no.oslokommune.ombruk.uttaksdata.model.Uttaksdata
 import no.oslokommune.ombruk.shared.database.initDB
+import no.oslokommune.ombruk.shared.error.RepositoryError
 import no.oslokommune.ombruk.shared.model.serializer.DayOfWeekSerializer
 import no.oslokommune.ombruk.shared.model.serializer.LocalTimeSerializer
+import no.oslokommune.ombruk.stasjon.database.StasjonRepository
+import no.oslokommune.ombruk.stasjon.database.Stasjoner
+import no.oslokommune.ombruk.stasjon.model.Stasjon
+import no.oslokommune.ombruk.uttak.database.UttakTable
+import no.oslokommune.ombruk.uttak.model.Uttak
+import no.oslokommune.ombruk.uttaksdata.form.UttaksDataGetForm
+import no.oslokommune.ombruk.uttaksdata.form.UttaksDataUpdateForm
+import no.oslokommune.ombruk.uttaksdata.model.UttaksData
 import org.jetbrains.exposed.sql.deleteAll
+import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
 import java.time.DayOfWeek
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import kotlin.test.assertEquals
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class UttaksdataRepositoryTest {
+class UttaksDataRepositoryTest {
     lateinit var testPartner: Partner
     lateinit var testPartner2: Partner
     lateinit var testStasjon: Stasjon
     lateinit var testStasjon2: Stasjon
-    lateinit var testUttaksdata: Uttaksdata
-    lateinit var testUttaksdata2: Uttaksdata
-    lateinit var testUttaksdata3: Uttaksdata
+    lateinit var testUttaksData: UttaksData
+    lateinit var testUttaksData2: UttaksData
+    lateinit var testUttaksData3: UttaksData
     lateinit var testUttak: Uttak
     lateinit var testUttak2: Uttak
     lateinit var testUttak3: Uttak
     lateinit var testUttak4: Uttak
     lateinit var testUttak5: Uttak
-    lateinit var testUttak6: Uttak
+
+    lateinit var testUttak7: Uttak
 
     init {
         initDB()
@@ -48,6 +61,7 @@ class UttaksdataRepositoryTest {
                 it[beskrivelse] = "Description of TestPartner 1"
                 it[telefon] = "+47 2381931"
                 it[epost] = "example@gmail.com"
+                it[endretTidspunkt] = LocalDateTime.now()
             }.value
 
             testPartner =
@@ -64,6 +78,7 @@ class UttaksdataRepositoryTest {
                 it[beskrivelse] = "Description of TestPartner 2"
                 it[telefon] = "911"
                 it[epost] = "example@gmail.com"
+                it[endretTidspunkt] = LocalDateTime.now()
             }.value
 
             testPartner2 =
@@ -89,7 +104,8 @@ class UttaksdataRepositoryTest {
 
             val testStasjonId = Stasjoner.insertAndGetId {
                 it[navn] = "Test Stasjon 1"
-                it[Stasjoner.aapningstider] =
+                it[endretTidspunkt] = LocalDateTime.now()
+                it[aapningstider] =
                     json.toJson(MapSerializer(DayOfWeekSerializer, ListSerializer(LocalTimeSerializer)), hours)
                         .toString()
             }.value
@@ -112,6 +128,7 @@ class UttaksdataRepositoryTest {
 
             val testStasjonId2 = Stasjoner.insertAndGetId {
                 it[navn] = "Test Stasjon 2"
+                it[endretTidspunkt] = LocalDateTime.now()
                 it[Stasjoner.aapningstider] = json.toJson(
                     MapSerializer(
                         DayOfWeekSerializer, ListSerializer(
@@ -139,7 +156,7 @@ class UttaksdataRepositoryTest {
                 0,
                 LocalDateTime.parse("2020-08-08T16:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-08-08T17:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
-                testStasjon,
+                testStasjon2,
                 testPartner
             )
             testUttak2 = testUttak2.copy(id = insertTestUttak(testUttak2))
@@ -148,7 +165,7 @@ class UttaksdataRepositoryTest {
                 LocalDateTime.parse("2020-05-06T16:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
                 LocalDateTime.parse("2020-05-06T18:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
                 testStasjon,
-                testPartner
+                testPartner2
             )
             testUttak3 = testUttak3.copy(id = insertTestUttak(testUttak3))
             testUttak4 = Uttak(
@@ -167,49 +184,47 @@ class UttaksdataRepositoryTest {
                 testPartner
             )
             testUttak5 = testUttak5.copy(id = insertTestUttak(testUttak5))
+            testUttak7 = testUttak5.copy(id = insertTestUttak(testUttak5))
 
-            testUttaksdata = Uttaksdata(
-                1,
+            testUttaksData = UttaksData(
                 testUttak.id,
                 150,
                 testUttak.startTidspunkt
             )
 
-            testUttaksdata2 = Uttaksdata(
-                2,
-                testUttak.id,
+            testUttaksData2 = UttaksData(
+                testUttak2.id,
                 150,
-                testUttak.startTidspunkt
+                testUttak2.startTidspunkt
             )
 
-            testUttaksdata3 = Uttaksdata(
-                3,
-                testUttak.id,
+            testUttaksData3 = UttaksData(
+                testUttak3.id,
                 150,
-                testUttak.startTidspunkt
+                testUttak3.startTidspunkt
             )
 
-            testUttaksdata = testUttaksdata.copy(id = insertTestReport(testUttaksdata))
-            testUttaksdata2 = testUttaksdata2.copy(id = insertTestReport(testUttaksdata2))
-            testUttaksdata3 = testUttaksdata3.copy(id = insertTestReport(testUttaksdata3))
+            insertTestReport(testUttaksData)
+            insertTestReport(testUttaksData2)
+            insertTestReport(testUttaksData3)
         }
     }
 
     @AfterAll
     fun cleanPartnereAndStasjonerFromDB() {
         transaction {
-            Partnere.deleteAll()
-            Stasjoner.deleteAll()
+            PartnerRepository.deleteAllPartnere()
+            StasjonRepository.deleteAllStasjoner()
         }
     }
 
-    fun insertTestReport(uttaksdata: Uttaksdata) =
+    fun insertTestReport(uttaksData: UttaksData) =
         transaction {
-            UttaksdataTable.insertAndGetId {
-                it[vekt] = uttaksdata.vekt
-                it[uttakID] = uttaksdata.uttakId
-                it[rapportertTidspunkt] = uttaksdata.rapportertTidspunkt
-            }.value
+            UttaksDataTable.insert {
+                it[vekt] = uttaksData.vekt
+                it[uttakId] = uttaksData.uttakId
+                it[rapportertTidspunkt] = uttaksData.rapportertTidspunkt!!
+            }
         }
 
     fun insertTestUttak(uttak: Uttak) = transaction {
@@ -217,13 +232,14 @@ class UttaksdataRepositoryTest {
             it[startTidspunkt] = uttak.startTidspunkt
             it[sluttTidspunkt] = uttak.sluttTidspunkt
             it[gjentakelsesRegelID] = uttak.gjentakelsesRegel?.id
+            it[endretTidspunkt] = LocalDateTime.now()
             it[stasjonID] = uttak.stasjon.id
             it[partnerID] = uttak.partner?.id
             it[type] = uttak.type
         }.value
     }
 
-    /*
+
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     @Nested
     inner class Get {
@@ -233,9 +249,10 @@ class UttaksdataRepositoryTest {
          */
         @Test
         fun `get Report by valid ID`() {
-            val expected = testUttaksdata
-            val result = UttaksdataRepository.getUttaksDataByID(expected.id)
+            var expected = testUttaksData
+            val result = UttaksDataRepository.getUttaksDataById(expected.uttakId)
             require(result is Either.Right)
+            expected = expected.copy(rapportertTidspunkt = result.b.rapportertTidspunkt)
             assertEquals(expected, result.b)
         }
 
@@ -245,84 +262,146 @@ class UttaksdataRepositoryTest {
         @Test
         fun `get by invalid ID is left`() {
             val expected = RepositoryError.NoRowsFound("ID 0 does not exist!")
-            val actual = UttaksdataRepository.getUttaksDataByID(0)
+            val actual = UttaksDataRepository.getUttaksDataById(0)
             require(actual is Either.Left)
             assertEquals(expected, actual.a)
         }
 
         @Suppress("unused") // referenced in test
         fun generateValidForms() = listOf(
-            Pair(null, listOf(testUttaksdata, testUttaksdata2, testUttaksdata3)),
-            Pair(UttaksdataGetForm(), listOf(testUttaksdata, testUttaksdata2, testUttaksdata3)),
-            Pair(UttaksdataGetForm(uttakId = testUttaksdata.uttakId), listOf(testUttaksdata)),
-            Pair(UttaksdataGetForm(uttakId = 0), emptyList()),
-            Pair(UttaksdataGetForm(stasjonId = testStasjon.id), listOf(testUttaksdata, testUttaksdata3)),
-            Pair(UttaksdataGetForm(stasjonId = 0), emptyList()),
-            Pair(UttaksdataGetForm(partnerId = testPartner2.id), listOf(testUttaksdata3)),
-            Pair(UttaksdataGetForm(partnerId = 0), emptyList()),
+            Pair(null, listOf(testUttaksData, testUttaksData2, testUttaksData3)),
+            Pair(UttaksDataGetForm(), listOf(testUttaksData, testUttaksData2, testUttaksData3)),
+            Pair(UttaksDataGetForm(uttakId = testUttaksData.uttakId), listOf(testUttaksData)),
+            Pair(UttaksDataGetForm(uttakId = 0), emptyList()),
+            Pair(UttaksDataGetForm(stasjonId = testStasjon.id), listOf(testUttaksData, testUttaksData3)),
+            Pair(UttaksDataGetForm(stasjonId = 0), emptyList()),
+            Pair(UttaksDataGetForm(partnerId = testPartner2.id), listOf(testUttaksData3)),
+            Pair(UttaksDataGetForm(partnerId = 0), emptyList()),
             Pair(
-                UttaksdataGetForm(fromDate = LocalDateTime.parse("2018-01-01T12:00:00Z", DateTimeFormatter.ISO_DATE_TIME)),
-                listOf(testUttaksdata, testUttaksdata2, testUttaksdata3)
-            ),
-            Pair(
-                UttaksdataGetForm(fraRapportertTidspunkt = LocalDateTime.parse("2022-06-03T13:28:00Z", DateTimeFormatter.ISO_DATE_TIME)),
-                listOf(testUttaksdata, testUttaksdata2, testUttaksdata3)
-            ),
-            Pair(
-                UttaksdataGetForm(fraRapportertTidspunkt = LocalDateTime.parse("2018-06-03T15:32:00Z", DateTimeFormatter.ISO_DATE_TIME)),
-                emptyList()
-            ),
-            Pair(
-                UttaksdataGetForm(fromDate = LocalDateTime.parse("2022-08-13T20:33:00Z", DateTimeFormatter.ISO_DATE_TIME)),
-                emptyList()
-            ),
-            Pair(
-                UttaksdataGetForm(fromDate = LocalDateTime.parse("2020-07-07T15:59:00Z", DateTimeFormatter.ISO_DATE_TIME)),
-                listOf(testUttaksdata, testUttaksdata2)
-            ),
-            Pair(
-                UttaksdataGetForm(fromDate = LocalDateTime.parse("2020-07-07T16:00:00Z", DateTimeFormatter.ISO_DATE_TIME)),
-                listOf(testUttaksdata, testUttaksdata2)
-            ),
-            Pair(
-                UttaksdataGetForm(fromDate = LocalDateTime.parse("2020-07-07T16:00:01Z", DateTimeFormatter.ISO_DATE_TIME)),
-                listOf(testUttaksdata2)
-            ),
-            Pair(
-                UttaksdataGetForm(fraRapportertTidspunkt = LocalDateTime.parse("2020-07-07T17:59:00Z", DateTimeFormatter.ISO_DATE_TIME)),
-                listOf(testUttaksdata3)
-            ),
-            Pair(
-                UttaksdataGetForm(fraRapportertTidspunkt = LocalDateTime.parse("2020-07-07T18:00:00Z", DateTimeFormatter.ISO_DATE_TIME)),
-                listOf(testUttaksdata, testUttaksdata3)
-            ),
-            Pair(
-                UttaksdataGetForm(fraRapportertTidspunkt = LocalDateTime.parse("2020-07-07T18:00:01Z", DateTimeFormatter.ISO_DATE_TIME)),
-                listOf(testUttaksdata, testUttaksdata3)
-            ),
-            Pair(
-                UttaksdataGetForm(
-                    fromDate = LocalDateTime.parse("2020-07-07T13:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
-                    fraRapportertTidspunkt = LocalDateTime.parse("2020-08-09T16:00:00Z", DateTimeFormatter.ISO_DATE_TIME)
+                UttaksDataGetForm(
+                    fraRapportertTidspunkt = LocalDateTime.parse(
+                        "2018-01-01T12:00:00Z",
+                        DateTimeFormatter.ISO_DATE_TIME
+                    )
                 ),
-                listOf(testUttaksdata, testUttaksdata2)
+                listOf(testUttaksData, testUttaksData2, testUttaksData3)
             ),
             Pair(
-                UttaksdataGetForm(
+                UttaksDataGetForm(
+                    tilRapportertTidspunkt = LocalDateTime.parse(
+                        "2022-06-03T13:28:00Z",
+                        DateTimeFormatter.ISO_DATE_TIME
+                    )
+                ),
+                listOf(testUttaksData, testUttaksData2, testUttaksData3)
+            ),
+            Pair(
+                UttaksDataGetForm(
+                    tilRapportertTidspunkt = LocalDateTime.parse(
+                        "2018-06-03T15:32:00Z",
+                        DateTimeFormatter.ISO_DATE_TIME
+                    )
+                ),
+                emptyList()
+            ),
+            Pair(
+                UttaksDataGetForm(
+                    fraRapportertTidspunkt = LocalDateTime.parse(
+                        "2022-08-13T20:33:00Z",
+                        DateTimeFormatter.ISO_DATE_TIME
+                    )
+                ),
+                emptyList()
+            ),
+            Pair(
+                UttaksDataGetForm(
+                    fraRapportertTidspunkt = LocalDateTime.parse(
+                        "2020-07-07T15:59:00Z",
+                        DateTimeFormatter.ISO_DATE_TIME
+                    )
+                ),
+                listOf(testUttaksData, testUttaksData2)
+            ),
+            Pair(
+                UttaksDataGetForm(
+                    fraRapportertTidspunkt = LocalDateTime.parse(
+                        "2020-07-07T16:00:00Z",
+                        DateTimeFormatter.ISO_DATE_TIME
+                    )
+                ),
+                listOf(testUttaksData, testUttaksData2)
+            ),
+            Pair(
+                UttaksDataGetForm(
+                    fraRapportertTidspunkt = LocalDateTime.parse(
+                        "2020-07-07T16:00:01Z",
+                        DateTimeFormatter.ISO_DATE_TIME
+                    )
+                ),
+                listOf(testUttaksData2)
+            ),
+            Pair(
+                UttaksDataGetForm(
+                    tilRapportertTidspunkt = LocalDateTime.parse(
+                        "2020-07-07T15:59:00Z",
+                        DateTimeFormatter.ISO_DATE_TIME
+                    )
+                ),
+                listOf(testUttaksData3)
+            ),
+            Pair(
+                UttaksDataGetForm(
+                    tilRapportertTidspunkt = LocalDateTime.parse(
+                        "2020-07-07T16:00:00Z",
+                        DateTimeFormatter.ISO_DATE_TIME
+                    )
+                ),
+                listOf(testUttaksData, testUttaksData3)
+            ),
+            Pair(
+                UttaksDataGetForm(
+                    tilRapportertTidspunkt = LocalDateTime.parse(
+                        "2020-07-07T16:00:01Z",
+                        DateTimeFormatter.ISO_DATE_TIME
+                    )
+                ),
+                listOf(testUttaksData, testUttaksData3)
+            ),
+            Pair(
+                UttaksDataGetForm(
+                    fraRapportertTidspunkt = LocalDateTime.parse(
+                        "2020-07-07T13:00:00Z",
+                        DateTimeFormatter.ISO_DATE_TIME
+                    ),
+                    tilRapportertTidspunkt = LocalDateTime.parse(
+                        "2020-08-09T16:00:00Z",
+                        DateTimeFormatter.ISO_DATE_TIME
+                    )
+                ),
+                listOf(testUttaksData, testUttaksData2)
+            ),
+            Pair(
+                UttaksDataGetForm(
                     stasjonId = testStasjon.id,
                     partnerId = testPartner.id,
-                    fromDate = LocalDateTime.parse("2020-06-03T08:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
-                    fraRapportertTidspunkt = LocalDateTime.parse("2020-09-10T15:57:00Z", DateTimeFormatter.ISO_DATE_TIME)
+                    fraRapportertTidspunkt = LocalDateTime.parse(
+                        "2020-06-03T08:00:00Z",
+                        DateTimeFormatter.ISO_DATE_TIME
+                    ),
+                    tilRapportertTidspunkt = LocalDateTime.parse(
+                        "2020-09-10T15:57:00Z",
+                        DateTimeFormatter.ISO_DATE_TIME
+                    )
                 ),
-                listOf(testUttaksdata)
+                listOf(testUttaksData)
             )
         )
 
         @ParameterizedTest
         @MethodSource("generateValidForms")
-        fun `valid gets with valid forms`(testData: Pair<UttaksdataGetForm?, List<Uttaksdata>>) {
-            val expected = testData.second
-            val actual = UttaksdataRepository.getUttaksData(testData.first)
+        fun `valid gets with valid forms`(testData: Pair<UttaksDataGetForm?, List<UttaksData>>) {
+            var expected = testData.second
+            val actual = UttaksDataRepository.getUttaksData(testData.first)
             require(actual is Either.Right)
             assertEquals(expected, actual.b)
         }
@@ -331,37 +410,28 @@ class UttaksdataRepositoryTest {
     @Nested
     inner class Update {
 
-        var updateTestReport = Uttaksdata(
-            0,
+        var updateTestReport = UttaksData(
             testUttak4.id,
             testPartner.id,
-            testStasjon,
-            testUttak4.startTidspunkt,
-            testUttak4.endDateTime
+            testUttak4.startTidspunkt
         )
 
-        var updateTestReport2 = Uttaksdata(
-            0,
+        var updateTestReport2 = UttaksData(
             testUttak5.id,
             testPartner.id,
-            testStasjon2,
-            testUttak5.startTidspunkt,
-            testUttak5.endDateTime
+            testUttak5.startTidspunkt
         )
 
-//        var updateTestReport3 = Report(
-//            0,
-//            6,
-//            testPartner2.id,
-//            testStasjon,
-//            LocalDateTime.parse("2020-05-06T16:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
-//            LocalDateTime.parse("2020-05-06T18:00:00Z", DateTimeFormatter.ISO_DATE_TIME)
-//        )
+        var updateTestReport3 = UttaksData(
+            6,
+            testPartner2.id,
+            LocalDateTime.parse("2020-05-06T16:00:00Z", DateTimeFormatter.ISO_DATE_TIME)
+        )
 
         init {
-            updateTestReport = updateTestReport.copy(id = insertTestReport(updateTestReport))
-            updateTestReport2 = updateTestReport2.copy(id = insertTestReport(updateTestReport2))
-//            updateTestReport3 = updateTestReport3.copy(uttaksdataId = insertTestReport(updateTestReport3))
+            insertTestReport(updateTestReport)
+            insertTestReport(updateTestReport2)
+            insertTestReport(updateTestReport3)
         }
 
         /**
@@ -370,8 +440,8 @@ class UttaksdataRepositoryTest {
         @Test
         fun `Update uttaksdata valid`() {
             val expectedWeight = 50
-            val form = UttaksdataUpdateForm(updateTestReport.id, expectedWeight)
-            val result = UttaksdataRepository.updateUttaksdata(form)
+            val form = UttaksDataUpdateForm(updateTestReport.uttakId, expectedWeight)
+            val result = UttaksDataRepository.updateUttaksData(form)
             require(result is Either.Right)
             val newReport =
                 updateTestReport.copy(rapportertTidspunkt = result.b.rapportertTidspunkt, vekt = result.b.vekt)
@@ -383,10 +453,10 @@ class UttaksdataRepositoryTest {
          */
         @Test
         fun `Update uttaksdata invalid ID`() {
-            val form = UttaksdataUpdateForm(0, 50)
+            val form = UttaksDataUpdateForm(0, 50)
             val expected = RepositoryError.NoRowsFound("ID 0 does not exist!")
 
-            val result = UttaksdataRepository.updateUttaksdata(form)
+            val result = UttaksDataRepository.updateUttaksData(form)
             require(result is Either.Left)
             assert(result.a is RepositoryError.NoRowsFound)
             assertEquals(expected, result.a)
@@ -397,58 +467,18 @@ class UttaksdataRepositoryTest {
          */
         @Test
         fun `update uttaksdata with invalid weight`() {
-            val form = UttaksdataUpdateForm(testUttaksdata2.id, 0)
+            val form = UttaksDataUpdateForm(testUttaksData2.uttakId, 0)
             val expected = RepositoryError.UpdateError("Failed to update uttaksdata")
 
-            val initial = UttaksdataRepository.getUttaksDataByID(testUttaksdata2.id)
+            val initial = UttaksDataRepository.getUttaksDataById(testUttaksData2.uttakId)
             require(initial is Either.Right)
 
-            val result = UttaksdataRepository.updateUttaksdata(form)
+            val result = UttaksDataRepository.updateUttaksData(form)
             require(result is Either.Left)
             assertEquals(expected, result.a)
-            val after = UttaksdataRepository.getUttaksDataByID(testUttaksdata2.id)
+            val after = UttaksDataRepository.getUttaksDataById(testUttaksData2.uttakId)
             require(after is Either.Right)
             assertEquals(initial.b, after.b)
-        }
-
-        /**
-         * Test automatic update with uttak
-         */
-        @Test
-        fun `update uttaksdata with uttak valid`() {
-            val uttak = Uttak(
-                testUttaksdata2.uttakId,
-                LocalDateTime.parse("2020-05-05T16:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
-                LocalDateTime.parse("2020-05-05T18:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
-                testStasjon,
-                testPartner
-            )
-            val expected = testUttaksdata2.copy(startDateTime = uttak.startTidspunkt, endDateTime = uttak.endDateTime)
-
-            val result = UttaksdataRepository.updateUttaksdata(uttak)
-            require(result is Either.Right)
-            val actual = UttaksdataRepository.getUttaksDataByID(expected.id)
-            require(actual is Either.Right)
-            assertEquals(expected, actual.b)
-        }
-
-        /**
-         * Test automatic update with uttak where uttakId does not exist
-         */
-        @Test
-        fun `update uttaksdata with uttak invalid uttakId`() {
-            val uttak = Uttak(
-                0,
-                LocalDateTime.parse("2020-05-05T16:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
-                LocalDateTime.parse("2020-05-05T18:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
-                testStasjon,
-                testPartner
-            )
-            val expected = RepositoryError.NoRowsFound("uttakId 0 does not exist!")
-
-            val actual = UttaksdataRepository.updateUttaksdata(uttak)
-            require(actual is Either.Left)
-            assertEquals(expected, actual.a)
         }
 
     }
@@ -461,17 +491,21 @@ class UttaksdataRepositoryTest {
          */
         @Test
         fun `insert uttaksdata valid`() {
-            val actual = UttaksdataRepository.insertUttaksdata(testUttak5)
+            var uttak = Uttak(
+                0,
+                LocalDateTime.parse("2020-07-07T16:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
+                LocalDateTime.parse("2020-07-07T18:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
+                testStasjon,
+                testPartner
+            )
+            uttak = uttak.copy(id = insertTestUttak(uttak))
+            val actual = UttaksDataRepository.insertUttaksdata(uttak)
+            actual.fold({ print(it.message) }, { it })
             require(actual is Either.Right)
-            assertEquals(testUttak5.id, actual.b.uttakId)
-            assertEquals(testUttak5.partner?.id, actual.b.partnerId)
-            assertEquals(testUttak5.stasjon, actual.b.stasjon)
-            assertEquals(testUttak5.startTidspunkt, actual.b.startDateTime)
-            assertEquals(testUttak5.endDateTime, actual.b.endDateTime)
+            assertEquals(uttak.id, actual.b.uttakId)
             assert(actual.b.rapportertTidspunkt == null)
             assert(actual.b.vekt == null)
         }
     }
 
-     */
 }

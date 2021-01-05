@@ -8,11 +8,11 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class UttaksdataGetByIdFormTest {
+class UttaksDataGetByIdFormTest {
 
     @Test
     fun `validate valid form`() {
-        val form = UttaksdataGetByIdForm(1)
+        val form = UttaksDataGetByIdForm(1)
         val result = form.validOrError()
 
         require(result is Either.Right)
@@ -21,7 +21,7 @@ class UttaksdataGetByIdFormTest {
 
     @Test
     fun `validate invalid form`() {
-        val form = UttaksdataGetByIdForm(0)
+        val form = UttaksDataGetByIdForm(0)
         val result = form.validOrError()
 
         assertTrue(result is Either.Left)

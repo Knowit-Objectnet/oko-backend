@@ -12,7 +12,7 @@ import org.valiktor.validate
 import java.time.LocalDateTime
 
 @Location("/")
-data class UttaksdataGetForm(
+data class UttaksDataGetForm(
     @get:Parameter(
         `in` = ParameterIn.QUERY,
         name = "uttakId",
@@ -62,17 +62,17 @@ data class UttaksdataGetForm(
         example = "2020-11-05T14:50:00Z",
         description = "Only include Uttaksdata up until this date. Inclusive"
     ) val tilRapportertTidspunkt: LocalDateTime? = null
-) : IForm<UttaksdataGetForm> {
+) : IForm<UttaksDataGetForm> {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
-            validate(UttaksdataGetForm::uttakId).isGreaterThan(0)
+            validate(UttaksDataGetForm::uttakId).isGreaterThan(0)
 
-            validate(UttaksdataGetForm::minVekt).isGreaterThan(0)
-            validate(UttaksdataGetForm::maxVekt).isGreaterThan(0)
-            if (minVekt != null && maxVekt !== null) validate(UttaksdataGetForm::maxVekt).isGreaterThan(minVekt)
+            validate(UttaksDataGetForm::minVekt).isGreaterThan(0)
+            validate(UttaksDataGetForm::maxVekt).isGreaterThan(0)
+            if (minVekt != null && maxVekt !== null) validate(UttaksDataGetForm::maxVekt).isGreaterThan(minVekt)
 
             if (fraRapportertTidspunkt != null && tilRapportertTidspunkt != null)
-                validate(UttaksdataGetForm::fraRapportertTidspunkt).isLessThanEndDateTime(tilRapportertTidspunkt)
+                validate(UttaksDataGetForm::fraRapportertTidspunkt).isLessThanEndDateTime(tilRapportertTidspunkt)
         }
     }
 }

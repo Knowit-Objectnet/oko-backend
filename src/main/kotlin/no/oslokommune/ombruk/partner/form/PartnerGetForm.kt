@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.ArraySchema
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import no.oslokommune.ombruk.shared.form.IForm
+import no.oslokommune.ombruk.shared.utils.validation.isNorwegianPhoneNumber
 import no.oslokommune.ombruk.shared.utils.validation.runCatchingValidation
 import org.valiktor.functions.isEmail
 import org.valiktor.functions.isNotBlank
@@ -47,7 +48,10 @@ data class PartnerGetForm(
 ) : IForm<PartnerGetForm> {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
-            if (navn != null) validate(PartnerGetForm::navn).isNotBlank()
+            navn?.let { validate(PartnerGetForm::navn).isNotBlank() }
+            beskrivelse?.let { validate(PartnerGetForm::beskrivelse).isNotBlank() }
+            telefon?.let { validate(PartnerGetForm::telefon).isNorwegianPhoneNumber() }
+            epost?.let { validate(PartnerGetForm::epost).isEmail() }
         }
 
     }

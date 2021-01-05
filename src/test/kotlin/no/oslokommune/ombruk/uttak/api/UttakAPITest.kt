@@ -41,7 +41,7 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import kotlin.test.assertEquals
 
-/*
+
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockKExtension::class)
 class UttakAPITest {
@@ -81,7 +81,8 @@ class UttakAPITest {
                 sluttTidspunkt = LocalDateTime.parse("2020-07-10T15:48:06"),
                 stasjon = s,
                 partner = p,
-                type = UttaksType.ENKELT)
+                type = UttaksType.ENKELT
+            )
             every { UttakService.getUttakByID(1) } returns expected.right()
 
             testGet("/uttak/1") {
@@ -148,7 +149,8 @@ class UttakAPITest {
         fun `get uttak 200`() {
             val s = Stasjon(1, "test")
             val p = Partner(1, "test", "beskrivelse", "81549300", "test@test.com")
-            val e1 = Uttak(1, LocalDateTime.parse("2020-07-06T10:48:06"), LocalDateTime.parse("2020-07-06T15:48:06"), s, p)
+            val e1 =
+                Uttak(1, LocalDateTime.parse("2020-07-06T10:48:06"), LocalDateTime.parse("2020-07-06T15:48:06"), s, p)
             val e2 = e1.copy(2)
             val e3 = e1.copy(3)
             val expected = listOf(e1, e2, e3)
@@ -209,10 +211,8 @@ class UttakAPITest {
             val partner = Partner(1, "test", "beskrivelse", "81549300", "test@test.com")
             val gjentakelsesRegel = GjentakelsesRegel(
                 1,
-                LocalDateTime.parse("2020-07-06T10:48:06"),
-                LocalDateTime.parse("2020-07-12T15:48:06"),
-                null,
-                listOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY)
+                until = LocalDateTime.parse("2020-07-12T15:48:06"),
+                dager = listOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY)
             )
             val form = UttakPostForm(
                 stasjon.id,
@@ -220,7 +220,8 @@ class UttakAPITest {
                 gjentakelsesRegel,
                 UttaksType.GJENTAKENDE,
                 LocalDateTime.parse("2020-07-06T10:48:06"),
-                LocalDateTime.parse("2020-07-06T15:48:06"))
+                LocalDateTime.parse("2020-07-06T15:48:06")
+            )
             val expected = Uttak(1, form.startTidspunkt, form.sluttTidspunkt, stasjon, partner)
 
             every { UttakService.saveUttak(form) } returns expected.right()
@@ -230,6 +231,7 @@ class UttakAPITest {
 
             testPost("/uttak", json.stringify(UttakPostForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.OK, response.status())
+                println(response.content)
                 assertEquals(json.stringify(Uttak.serializer(), expected), response.content)
             }
         }
@@ -245,7 +247,8 @@ class UttakAPITest {
                 null,
                 UttaksType.GJENTAKENDE,
                 LocalDateTime.now(),
-                LocalDateTime.now().plusHours(1))
+                LocalDateTime.now().plusHours(1)
+            )
 
             every { PartnerRepository.exists(1) } returns true
             every { StasjonRepository.exists(1) } returns true
@@ -266,7 +269,8 @@ class UttakAPITest {
                 null,
                 UttaksType.GJENTAKENDE,
                 LocalDateTime.parse("2020-07-06T10:48:06"),
-                LocalDateTime.parse("2020-07-06T15:48:06"))
+                LocalDateTime.parse("2020-07-06T15:48:06")
+            )
 
             every { PartnerRepository.exists(1) } returns true
             every { StasjonRepository.exists(1) } returns true
@@ -287,7 +291,8 @@ class UttakAPITest {
                 null,
                 UttaksType.GJENTAKENDE,
                 LocalDateTime.parse("2020-07-06T10:48:06"),
-                LocalDateTime.parse("2020-07-06T15:48:06"))
+                LocalDateTime.parse("2020-07-06T15:48:06")
+            )
 
             val s = Stasjon(id = 1, navn = "test", aapningstider = openHours())
             every { UttakService.saveUttak(form) } returns ServiceError("test").left()
@@ -311,7 +316,8 @@ class UttakAPITest {
                 partnerId = 1,
                 type = UttaksType.GJENTAKENDE,
                 startTidspunkt = LocalDateTime.parse("2020-07-06T10:48:06"),
-                sluttTidspunkt = LocalDateTime.parse("2020-07-06T15:48:06"))
+                sluttTidspunkt = LocalDateTime.parse("2020-07-06T15:48:06")
+            )
 
             val s = Stasjon(id = 1, navn = "test", aapningstider = openHours())
             every { PartnerRepository.exists(1) } returns false // Partner does not exist
@@ -386,7 +392,11 @@ class UttakAPITest {
          */
         @Test
         fun `patch uttak 401`() {
-            val form = UttakUpdateForm(1, startTidspunkt = LocalDateTime.now(), sluttTidspunkt = LocalDateTime.now().plusHours(1))
+            val form = UttakUpdateForm(
+                1,
+                startTidspunkt = LocalDateTime.now(),
+                sluttTidspunkt = LocalDateTime.now().plusHours(1)
+            )
 
             testPatch("/uttak", json.stringify(UttakUpdateForm.serializer(), form), null) {
                 assertEquals(HttpStatusCode.Unauthorized, response.status())
@@ -398,7 +408,11 @@ class UttakAPITest {
          */
         @Test
         fun `patch uttak 403`() {
-            val form = UttakUpdateForm(1, startTidspunkt = LocalDateTime.now(), sluttTidspunkt = LocalDateTime.now().plusHours(1))
+            val form = UttakUpdateForm(
+                1,
+                startTidspunkt = LocalDateTime.now(),
+                sluttTidspunkt = LocalDateTime.now().plusHours(1)
+            )
 
             testPatch("/uttak", json.stringify(UttakUpdateForm.serializer(), form), JwtMockConfig.partnerBearer2) {
                 assertEquals(HttpStatusCode.Forbidden, response.status())
@@ -413,7 +427,11 @@ class UttakAPITest {
             val stasjon = Stasjon(1, "test")
             val partner = Partner(1, "test", "beskrivelse", "81549300", "test@test.com")
             val initial = Uttak(1, LocalDateTime.now().plusDays(2), LocalDateTime.now().plusDays(3), stasjon, partner)
-            val form = UttakUpdateForm(-1, startTidspunkt = LocalDateTime.now(), sluttTidspunkt = LocalDateTime.now().plusHours(1))
+            val form = UttakUpdateForm(
+                -1,
+                startTidspunkt = LocalDateTime.now(),
+                sluttTidspunkt = LocalDateTime.now().plusHours(1)
+            )
             val expected = initial.copy(startTidspunkt = form.startTidspunkt!!, sluttTidspunkt = form.sluttTidspunkt!!)
 
             every { UttakService.updateUttak(form) } returns expected.right()
@@ -449,24 +467,23 @@ class UttakAPITest {
             val stasjon = Stasjon(1, "test")
             val partner = Partner(1, "test", "beskrivelse", "81549300", "test@test.com")
             val expected = Unit
-
-            every { UttakService.deleteUttakById(1) } returns Unit.right()
+            every { UttakService.deleteUttak(UttakDeleteForm(id = 1)) } returns Either.right(emptyList())
 
             testDelete("/uttak?id=1") {
                 assertEquals(HttpStatusCode.OK, response.status())
             }
         }
 
-        /*
-        // TODO: Make all these run green!
+
         /**
          * Check for 500 when we encounter a serious error.
          */
         @Test
         fun `delete uttak 500`() {
             every { UttakService.deleteUttak(UttakDeleteForm(1)) } returns ServiceError("test").left()
+            every { UttakRepository.exists(1) } returns true
 
-            testDelete("/uttak") {
+            testDelete("/uttak?id=1") {
                 assertEquals(HttpStatusCode.InternalServerError, response.status())
             }
         }
@@ -492,7 +509,7 @@ class UttakAPITest {
             val expected = listOf(Uttak(1, LocalDateTime.now(), LocalDateTime.now().plusDays(1), s, p))
 
             every { UttakService.getUttak(UttakGetForm()) } returns expected.right()
-            every { UttakService.deleteUttak(UttakDeleteForm(1)) } returns Unit.right()
+            every { UttakService.deleteUttak(UttakDeleteForm(1)) } returns expected.right()
 
             testDelete("/uttak", JwtMockConfig.partnerBearer2) {
                 assertEquals(HttpStatusCode.NotFound, response.status())
@@ -504,9 +521,9 @@ class UttakAPITest {
          */
         @Test
         fun `delete uttak 422`() {
-            testDelete("/uttak?uttakId=-1") {
+            testDelete("/uttak?id=-1") {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
-                assertEquals("uttakId: Must be greater than 0", response.content)
+                assertEquals("id: Must be greater than 0", response.content)
 
             }
         }
@@ -516,13 +533,13 @@ class UttakAPITest {
          */
         @Test
         fun `delete uttak 400`() {
-            testDelete("/uttak?uttakId=NaN") {
+            testDelete("/uttak?id=NaN") {
                 assertEquals(HttpStatusCode.BadRequest, response.status())
-                assertEquals("uttakId could not be parsed.", response.content)
+                assertEquals("id could not be parsed.", response.content)
 
             }
         }
-         */
+
     }
 
     private fun openHours() = mapOf<DayOfWeek, List<LocalTime>>(
@@ -563,4 +580,3 @@ class UttakAPITest {
         )
     )
 }
- */

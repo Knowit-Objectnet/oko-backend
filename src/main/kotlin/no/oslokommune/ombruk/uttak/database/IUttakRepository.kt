@@ -55,5 +55,4 @@ interface IUttakRepository : IRepository {
      */
     fun getUttak(uttakGetForm: UttakGetForm?): Either<RepositoryError, List<Uttak>>
 
-    fun getUttakByUttaksDataID(uttaksdataID: Int): Either<RepositoryError, Uttak>
 }

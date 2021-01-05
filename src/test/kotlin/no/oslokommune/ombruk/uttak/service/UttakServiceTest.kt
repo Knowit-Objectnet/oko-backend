@@ -13,8 +13,8 @@ import no.oslokommune.ombruk.uttak.form.UttakPostForm
 import no.oslokommune.ombruk.uttak.model.Uttak
 import no.oslokommune.ombruk.uttak.model.GjentakelsesRegel
 import no.oslokommune.ombruk.uttak.model.UttaksType
-import no.oslokommune.ombruk.uttaksdata.form.UttaksdataPostForm
-import no.oslokommune.ombruk.uttaksdata.model.Uttaksdata
+import no.oslokommune.ombruk.uttaksdata.database.UttaksDataRepository
+import no.oslokommune.ombruk.uttaksdata.model.UttaksData
 import no.oslokommune.ombruk.uttaksdata.service.UttaksDataService
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
@@ -23,7 +23,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.test.assertEquals
 
-/*
+
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockKExtension::class)
 class UttakServiceTest {
@@ -37,6 +37,7 @@ class UttakServiceTest {
         mockkObject(UttakRepository)
         mockkObject(UttaksDataService)
         mockkObject(GjentakelsesRegelTable)
+        mockkObject(UttaksDataRepository)
     }
 
     @AfterEach
@@ -155,29 +156,34 @@ class UttakServiceTest {
          * Check that save single uttak calls the repository and returns the saved uttak.
          */
         @Test
-        fun `save single uttak`(@MockK expectedUttak: Uttak, @MockK uttaksdata: Uttaksdata) {
+        fun `save single uttak`(
+            @MockK expectedUttak: Uttak,
+            @MockK uttaksData: UttaksData,
+            @MockK gjentakelsesRegel: GjentakelsesRegel
+        ) {
             val from = LocalDateTime.parse("2020-09-01T10:00:00Z", DateTimeFormatter.ISO_DATE_TIME)
             val form = UttakPostForm(
                 stasjonId = 1,
                 partnerId = 1,
                 gjentakelsesRegel = GjentakelsesRegel(
                     dager = listOf(DayOfWeek.TUESDAY),
-                    sluttTidspunkt = from.plusDays(1)
+                    until = from.plusDays(1)
                 ),
                 type = UttaksType.GJENTAKENDE,
                 startTidspunkt = from,
                 sluttTidspunkt = from.plusHours(5)
-                )
-            val dataForm = UttaksdataPostForm(1, 100, LocalDateTime.now().plusMinutes(30))
+            )
 
-            every { UttakRepository.insertUttak(form) } returns expectedUttak.right()
-            every { UttaksDataService.saveUttaksdata(dataForm) } returns uttaksdata.right()
+            every { UttakRepository.insertUttak(any()) } returns expectedUttak.right()
+            every { UttaksDataService.saveUttaksData(any()) } returns uttaksData.right()
+            every { expectedUttak.uttaksData = any() } answers { uttaksData }
+            every { GjentakelsesRegelTable.insertGjentakelsesRegel(form.gjentakelsesRegel!!) } returns gjentakelsesRegel.right()
 
             val actualUttak = UttakService.saveUttak(form)
             require(actualUttak is Either.Right)
             verify(exactly = 1) { UttakRepository.insertUttak(form) }
+            verify(exactly = 1) { UttaksDataService.saveUttaksData(actualUttak.b) }
             assertEquals(expectedUttak, actualUttak.b)
         }
     }
 }
- */

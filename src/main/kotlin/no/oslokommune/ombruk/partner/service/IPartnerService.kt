@@ -93,7 +93,7 @@ interface IPartnerService {
      */
     @GET
     @ParameterFile(PartnerGetForm::class)
-    @DefaultResponse(Partner::class, "Partner was found")
+    @DefaultResponse(Partner::class, "Partner was found", okArrayResponse = true)
     @Operation(summary = "Fetches partners, filtered by the passed parameters", tags = ["partner"])
     @JsonIgnore
     fun getPartnere(@BeanParam partnerGetForm: PartnerGetForm = PartnerGetForm()): Either<ServiceError, List<Partner>>

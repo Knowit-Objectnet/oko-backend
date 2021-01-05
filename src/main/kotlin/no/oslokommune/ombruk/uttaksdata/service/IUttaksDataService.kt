@@ -8,85 +8,70 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.parameters.RequestBody
 import no.oslokommune.ombruk.uttak.model.Uttak
-import no.oslokommune.ombruk.uttaksdata.form.UttaksdataGetForm
-import no.oslokommune.ombruk.uttaksdata.model.Uttaksdata
+import no.oslokommune.ombruk.uttaksdata.form.UttaksDataGetForm
+import no.oslokommune.ombruk.uttaksdata.model.UttaksData
 import no.oslokommune.ombruk.shared.error.ServiceError
 import no.oslokommune.ombruk.shared.swagger.annotations.DefaultResponse
 import no.oslokommune.ombruk.shared.swagger.annotations.ParameterFile
-import no.oslokommune.ombruk.uttaksdata.form.UttaksdataGetByIdForm
-import no.oslokommune.ombruk.uttaksdata.form.UttaksdataPostForm
-import no.oslokommune.ombruk.uttaksdata.form.UttaksdataUpdateForm
+import no.oslokommune.ombruk.uttaksdata.form.UttaksDataGetByIdForm
+import no.oslokommune.ombruk.uttaksdata.form.UttaksDataUpdateForm
 import javax.ws.rs.*
 
 @Path("/uttaksdata")
 interface IUttaksDataService {
-    /**
-     * Saves a [Uttaksdata] to the database. Only available internally, and is automatically called when an [Uttak] is created.
-     *
-     * @param uttaksdataPostForm A stored [Uttak] object
-     * @return A [ServiceError] on failure and a [Uttaksdata] on success.
-     */
-//    @POST
-//    @DefaultResponse(okResponseBody = Uttaksdata::class, okResponseDescription = "Uttaksdata added successfully")
-//    @Operation(
-//        summary = "Adds Uttaksdata to a uttak",
-//        tags = ["uttaksdata"],
-//        requestBody = RequestBody(
-//            content = [Content(
-//                mediaType = "application/json",
-//                schema = Schema(implementation = UttaksdataPostForm::class)
-//            )]
-//        )
-//    )
-    fun saveUttaksdata(uttaksdataPostForm: UttaksdataPostForm): Either<ServiceError, Uttaksdata>
 
-    fun saveUttaksData(uttak: Uttak): Either<ServiceError, Uttaksdata>
+    fun saveUttaksData(uttak: Uttak): Either<ServiceError, UttaksData>
 
     /**
-     * Updates a stored [Uttaksdata]. Only available internally, and is automatically called when an [Uttak] is updated.
+     * Updates a stored [UttaksData]. Only available internally, and is automatically called when an [Uttak] is updated.
      *
-     * @param uttaksdata A stored [Uttak] object.
+     * @param uttaksData A stored [Uttak] object.
      * @return A [ServiceError] on failure and a [Unit] on success.
      */
     @PATCH
-    @DefaultResponse(okResponseBody = Uttaksdata::class, okResponseDescription = "Uttaksdata updated successfully")
+    @DefaultResponse(okResponseBody = UttaksData::class, okResponseDescription = "Uttaksdata updated successfully")
     @Operation(
         summary = "Updates the Uttaksdata of an Uttak",
         tags = ["uttaksdata"],
         requestBody = RequestBody(
             content = [Content(
                 mediaType = "application/json",
-                schema = Schema(implementation = UttaksdataUpdateForm::class)
+                schema = Schema(implementation = UttaksDataUpdateForm::class)
             )]
         )
     )
-    fun updateUttaksdata(uttaksdata: UttaksdataUpdateForm): Either<ServiceError, Uttaksdata>
+    fun updateUttaksData(uttaksData: UttaksDataUpdateForm): Either<ServiceError, UttaksData>
 
     /**
-     * Gets a [Uttaksdata] that corresponds with the specified [uttaksdataID].
+     * Gets a [UttaksData] that corresponds with the specified [uttaksdataID].
      *
-     * @param uttaksdataID ID of a stored [Uttaksdata]
-     * @return A [ServiceError] on failure and a [Uttaksdata] on success.
+     * @param uttaksdataID ID of a stored [UttaksData]
+     * @return A [ServiceError] on failure and a [UttaksData] on success.
      */
     @GET
     @Path("/{id}")
-    @ParameterFile(UttaksdataGetByIdForm::class)
-    @DefaultResponse(okResponseBody = Uttaksdata::class, okResponseDescription = "Uttaksdata was found")
+    @ParameterFile(UttaksDataGetByIdForm::class)
+    @DefaultResponse(okResponseBody = UttaksData::class, okResponseDescription = "Uttaksdata was found")
     @Operation(summary = "Fetches Uttaksdata for a specific uttak", tags = ["uttaksdata"])
-    fun getUttaksdataById(@Parameter(hidden = true) uttaksdataID: Int): Either<ServiceError, Uttaksdata>
+    fun getUttaksDataById(@Parameter(hidden = true) uttaksdataID: Int): Either<ServiceError, UttaksData>
 
     /**
-     * Gets a list of [Uttaksdata] objects specified by parameters in a [UttaksdataGetForm]
+     * Gets a list of [UttaksData] objects specified by parameters in a [UttaksDataGetForm]
      *
-     * @param uttaksdataGetForm a [UttaksdataGetForm] with values used to filter results. Null values are not used for filtering.
-     * @return A [ServiceError] on failure and a [List] of [Uttaksdata] objects on success.
+     * @param uttaksDataGetForm a [UttaksDataGetForm] with values used to filter results. Null values are not used for filtering.
+     * @return A [ServiceError] on failure and a [List] of [UttaksData] objects on success.
      */
     @GET
-    @ParameterFile(UttaksdataGetForm::class)
-    @DefaultResponse(okResponseBody = Uttaksdata::class, okResponseDescription = "Uttaksdata was found")
+    @ParameterFile(UttaksDataGetForm::class)
+    @DefaultResponse(
+        okResponseBody = UttaksData::class,
+        okResponseDescription = "Uttaksdata was found",
+        okArrayResponse = true
+    )
     @Operation(summary = "Fetches Uttaksdata, filtered by the parameters", tags = ["uttaksdata"])
-    fun getUttaksdata(@Parameter(hidden = true) uttaksdataGetForm: UttaksdataGetForm): Either<ServiceError, List<Uttaksdata>>
-//
+    fun getUttaksData(@Parameter(hidden = true) uttaksDataGetForm: UttaksDataGetForm): Either<ServiceError, List<UttaksData>>
+
+    //
 //    @DELETE
 //    @Path("/{id}")
 //    @DefaultResponse(okResponseBody = Unit::class, okResponseDescription = "Uttaksdata deleted successfully")

@@ -14,14 +14,12 @@ class UttakDeleteFormTest {
     @Suppress("unused")
     fun generateValidForms() = listOf(
         UttakDeleteForm(1),
-        /*
         UttakDeleteForm(gjentakelsesRegelId = 1),
         UttakDeleteForm(stasjonId = 1),
         UttakDeleteForm(partnerId = 1),
-        UttakDeleteForm(fromDate = LocalDateTime.now()),
-        UttakDeleteForm(toDate = LocalDateTime.now()),
-        UttakDeleteForm(fromDate = LocalDateTime.now(), toDate = LocalDateTime.now().plusDays(1)),
-         */
+        UttakDeleteForm(startTidspunkt = LocalDateTime.now()),
+        UttakDeleteForm(sluttTidspunkt = LocalDateTime.now()),
+        UttakDeleteForm(startTidspunkt = LocalDateTime.now(), sluttTidspunkt = LocalDateTime.now().plusDays(1)),
         UttakDeleteForm(1, 1, LocalDateTime.now(), LocalDateTime.now().plusDays(1), 1, 1)
 
     )
@@ -37,16 +35,14 @@ class UttakDeleteFormTest {
 
     @Suppress("unused")
     fun generateInvalidForms() = listOf(
-        UttakDeleteForm(0)
-        /*
+        UttakDeleteForm(0),
         UttakDeleteForm(gjentakelsesRegelId = 0),
         UttakDeleteForm(stasjonId = 0),
         UttakDeleteForm(partnerId = 0),
-        UttakDeleteForm(0, fromDate = LocalDateTime.now()),
-        UttakDeleteForm(0, toDate = LocalDateTime.now()),
-        UttakDeleteForm(fromDate = LocalDateTime.now(), toDate = LocalDateTime.now().minusDays(1)),
+        UttakDeleteForm(0, startTidspunkt = LocalDateTime.now()),
+        UttakDeleteForm(0, sluttTidspunkt = LocalDateTime.now()),
+        UttakDeleteForm(startTidspunkt = LocalDateTime.now(), sluttTidspunkt = LocalDateTime.now().minusDays(1)),
         UttakDeleteForm(1, 1, LocalDateTime.now(), LocalDateTime.now().plusDays(1), 0, 1)
-        */
     )
 
     @ParameterizedTest

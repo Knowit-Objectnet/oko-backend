@@ -8,15 +8,14 @@ import org.junit.jupiter.params.provider.MethodSource
 import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.unmockkAll
-import no.oslokommune.ombruk.shared.database.initDB
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-/*
+
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class UttaksdataUpdateFormTest {
+class UttaksDataUpdateFormTest {
 
     @BeforeEach
     fun setup() {
@@ -30,13 +29,13 @@ class UttaksdataUpdateFormTest {
 
     @Suppress("unused")
     fun generateValidForms() = listOf(
-        UttaksdataUpdateForm(1, 123)
+        UttaksDataUpdateForm(1, 123)
     )
 
     @ParameterizedTest
     @MethodSource("generateValidForms")
-    fun `validate valid form`(form: UttaksdataUpdateForm) {
-        every { UttakRepository.exists(123) } returns true
+    fun `validate valid form`(form: UttaksDataUpdateForm) {
+        every { UttakRepository.exists(form.uttakId) } returns true
 
         val result = form.validOrError()
 
@@ -47,18 +46,19 @@ class UttaksdataUpdateFormTest {
 
     @Suppress("unused")
     fun generateInvalidForms() = listOf(
-        UttaksdataUpdateForm(1, 0),
-        UttaksdataUpdateForm(0, 1)
+        UttaksDataUpdateForm(1, 0),
+        UttaksDataUpdateForm(0, 1)
 
     )
 
     @ParameterizedTest
     @MethodSource("generateInvalidForms")
-    fun `validate invalid form`(form: UttaksdataUpdateForm) {
+    fun `validate invalid form`(form: UttaksDataUpdateForm) {
+
+        every {UttakRepository.exists(form.uttakId)} returns true
 
         val result = form.validOrError()
 
         assertTrue(result is Either.Left)
     }
 }
- */

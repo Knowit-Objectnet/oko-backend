@@ -7,8 +7,7 @@ import no.oslokommune.ombruk.shared.model.serializer.LocalDateTimeSerializer
 import java.time.LocalDateTime
 
 @Serializable
-data class Uttaksdata(
-    @field:Schema(description = "The ID of the Uttaksdata") val id: Int = 0,
+data class UttaksData(
     @field:Schema(description = "The ID of the corresponding Uttak") val uttakId: Int,
     @field:Schema(description = "The weight of an Uttak") val vekt: Int? = null,
     @field:Schema(

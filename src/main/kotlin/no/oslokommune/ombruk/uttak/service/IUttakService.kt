@@ -58,7 +58,7 @@ interface IUttakService {
     @KtorExperimentalLocationsAPI
     @GET
     @ParameterFile(UttakGetForm::class)
-    @DefaultResponse(okResponseBody = Uttak::class, okResponseDescription = "Uttak was found")
+    @DefaultResponse(okResponseBody = Uttak::class, okResponseDescription = "Uttak was found", okArrayResponse = true)
     @Operation(summary = "Get a list of Uttak, filtered by parameters", tags = ["uttak"])
     fun getUttak(
         @Parameter(hidden = true) uttakGetForm: UttakGetForm? = null
@@ -72,7 +72,7 @@ interface IUttakService {
     @KtorExperimentalLocationsAPI
     @DELETE
     @ParameterFile(UttakDeleteForm::class)
-    @DefaultResponse(okResponseBody = Uttak::class, okResponseDescription = "Uttak deleted")
+    @DefaultResponse(okResponseBody = Uttak::class, okResponseDescription = "Uttak deleted", okArrayResponse = true)
     @Operation(summary = "Deletes a list of Uttak, specified by the passed in parameters", tags = ["uttak"])
     fun deleteUttak(uttak: UttakDeleteForm): Either<ServiceError, List<Uttak>>
 

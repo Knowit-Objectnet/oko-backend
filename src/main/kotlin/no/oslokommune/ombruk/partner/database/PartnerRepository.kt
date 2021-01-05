@@ -24,26 +24,26 @@ import java.time.temporal.ChronoUnit
 
 
 object Partnere : IntIdTable("samarbeidspartnere") {
-    val navn                = varchar("navn", 128)
-    val beskrivelse         = text("beskrivelse")
-    val telefon             = varchar("telefon", 32)
-    val epost               = varchar("epost", 64)
-    val endretTidspunkt     = datetime("endret_tidspunkt")
-        val slettetTidspunkt    = datetime("slettet_tidspunkt").nullable()
+    val navn = varchar("navn", 128)
+    val beskrivelse = text("beskrivelse")
+    val telefon = varchar("telefon", 32)
+    val epost = varchar("epost", 64)
+    val endretTidspunkt = datetime("endret_tidspunkt")
+    val slettetTidspunkt = datetime("slettet_tidspunkt").nullable()
 }
 
 object PartnerRepository : IPartnerRepository {
     private val logger = LoggerFactory.getLogger("ombruk.no.oslokommune.ombruk.partner.service.PartnerRepository")
 
     override fun insertPartner(partner: PartnerPostForm) = runCatching {
-            Partnere.insertAndGetId {
-                it[navn] = partner.navn
-                it[beskrivelse] = partner.beskrivelse
-                it[telefon] = partner.telefon
-                it[epost] = partner.epost
-                it[endretTidspunkt] = LocalDateTime.now()
-            }
+        Partnere.insertAndGetId {
+            it[navn] = partner.navn
+            it[beskrivelse] = partner.beskrivelse
+            it[telefon] = partner.telefon
+            it[epost] = partner.epost
+            it[endretTidspunkt] = LocalDateTime.now()
         }
+    }
         .fold(
             { getPartnerByID(it.value) },
             {
@@ -53,17 +53,17 @@ object PartnerRepository : IPartnerRepository {
         )
 
     override fun updatePartner(partner: PartnerUpdateForm) = runCatching {
-            transaction {
-                Partnere.update({ Partnere.id eq partner.id and Partnere.slettetTidspunkt.isNull() })
-                { row ->
-                    partner.navn?.let { row[navn] = it }
-                    partner.beskrivelse?.let { row[beskrivelse] = it }
-                    partner.telefon?.let { row[telefon] = it }
-                    partner.epost?.let { row[epost] = it }
-                    row[endretTidspunkt] = LocalDateTime.now()
-                }
+        transaction {
+            Partnere.update({ Partnere.id eq partner.id and Partnere.slettetTidspunkt.isNull() })
+            { row ->
+                partner.navn?.let { row[navn] = it }
+                partner.beskrivelse?.let { row[beskrivelse] = it }
+                partner.telefon?.let { row[telefon] = it }
+                partner.epost?.let { row[epost] = it }
+                row[endretTidspunkt] = LocalDateTime.now()
             }
         }
+    }
         .fold(
             {
                 if (it > 0)
@@ -78,13 +78,13 @@ object PartnerRepository : IPartnerRepository {
         )
 
     override fun deletePartner(partnerID: Int) = runCatching {
-            transaction {
-                Partnere.update({ Partnere.id eq partnerID }) { row ->
-                    row[slettetTidspunkt] = LocalDateTime.now()
-                    row[endretTidspunkt] = LocalDateTime.now()
-                }
+        transaction {
+            Partnere.update({ Partnere.id eq partnerID }) { row ->
+                row[slettetTidspunkt] = LocalDateTime.now()
+                row[endretTidspunkt] = LocalDateTime.now()
             }
         }
+    }
         .fold(
             {
                 if (it > 0)
@@ -99,12 +99,13 @@ object PartnerRepository : IPartnerRepository {
         )
 
     fun deleteAllPartnere() = runCatching {
-            transaction { Partnere.update({ Partnere.slettetTidspunkt.isNull() })
-                { row ->
-                    row[slettetTidspunkt] = LocalDateTime.now()
-                }
+        transaction {
+            Partnere.update({ Partnere.slettetTidspunkt.isNull() })
+            { row ->
+                row[slettetTidspunkt] = LocalDateTime.now()
             }
         }
+    }
         .fold(
             {
                 if (it > 0)
@@ -133,21 +134,24 @@ object PartnerRepository : IPartnerRepository {
 
             }
         }
-        .fold(
-            {
-                if (it.isNotEmpty())
-                    it.first().right()
-                else
-                    RepositoryError.NoRowsFound("$partnerID not found").left()
-            },
-            {
-                logger.error("${it.message}")
-                RepositoryError.DeleteError(it.message).left()
-            }
-        )
+            .fold(
+                {
+                    if (it.isNotEmpty())
+                        it.first().right()
+                    else
+                        RepositoryError.NoRowsFound("$partnerID not found").left()
+                },
+                {
+                    logger.error("${it.message}")
+                    RepositoryError.DeleteError(it.message).left()
+                }
+            )
 
     @KtorExperimentalLocationsAPI
-    override fun getPartnere(partnerGetForm: PartnerGetForm, showDeleted: Boolean): Either<RepositoryError.SelectError, List<Partner>> =
+    override fun getPartnere(
+        partnerGetForm: PartnerGetForm,
+        showDeleted: Boolean
+    ): Either<RepositoryError.SelectError, List<Partner>> =
         runCatching {
             transaction {
                 val query = Partnere.selectAll()
@@ -167,17 +171,19 @@ object PartnerRepository : IPartnerRepository {
                 query.mapNotNull { toPartner(it) }
             }
         }
-        .fold(
-            {
-                it.right()
-            },
-            {
-                logger.error("${it.message}")
-                RepositoryError.SelectError(it.message).left()
-            }
-        )
+            .fold(
+                {
+                    it.right()
+                },
+                {
+                    logger.error("${it.message}")
+                    RepositoryError.SelectError(it.message).left()
+                }
+            )
 
-    override fun exists(id: Int) = transaction { Partnere.select { Partnere.id eq id }.count() >= 1 }
+    override fun exists(id: Int) =
+        transaction { Partnere.select { Partnere.id eq id and Partnere.slettetTidspunkt.isNull() }.count() >= 1 }
+
     override fun exists(name: String) = transaction { Partnere.select { Partnere.navn eq name }.count() >= 1 }
 
     /**
@@ -186,7 +192,9 @@ object PartnerRepository : IPartnerRepository {
     fun deleteAllPartnereForTesting() = runCatching {
         val appConfig = HoconApplicationConfig(ConfigFactory.load())
         val debug = appConfig.property("ktor.oko.debug").getString().toBoolean()
-        if (!debug) { throw Exception() }
+        if (!debug) {
+            throw Exception()
+        }
         transaction {
             Partnere.deleteAll()
         }
