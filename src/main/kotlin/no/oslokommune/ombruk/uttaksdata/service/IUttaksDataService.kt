@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.parameters.RequestBody
+import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import no.oslokommune.ombruk.uttak.model.Uttak
 import no.oslokommune.ombruk.uttaksdata.form.UttaksDataGetForm
 import no.oslokommune.ombruk.uttaksdata.model.UttaksData
@@ -29,9 +30,14 @@ interface IUttaksDataService {
      * @return A [ServiceError] on failure and a [Unit] on success.
      */
     @PATCH
-    @DefaultResponse(okResponseBody = UttaksData::class, okResponseDescription = "Uttaksdata updated successfully")
+    @DefaultResponse(
+        okResponseBody = UttaksData::class,
+        okResponseDescription = "Uttaksdata updated successfully",
+        additionalResponses = [401, 403]
+    )
     @Operation(
         summary = "Updates the Uttaksdata of an Uttak",
+        security = [SecurityRequirement(name = "security")],
         tags = ["uttaksdata"],
         requestBody = RequestBody(
             content = [Content(
@@ -51,7 +57,11 @@ interface IUttaksDataService {
     @GET
     @Path("/{id}")
     @ParameterFile(UttaksDataGetByIdForm::class)
-    @DefaultResponse(okResponseBody = UttaksData::class, okResponseDescription = "Uttaksdata was found")
+    @DefaultResponse(
+        okResponseBody = UttaksData::class,
+        okResponseDescription = "Uttaksdata was found",
+        additionalResponses = [404]
+    )
     @Operation(summary = "Fetches Uttaksdata for a specific uttak", tags = ["uttaksdata"])
     fun getUttaksDataById(@Parameter(hidden = true) uttaksdataID: Int): Either<ServiceError, UttaksData>
 
@@ -71,11 +81,4 @@ interface IUttaksDataService {
     @Operation(summary = "Fetches Uttaksdata, filtered by the parameters", tags = ["uttaksdata"])
     fun getUttaksData(@Parameter(hidden = true) uttaksDataGetForm: UttaksDataGetForm): Either<ServiceError, List<UttaksData>>
 
-    //
-//    @DELETE
-//    @Path("/{id}")
-//    @DefaultResponse(okResponseBody = Unit::class, okResponseDescription = "Uttaksdata deleted successfully")
-////    @PathParam("id")
-//    @Operation(summary = "Deletes Uttaksdata based on its correspond UttaksID", tags = ["uttaksdata"])
-    fun deleteByUttakId(@Parameter(`in` = ParameterIn.PATH, name = "id") uttakId: Int): Either<ServiceError, Unit>
 }

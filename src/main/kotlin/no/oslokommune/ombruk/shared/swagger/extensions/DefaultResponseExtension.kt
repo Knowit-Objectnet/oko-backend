@@ -49,11 +49,11 @@ class DefaultResponseExtension : AbstractOpenAPIExtension() {
                 it.value.toString(),
                 ApiResponse().apply { description = it.description })
         }
-        annotation.additionalResponses.forEach {
-            operation.responses.addApiResponse(
-                it.responseCode,
-                ApiResponse().apply { description = it.description }
-            )
-        }
+//        annotation.additionalResponses.forEach {
+//            operation.responses.addApiResponse(
+//                it.responseCode,
+//                ApiResponse().apply { description = it.description }
+//            )
+//        }
     }
 }

@@ -7,6 +7,6 @@ annotation class DefaultResponse(
     val okResponseBody: KClass<*>,
     val okResponseDescription: String,
     val okArrayResponse: Boolean = false,
-    val additionalResponses: Array<ApiResponse> = []
+    val additionalResponses: IntArray = []
 
 )

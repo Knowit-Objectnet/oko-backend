@@ -1,13 +1,10 @@
 package no.oslokommune.ombruk.shared.swagger.extensions
 
-import com.fasterxml.jackson.annotation.JsonView
 import io.ktor.http.HttpStatusCode
 import io.swagger.v3.core.util.AnnotationsUtils
-import io.swagger.v3.core.util.ReflectionUtils
 import io.swagger.v3.jaxrs2.ext.AbstractOpenAPIExtension
 import io.swagger.v3.jaxrs2.ext.OpenAPIExtension
 import io.swagger.v3.oas.annotations.Parameter
-import io.swagger.v3.oas.models.Components
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.Operation
 import io.swagger.v3.oas.models.media.ArraySchema
@@ -15,6 +12,7 @@ import io.swagger.v3.oas.models.media.Content
 import io.swagger.v3.oas.models.media.MediaType
 import io.swagger.v3.oas.models.media.Schema
 import io.swagger.v3.oas.models.responses.ApiResponse
+import no.oslokommune.ombruk.shared.swagger.SwaggerResponse
 import no.oslokommune.ombruk.shared.swagger.annotations.DefaultResponse
 import no.oslokommune.ombruk.shared.swagger.annotations.ParameterFile
 import java.lang.reflect.Method
@@ -31,6 +29,7 @@ class ParameterFileExtraction(val openAPI: OpenAPI) : AbstractOpenAPIExtension()
                 is DefaultResponse -> addResponses(operation, annotation)
             }
         }
+        chain?.next()
     }
 
     private fun addParameters(operation: Operation, annotation: ParameterFile) {
@@ -40,10 +39,6 @@ class ParameterFileExtraction(val openAPI: OpenAPI) : AbstractOpenAPIExtension()
         }
         operation.parameters = params.map {
             val temp = io.swagger.v3.oas.models.parameters.Parameter()
-//            temp.allowEmptyValue = it.allowEmptyValue
-//            temp.deprecated = it.deprecated
-//            temp.`$ref` = it.ref
-//            temp.example = it.example
             temp.`in` = it.`in`.name
             temp.description = it.description
             temp.required = it.required
@@ -66,18 +61,24 @@ class ParameterFileExtraction(val openAPI: OpenAPI) : AbstractOpenAPIExtension()
         return if (annotation.okArrayResponse) ArraySchema().items(schema) else schema
     }
 
-    private fun addResponses(operation: Operation, annotation: DefaultResponse) {
-        val defaultResponses = listOf<HttpStatusCode>(
-            HttpStatusCode.BadRequest,
-            HttpStatusCode.Unauthorized,
-            HttpStatusCode.NotFound,
-            HttpStatusCode.Forbidden,
-            HttpStatusCode.Conflict,
-            HttpStatusCode.UnprocessableEntity,
-            HttpStatusCode.InternalServerError
+    private fun addResponse(operation: Operation, response: SwaggerResponse) {
+        operation.responses.addApiResponse(
+            response.statusCode.value.toString(),
+            ApiResponse().apply { description = response.description }
         )
+    }
 
-        operation.responses.default = null
+    private fun responseFromStatusCode(statusCode: Int): SwaggerResponse {
+        return when (statusCode) {
+            HttpStatusCode.Unauthorized.value -> SwaggerResponse.Unauthorized
+            HttpStatusCode.Forbidden.value -> SwaggerResponse.Forbidden
+            HttpStatusCode.NotFound.value -> SwaggerResponse.NotFound
+            HttpStatusCode.Conflict.value -> SwaggerResponse.Conflict
+            else -> throw Exception("Invalid status code provided")
+        }
+    }
+
+    private fun add200Response(operation: Operation, annotation: DefaultResponse) {
         operation.responses.addApiResponse(
             HttpStatusCode.OK.value.toString(),
             ApiResponse().apply {
@@ -90,17 +91,20 @@ class ParameterFileExtraction(val openAPI: OpenAPI) : AbstractOpenAPIExtension()
                 )
             }
         )
-        defaultResponses.forEach {
-            operation.responses.addApiResponse(
-                it.value.toString(),
-                ApiResponse().apply { description = it.description })
-        }
-        annotation.additionalResponses.forEach {
-            operation.responses.addApiResponse(
-                it.responseCode,
-                ApiResponse().apply { description = it.description }
-            )
-        }
+    }
+
+    private fun addResponses(operation: Operation, annotation: DefaultResponse) {
+        val defaultResponses = listOf(
+            SwaggerResponse.BadRequest,
+            SwaggerResponse.Unprocessable,
+            SwaggerResponse.InternalServerError
+        )
+
+        operation.responses.default = null
+
+        add200Response(operation, annotation)
+        defaultResponses.forEach { addResponse(operation, it) }
+        annotation.additionalResponses.map { responseFromStatusCode(it) }.forEach { addResponse(operation, it) }
     }
 
 }

@@ -23,7 +23,4 @@ object UttaksDataService : IUttaksDataService {
     override fun getUttaksData(form: UttaksDataGetForm): Either<ServiceError, List<UttaksData>> =
         UttaksDataRepository.getUttaksData(form)
 
-    override fun deleteByUttakId(uttakId: Int): Either<ServiceError, Unit> =
-        UttaksDataRepository.deleteByUttakId(uttakId)
-
 }

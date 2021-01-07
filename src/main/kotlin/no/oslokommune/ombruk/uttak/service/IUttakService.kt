@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.parameters.RequestBody
+import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import no.oslokommune.ombruk.shared.error.RepositoryError
 import no.oslokommune.ombruk.uttak.model.Uttak
 import no.oslokommune.ombruk.shared.error.ServiceError
@@ -25,9 +26,11 @@ interface IUttakService {
      * is returned.
      */
     @POST
-    @DefaultResponse(Uttak::class, "Uttak was successfully saved")
+    @DefaultResponse(Uttak::class, "Uttak was successfully saved", additionalResponses = [401, 403])
     @Operation(
         summary = "Creates one or several new Uttak",
+        description = "Must be admin",
+        security = [SecurityRequirement(name = "security")],
         tags = ["uttak"],
         requestBody = RequestBody(
             content = [Content(
@@ -46,7 +49,11 @@ interface IUttakService {
     @GET
     @Path("/{id}")
     @ParameterFile(UttakGetByIdForm::class)
-    @DefaultResponse(okResponseBody = Uttak::class, okResponseDescription = "Uttak was found")
+    @DefaultResponse(
+        okResponseBody = Uttak::class,
+        okResponseDescription = "Uttak was found",
+        additionalResponses = [404]
+    )
     @Operation(summary = "Get an Uttak by its ID", tags = ["uttak"])
     fun getUttakByID(@Parameter(hidden = true) id: Int): Either<ServiceError, Uttak>
 
@@ -72,8 +79,17 @@ interface IUttakService {
     @KtorExperimentalLocationsAPI
     @DELETE
     @ParameterFile(UttakDeleteForm::class)
-    @DefaultResponse(okResponseBody = Uttak::class, okResponseDescription = "Uttak deleted", okArrayResponse = true)
-    @Operation(summary = "Deletes a list of Uttak, specified by the passed in parameters", tags = ["uttak"])
+    @DefaultResponse(
+        okResponseBody = Uttak::class,
+        okResponseDescription = "Uttak deleted",
+        okArrayResponse = true,
+        additionalResponses = [401, 403]
+    )
+    @Operation(
+        summary = "Deletes a list of Uttak, specified by the passed in parameters",
+        security = [SecurityRequirement(name = "security")],
+        tags = ["uttak"]
+    )
     fun deleteUttak(uttak: UttakDeleteForm): Either<ServiceError, List<Uttak>>
 
 //    fun deleteUttakById(@Parameter(hidden = true) id: Int): Either<ServiceError, Unit>
@@ -84,9 +100,15 @@ interface IUttakService {
      * @return A [ServiceError] on failure and the updated [Uttak] on success.
      */
     @PATCH
-    @DefaultResponse(okResponseBody = Uttak::class, okResponseDescription = "Uttak updated")
+    @DefaultResponse(
+        okResponseBody = Uttak::class,
+        okResponseDescription = "Uttak updated",
+        additionalResponses = [401, 403, 404]
+    )
     @Operation(
         summary = "Updates an uttak",
+        description = "Must be Station Worker or Admin",
+        security = [SecurityRequirement(name = "security")],
         tags = ["uttak"],
         requestBody = RequestBody(
             content = [Content(

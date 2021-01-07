@@ -29,27 +29,21 @@ import io.ktor.serialization.json
 import io.ktor.util.DataConversionException
 import io.ktor.util.KtorExperimentalAPI
 import io.swagger.v3.core.converter.ModelConverters
-import io.swagger.v3.core.filter.OpenAPISpecFilter
-import io.swagger.v3.core.filter.SpecFilter
 import io.swagger.v3.core.util.Yaml
 import io.swagger.v3.jaxrs2.Reader
-import io.swagger.v3.jaxrs2.ext.OpenAPIExtension
 import io.swagger.v3.jaxrs2.ext.OpenAPIExtensions
 import io.swagger.v3.oas.integration.SwaggerConfiguration
 import io.swagger.v3.oas.models.Components
 import io.swagger.v3.oas.models.OpenAPI
 import kotlinx.serialization.json.Json
 import no.oslokommune.ombruk.partner.api.partnere
-import no.oslokommune.ombruk.partner.model.Partner
 import no.oslokommune.ombruk.partner.service.IPartnerService
 import no.oslokommune.ombruk.partner.service.PartnerService
 import no.oslokommune.ombruk.shared.api.Authorization
 import no.oslokommune.ombruk.shared.api.JwtMockConfig
 import no.oslokommune.ombruk.shared.database.initDB
-import no.oslokommune.ombruk.shared.swagger.EitherFilter
 import no.oslokommune.ombruk.shared.swagger.LocalTimeConverter
 import no.oslokommune.ombruk.shared.swagger.Modifier
-import no.oslokommune.ombruk.shared.swagger.extensions.DefaultResponseExtension
 import no.oslokommune.ombruk.shared.swagger.extensions.ParameterFileExtraction
 import no.oslokommune.ombruk.stasjon.api.stasjoner
 import no.oslokommune.ombruk.stasjon.service.IStasjonService
@@ -70,9 +64,7 @@ import java.net.URL
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import java.util.*
 import java.util.concurrent.TimeUnit
-import kotlin.reflect.jvm.jvmName
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -207,7 +199,6 @@ fun Application.module(testing: Boolean = false) {
             schemes = listOf("http", "https"),
             subDomains = listOf("staging", "test", "production")
         )
-
         allowCredentials = true
         allowNonSimpleContentTypes = true
     }
@@ -237,6 +228,11 @@ fun Application.module(testing: Boolean = false) {
         }
         get("/") {
             call.respondRedirect("/swagger-ui/index.html?url=/openapi")
+        }
+        get("/oauth2-redirect.html") {
+            val parameterString = call.parameters.entries().map { "${it.key}=${it.value[0]}" }.joinToString("&")
+            println(parameterString)
+            call.respondRedirect("swagger-ui/oauth2-redirect.html?$parameterString")
         }
 
         install(StatusPages) {

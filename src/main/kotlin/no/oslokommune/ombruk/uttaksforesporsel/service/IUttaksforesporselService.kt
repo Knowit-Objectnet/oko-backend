@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.parameters.RequestBody
+import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import no.oslokommune.ombruk.uttaksforesporsel.form.uttaksforesporsel.UttaksforesporselDeleteForm
 import no.oslokommune.ombruk.uttaksforesporsel.form.uttaksforesporsel.UttaksForesporselGetForm
 import no.oslokommune.ombruk.uttaksforesporsel.form.uttaksforesporsel.UttaksforesporselPostForm
@@ -27,9 +28,15 @@ interface IUttaksforesporselService {
      * @return A [ServiceError] on failure and the stored [UttaksForesporsel] on success.
      */
     @POST
-    @DefaultResponse(okResponseBody = UttaksForesporsel::class, okResponseDescription = "UttaksForesporsel created")
+    @DefaultResponse(
+        okResponseBody = UttaksForesporsel::class,
+        okResponseDescription = "UttaksForesporsel created",
+        additionalResponses = [401, 403]
+    )
     @Operation(
         summary = "Creates a new UttaksForesporsel",
+        description = "Must be partner",
+        security = [SecurityRequirement(name = "security")],
         tags = ["uttaksforesporsel"],
         requestBody = RequestBody(
             content = [Content(
@@ -64,8 +71,17 @@ interface IUttaksforesporselService {
      * @return A [ServiceError] on failure and an [Int] specifying how many [UttaksForesporsel] objects were deleted on success.
      */
     @DELETE
-    @Operation(summary = "Deletes a Uttaksforesporsel", tags = ["uttaksforesporsel"])
+    @Operation(
+        summary = "Deletes a Uttaksforesporsel",
+        description = "Must be partner",
+        security = [SecurityRequirement(name = "security")],
+        tags = ["uttaksforesporsel"]
+    )
     @ParameterFile(UttaksforesporselDeleteForm::class)
-    @DefaultResponse(okResponseDescription = "The amount of deleted Uttaksforesporsel", okResponseBody = Int::class)
+    @DefaultResponse(
+        okResponseDescription = "The amount of deleted Uttaksforesporsel",
+        okResponseBody = Int::class,
+        additionalResponses = [401, 403]
+    )
     fun deleteRequest(requestDeleteForm: UttaksforesporselDeleteForm): Either<ServiceError, Int>
 }

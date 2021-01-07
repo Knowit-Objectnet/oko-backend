@@ -2,6 +2,7 @@ package no.oslokommune.ombruk.partner.service
 
 import arrow.core.Either
 import com.fasterxml.jackson.annotation.JsonIgnore
+import io.ktor.http.HttpStatusCode
 import io.swagger.v3.oas.annotations.*
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType
@@ -11,10 +12,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.parameters.RequestBody
 import io.swagger.v3.oas.annotations.responses.ApiResponse
-import io.swagger.v3.oas.annotations.security.OAuthFlow
-import io.swagger.v3.oas.annotations.security.OAuthFlows
-import io.swagger.v3.oas.annotations.security.OAuthScope
-import io.swagger.v3.oas.annotations.security.SecurityScheme
+import io.swagger.v3.oas.annotations.security.*
 import no.oslokommune.ombruk.partner.form.*
 import no.oslokommune.ombruk.partner.model.Partner
 import no.oslokommune.ombruk.shared.api.KeycloakGroupIntegration
@@ -33,6 +31,8 @@ import javax.ws.rs.*
 @Path("/partnere")
 @SecurityScheme(
     name = "security",
+    bearerFormat = "bearer",
+    scheme = "oauth2",
     type = SecuritySchemeType.OAUTH2,
     `in` = SecuritySchemeIn.HEADER,
     flows = OAuthFlows(
@@ -59,9 +59,11 @@ interface IPartnerService {
      * @return An [Either] object consisting of [ServiceError] on failure or the ID of the saved partner on success.
      */
     @POST
-    @DefaultResponse(Partner::class, "Partner was found")
+    @DefaultResponse(Partner::class, "Partner was found", additionalResponses = [401, 403, 409])
     @Operation(
         summary = "Create a new Partner",
+        description = "Must have admin rights",
+        security = [SecurityRequirement(name = "security")],
         tags = ["partner"],
         requestBody = RequestBody(
             content = [Content(
@@ -81,8 +83,12 @@ interface IPartnerService {
     @GET
     @Path("/{id}")
     @ParameterFile(PartnerGetByIdForm::class)
-    @DefaultResponse(okResponseBody = Partner::class, okResponseDescription = "Partner was found")
-    @Operation(summary = "Get a partner by its ID",tags = ["partner"])
+    @DefaultResponse(
+        okResponseBody = Partner::class,
+        okResponseDescription = "Partner was found",
+        additionalResponses = [404]
+    )
+    @Operation(summary = "Get a partner by its ID", tags = ["partner"])
     fun getPartnerById(@Parameter(hidden = true) id: Int): Either<ServiceError, Partner>
 
     /**
@@ -106,8 +112,17 @@ interface IPartnerService {
     @DELETE
     @Path("/{id}")
     @ParameterFile(PartnerDeleteForm::class)
-    @DefaultResponse(okResponseBody = Partner::class, okResponseDescription = "The deleted partner")
-    @Operation(summary = "Delete an existing partner", tags = ["partner"])
+    @DefaultResponse(
+        okResponseBody = Partner::class,
+        okResponseDescription = "The deleted partner",
+        additionalResponses = [401, 403, 404]
+    )
+    @Operation(
+        summary = "Delete an existing partner",
+        description = "Must be admin",
+        security = [SecurityRequirement(name = "security")],
+        tags = ["partner"]
+    )
     fun deletePartnerById(@Parameter(hidden = true) id: Int): Either<ServiceError, Partner>
 
     /**
@@ -118,9 +133,15 @@ interface IPartnerService {
      * @return A [ServiceError] on failure and the updated [Partner] on success.
      */
     @PATCH
-    @DefaultResponse(okResponseBody = Partner::class, okResponseDescription = "The updated partner")
+    @DefaultResponse(
+        okResponseBody = Partner::class,
+        okResponseDescription = "The updated partner",
+        additionalResponses = [401, 403, 404, 409]
+    )
     @Operation(
         summary = "Update an existing partner",
+        description = "Must be admin",
+        security = [SecurityRequirement(name = "security")],
         tags = ["partner"],
         requestBody = RequestBody(
             content = [Content(

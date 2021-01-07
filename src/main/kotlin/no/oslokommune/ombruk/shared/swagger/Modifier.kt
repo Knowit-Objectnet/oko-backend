@@ -42,7 +42,7 @@ class Modifier : ReaderListener {
 //            .tokenUrl("${keycloakUrl}/$keycloakRealm/protocol/openid-connect/token")
 //            .scopes(Scopes().addString("openid", null))
         openAPI.components.securitySchemes["security"]!!.flows.authorizationCode.authorizationUrl = "${keycloakUrl}realms/$keycloakRealm/protocol/openid-connect/auth"
-        openAPI.components.securitySchemes["security"]!!.flows.authorizationCode.tokenUrl = "${keycloakUrl}/$keycloakRealm/protocol/openid-connect/token"
+        openAPI.components.securitySchemes["security"]!!.flows.authorizationCode.tokenUrl = "${keycloakUrl}realms/$keycloakRealm/protocol/openid-connect/token"
 //        openAPI.components.addSecuritySchemes("security", scheme)
 //        openAPI.addServersItem(Server().url("api.knowit.no"))
     }

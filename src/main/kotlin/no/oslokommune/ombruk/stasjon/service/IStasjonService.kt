@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.parameters.RequestBody
 import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import no.oslokommune.ombruk.stasjon.model.Stasjon
 import no.oslokommune.ombruk.shared.error.ServiceError
 import no.oslokommune.ombruk.shared.swagger.annotations.DefaultResponse
@@ -26,7 +27,11 @@ interface IStasjonService {
     @GET
     @Path("/{id}")
     @ParameterFile(StasjonGetByIdForm::class)
-    @DefaultResponse(okResponseBody = Stasjon::class, okResponseDescription = "Stasjon was found")
+    @DefaultResponse(
+        okResponseBody = Stasjon::class,
+        okResponseDescription = "Stasjon was found",
+        additionalResponses = [404]
+    )
     @Operation(
         summary = "Get a stasjon by its ID",
         tags = ["stasjoner"]
@@ -55,9 +60,15 @@ interface IStasjonService {
      * @return Either a [ServiceError] or the saved [Stasjon]
      */
     @POST
-    @DefaultResponse(okResponseBody = Stasjon::class, okResponseDescription = "Stasjon was created")
+    @DefaultResponse(
+        okResponseBody = Stasjon::class,
+        okResponseDescription = "Stasjon was created",
+        additionalResponses = [401, 403, 409]
+    )
     @Operation(
         summary = "Create a new station",
+        description = "Must be admin",
+        security = [SecurityRequirement(name = "security")],
         tags = ["stasjoner"],
         requestBody = RequestBody(
             content = [Content(
@@ -74,9 +85,15 @@ interface IStasjonService {
      * @return Either a [ServiceError] or the updated [Stasjon]
      */
     @PATCH
-    @DefaultResponse(okResponseBody = Stasjon::class, okResponseDescription = "The updated Stasjon")
+    @DefaultResponse(
+        okResponseBody = Stasjon::class,
+        okResponseDescription = "The updated Stasjon",
+        additionalResponses = [401, 403, 404, 409]
+    )
     @Operation(
         summary = "Updates the station with the provided ID if it exists",
+        description = "Must be admin",
+        security = [SecurityRequirement(name = "security")],
         tags = ["stasjoner"],
         requestBody = RequestBody(
             content = [Content(
@@ -94,7 +111,16 @@ interface IStasjonService {
      */
     @DELETE
     @ParameterFile(StasjonDeleteForm::class)
-    @DefaultResponse(okResponseBody = Stasjon::class, okResponseDescription = "The deleted Stasjon")
-    @Operation(summary = "Deletes the user with the specified ID", tags = ["stasjoner"])
+    @DefaultResponse(
+        okResponseBody = Stasjon::class,
+        okResponseDescription = "The deleted Stasjon",
+        additionalResponses = [401, 403, 404]
+    )
+    @Operation(
+        summary = "Deletes the user with the specified ID",
+        description = "Must be admin",
+        security = [SecurityRequirement(name = "security")],
+        tags = ["stasjoner"]
+    )
     fun deleteStasjonById(@Parameter(hidden = true) id: Int): Either<ServiceError, Stasjon>
 }
