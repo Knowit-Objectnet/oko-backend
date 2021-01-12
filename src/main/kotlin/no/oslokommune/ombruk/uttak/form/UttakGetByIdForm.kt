@@ -16,7 +16,7 @@ data class UttakGetByIdForm(
     @get:Parameter(
         `in` = ParameterIn.PATH,
         name = "id",
-        schema = Schema(type = "string", format = "date-time"),
+        schema = Schema(type = "integer", format = "int32", nullable = false),
         required = true,
         description = "Get the Uttak with this specific ID"
     ) val id: Int

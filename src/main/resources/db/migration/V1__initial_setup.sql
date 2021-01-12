@@ -82,11 +82,11 @@ create table uttaksforesporsel
     id                                  serial primary key,
     endret_tidspunkt                    timestamp not null,
     uttak_id                            int not null,
-    samarbeidspartner_id                int not null,
-    status                              varchar(64),
+    partner_id                          int not null,
+    --status                              varchar(64),
     --status_id                           int not null,
     --foreign key (status_id)             references uttaksforesporselstatus,
     foreign key (uttak_id)              references uttak,
-    foreign key (samarbeidspartner_id)  references samarbeidspartnere
+    foreign key (partner_id)  references samarbeidspartnere
 );
 

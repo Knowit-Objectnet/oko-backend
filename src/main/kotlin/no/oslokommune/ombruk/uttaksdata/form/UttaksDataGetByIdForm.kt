@@ -13,8 +13,8 @@ import org.valiktor.validate
 data class UttaksDataGetByIdForm(
     @get:Parameter(
         `in` = ParameterIn.PATH,
-        name = "uttakId",
-        schema = Schema(type = "int32"),
+        name = "id",
+        schema = Schema(type = "integer", format = "int32", nullable = false),
         required = true,
         description = "The ID of the Uttaksdata to get"
     ) var id: Int

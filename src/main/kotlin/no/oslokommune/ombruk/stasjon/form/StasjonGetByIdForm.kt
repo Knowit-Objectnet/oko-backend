@@ -16,7 +16,7 @@ data class StasjonGetByIdForm(
     @get:Parameter(
         `in` = ParameterIn.PATH,
         name = "id",
-        schema = Schema(type = "int32"),
+        schema = Schema(type = "integer", format = "int32", nullable = false),
         required = true,
         description = "ID of Stasjon to return"
     ) val id: Int

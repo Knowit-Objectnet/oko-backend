@@ -9,15 +9,13 @@ import no.oslokommune.ombruk.shared.form.IForm
 import no.oslokommune.ombruk.shared.utils.validation.runCatchingValidation
 import org.valiktor.functions.isGreaterThan
 import org.valiktor.validate
-import javax.ws.rs.PathParam
-
 @KtorExperimentalLocationsAPI
 @Location("/{id}") // TODO: remove?
 data class PartnerGetByIdForm(
     @get:Parameter(
         `in` = ParameterIn.PATH,
         name = "id",
-        schema = Schema(type = "int32", nullable = false),
+        schema = Schema(type = "integer", nullable = false, format = "int32"),
         description = "ID of Partner to get",
         required = true
     ) val id: Int

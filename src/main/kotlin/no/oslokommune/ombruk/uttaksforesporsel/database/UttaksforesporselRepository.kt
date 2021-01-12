@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory
 object UttaksForesporselTable : Table("uttaksforesporsel") {
     val uttakID = integer("uttak_id").references(UttakTable.id)
     val partnerID = integer("partner_id").references(Partnere.id)
-    val status = UttakTable.enumerationByName("status", 64, UttaksType::class)
+//    val status = UttakTable.enumerationByName("status", 64, UttaksType::class)
 }
 
 object UttaksforesporselRepository : IUttaksforesporselRepository {

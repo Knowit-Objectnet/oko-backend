@@ -110,6 +110,7 @@ interface IStasjonService {
      * @return A [ServiceError] on failure and the deleted [Stasjon] on success.
      */
     @DELETE
+    @Path("/{id}")
     @ParameterFile(StasjonDeleteForm::class)
     @DefaultResponse(
         okResponseBody = Stasjon::class,

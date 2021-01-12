@@ -16,7 +16,7 @@ data class PartnerDeleteForm(
     @get:Parameter(
         `in` = ParameterIn.PATH,
         name = "id",
-        schema = Schema(type = "int32", nullable = false),
+        schema = Schema(type = "integer", format = "int32", nullable = false),
         description = "ID of Partner to delete",
         required = true
     ) val id: Int

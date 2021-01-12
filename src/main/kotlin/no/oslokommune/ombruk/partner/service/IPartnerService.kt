@@ -31,10 +31,10 @@ import javax.ws.rs.*
 @Path("/partnere")
 @SecurityScheme(
     name = "security",
-    bearerFormat = "bearer",
-    scheme = "oauth2",
-    type = SecuritySchemeType.OAUTH2,
-    `in` = SecuritySchemeIn.HEADER,
+    bearerFormat = "jwt",
+    scheme = "bearer",
+    type = SecuritySchemeType.HTTP,
+//    `in` = SecuritySchemeIn.HEADER,
     flows = OAuthFlows(
         authorizationCode = OAuthFlow(
             authorizationUrl = "http://localhost",

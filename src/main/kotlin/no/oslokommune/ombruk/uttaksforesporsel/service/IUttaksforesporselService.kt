@@ -2,6 +2,7 @@ package no.oslokommune.ombruk.uttaksforesporsel.service
 
 import arrow.core.Either
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.parameters.RequestBody
@@ -62,7 +63,7 @@ interface IUttaksforesporselService {
         okResponseBody = UttaksForesporsel::class,
         okArrayResponse = true
     )
-    fun getRequests(requestGetForm: UttaksForesporselGetForm? = null): Either<ServiceError, List<UttaksForesporsel>>
+    fun getRequests(@Parameter(hidden = true) requestGetForm: UttaksForesporselGetForm? = null): Either<ServiceError, List<UttaksForesporsel>>
 
     /**
      * Deletes a uttaksforesporsel from a [Pickup]

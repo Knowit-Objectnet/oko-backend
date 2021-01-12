@@ -29,7 +29,6 @@ class ParameterFileExtraction(val openAPI: OpenAPI) : AbstractOpenAPIExtension()
                 is DefaultResponse -> addResponses(operation, annotation)
             }
         }
-        chain?.next()
     }
 
     private fun addParameters(operation: Operation, annotation: ParameterFile) {
@@ -39,7 +38,7 @@ class ParameterFileExtraction(val openAPI: OpenAPI) : AbstractOpenAPIExtension()
         }
         operation.parameters = params.map {
             val temp = io.swagger.v3.oas.models.parameters.Parameter()
-            temp.`in` = it.`in`.name
+            temp.`in` = it.`in`.name.toLowerCase()
             temp.description = it.description
             temp.required = it.required
             temp.name = it.name
