@@ -41,7 +41,7 @@ class UttaksDataServiceTest {
     inner class GetUttaksDataTable {
 
         /**
-         * Get uttaksdata by ID should return the expected no.oslokommune.ombruk.pickup
+         * Get uttaksdata by ID should return the expected [UttaksData]
          */
         @Test
         fun `get uttaksdata by id that exists`(@MockK expected: UttaksData) {

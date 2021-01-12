@@ -17,7 +17,7 @@ data class UttaksforesporselPostForm(
     @field:Schema(
         description = "The ID of the Uttak the Uttaksforesporsel should be attributed to.",
         required = true
-    ) val uttaksId: Int,
+    ) val uttakId: Int,
     @field:Schema(
         description = "The ID of the partner that is applying to an Uttaksforesporsel",
         required = true
@@ -25,9 +25,9 @@ data class UttaksforesporselPostForm(
 ) : IForm<UttaksforesporselPostForm> {
     override fun validOrError(): Either<ValidationError, UttaksforesporselPostForm> = runCatchingValidation {
         validate(this) {
-            validate(UttaksforesporselPostForm::uttaksId).isGreaterThan(0)
+            validate(UttaksforesporselPostForm::uttakId).isGreaterThan(0)
             validate(UttaksforesporselPostForm::partnerId).isGreaterThan(0)
-            validate(UttaksforesporselPostForm::uttaksId).isInRepository(UttakRepository)
+            validate(UttaksforesporselPostForm::uttakId).isInRepository(UttakRepository)
             validate(UttaksforesporselPostForm::partnerId).isInRepository(PartnerRepository)
         }
     }

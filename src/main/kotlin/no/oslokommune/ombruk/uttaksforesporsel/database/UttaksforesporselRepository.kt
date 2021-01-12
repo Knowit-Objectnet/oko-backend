@@ -14,13 +14,13 @@ import no.oslokommune.ombruk.uttaksforesporsel.model.UttaksForesporsel
 import no.oslokommune.ombruk.shared.error.RepositoryError
 import no.oslokommune.ombruk.uttak.database.UttakRepository
 import no.oslokommune.ombruk.uttak.database.UttakTable
-import no.oslokommune.ombruk.uttak.model.UttaksType
+import no.oslokommune.ombruk.uttak.model.Uttak
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 
 /*
-    Uttaksforesporsels are associated to a specific no.oslokommune.ombruk.pickup. Each uttaksforesporsel is a specific partner that wants to perform the no.oslokommune.ombruk.pickup.
+    Uttaksforesporsels are associated to a specific [Uttak]. Each uttaksforesporsel is a specific partner that wants to perform the [Uttak].
  */
 
 object UttaksForesporselTable : Table("uttaksforesporsel") {
@@ -33,8 +33,8 @@ object UttaksforesporselRepository : IUttaksforesporselRepository {
     private val logger = LoggerFactory.getLogger("ombruk.backend.service.UttaksforesporselRepository")
 
     @KtorExperimentalLocationsAPI
-    override fun getForesporsler(requestGetForm: UttaksForesporselGetForm?): Either<RepositoryError, List<UttaksForesporsel>> {
-        // Partner is joined twice on different tables (no.oslokommune.ombruk.pickup and on this uttaksforesporsel), therefore aliases have to be used.
+    override fun getForesporsler(foresporselGetForm: UttaksForesporselGetForm?): Either<RepositoryError, List<UttaksForesporsel>> {
+        // Partner is joined twice on different tables ([Uttak] and on this uttaksforesporsel), therefore aliases have to be used.
         val foresporselPartner = Partnere.alias("foresporselPartner")
         val uttakPartner = Partnere.alias("uttakPartner")
         return runCatching {
@@ -43,9 +43,9 @@ object UttaksforesporselRepository : IUttaksforesporselRepository {
                     .leftJoin(foresporselPartner, { UttakTable.partnerID }, { foresporselPartner[Partnere.id] })
                     .innerJoin(uttakPartner, { UttaksForesporselTable.partnerID }, { uttakPartner[Partnere.id] })
                     .selectAll()
-                requestGetForm?.let {   // add constraints if needed.
-                    requestGetForm.pickupId?.let { query.andWhere { UttaksForesporselTable.uttakID eq it } }
-                    requestGetForm.partnerId?.let { query.andWhere { UttaksForesporselTable.partnerID eq it } }
+                foresporselGetForm?.let {   // add constraints if needed.
+                    foresporselGetForm.uttakId?.let { query.andWhere { UttaksForesporselTable.uttakID eq it } }
+                    foresporselGetForm.partnerId?.let { query.andWhere { UttaksForesporselTable.partnerID eq it } }
                 }
                 query.map { toUttaksforesporsel(it, foresporselPartner, uttakPartner) }
             }
@@ -53,13 +53,13 @@ object UttaksforesporselRepository : IUttaksforesporselRepository {
             .onFailure { it.printStackTrace(); logger.error(it.message) }
             .fold(
                 { it.right() },
-                { RepositoryError.SelectError("Failed to get requests: ${it.message}").left() }
+                { RepositoryError.SelectError("Failed to get foresporsler: ${it.message}").left() }
             )
     }
 
     @KtorExperimentalLocationsAPI
-    private fun getSingleForesporsel(pickupId: Int, partnerId: Int) =
-        getForesporsler(UttaksForesporselGetForm(pickupId, partnerId))
+    private fun getSingleForesporsel(uttakId: Int, partnerId: Int) =
+        getForesporsler(UttaksForesporselGetForm(uttakId, partnerId))
             .fold(
                 { it.left() },
                 // If result is empty array, return 404.
@@ -71,34 +71,34 @@ object UttaksforesporselRepository : IUttaksforesporselRepository {
 
 
     @KtorExperimentalLocationsAPI
-    override fun saveForesporsel(requestPostForm: UttaksforesporselPostForm) =
+    override fun saveForesporsel(foresporselPostForm: UttaksforesporselPostForm) =
         runCatching {
             transaction {
                 UttaksForesporselTable.insert {
-                    it[uttakID] = requestPostForm.uttaksId
-                    it[partnerID] = requestPostForm.partnerId
+                    it[uttakID] = foresporselPostForm.uttakId
+                    it[partnerID] = foresporselPostForm.partnerId
                 }
             }
         }
             .onFailure { logger.error(it.message) }
             .fold(
-                { getSingleForesporsel(requestPostForm.uttaksId, requestPostForm.partnerId) },
-                { RepositoryError.InsertError("Failed to save uttaksforesporsel $requestPostForm").left() }
+                { getSingleForesporsel(foresporselPostForm.uttakId, foresporselPostForm.partnerId) },
+                { RepositoryError.InsertError("Failed to save uttaksforesporsel $foresporselPostForm").left() }
             )
 
     @KtorExperimentalLocationsAPI
-    override fun deleteForesporsel(requestDeleteForm: UttaksforesporselDeleteForm) = runCatching {
+    override fun deleteForesporsel(foresporselDeleteForm: UttaksforesporselDeleteForm) = runCatching {
         transaction {
             UttaksForesporselTable.deleteWhere {
-                UttaksForesporselTable.uttakID eq requestDeleteForm.uttaksId and
-                        (UttaksForesporselTable.partnerID eq requestDeleteForm.partnerId)
+                UttaksForesporselTable.uttakID eq foresporselDeleteForm.uttaksId and
+                        (UttaksForesporselTable.partnerID eq foresporselDeleteForm.partnerId)
             }
         }
     }
         .onFailure { logger.error(it.message) }
         .fold(
             { it.right() },
-            { RepositoryError.DeleteError("Failed to delete uttaksforesporsel $requestDeleteForm").left() }
+            { RepositoryError.DeleteError("Failed to delete uttaksforesporsel $foresporselDeleteForm").left() }
         )
 
 
@@ -107,20 +107,25 @@ object UttaksforesporselRepository : IUttaksforesporselRepository {
      * objects are aliased and present in the [ResultRow].
      *
      * @param row A [ResultRow] that contains two [Partnere] represented by two [Alias].
-     * @param chosenPartnerForPickup an [Alias] of a subsection of the [row]. Used to represent [Pickup.chosenPartner]. Can be null.
-     * @param requestPartner An [Alias] of a subsection of the [row]. Used to represent the [UttaksForesporsel.partner]. Is always set.
+     * @param chosenPartnerForUttak an [Alias] of a subsection of the [row]. Used to represent [Uttak.partner]. Can be null.
+     * @param foresporselPartner An [Alias] of a subsection of the [row]. Used to represent the [UttaksForesporsel.partner]. Is always set.
      * @return A [UttaksForesporsel].
      */
-    private fun toUttaksforesporsel(row: ResultRow, chosenPartnerForPickup: Alias<Partnere>, requestPartner: Alias<Partnere>): UttaksForesporsel {
-        // "chosenPartnerForPickup" for the no.oslokommune.ombruk.pickup might be null
+    private fun toUttaksforesporsel(
+        row: ResultRow,
+        chosenPartnerForUttak: Alias<Partnere>,
+        foresporselPartner: Alias<Partnere>
+    ): UttaksForesporsel {
+        // TODO: I Don't think this actually works
+        // "partner" for [Uttak] might be null
         var chosenPartner: Partner? = null
-        if (row.getOrNull(chosenPartnerForPickup[Partnere.id]) != null) {
-            chosenPartner = toPartner(row, chosenPartnerForPickup)
+        if (row.getOrNull(chosenPartnerForUttak[Partnere.id]) != null) {
+            chosenPartner = toPartner(row, chosenPartnerForUttak)
         }
 
         return UttaksForesporsel(
-                UttakRepository.toUttak(row)!!,
-            toPartner(row, requestPartner)
+            UttakRepository.toUttak(row)!!,
+            toPartner(row, foresporselPartner)
         )
 
     }

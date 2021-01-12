@@ -54,7 +54,7 @@ import no.oslokommune.ombruk.uttak.service.UttakService
 import no.oslokommune.ombruk.uttaksdata.api.uttaksdata
 import no.oslokommune.ombruk.uttaksdata.service.IUttaksDataService
 import no.oslokommune.ombruk.uttaksdata.service.UttaksDataService
-import no.oslokommune.ombruk.uttaksforesporsel.api.request
+import no.oslokommune.ombruk.uttaksforesporsel.api.uttaksforesporsel
 import no.oslokommune.ombruk.uttaksforesporsel.service.IUttaksforesporselService
 import no.oslokommune.ombruk.uttaksforesporsel.service.UttaksforesporselService
 import org.valiktor.ConstraintViolationException
@@ -215,7 +215,7 @@ fun Application.module(testing: Boolean = false) {
         partnere(PartnerService)
         uttaksdata(UttaksDataService, UttakService)
         stasjoner(StasjonService)
-        request(UttaksforesporselService)
+        uttaksforesporsel(UttaksforesporselService)
         get("/health_check") {
             call.respond(HttpStatusCode.OK)
         }

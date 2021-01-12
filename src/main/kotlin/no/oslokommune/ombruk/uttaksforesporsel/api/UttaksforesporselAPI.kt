@@ -22,7 +22,7 @@ import no.oslokommune.ombruk.shared.api.receiveCatching
 
 
 @KtorExperimentalLocationsAPI
-fun Routing.request(uttaksforesporselService: IUttaksforesporselService) {
+fun Routing.uttaksforesporsel(uttaksforesporselService: IUttaksforesporselService) {
 
     route("/uttaksforesporsel") {
 
@@ -32,7 +32,7 @@ fun Routing.request(uttaksforesporselService: IUttaksforesporselService) {
                     Authorization.authorizeRole(listOf(Roles.Partner), call)
                         .flatMap { Authorization.authorizeRequestId(it, form.partnerId) }
                         .flatMap { form.validOrError() }
-                        .flatMap { uttaksforesporselService.saveRequest(it) }
+                        .flatMap { uttaksforesporselService.saveForesporsel(it) }
                 }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
@@ -41,7 +41,7 @@ fun Routing.request(uttaksforesporselService: IUttaksforesporselService) {
 
         get<UttaksForesporselGetForm> { form ->
             form.validOrError()
-                .flatMap { uttaksforesporselService.getRequests(form) }
+                .flatMap { uttaksforesporselService.getForesporsler(form) }
                 .run { generateResponse(this) }
                 .also { (code, response) -> call.respond(code, response) }
         }
@@ -51,7 +51,7 @@ fun Routing.request(uttaksforesporselService: IUttaksforesporselService) {
                 Authorization.authorizeRole(listOf(Roles.Partner), call)
                     .flatMap { Authorization.authorizeRequestId(it, form.partnerId) }
                     .flatMap { form.validOrError() }
-                    .flatMap { uttaksforesporselService.deleteRequest(form) }
+                    .flatMap { uttaksforesporselService.deleteForesporsel(form) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }

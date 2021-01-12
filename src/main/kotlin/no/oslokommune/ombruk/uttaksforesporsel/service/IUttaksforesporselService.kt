@@ -18,14 +18,15 @@ import javax.ws.rs.DELETE
 import javax.ws.rs.GET
 import javax.ws.rs.POST
 import javax.ws.rs.Path
+import no.oslokommune.ombruk.uttak.model.Uttak;
 
 @Path("/uttaksforesporsel")
 interface IUttaksforesporselService {
 
     /**
-     * Adds a uttaksforesporsel to a [Pickup].
+     * Adds a uttaksforesporsel to a [Uttak].
      *
-     * @param requestPostForm A [UttaksforesporselPostForm] that specifies what partner should be added to what uttaksforesporsel.
+     * @param foresporselPostForm A [UttaksforesporselPostForm] that specifies what partner should be added to what uttaksforesporsel.
      * @return A [ServiceError] on failure and the stored [UttaksForesporsel] on success.
      */
     @POST
@@ -46,29 +47,29 @@ interface IUttaksforesporselService {
             )]
         )
     )
-    fun saveRequest(requestPostForm: UttaksforesporselPostForm): Either<ServiceError, UttaksForesporsel>
+    fun saveForesporsel(foresporselPostForm: UttaksforesporselPostForm): Either<ServiceError, UttaksForesporsel>
 
     /**
      * Gets a [List] of [UttaksForesporsel] objects that can be filtered with constraints. Seeing as a [UttaksForesporsel] has no primary key,
-     * one has to GET a specific [UttaksForesporsel] by specifying both a partner id and a no.oslokommune.ombruk.pickup id.
+     * one has to GET a specific [UttaksForesporsel] by specifying both a partner id and a [Uttak.id]
      *
-     * @param requestGetForm a [UttaksForesporselGetForm] with constraints that are only added if they are not null.
+     * @param foresporselGetForm a [UttaksForesporselGetForm] with constraints that are only added if they are not null.
      * @return A [ServiceError] on success and a [List] of [UttaksForesporsel] objects on success.
      */
     @GET
-    @Operation(summary = "Gets all requests that fit the provided parameters", tags = ["uttaksforesporsel"])
+    @Operation(summary = "Gets all foresporsler that fit the provided parameters", tags = ["uttaksforesporsel"])
     @ParameterFile(UttaksForesporselGetForm::class)
     @DefaultResponse(
         okResponseDescription = "Query Matches",
         okResponseBody = UttaksForesporsel::class,
         okArrayResponse = true
     )
-    fun getRequests(@Parameter(hidden = true) requestGetForm: UttaksForesporselGetForm? = null): Either<ServiceError, List<UttaksForesporsel>>
+    fun getForesporsler(@Parameter(hidden = true) foresporselGetForm: UttaksForesporselGetForm? = null): Either<ServiceError, List<UttaksForesporsel>>
 
     /**
-     * Deletes a uttaksforesporsel from a [Pickup]
+     * Deletes a uttaksforesporsel from a [Uttak]
      *
-     * @param requestDeleteForm A [UttaksforesporselDeleteForm] that specifies what [UttaksForesporsel] should be deleted.
+     * @param foresporselDeleteForm A [UttaksforesporselDeleteForm] that specifies what [UttaksForesporsel] should be deleted.
      * @return A [ServiceError] on failure and an [Int] specifying how many [UttaksForesporsel] objects were deleted on success.
      */
     @DELETE
@@ -84,5 +85,5 @@ interface IUttaksforesporselService {
         okResponseBody = Int::class,
         additionalResponses = [401, 403]
     )
-    fun deleteRequest(requestDeleteForm: UttaksforesporselDeleteForm): Either<ServiceError, Int>
+    fun deleteForesporsel(foresporselDeleteForm: UttaksforesporselDeleteForm): Either<ServiceError, Int>
 }

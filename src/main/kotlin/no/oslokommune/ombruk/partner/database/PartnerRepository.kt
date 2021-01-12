@@ -202,7 +202,7 @@ object PartnerRepository : IPartnerRepository {
         .onFailure { logger.error(it.message) }
         .fold(
             { Unit.right() },
-            { RepositoryError.DeleteError("Failed to delete all pickups").left() }
+            { RepositoryError.DeleteError("Failed to delete all partners").left() }
         )
 }
 

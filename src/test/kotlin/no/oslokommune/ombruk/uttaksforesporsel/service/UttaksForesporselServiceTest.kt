@@ -46,7 +46,7 @@ class UttaksForesporselServiceTest {
 
             every { UttaksforesporselRepository.getForesporsler(form) } returns expected.right()
 
-            val actual = UttaksforesporselService.getRequests(form)
+            val actual = UttaksforesporselService.getForesporsler(form)
 
             require(actual is Either.Right)
             assertEquals(expected, actual.b)
@@ -57,7 +57,7 @@ class UttaksForesporselServiceTest {
 
             every { UttaksforesporselRepository.getForesporsler(form) } returns expected.left()
 
-            val actual = UttaksforesporselService.getRequests(form)
+            val actual = UttaksforesporselService.getForesporsler(form)
 
             require(actual is Either.Left)
             assertEquals(expected, actual.a)
@@ -72,7 +72,7 @@ class UttaksForesporselServiceTest {
 
             every { UttaksforesporselRepository.saveForesporsel(form) } returns expected.right()
 
-            val actual = UttaksforesporselService.saveRequest(form)
+            val actual = UttaksforesporselService.saveForesporsel(form)
 
             require(actual is Either.Right)
             assertEquals(expected, actual.b)
@@ -86,7 +86,7 @@ class UttaksForesporselServiceTest {
 
             every { UttaksforesporselRepository.saveForesporsel(form) } returns expected.left()
 
-            val actual = UttaksforesporselService.saveRequest(form)
+            val actual = UttaksforesporselService.saveForesporsel(form)
 
             require(actual is Either.Left)
             assertEquals(expected, actual.a)
@@ -102,7 +102,7 @@ class UttaksForesporselServiceTest {
             every { UttaksforesporselRepository.deleteForesporsel(form) } returns 1.right()
 
 
-            val actual = UttaksforesporselService.deleteRequest(form)
+            val actual = UttaksforesporselService.deleteForesporsel(form)
 
             require(actual is Either.Right)
             assertEquals(1, actual.b)
@@ -116,7 +116,7 @@ class UttaksForesporselServiceTest {
 
             every { UttaksforesporselRepository.deleteForesporsel(form) } returns expected.left()
 
-            val actual = UttaksforesporselService.deleteRequest(form)
+            val actual = UttaksforesporselService.deleteForesporsel(form)
 
             require(actual is Either.Left)
             assertEquals(expected, actual.a)

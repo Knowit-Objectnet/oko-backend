@@ -1,6 +1,0 @@
-type: object
-properties:
-  pickup:
-    $ref: "../../api.yaml#/components/schemas/Pickup"
-  partner:
-    $ref: "../../api.yaml#/components/schemas/Partner"

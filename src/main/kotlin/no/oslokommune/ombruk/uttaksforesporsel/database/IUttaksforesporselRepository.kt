@@ -6,30 +6,31 @@ import no.oslokommune.ombruk.uttaksforesporsel.form.uttaksforesporsel.UttaksFore
 import no.oslokommune.ombruk.uttaksforesporsel.form.uttaksforesporsel.UttaksforesporselPostForm
 import no.oslokommune.ombruk.uttaksforesporsel.model.UttaksForesporsel
 import no.oslokommune.ombruk.shared.error.RepositoryError
+import no.oslokommune.ombruk.uttak.model.Uttak;
 
 interface IUttaksforesporselRepository {
 
     /**
      * Gets a [List] of [UttaksForesporsel] objects that can be filtered with constraints.
      *
-     * @param requestGetForm a [UttaksForesporselGetForm] with constraints that are only added if they are not null.
+     * @param foresporselGetForm a [UttaksForesporselGetForm] with constraints that are only added if they are not null.
      * @return A [RepositoryError] on success and a [List] of [UttaksForesporsel] objects on success.
      */
-    fun getForesporsler(requestGetForm: UttaksForesporselGetForm? = null): Either<RepositoryError, List<UttaksForesporsel>>
+    fun getForesporsler(foresporselGetForm: UttaksForesporselGetForm? = null): Either<RepositoryError, List<UttaksForesporsel>>
 
     /**
-     * Stores a [Pickup] in the database.
+     * Stores a [UttaksForesporsel] in the database.
      *
-     * @param requestPostForm A [UttaksforesporselPostForm] that specifies what partner should be added to what uttaksforesporsel.
+     * @param foresporselPostForm A [UttaksforesporselPostForm] that specifies what partner should be added to what uttaksforesporsel.
      * @return A [RepositoryError] on failure and the stored [UttaksForesporsel] on success.
      */
-    fun saveForesporsel(requestPostForm: UttaksforesporselPostForm): Either<RepositoryError, UttaksForesporsel>
+    fun saveForesporsel(foresporselPostForm: UttaksforesporselPostForm): Either<RepositoryError, UttaksForesporsel>
 
     /**
-     * Deletes a uttaksforesporsel from a [Pickup]
+     * Deletes a [UttaksForesporsel] from an [Uttak]
      *
-     * @param requestDeleteForm A [UttaksforesporselDeleteForm] that specifies what [UttaksForesporsel] should be deleted.
+     * @param foresporselDeleteForm A [UttaksforesporselDeleteForm] that specifies what [UttaksForesporsel] should be deleted.
      * @return A [RepositoryError] on failure and an [Int] specifying how many [UttaksForesporsel] objects were deleted on success.
      */
-    fun deleteForesporsel(requestDeleteForm: UttaksforesporselDeleteForm): Either<RepositoryError, Int>
+    fun deleteForesporsel(foresporselDeleteForm: UttaksforesporselDeleteForm): Either<RepositoryError, Int>
 }

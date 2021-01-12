@@ -118,7 +118,7 @@ object UttakRepository : IUttakRepository {
         transaction {
             /*
             This is a conditional delete, and is somewhat special. Essentially, what's being done is building separate
-            operations for each value of the eventDeleteForm that's not null. These are then added to a list, which is
+            operations for each value of the uttakDeleteForm that's not null. These are then added to a list, which is
             then combined to a full statement that can be ran. Op.build is a bit finicky as to what it accepts
             as input, so you might have to use function (foo.lessEq(bar)) instead of DSL (foo eq bar) some places.
              */
@@ -130,7 +130,7 @@ object UttakRepository : IUttakRepository {
             uttakDeleteForm.partnerId?.let { statements.add(Op.build { UttakTable.partnerID eq it }) }
             uttakDeleteForm.stasjonId?.let { statements.add(Op.build { UttakTable.stasjonID eq it }) }
 
-            // Delete and return deleted events. Have to handle the case where no statements are sepcified
+            // Delete and return deleted uttak. Have to handle the case where no statements are sepcified
             if (statements.isEmpty()) {
                 val result =
                     (UttakTable innerJoin Stasjoner innerJoin Partnere innerJoin UttaksDataTable leftJoin GjentakelsesRegelTable).selectAll()
@@ -289,7 +289,7 @@ object UttakRepository : IUttakRepository {
         .onFailure { logger.error(it.message) }
         .fold(
             { Unit.right() },
-            { RepositoryError.DeleteError("Failed to delete all pickups").left() }
+            { RepositoryError.DeleteError("Failed to delete all Uttak").left() }
         )
 
 }

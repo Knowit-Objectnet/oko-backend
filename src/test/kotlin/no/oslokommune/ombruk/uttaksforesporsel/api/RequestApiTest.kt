@@ -21,7 +21,6 @@ import no.oslokommune.ombruk.testGet
 import no.oslokommune.ombruk.testPost
 import no.oslokommune.ombruk.uttak.database.UttakRepository
 import no.oslokommune.ombruk.uttak.model.Uttak
-import no.oslokommune.ombruk.uttaksforesporsel.database.UttaksforesporselRepository
 import no.oslokommune.ombruk.uttaksforesporsel.form.uttaksforesporsel.UttaksForesporselGetForm
 import no.oslokommune.ombruk.uttaksforesporsel.form.uttaksforesporsel.UttaksforesporselDeleteForm
 import no.oslokommune.ombruk.uttaksforesporsel.form.uttaksforesporsel.UttaksforesporselPostForm
@@ -66,7 +65,6 @@ class UttaksforesporselApiTest {
         fun `get requests 200`() {
             val stasjon = Stasjon(1, "test")
             val partner = Partner(1, "test", "TestPartner", "12345678", "test@test.com")
-//            val pickup = Pickup(1, LocalDateTime.now(), LocalDateTime.now(), stasjon = stasjon)
             val uttak = Uttak(
                 1,
                 LocalDateTime.parse("2020-07-07T16:00:00Z", DateTimeFormatter.ISO_DATE_TIME),
@@ -76,7 +74,7 @@ class UttaksforesporselApiTest {
             )
             val expected = listOf(UttaksForesporsel(uttak, partner))
 
-            every { UttaksforesporselService.getRequests(UttaksForesporselGetForm()) } returns expected.right()
+            every { UttaksforesporselService.getForesporsler(UttaksForesporselGetForm()) } returns expected.right()
 
             testGet("/uttaksforesporsel") {
                 assertEquals(HttpStatusCode.OK, response.status())
@@ -89,7 +87,7 @@ class UttaksforesporselApiTest {
          */
         @Test
         fun `get requests 500`() {
-            every { UttaksforesporselService.getRequests(UttaksForesporselGetForm()) } returns ServiceError("test").left()
+            every { UttaksforesporselService.getForesporsler(UttaksForesporselGetForm()) } returns ServiceError("test").left()
 
             testGet("/uttaksforesporsel") {
                 assertEquals(HttpStatusCode.InternalServerError, response.status())
@@ -101,9 +99,9 @@ class UttaksforesporselApiTest {
          */
         @Test
         fun `get requests 422`() {
-            testGet("/uttaksforesporsel?pickupId=-1") {
+            testGet("/uttaksforesporsel?uttakId=-1") {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
-                assertEquals("pickupId: Must be greater than 0", response.content)
+                assertEquals("uttakId: Must be greater than 0", response.content)
             }
         }
 
@@ -112,9 +110,9 @@ class UttaksforesporselApiTest {
          */
         @Test
         fun `get requests 400`() {
-            testGet("/uttaksforesporsel?pickupId=NaN") {
+            testGet("/uttaksforesporsel?uttakId=NaN") {
                 assertEquals(HttpStatusCode.BadRequest, response.status())
-                assertEquals("pickupId could not be parsed.", response.content)
+                assertEquals("uttakId could not be parsed.", response.content)
             }
         }
     }
@@ -139,7 +137,7 @@ class UttaksforesporselApiTest {
             val form = UttaksforesporselPostForm(uttak.id, partner.id)
             val expected = UttaksForesporsel(uttak, partner)
 
-            every { UttaksforesporselService.saveRequest(form) } returns expected.right()
+            every { UttaksforesporselService.saveForesporsel(form) } returns expected.right()
             every { UttakRepository.exists(uttak.id) } returns true
             every { PartnerRepository.exists(partner.id) } returns true
 
@@ -191,9 +189,7 @@ class UttaksforesporselApiTest {
 
             every { PartnerRepository.exists(1) } returns true
             every { UttakRepository.exists(1) } returns true
-            every { UttaksforesporselService.saveRequest(form) } returns ServiceError("test").left()
-//            every { PickupRepository.exists(1) } returns true
-
+            every { UttaksforesporselService.saveForesporsel(form) } returns ServiceError("test").left()
 
             testPost(
                 "/uttaksforesporsel",
@@ -205,7 +201,7 @@ class UttaksforesporselApiTest {
         }
 
         /**
-         * Check for 422 when we get an invalid form. Pickup id can't be -1
+         * Check for 422 when we get an invalid form. uttakId id can't be -1
          */
         @Test
         fun `post request 422`() {
@@ -220,7 +216,7 @@ class UttaksforesporselApiTest {
                 JwtMockConfig.partnerBearer1
             ) {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
-                assertEquals("uttaksId: Must be greater than 0", response.content)
+                assertEquals("uttakId: Must be greater than 0", response.content)
             }
         }
 
@@ -243,7 +239,7 @@ class UttaksforesporselApiTest {
          */
         @Test
         fun `delete request 200`() {
-            every { UttaksforesporselService.deleteRequest(UttaksforesporselDeleteForm(1, 1)) } returns 1.right()
+            every { UttaksforesporselService.deleteForesporsel(UttaksforesporselDeleteForm(1, 1)) } returns 1.right()
 
             every { PartnerRepository.exists(1) } returns true
             every {UttakRepository.exists(1)} returns true
@@ -281,7 +277,7 @@ class UttaksforesporselApiTest {
         @Test
         fun `delete request 500`() {
             every {
-                UttaksforesporselService.deleteRequest(
+                UttaksforesporselService.deleteForesporsel(
                     UttaksforesporselDeleteForm(
                         1,
                         1
@@ -297,7 +293,7 @@ class UttaksforesporselApiTest {
         }
 
         /**
-         * Check for 422 when we get an invalid form. Pickup id can't be -1
+         * Check for 422 when we get an invalid form.  [Uttak.id] can't be -1
          */
         @Test
         fun `delete request 422`() {

@@ -10,14 +10,14 @@ import no.oslokommune.ombruk.shared.error.ServiceError
 
 object UttaksforesporselService : IUttaksforesporselService {
 
-    override fun saveRequest(requestPostForm: UttaksforesporselPostForm): Either<ServiceError, UttaksForesporsel> =
-        UttaksforesporselRepository.saveForesporsel(requestPostForm)
+    override fun saveForesporsel(foresporselPostForm: UttaksforesporselPostForm): Either<ServiceError, UttaksForesporsel> =
+        UttaksforesporselRepository.saveForesporsel(foresporselPostForm)
 
-    override fun getRequests(requestGetForm: UttaksForesporselGetForm?): Either<ServiceError, List<UttaksForesporsel>> =
-        UttaksforesporselRepository.getForesporsler(requestGetForm)
+    override fun getForesporsler(foresporselGetForm: UttaksForesporselGetForm?): Either<ServiceError, List<UttaksForesporsel>> =
+        UttaksforesporselRepository.getForesporsler(foresporselGetForm)
 
-    override fun deleteRequest(requestDeleteForm: UttaksforesporselDeleteForm): Either<ServiceError, Int> =
-        UttaksforesporselRepository.deleteForesporsel(requestDeleteForm)
+    override fun deleteForesporsel(foresporselDeleteForm: UttaksforesporselDeleteForm): Either<ServiceError, Int> =
+        UttaksforesporselRepository.deleteForesporsel(foresporselDeleteForm)
 
 
 }

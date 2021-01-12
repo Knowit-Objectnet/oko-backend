@@ -133,7 +133,7 @@ object StasjonRepository : IStasjonRepository {
         .onFailure { logger.error(it.message) }
         .fold(
             { Unit.right() },
-            { RepositoryError.DeleteError("Failed to delete all pickups").left() }
+            { RepositoryError.DeleteError("Failed to delete all Stasjoner").left() }
         )
 
 }
