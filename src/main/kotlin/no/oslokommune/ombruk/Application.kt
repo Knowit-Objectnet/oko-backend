@@ -100,7 +100,9 @@ fun Application.module(testing: Boolean = false) {
         )
     )
 
-    initDB()
+    if(!testing) {
+        initDB()
+    }
 
     install(Locations)
 

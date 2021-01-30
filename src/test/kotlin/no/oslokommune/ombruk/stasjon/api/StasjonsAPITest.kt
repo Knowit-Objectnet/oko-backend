@@ -174,7 +174,7 @@ class StasjonerAPITest {
 
             every { StasjonService.getStasjoner(StasjonGetForm("Test")) } returns expected.right()
 
-            testGet("/stasjoner/?name=Test") {
+            testGet("/stasjoner/?navn=Test") {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals("[\n]", response.content)
             }
@@ -242,7 +242,7 @@ class StasjonerAPITest {
             val form = StasjonPostForm("Haraldrud", hours)
             val expected = Stasjon(1, "Haraldrud", hours)
 
-            every { StasjonRepository.exists(1) } returns false
+            every { StasjonRepository.exists(name = form.navn) } returns false
             every { StasjonService.saveStasjon(form) } returns expected.right()
 
             testPost("/stasjoner/", json.stringify(StasjonPostForm.serializer(), form)) {
@@ -302,9 +302,7 @@ class StasjonerAPITest {
             )
             val form = StasjonPostForm("Haraldrud", hours)
 
-            every { StasjonRepository.exists(1) } returns false
-            every { StasjonService.saveStasjon(form) } returns ValidationError.Unprocessable("test").left()
-
+            every { StasjonRepository.exists(name = "Haraldrud") } returns false
             testPost("/stasjoner/", json.stringify(StasjonPostForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
                 println(response.content)
@@ -427,6 +425,7 @@ class StasjonerAPITest {
             val expected = Stasjon(1, "Test1")
 
             every { StasjonService.getStasjonById(1) } returns initial.right()
+            every {StasjonRepository.exists(name = form.navn!!)} returns false
             every { StasjonService.updateStasjon(form) } returns expected.right()
 
             testPatch("/stasjoner/", json.stringify(StasjonUpdateForm.serializer(), form)) {
@@ -483,6 +482,7 @@ class StasjonerAPITest {
         fun `patch stasjon 500`() {
             val form = StasjonUpdateForm(1, "Test")
             every { StasjonService.updateStasjon(form) } returns ServiceError("test").left()
+            every {StasjonRepository.exists(name = form.navn!!)} returns false
 
             testPatch("/stasjoner/", json.stringify(StasjonUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.InternalServerError, response.status())
@@ -496,6 +496,7 @@ class StasjonerAPITest {
         fun `patch stasjon 404`() {
             val form = StasjonUpdateForm(1, "Test")
             every { StasjonService.updateStasjon(form) } returns RepositoryError.NoRowsFound("1").left()
+            every { StasjonRepository.exists(name = form.navn!!) } returns false
 
             testPatch("/stasjoner/", json.stringify(StasjonUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.NotFound, response.status())

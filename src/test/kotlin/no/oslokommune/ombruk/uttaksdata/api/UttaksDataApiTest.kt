@@ -2,17 +2,18 @@ package no.oslokommune.ombruk.uttaksdata.api
 
 import arrow.core.left
 import arrow.core.right
+import io.ktor.application.ApplicationCall
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.DefaultJsonConfiguration
-import io.mockk.clearAllMocks
-import io.mockk.every
+import io.mockk.*
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.mockkObject
-import io.mockk.unmockkAll
 import kotlinx.serialization.builtins.list
 import kotlinx.serialization.json.Json
+import no.oslokommune.ombruk.shared.api.Authorization
+import no.oslokommune.ombruk.shared.api.Authorization.authorizeRole
 import no.oslokommune.ombruk.shared.api.JwtMockConfig
+import no.oslokommune.ombruk.shared.api.Roles
 import no.oslokommune.ombruk.shared.error.RepositoryError
 import no.oslokommune.ombruk.shared.error.ServiceError
 import no.oslokommune.ombruk.testGet
@@ -43,6 +44,7 @@ class UttaksDataApiTest {
         mockkObject(UttaksDataService)
         mockkObject(UttakService)
         mockkObject(UttakRepository)
+        mockkObject(Authorization)
     }
 
     @AfterEach
@@ -320,7 +322,10 @@ class UttaksDataApiTest {
         @Test
         fun `patch uttaksdata not found 404`() {
             val form = UttaksDataUpdateForm(1, 50)
-            every { UttakRepository.exists(1) } returns false
+            val uttak = mockk<Uttak>()
+            val expected = RepositoryError.NoRowsFound("${form.uttakId} does not exist!")
+            every { UttaksDataService.updateUttaksData(form) } returns expected.left()
+            every { UttakService.getUttakByID(form.uttakId) } returns uttak.right()
             testPatch("/uttaksdata/", json.stringify(UttaksDataUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.NotFound, response.status())
                 assertEquals("No rows found with provided ID, ${form.uttakId} does not exist!", response.content)

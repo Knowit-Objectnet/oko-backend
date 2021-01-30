@@ -49,7 +49,6 @@ class UttakTest {
     lateinit var uttak: List<Uttak>
 
     init {
-        initDB()
         partnere = createTestPartnere()
         stasjoner = createTestStasjoner()
     }

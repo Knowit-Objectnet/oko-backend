@@ -1,33 +1,9 @@
 version: '3.8'
 services:
-  calendar:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    restart: always
-    depends_on:
-      - database
-    links:
-      - database
-    ports:
-      - 8080:8080
-    volumes:
-      - .:/srv/ombruk-backend
-    environment:
-      OKO_JDBC_URL: "jdbc:postgresql://backend_database_1/postgres"
-      OKO_DB_USER: "postgres"
-      OKO_DB_PASSWORD: "postgres"
-      OKO_DB_MIGRATIONS_LOCATION: filesystem:resources/db/migrations
   database:
-    image: postgres
-    restart: always
-    volumes:
-      - db_data:/var/lib/postgresql/data
+    image: 'postgres:12.0'
     ports:
-      - 5432:5432
-    environment:
-      POSTGRES_PASSWORD: postgres
-
-
-volumes:
-  db_data:
+      - '5433:5432'
+    env_file:
+      - database.env
+    command: ["postgres", "-c", "log_statement=all"]

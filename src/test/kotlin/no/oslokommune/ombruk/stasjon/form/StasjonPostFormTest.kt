@@ -26,10 +26,6 @@ import kotlin.test.assertTrue
 @ExtendWith(MockKExtension::class)
 class StasjonPostFormTest {
 
-    init {
-        initDB()
-    }
-
     @BeforeEach
     fun setup() {
         mockkObject(StasjonRepository)
@@ -59,6 +55,7 @@ class StasjonPostFormTest {
     @ParameterizedTest
     @MethodSource("generateValidForms")
     fun `validate valid form`(form: StasjonPostForm) {
+        every {StasjonRepository.exists(name = form.navn)} returns false
         val result = form.validOrError()
 
         require(result is Either.Right)
@@ -75,6 +72,7 @@ class StasjonPostFormTest {
     @ParameterizedTest
     @MethodSource("generateInvalidForms")
     fun `validate invalid form`(form: StasjonPostForm) {
+        every { StasjonRepository.exists(name = "") } returns false
         every { StasjonRepository.exists("notUnique") } returns true
 
         val result = form.validOrError()

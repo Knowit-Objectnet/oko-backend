@@ -11,6 +11,7 @@ import io.mockk.mockkObject
 import io.mockk.unmockkAll
 import kotlinx.serialization.builtins.list
 import kotlinx.serialization.json.Json
+import no.oslokommune.ombruk.*
 import no.oslokommune.ombruk.partner.database.PartnerRepository
 import no.oslokommune.ombruk.partner.form.PartnerGetForm
 import no.oslokommune.ombruk.partner.form.PartnerPostForm
@@ -22,10 +23,6 @@ import no.oslokommune.ombruk.shared.error.RepositoryError
 import no.oslokommune.ombruk.shared.error.ServiceError
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
-import no.oslokommune.ombruk.testDelete
-import no.oslokommune.ombruk.testGet
-import no.oslokommune.ombruk.testPatch
-import no.oslokommune.ombruk.testPost
 import kotlin.test.assertEquals
 
 
@@ -171,6 +168,7 @@ class PartnerApiTest {
         fun `post partner 200`() {
             val form = PartnerPostForm("test", "beskrivelse", "81549300", "test@test.com")
             val expected = Partner(1, "test", "beskrivelse", "81549300", "test@test.com")
+            every { PartnerRepository.exists("test") } returns false
             every { PartnerService.savePartner(form) } returns expected.right()
 
             testPost("/partnere", json.stringify(PartnerPostForm.serializer(), form)) {
@@ -211,6 +209,7 @@ class PartnerApiTest {
         fun `post partner 500`() {
             val form = PartnerPostForm("test", "beskrivelse", "81549300", "test@test.com")
 
+            every { PartnerRepository.exists("test") } returns false
             every { PartnerService.savePartner(form) } returns ServiceError("test").left()
 
             testPost("/partnere", json.stringify(PartnerPostForm.serializer(), form)) {
@@ -224,6 +223,7 @@ class PartnerApiTest {
         @Test
         fun `post partner 422`() {
             val form = PartnerPostForm("test", "beskrivelse", "2113", "test@test.com")
+            every { PartnerRepository.exists("test") } returns false
 
             testPost("/partnere", json.stringify(PartnerPostForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())

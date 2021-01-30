@@ -3,12 +3,10 @@ package no.oslokommune.ombruk.partner.service
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
-import io.mockk.clearAllMocks
-import io.mockk.every
+import io.mockk.*
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.mockkObject
-import io.mockk.unmockkAll
+import no.oslokommune.ombruk.mockDatabase
 import no.oslokommune.ombruk.partner.database.PartnerRepository
 import no.oslokommune.ombruk.partner.form.PartnerDeleteForm
 import no.oslokommune.ombruk.partner.form.PartnerGetForm
@@ -19,29 +17,28 @@ import no.oslokommune.ombruk.shared.api.KeycloakGroupIntegration
 import no.oslokommune.ombruk.shared.database.initDB
 import no.oslokommune.ombruk.shared.error.KeycloakIntegrationError
 import no.oslokommune.ombruk.shared.error.RepositoryError
+import no.oslokommune.ombruk.unmockDatabase
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
 import kotlin.test.assertEquals
+import org.jetbrains.exposed.sql.transactions.transaction
 
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockKExtension::class)
 class PartnerServiceTest {
 
-
-    init {
-        initDB()
-    }
-
     @BeforeEach
     fun setup() {
         mockkObject(PartnerRepository)
         mockkObject(KeycloakGroupIntegration)
+        mockDatabase()
     }
 
     @AfterEach
     fun teardown() {
         clearAllMocks()
+        unmockDatabase()
     }
 
     @AfterAll
@@ -83,7 +80,8 @@ class PartnerServiceTest {
             @MockK expected: KeycloakIntegrationError
         ) {
             every { PartnerRepository.insertPartner(form) } returns partner.right()
-            every { KeycloakGroupIntegration.createGroup(partner.navn, partner.id) } returns expected.left()
+            every { KeycloakGroupIntegration.createGroup(any(), any()) } returns expected.left()
+            every { PartnerRepository.exists(name = form.navn) } returns false
 
             val actual = PartnerService.savePartner(form)
 

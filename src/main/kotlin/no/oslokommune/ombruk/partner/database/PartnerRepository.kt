@@ -79,19 +79,14 @@ object PartnerRepository : IPartnerRepository {
 
     override fun deletePartner(partnerID: Int) = runCatching {
         transaction {
-            Partnere.update({ Partnere.id eq partnerID }) { row ->
-                row[slettetTidspunkt] = LocalDateTime.now()
-                row[endretTidspunkt] = LocalDateTime.now()
-            }
+            val partner = getPartnerByID(partnerID)
+            Partnere.deleteWhere { Partnere.id eq partnerID and Partnere.slettetTidspunkt.isNull() }
+            return@transaction partner;
         }
     }
-        .fold(
-            {
-                if (it > 0)
-                    getPartnerByID(partnerID, true)
-                else
-                    RepositoryError.NoRowsFound("$partnerID not found").left()
-            },
+        .fold({ res ->
+            res.fold({ it.left() }, { it.right() })
+        },
             {
                 logger.error("Failed to delete partner in DB: ${it.message}")
                 RepositoryError.DeleteError(it.message).left()
@@ -100,10 +95,7 @@ object PartnerRepository : IPartnerRepository {
 
     fun deleteAllPartnere() = runCatching {
         transaction {
-            Partnere.update({ Partnere.slettetTidspunkt.isNull() })
-            { row ->
-                row[slettetTidspunkt] = LocalDateTime.now()
-            }
+            Partnere.deleteAll()
         }
     }
         .fold(
@@ -184,7 +176,8 @@ object PartnerRepository : IPartnerRepository {
     override fun exists(id: Int) =
         transaction { Partnere.select { Partnere.id eq id and Partnere.slettetTidspunkt.isNull() }.count() >= 1 }
 
-    override fun exists(name: String) = transaction { Partnere.select { Partnere.navn eq name }.count() >= 1 }
+    override fun exists(name: String) =
+        transaction { Partnere.select { Partnere.navn eq name and Partnere.slettetTidspunkt.isNull() }.count() >= 1 }
 
     /**
      * Used by teardown() when testing.

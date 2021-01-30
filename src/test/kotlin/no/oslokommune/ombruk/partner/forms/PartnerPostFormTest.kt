@@ -8,11 +8,7 @@ import io.mockk.mockkObject
 import io.mockk.unmockkAll
 import no.oslokommune.ombruk.partner.database.PartnerRepository
 import no.oslokommune.ombruk.partner.form.PartnerPostForm
-import no.oslokommune.ombruk.shared.database.initDB
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -23,10 +19,6 @@ import kotlin.test.assertTrue
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockKExtension::class)
 class PartnerPostFormTest {
-
-    init {
-        initDB()
-    }
 
     @BeforeEach
     fun setup() {
@@ -56,6 +48,7 @@ class PartnerPostFormTest {
     @ParameterizedTest
     @MethodSource("generateValidForms")
     fun `validate valid form`(form: PartnerPostForm) {
+        every { PartnerRepository.exists(name = any()) } returns false
         val result = form.validOrError()
 
         require(result is Either.Right)
@@ -64,7 +57,6 @@ class PartnerPostFormTest {
 
     @Suppress("unused")
     fun generateInvalidForms() = listOf(
-        PartnerPostForm("notUnique", "desc", "12345678", "test@test.com"),
         PartnerPostForm("badPhoneNo", "desc", "123", "test@test.com"),
         PartnerPostForm("badEmail", "desc", "12345678", "test.test.com"),
         PartnerPostForm("", "desc", "+4712345678", "test@test.com"),
@@ -77,6 +69,15 @@ class PartnerPostFormTest {
     @ParameterizedTest
     @MethodSource("generateInvalidForms")
     fun `validate invalid form`(form: PartnerPostForm) {
+        every { PartnerRepository.exists(name = any()) } returns false
+        val result = form.validOrError()
+
+        assertTrue(result is Either.Left)
+    }
+
+    @Test
+    fun `Non unique names should return left`() {
+        val form = PartnerPostForm("notUnique", "desc", "12345678", "test@test.com")
         every { PartnerRepository.exists("notUnique") } returns true
         val result = form.validOrError()
 

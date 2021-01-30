@@ -27,10 +27,6 @@ class PartnerUpdateFormTest {
 
     val existingPartner = Partner(1, "unique", "beskrivelse", "81549300", "test@test.com")
 
-    init {
-        initDB()
-    }
-
     @BeforeEach
     fun setup() {
         mockkObject(PartnerRepository)

@@ -6,8 +6,14 @@ import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkObject
 import io.mockk.unmockkAll
+import no.oslokommune.ombruk.mockDatabase
+import no.oslokommune.ombruk.partner.database.PartnerRepository.exists
+import no.oslokommune.ombruk.shared.database.IRepositoryUniqueName
 import no.oslokommune.ombruk.stasjon.database.StasjonRepository
 import no.oslokommune.ombruk.shared.database.initDB
+import no.oslokommune.ombruk.shared.utils.validation.ExistsInRepository
+import no.oslokommune.ombruk.shared.utils.validation.IsUnique
+import no.oslokommune.ombruk.unmockDatabase
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -23,10 +29,6 @@ import kotlin.test.assertTrue
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockKExtension::class)
 class StasjonUpdateFormTest {
-
-    init {
-        initDB()
-    }
 
     @BeforeEach
     fun setup() {
@@ -53,6 +55,7 @@ class StasjonUpdateFormTest {
     @ParameterizedTest
     @MethodSource("generateValidForms")
     fun `validate valid form`(form: StasjonUpdateForm) {
+        every {StasjonRepository.exists(name = "unique")} returns false
         val result = form.validOrError()
 
         require(result is Either.Right)
@@ -70,7 +73,8 @@ class StasjonUpdateFormTest {
     @ParameterizedTest
     @MethodSource("generateInvalidForms")
     fun `validate invalid form`(form: StasjonUpdateForm) {
-        every { StasjonRepository.exists("notUnique") } returns true
+        every { StasjonRepository.exists(name = "") } returns false
+        every { StasjonRepository.exists(name = "notUnique") } returns true
 
         val result = form.validOrError()
 

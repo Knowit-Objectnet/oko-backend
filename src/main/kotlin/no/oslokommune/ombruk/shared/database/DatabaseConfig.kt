@@ -17,6 +17,7 @@ import org.jetbrains.exposed.sql.Database
 fun initDB() {
     val appConfig = HoconApplicationConfig(ConfigFactory.load())
     val hikariConfig = HikariConfig()
+    hikariConfig.driverClassName = "org.postgresql.Driver"
     hikariConfig.jdbcUrl = appConfig.property("ktor.db.jdbcUrl").getString()
     hikariConfig.username = appConfig.property("ktor.db.user").getString()
     hikariConfig.password = appConfig.property("ktor.db.password").getString()
@@ -24,9 +25,6 @@ fun initDB() {
     hikariConfig.addDataSourceProperty("prepStmtCacheSize", "250")
     hikariConfig.addDataSourceProperty("prepStmtCacheSqlLimit", "2048")
 
-    Class.forName("org.postgresql.Driver")
-    Class.forName("org.h2.Driver")
-    val test = hikariConfig.jdbcUrl
     Database.connect(HikariDataSource(hikariConfig))
 
     migrate()

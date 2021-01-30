@@ -5,13 +5,11 @@ import arrow.core.left
 import arrow.core.right
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.DefaultJsonConfiguration
-import io.mockk.clearAllMocks
-import io.mockk.every
+import io.mockk.*
 import io.mockk.junit5.MockKExtension
-import io.mockk.mockkObject
-import io.mockk.unmockkAll
 import kotlinx.serialization.builtins.list
 import kotlinx.serialization.json.Json
+import no.oslokommune.ombruk.*
 import no.oslokommune.ombruk.uttak.database.UttakRepository
 import no.oslokommune.ombruk.stasjon.database.StasjonRepository
 import no.oslokommune.ombruk.uttak.form.UttakDeleteForm
@@ -29,10 +27,6 @@ import no.oslokommune.ombruk.shared.error.RepositoryError
 import no.oslokommune.ombruk.shared.error.ServiceError
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
-import no.oslokommune.ombruk.testDelete
-import no.oslokommune.ombruk.testGet
-import no.oslokommune.ombruk.testPatch
-import no.oslokommune.ombruk.testPost
 import no.oslokommune.ombruk.uttak.model.GjentakelsesRegel
 import no.oslokommune.ombruk.uttak.model.UttaksType
 import java.time.DayOfWeek
@@ -54,11 +48,13 @@ class UttakAPITest {
         mockkObject(StasjonRepository)
         mockkObject(PartnerRepository)
         mockkObject(Authorization)
+        mockDatabase()
     }
 
     @AfterEach
     fun teardown() {
         clearAllMocks()
+        unmockDatabase()
     }
 
     @AfterAll
@@ -464,11 +460,10 @@ class UttakAPITest {
          */
         @Test
         fun `delete uttak by id 200`() {
-            val stasjon = Stasjon(1, "test")
-            val partner = Partner(1, "test", "beskrivelse", "81549300", "test@test.com")
-            val expected = Unit
-            every { UttakService.deleteUttak(UttakDeleteForm(id = 1)) } returns Either.right(emptyList())
-
+            val expected = emptyList<Uttak>()
+            val form = UttakDeleteForm(id = 1)
+            every { UttakService.deleteUttak(form) } returns expected.right()
+            every { UttakService.getUttak(any()) } returns expected.right()
             testDelete("/uttak?id=1") {
                 assertEquals(HttpStatusCode.OK, response.status())
             }
@@ -481,7 +476,7 @@ class UttakAPITest {
         @Test
         fun `delete uttak 500`() {
             every { UttakService.deleteUttak(UttakDeleteForm(1)) } returns ServiceError("test").left()
-            every { UttakRepository.exists(1) } returns true
+            every { UttakService.getUttak(any()) } returns emptyList<Uttak>().right()
 
             testDelete("/uttak?id=1") {
                 assertEquals(HttpStatusCode.InternalServerError, response.status())
@@ -499,20 +494,20 @@ class UttakAPITest {
         }
 
         /**
-         * Check for 404 when there is no uttak that match our partner id. This is only "semi intended" behaviour
+         * Check for 403 when there is no uttak that match our partner id. This is only "semi intended" behaviour
          * Someone please fix later. @todo FIX this
          */
         @Test
-        fun `delete uttak 404`() {
+        fun `delete uttak 403`() {
             val s = Stasjon(1, "test")
             val p = Partner(1, "test", "beskrivelse", "81549300", "test@test.com")
             val expected = listOf(Uttak(1, LocalDateTime.now(), LocalDateTime.now().plusDays(1), s, p))
 
-            every { UttakService.getUttak(UttakGetForm()) } returns expected.right()
+            every { UttakService.getUttak(any()) } returns expected.right()
             every { UttakService.deleteUttak(UttakDeleteForm(1)) } returns expected.right()
 
             testDelete("/uttak", JwtMockConfig.partnerBearer2) {
-                assertEquals(HttpStatusCode.NotFound, response.status())
+                assertEquals(HttpStatusCode.Forbidden, response.status())
             }
         }
 
@@ -521,6 +516,7 @@ class UttakAPITest {
          */
         @Test
         fun `delete uttak 422`() {
+            every { UttakService.getUttak(any()) } returns emptyList<Uttak>().right()
             testDelete("/uttak?id=-1") {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
                 assertEquals("id: Must be greater than 0", response.content)

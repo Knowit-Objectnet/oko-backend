@@ -101,16 +101,14 @@ object StasjonRepository : IStasjonRepository {
 
     override fun deleteStasjon(id: Int) = runCatching {
         transaction {
-            Stasjoner.update({ Stasjoner.id eq id }) {
-                it[slettetTidspunkt] = LocalDateTime.now()
-            }
+            Stasjoner.deleteWhere{ Stasjoner.id eq id and Stasjoner.slettetTidspunkt.isNotNull()}
         }
     }
         .onFailure { logger.error("Failed to delete stasjon from db") }
         .fold({ id.right() }, { RepositoryError.DeleteError("Failed to delete stasjon with ID $id").left() })
 
     fun deleteAllStasjoner() = runCatching {
-        transaction { Stasjoner.update { it[slettetTidspunkt] = LocalDateTime.now() } }
+        transaction { Stasjoner.deleteAll() }
     }
         .onFailure { logger.error("Failed to delete stasjon from db") }
         .fold({ Unit.right() }, { RepositoryError.DeleteError("Failed to delete stasjoner").left() })

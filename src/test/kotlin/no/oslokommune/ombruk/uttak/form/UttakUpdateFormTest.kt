@@ -47,11 +47,6 @@ class UttakUpdateFormTest {
             beskrivelse = "Beskrivelse"
         )
 
-
-    init {
-        initDB()
-    }
-
     @BeforeEach
     fun setup() {
         mockkObject(StasjonRepository)

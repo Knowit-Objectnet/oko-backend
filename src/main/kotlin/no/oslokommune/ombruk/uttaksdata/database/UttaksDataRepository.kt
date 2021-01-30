@@ -41,7 +41,6 @@ object UttaksDataRepository : IUttaksDataRepository {
             { RepositoryError.InsertError("SQL error").left() })
 
     override fun updateUttaksData(form: UttaksDataUpdateForm): Either<RepositoryError, UttaksData> = runCatching {
-        println(form.uttakId)
         transaction {
             UttaksDataTable.update({ UttaksDataTable.uttakId eq form.uttakId }) { row ->
                 form.vekt?.let {
@@ -98,9 +97,7 @@ object UttaksDataRepository : IUttaksDataRepository {
 
     override fun deleteByUttakId(uttakId: Int): Either<RepositoryError, Unit> = runCatching {
         transaction {
-            UttaksDataTable.update({ UttaksDataTable.uttakId eq uttakId and UttaksDataTable.slettetTidspunkt.isNotNull() }) { row ->
-                row[slettetTidspunkt] = LocalDateTime.now()
-            }
+            UttaksDataTable.deleteWhere { UttaksDataTable.uttakId eq uttakId and UttaksDataTable.slettetTidspunkt.isNotNull() }
         }
     }
         .onFailure { logger.error("Failed to update uttaksdata: ${it.message}") }

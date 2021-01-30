@@ -5,7 +5,9 @@ import arrow.core.right
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import no.oslokommune.ombruk.mockDatabase
 import no.oslokommune.ombruk.shared.database.initDB
+import no.oslokommune.ombruk.unmockDatabase
 import no.oslokommune.ombruk.uttak.database.UttakRepository
 import no.oslokommune.ombruk.uttak.database.GjentakelsesRegelTable
 import no.oslokommune.ombruk.uttak.form.UttakGetForm
@@ -28,21 +30,19 @@ import kotlin.test.assertEquals
 @ExtendWith(MockKExtension::class)
 class UttakServiceTest {
 
-    init {
-        initDB()
-    }
-
     @BeforeEach
     fun setup() {
         mockkObject(UttakRepository)
         mockkObject(UttaksDataService)
         mockkObject(GjentakelsesRegelTable)
         mockkObject(UttaksDataRepository)
+        mockDatabase()
     }
 
     @AfterEach
     fun teardown() {
         clearAllMocks()
+        unmockDatabase()
     }
 
     @AfterAll

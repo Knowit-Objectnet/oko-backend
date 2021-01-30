@@ -8,6 +8,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkObject
+import no.oslokommune.ombruk.mockDatabase
 import no.oslokommune.ombruk.stasjon.database.StasjonRepository
 import no.oslokommune.ombruk.stasjon.form.StasjonGetForm
 import no.oslokommune.ombruk.stasjon.form.StasjonPostForm
@@ -17,6 +18,8 @@ import no.oslokommune.ombruk.shared.api.KeycloakGroupIntegration
 import no.oslokommune.ombruk.shared.database.initDB
 import no.oslokommune.ombruk.shared.error.KeycloakIntegrationError
 import no.oslokommune.ombruk.shared.error.RepositoryError
+import no.oslokommune.ombruk.shared.error.ServiceError
+import no.oslokommune.ombruk.unmockDatabase
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
 import kotlin.test.assertEquals
@@ -26,19 +29,17 @@ import kotlin.test.assertEquals
 @ExtendWith(MockKExtension::class)
 class StasjonServiceTest {
 
-    init {
-        initDB()
-    }
-
     @BeforeEach
     fun setup() {
         mockkObject(StasjonRepository)
         mockkObject(KeycloakGroupIntegration)
+        mockDatabase()
     }
 
     @AfterEach
     fun tearDown() {
         clearAllMocks()
+        unmockDatabase()
     }
 
     @Nested
@@ -185,7 +186,7 @@ class StasjonServiceTest {
                 @MockK expected: KeycloakIntegrationError.KeycloakError
         ) {
             every { StasjonRepository.getStasjonById(1) } returns stasjon.right()
-            every { StasjonRepository.deleteStasjon(stasjon.id) } returns 1.right()
+            every { StasjonRepository.deleteStasjon(1) } returns 1.right()
             every { KeycloakGroupIntegration.deleteGroup(stasjon.navn) } returns expected.left()
 
             val actual = StasjonService.deleteStasjonById(1)

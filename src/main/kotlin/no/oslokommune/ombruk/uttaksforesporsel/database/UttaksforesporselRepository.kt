@@ -16,8 +16,10 @@ import no.oslokommune.ombruk.uttak.database.UttakRepository
 import no.oslokommune.ombruk.uttak.database.UttakTable
 import no.oslokommune.ombruk.uttak.model.Uttak
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.`java-time`.datetime
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
 
 /*
     Uttaksforesporsels are associated to a specific [Uttak]. Each uttaksforesporsel is a specific partner that wants to perform the [Uttak].
@@ -26,6 +28,7 @@ import org.slf4j.LoggerFactory
 object UttaksForesporselTable : Table("uttaksforesporsel") {
     val uttakID = integer("uttak_id").references(UttakTable.id)
     val partnerID = integer("partner_id").references(Partnere.id)
+    val slettetTidspunkt = datetime("slettet_tidspunkt").nullable()
 //    val status = UttakTable.enumerationByName("status", 64, UttaksType::class)
 }
 
@@ -89,9 +92,10 @@ object UttaksforesporselRepository : IUttaksforesporselRepository {
     @KtorExperimentalLocationsAPI
     override fun deleteForesporsel(foresporselDeleteForm: UttaksforesporselDeleteForm) = runCatching {
         transaction {
-            UttaksForesporselTable.deleteWhere {
+            UttaksForesporselTable.deleteWhere{
                 UttaksForesporselTable.uttakID eq foresporselDeleteForm.uttaksId and
-                        (UttaksForesporselTable.partnerID eq foresporselDeleteForm.partnerId)
+                        (UttaksForesporselTable.partnerID eq foresporselDeleteForm.partnerId) and
+                        (UttaksForesporselTable.slettetTidspunkt.isNotNull())
             }
         }
     }

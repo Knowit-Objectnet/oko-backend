@@ -7,11 +7,13 @@ import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkObject
 import io.mockk.unmockkAll
+import no.oslokommune.ombruk.mockDatabase
 import no.oslokommune.ombruk.stasjon.database.StasjonRepository
 import no.oslokommune.ombruk.uttak.model.GjentakelsesRegel
 import no.oslokommune.ombruk.stasjon.model.Stasjon
 import no.oslokommune.ombruk.partner.database.PartnerRepository
 import no.oslokommune.ombruk.shared.database.initDB
+import no.oslokommune.ombruk.unmockDatabase
 import no.oslokommune.ombruk.uttak.model.UttaksType
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
@@ -32,10 +34,6 @@ import kotlin.test.assertTrue
 class UttakPostFormTest {
 
     private val existingStasjon = Stasjon(id = 1, navn = "some stasjon", aapningstider = openHours())
-
-    init {
-        initDB()
-    }
 
     @BeforeEach
     fun setup() {
@@ -104,8 +102,8 @@ class UttakPostFormTest {
     @ParameterizedTest
     @MethodSource("generateInvalidForms")
     fun `validate invalid form`(form: UttakPostForm) {
-        every { StasjonRepository.exists(1) } returns true
-        every { PartnerRepository.exists(1) } returns true
+        every { StasjonRepository.exists(id = any()) } returns true
+        every { PartnerRepository.exists(id = any()) } returns true
         every { StasjonRepository.getStasjonById(1) } returns Either.right(Stasjon(
             id = 1, navn = "some stasjon", aapningstider = openHours()
         ))

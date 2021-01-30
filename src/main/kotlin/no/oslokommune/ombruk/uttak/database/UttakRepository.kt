@@ -123,6 +123,7 @@ object UttakRepository : IUttakRepository {
             as input, so you might have to use function (foo.lessEq(bar)) instead of DSL (foo eq bar) some places.
              */
             val statements = mutableListOf<Op<Boolean>>()
+            statements.add(Op.build{UttakTable.slettetTidspunkt.isNotNull()})
             uttakDeleteForm.id?.let { statements.add(Op.build { UttakTable.id eq it }) }
             uttakDeleteForm.gjentakelsesRegelId?.let { statements.add(Op.build { UttakTable.gjentakelsesRegelID eq it }) }
             uttakDeleteForm.startTidspunkt?.let { statements.add(Op.build { UttakTable.startTidspunkt.greaterEq(it) }) }
@@ -130,7 +131,7 @@ object UttakRepository : IUttakRepository {
             uttakDeleteForm.partnerId?.let { statements.add(Op.build { UttakTable.partnerID eq it }) }
             uttakDeleteForm.stasjonId?.let { statements.add(Op.build { UttakTable.stasjonID eq it }) }
 
-            // Delete and return deleted uttak. Have to handle the case where no statements are sepcified
+            // Delete and return deleted uttak. Have to handle the case where no statements are specified
             if (statements.isEmpty()) {
                 val result =
                     (UttakTable innerJoin Stasjoner innerJoin Partnere innerJoin UttaksDataTable leftJoin GjentakelsesRegelTable).selectAll()
@@ -143,9 +144,7 @@ object UttakRepository : IUttakRepository {
                     (UttakTable innerJoin Stasjoner innerJoin Partnere innerJoin UttaksDataTable leftJoin GjentakelsesRegelTable).select { statement }
                         .mapNotNull { toUttak(it) }
 
-                UttakTable.update({ statement }) {
-                    it[slettetTidspunkt] = LocalDateTime.now()
-                }
+                UttakTable.deleteWhere { statement }
                 return@transaction result
             }
         }
@@ -280,9 +279,8 @@ object UttakRepository : IUttakRepository {
             throw Exception()
         }
         transaction {
-            UttakTable.update({ UttakTable.slettetTidspunkt.isNull() }) {
-                it[slettetTidspunkt] = LocalDateTime.now()
-            }
+            UttakTable.deleteAll()
+
 //            GjentakelsesRegelTable.deleteAll()
         }
     }
