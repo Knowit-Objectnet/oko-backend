@@ -157,6 +157,11 @@ fun Application.module(testing: Boolean = false) {
             host = "0.0.0.0:8080",
             schemes = listOf("http", "https")
         )
+        host(
+            host = "localhost:8080",
+            schemes = listOf("http", "https"),
+            subDomains = listOf("staging", "test", "production")
+        )
         allowCredentials = true
         allowNonSimpleContentTypes = true
     }
