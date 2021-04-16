@@ -10,7 +10,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class PartnerGetFormTest {
+class PartnerGetDtoTest {
 
     @Suppress("unused")
     fun generateValidForms() = listOf(PartnerGetForm(), PartnerGetForm("notBlank"))

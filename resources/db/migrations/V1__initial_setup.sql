@@ -1,3 +1,37 @@
+create TABLE partner (
+    id serial primary key,
+    navn varchar(255) not null unique,
+    partner_storrelse varchar not null,
+    ideell number(1)
+);
+
+create TABLE stasjon (
+    id serial primary key,
+    navn varchar(255) not null unique,
+    type varchar not null,
+    ideell number(1)
+);
+
+create TABLE stasjon_kontakt_person (
+    id serial primary key,
+    stasjon_id int not null,
+    navn varchar(255) not null,
+    telefon varchar(20) not null,
+    rolle varchar(),
+
+    FOREIGN KEY (stasjon_id) references stasjon on delete cascade,
+);
+
+create TABLE partner_kontakt_person (
+    id serial primary key,
+    partner_id int not null,
+    navn varchar(255) not null,
+    telefon varchar(20) not null,
+    rolle varchar(),
+
+    FOREIGN KEY (partner_id) references partner on delete cascade
+);
+
 create TABLE stations
 (
     id   serial primary key,

@@ -1,15 +1,13 @@
 package partner.forms
 
 import arrow.core.Either
-import arrow.core.right
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkObject
 import io.mockk.unmockkAll
 import ombruk.backend.partner.database.PartnerRepository
-import ombruk.backend.partner.form.PartnerUpdateForm
-import ombruk.backend.partner.model.Partner
+import ombruk.backend.partner.form.PartnerPostForm
 import ombruk.backend.shared.database.initDB
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
@@ -23,9 +21,7 @@ import kotlin.test.assertTrue
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockKExtension::class)
-class PartnerUpdateFormTest {
-
-    val existingPartner = Partner(1, "unique")
+class PartnerPostDtoTest {
 
     init {
         initDB()
@@ -48,19 +44,17 @@ class PartnerUpdateFormTest {
 
     @Suppress("unused")
     fun generateValidForms() = listOf(
-        PartnerUpdateForm(1, "unique"),
-        PartnerUpdateForm(1, "unique", "desc"),
-        PartnerUpdateForm(1, "unique", phone = "12345678"),
-        PartnerUpdateForm(1, "unique", email = "test@gmail.com"),
-        PartnerUpdateForm(1, "unique", "desc", "12345678", "test@gmail.com")
+        PartnerPostForm("unique"),
+        PartnerPostForm("unique", "desc"),
+        PartnerPostForm("unique", phone = "12345678"),
+        PartnerPostForm("unique", email = "test@gmail.com"),
+        PartnerPostForm("unique", "desc", "12345678", "test@gmail.com")
     )
 
     @ParameterizedTest
     @MethodSource("generateValidForms")
-    fun `validate valid form`(form: PartnerUpdateForm) {
+    fun `validate valid form`(form: PartnerPostForm) {
         val result = form.validOrError()
-
-        every { PartnerRepository.getPartnerByID(existingPartner.id) } returns existingPartner.right()
 
         require(result is Either.Right)
         assertEquals(form, result.b)
@@ -68,19 +62,17 @@ class PartnerUpdateFormTest {
 
     @Suppress("unused")
     fun generateInvalidForms() = listOf(
-        PartnerUpdateForm(1, ""),
-        PartnerUpdateForm(1, "notUnique", "desc"),
-        PartnerUpdateForm(1, "unique", ""),
-        PartnerUpdateForm(1, "unique", phone = "123456789"),
-        PartnerUpdateForm(1, "unique", email = "test£gmail.com"),
-        PartnerUpdateForm(1, "unique", "", "12345678", "test@gmail.com")
+        PartnerPostForm(""),
+        PartnerPostForm("notUnique", "desc"),
+        PartnerPostForm("unique", ""),
+        PartnerPostForm("unique", phone = "123456789"),
+        PartnerPostForm("unique", email = "test£gmail.com"),
+        PartnerPostForm("unique", "", "12345678", "test@gmail.com")
     )
 
     @ParameterizedTest
     @MethodSource("generateInvalidForms")
-    fun `validate invalid form`(form: PartnerUpdateForm) {
-
-        every { PartnerRepository.getPartnerByID(existingPartner.id) } returns existingPartner.right()
+    fun `validate invalid form`(form: PartnerPostForm) {
         every { PartnerRepository.exists("notUnique") } returns true
 
         val result = form.validOrError()
