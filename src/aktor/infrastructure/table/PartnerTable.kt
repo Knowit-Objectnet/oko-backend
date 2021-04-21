@@ -1,7 +1,6 @@
-package ombruk.backend.aktor.infrastructure.repository.table
+package ombruk.backend.aktor.infrastructure.table
 
 import ombruk.backend.aktor.domain.enum.PartnerStorrelse
-import ombruk.backend.partner.database.Partners
 import org.jetbrains.exposed.dao.id.IntIdTable
 
 object PartnerTable : IntIdTable("partner") {
