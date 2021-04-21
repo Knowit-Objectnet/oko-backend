@@ -1,6 +1,7 @@
 package reporting.database
 
 import arrow.core.Either
+import io.ktor.util.KtorExperimentalAPI
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.json.Json
@@ -35,6 +36,7 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import kotlin.test.assertEquals
 
+@KtorExperimentalAPI
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ReportRepositoryTest {
     lateinit var testPartner: Partner

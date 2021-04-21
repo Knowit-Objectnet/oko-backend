@@ -8,7 +8,7 @@ import ombruk.backend.aktor.domain.model.PartnerCreateParams
 import ombruk.backend.aktor.domain.model.PartnerFindParams
 import ombruk.backend.aktor.domain.model.PartnerUpdateParams
 import ombruk.backend.aktor.domain.port.IPartnerRepository
-import ombruk.backend.aktor.infrastructure.repository.table.PartnerTable
+import ombruk.backend.aktor.infrastructure.table.PartnerTable
 import ombruk.backend.shared.error.RepositoryError
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -39,10 +39,12 @@ class PartnerRepository : IPartnerRepository {
     }
         .fold(
             {
-                if (it > 0)
+                if (it > 0) {
                     findOne(params.id)
-                else
+                }
+                else {
                     RepositoryError.NoRowsFound("${params.id} not found").left()
+                }
             },
             { RepositoryError.UpdateError(it.message).left() }
         )
