@@ -1,6 +1,5 @@
 package ombruk.backend.aktor.domain.model
 
-import ombruk.backend.aktor.domain.enum.PartnerStorrelse
 
 abstract class KontaktFindParams(
     open val navn: String? = null,

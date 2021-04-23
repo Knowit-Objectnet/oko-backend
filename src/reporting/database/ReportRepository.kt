@@ -80,7 +80,7 @@ object ReportRepository : IReportRepository {
     }
         .onFailure { logger.error("Failed to update report: ${it.message}") }
         .fold(
-            { Either.cond(it > 0, { Unit }, { RepositoryError.NoRowsFound("eventId ${event.id} does not exist!") }) },
+            { Either.cond(it > 0, {  }, { RepositoryError.NoRowsFound("eventId ${event.id} does not exist!") }) },
             { RepositoryError.UpdateError("Failed to update report").left() })
 
 

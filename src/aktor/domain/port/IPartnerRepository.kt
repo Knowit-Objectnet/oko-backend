@@ -8,7 +8,7 @@ import ombruk.backend.aktor.domain.model.PartnerUpdateParams
 import ombruk.backend.shared.error.RepositoryError
 
 interface IPartnerRepository {
-    fun save(params: PartnerCreateParams): Either<RepositoryError, Partner>
+    fun insert(params: PartnerCreateParams): Either<RepositoryError, Partner>
     fun update(params: PartnerUpdateParams): Either<RepositoryError, Partner>
     fun delete(id: Int): Either<RepositoryError, Unit>
     fun findOne(id: Int): Either<RepositoryError, Partner>

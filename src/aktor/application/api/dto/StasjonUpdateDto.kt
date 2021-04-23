@@ -1,6 +1,7 @@
 package ombruk.backend.aktor.application.api.dto
 
 import kotlinx.serialization.Serializable
+import ombruk.backend.aktor.domain.enum.StasjonType
 import ombruk.backend.aktor.domain.model.StasjonUpdateParams
 import ombruk.backend.shared.form.IForm
 import ombruk.backend.shared.utils.validation.runCatchingValidation
@@ -12,7 +13,7 @@ import org.valiktor.validate
 data class StasjonUpdateDto(
     override val id: Int,
     override val navn: String?,
-    override val type: Int?
+    override val type: StasjonType?
 ) : IForm<StasjonUpdateDto>, StasjonUpdateParams() {
     override fun validOrError() = runCatchingValidation {
         validate(this) {

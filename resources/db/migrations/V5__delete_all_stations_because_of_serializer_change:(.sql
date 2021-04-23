@@ -1,1 +1,1 @@
-delete from stations;
+--delete from stations;

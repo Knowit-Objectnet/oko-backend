@@ -9,7 +9,7 @@ import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkObject
 import io.mockk.unmockkAll
-import kotlinx.serialization.builtins.list
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import ombruk.backend.calendar.model.Station
 import ombruk.backend.reporting.database.ReportRepository
@@ -31,8 +31,6 @@ import kotlin.test.assertEquals
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockKExtension::class)
 class ReportingApiTest {
-
-    val json = Json(DefaultJsonConfiguration.copy(prettyPrint = true))
 
     @BeforeEach
     fun setup() {
@@ -71,7 +69,7 @@ class ReportingApiTest {
 
             testGet("/reports/1") {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Report.serializer(), expected), response.content)
+                assertEquals(Json.encodeToString(Report.serializer(), expected), response.content)
             }
         }
 
@@ -148,7 +146,7 @@ class ReportingApiTest {
 
             testGet("/reports/") {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Report.serializer().list, expected), response.content)
+                assertEquals(Json.encodeToString(ListSerializer(Report.serializer()), expected), response.content)
             }
         }
 
@@ -173,7 +171,7 @@ class ReportingApiTest {
 
             testGet("/reports/?stationId=1") {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Report.serializer().list, expected), response.content)
+                assertEquals(Json.encodeToString(ListSerializer(Report.serializer()), expected), response.content)
             }
         }
 
@@ -234,9 +232,9 @@ class ReportingApiTest {
             every { ReportService.getReportById(1) } returns initial.right()
             every { ReportService.updateReport(form) } returns expected.right()
 
-            testPatch("/reports/", json.stringify(ReportUpdateForm.serializer(), form)) {
+            testPatch("/reports/", Json.encodeToString(ReportUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Report.serializer(), expected), response.content)
+                assertEquals(Json.encodeToString(Report.serializer(), expected), response.content)
             }
         }
 
@@ -247,7 +245,7 @@ class ReportingApiTest {
         @Test
         fun `patch report no bearer 401`() {
             val form = ReportUpdateForm(1, 50)
-            testPatch("/reports/", json.stringify(ReportUpdateForm.serializer(), form), null) {
+            testPatch("/reports/", Json.encodeToString(ReportUpdateForm.serializer(), form), null) {
                 assertEquals(HttpStatusCode.Unauthorized, response.status())
             }
         }
@@ -269,7 +267,7 @@ class ReportingApiTest {
 
             every { ReportService.getReportById(1) } returns initial.right()
 
-            testPatch("/reports/", json.stringify(ReportUpdateForm.serializer(), form), JwtMockConfig.partnerBearer2) {
+            testPatch("/reports/", Json.encodeToString(ReportUpdateForm.serializer(), form), JwtMockConfig.partnerBearer2) {
                 assertEquals(HttpStatusCode.Forbidden, response.status())
             }
         }
@@ -293,9 +291,9 @@ class ReportingApiTest {
             every { ReportService.getReportById(1) } returns initial.right()
             every { ReportService.updateReport(form) } returns expected.right()
 
-            testPatch("/reports/", json.stringify(ReportUpdateForm.serializer(), form), JwtMockConfig.partnerBearer1) {
+            testPatch("/reports/", Json.encodeToString(ReportUpdateForm.serializer(), form), JwtMockConfig.partnerBearer1) {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Report.serializer(), expected), response.content)
+                assertEquals(Json.encodeToString(Report.serializer(), expected), response.content)
             }
         }
 
@@ -306,7 +304,7 @@ class ReportingApiTest {
         fun `patch report invalid weight 422`() {
             val form = ReportUpdateForm(1, 0)
 
-            testPatch("/reports/", json.stringify(ReportUpdateForm.serializer(), form)) {
+            testPatch("/reports/", Json.encodeToString(ReportUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
                 assertEquals("weight: Must be greater than 0", response.content)
             }
@@ -319,7 +317,7 @@ class ReportingApiTest {
         fun `patch report not found 404`() {
             val form = ReportUpdateForm(1, 50)
             every { ReportService.updateReport(form) } returns RepositoryError.NoRowsFound("test").left()
-            testPatch("/reports/", json.stringify(ReportUpdateForm.serializer(), form)) {
+            testPatch("/reports/", Json.encodeToString(ReportUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.NotFound, response.status())
                 assertEquals("No rows found with provided ID, ID 1 does not exist!", response.content)
             }
@@ -354,7 +352,7 @@ class ReportingApiTest {
             every { ReportService.updateReport(form) } returns ServiceError("test").left()
             every { ReportService.getReportById(1) } returns test.right()
 
-            testPatch("/reports/", json.stringify(ReportUpdateForm.serializer(), form)) {
+            testPatch("/reports/", Json.encodeToString(ReportUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.InternalServerError, response.status())
                 assertEquals("test", response.content)
             }

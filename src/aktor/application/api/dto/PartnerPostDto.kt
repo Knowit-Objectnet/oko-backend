@@ -4,9 +4,7 @@ import kotlinx.serialization.Serializable
 import ombruk.backend.aktor.domain.enum.PartnerStorrelse
 import ombruk.backend.aktor.domain.model.PartnerCreateParams
 import ombruk.backend.shared.form.IForm
-import ombruk.backend.shared.utils.validation.isNorwegianPhoneNumber
 import ombruk.backend.shared.utils.validation.runCatchingValidation
-import org.valiktor.functions.isEmail
 import org.valiktor.functions.isNotBlank
 import org.valiktor.validate
 
