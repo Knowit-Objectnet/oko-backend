@@ -10,7 +10,7 @@ import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkObject
 import io.mockk.unmockkAll
-import kotlinx.serialization.builtins.list
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import ombruk.backend.calendar.database.EventRepository
 import ombruk.backend.calendar.database.StationRepository
@@ -42,8 +42,6 @@ import kotlin.test.assertEquals
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockKExtension::class)
 class EventAPITest {
-    val json = Json(DefaultJsonConfiguration.copy(prettyPrint = true))
-
     @BeforeEach
     fun setup() {
         mockkObject(EventRepository)
@@ -148,7 +146,7 @@ class EventAPITest {
 
             testGet("/events") {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Event.serializer().list, expected), response.content)
+                assertEquals(Json.encodeToString(ListSerializer(Event.serializer()), expected), response.content)
             }
         }
 
@@ -206,9 +204,9 @@ class EventAPITest {
             every { StationRepository.exists(1) } returns true
             every { StationRepository.getStationById(1) } returns Either.right(s)
 
-            testPost("/events", json.stringify(EventPostForm.serializer(), form)) {
+            testPost("/events", Json.encodeToString(EventPostForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Event.serializer(), expected), response.content)
+                assertEquals(Json.encodeToString(Event.serializer(), expected), response.content)
             }
         }
 
@@ -222,7 +220,7 @@ class EventAPITest {
             every { PartnerRepository.exists(1) } returns true
             every { StationRepository.exists(1) } returns true
 
-            testPost("/events", json.stringify(EventPostForm.serializer(), form), null) {
+            testPost("/events", Json.encodeToString(EventPostForm.serializer(), form), null) {
                 assertEquals(HttpStatusCode.Unauthorized, response.status())
             }
         }
@@ -237,7 +235,7 @@ class EventAPITest {
             every { PartnerRepository.exists(1) } returns true
             every { StationRepository.exists(1) } returns true
 
-            testPost("/events", json.stringify(EventPostForm.serializer(), form), JwtMockConfig.partnerBearer2) {
+            testPost("/events", Json.encodeToString(EventPostForm.serializer(), form), JwtMockConfig.partnerBearer2) {
                 assertEquals(HttpStatusCode.Forbidden, response.status())
             }
         }
@@ -255,7 +253,7 @@ class EventAPITest {
             every { StationRepository.exists(s.id) } returns true
             every { StationRepository.getStationById(1) } returns Either.right(s)
 
-            testPost("/events", json.stringify(EventPostForm.serializer(), form)) {
+            testPost("/events", Json.encodeToString(EventPostForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.InternalServerError, response.status())
                 assertEquals("test", response.content)
             }
@@ -273,7 +271,7 @@ class EventAPITest {
             every { StationRepository.exists(s.id) } returns true
             every { StationRepository.getStationById(1) } returns Either.right(s)
 
-            testPost("/events", json.stringify(EventPostForm.serializer(), form)) {
+            testPost("/events", Json.encodeToString(EventPostForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
                 assertEquals("partnerId: entity does not exist", response.content)
             }
@@ -309,9 +307,9 @@ class EventAPITest {
             every { EventRepository.getEventByID(1) } returns initial.right()
             every { StationRepository.getStationById(s.id) } returns Either.right(s)
 
-            testPatch("/events", json.stringify(EventUpdateForm.serializer(), form)) {
+            testPatch("/events", Json.encodeToString(EventUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Event.serializer(), expected), response.content)
+                assertEquals(Json.encodeToString(Event.serializer(), expected), response.content)
             }
         }
 
@@ -329,7 +327,7 @@ class EventAPITest {
             every { EventRepository.getEventByID(1) } returns initial.right()
             every { StationRepository.getStationById(s.id) } returns Either.right(s)
 
-            testPatch("/events", json.stringify(EventUpdateForm.serializer(), form)) {
+            testPatch("/events", Json.encodeToString(EventUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.InternalServerError, response.status())
             }
         }
@@ -341,7 +339,7 @@ class EventAPITest {
         fun `patch event 401`() {
             val form = EventUpdateForm(1, LocalDateTime.now(), LocalDateTime.now().plusDays(1))
 
-            testPatch("/events", json.stringify(EventUpdateForm.serializer(), form), null) {
+            testPatch("/events", Json.encodeToString(EventUpdateForm.serializer(), form), null) {
                 assertEquals(HttpStatusCode.Unauthorized, response.status())
             }
         }
@@ -353,7 +351,7 @@ class EventAPITest {
         fun `patch event 403`() {
             val form = EventUpdateForm(1, LocalDateTime.now(), LocalDateTime.now().plusDays(1))
 
-            testPatch("/events", json.stringify(EventUpdateForm.serializer(), form), JwtMockConfig.partnerBearer2) {
+            testPatch("/events", Json.encodeToString(EventUpdateForm.serializer(), form), JwtMockConfig.partnerBearer2) {
                 assertEquals(HttpStatusCode.Forbidden, response.status())
             }
         }
@@ -372,7 +370,7 @@ class EventAPITest {
             every { EventService.updateEvent(form) } returns expected.right()
             every { EventRepository.getEventByID(1) } returns initial.right()
 
-            testPatch("/events", json.stringify(EventUpdateForm.serializer(), form)) {
+            testPatch("/events", Json.encodeToString(EventUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
                 assertEquals("id: Must be greater than 0", response.content)
 
@@ -407,7 +405,7 @@ class EventAPITest {
 
             testDelete("/events") {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Event.serializer().list, expected), response.content)
+                assertEquals(Json.encodeToString(ListSerializer(Event.serializer()), expected), response.content)
             }
         }
 

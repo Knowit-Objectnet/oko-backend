@@ -9,7 +9,7 @@ import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkObject
 import io.mockk.unmockkAll
-import kotlinx.serialization.builtins.list
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import ombruk.backend.calendar.database.StationRepository
 import ombruk.backend.calendar.model.Station
@@ -32,7 +32,6 @@ import kotlin.test.assertEquals
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockKExtension::class)
 class EventAPITest {
-    val json = Json(DefaultJsonConfiguration.copy(prettyPrint = true))
 
     @BeforeEach
     fun setup() {
@@ -66,7 +65,7 @@ class EventAPITest {
 
             testGet("/pickups/1") {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Pickup.serializer(), expected), response.content)
+                assertEquals(Json.encodeToString(Pickup.serializer(), expected), response.content)
             }
         }
 
@@ -134,7 +133,7 @@ class EventAPITest {
 
             testGet("/pickups") {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Pickup.serializer().list, expected), response.content)
+                assertEquals(Json.encodeToString(ListSerializer(Pickup.serializer()), expected), response.content)
             }
         }
 
@@ -189,9 +188,9 @@ class EventAPITest {
             every { PickupService.savePickup(form) } returns expected.right()
             every { StationRepository.exists(1) } returns true
 
-            testPost("/pickups", json.stringify(PickupPostForm.serializer(), form)) {
+            testPost("/pickups", Json.encodeToString(PickupPostForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Pickup.serializer(), expected), response.content)
+                assertEquals(Json.encodeToString(Pickup.serializer(), expected), response.content)
             }
         }
 
@@ -202,7 +201,7 @@ class EventAPITest {
         fun `post pickup 401`() {
             val form = PickupPostForm(LocalDateTime.now(), LocalDateTime.now().plusDays(1), "test", 1)
 
-            testPost("/pickups", json.stringify(PickupPostForm.serializer(), form), null) {
+            testPost("/pickups", Json.encodeToString(PickupPostForm.serializer(), form), null) {
                 assertEquals(HttpStatusCode.Unauthorized, response.status())
             }
         }
@@ -214,7 +213,7 @@ class EventAPITest {
         fun `post pickup 403`() {
             val form = PickupPostForm(LocalDateTime.now(), LocalDateTime.now().plusDays(1), "test", 1)
 
-            testPost("/pickups", json.stringify(PickupPostForm.serializer(), form), JwtMockConfig.partnerBearer1) {
+            testPost("/pickups", Json.encodeToString(PickupPostForm.serializer(), form), JwtMockConfig.partnerBearer1) {
                 assertEquals(HttpStatusCode.Forbidden, response.status())
             }
         }
@@ -231,7 +230,7 @@ class EventAPITest {
             every { StationRepository.exists(1) } returns true
 
 
-            testPost("/pickups", json.stringify(PickupPostForm.serializer(), form)) {
+            testPost("/pickups", Json.encodeToString(PickupPostForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.InternalServerError, response.status())
             }
         }
@@ -245,7 +244,7 @@ class EventAPITest {
 
             every { StationRepository.exists(1) } returns true
 
-            testPost("/pickups", json.stringify(PickupPostForm.serializer(), form)) {
+            testPost("/pickups", Json.encodeToString(PickupPostForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
                 assertEquals("startDateTime: has to be less than end datetime", response.content)
             }
@@ -279,9 +278,9 @@ class EventAPITest {
             every { PickupService.updatePickup(form) } returns expected.right()
             every { StationRepository.exists(1) } returns true
 
-            testPatch("/pickups", json.stringify(PickupUpdateForm.serializer(), form)) {
+            testPatch("/pickups", Json.encodeToString(PickupUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Pickup.serializer(), expected), response.content)
+                assertEquals(Json.encodeToString(Pickup.serializer(), expected), response.content)
             }
         }
 
@@ -292,7 +291,7 @@ class EventAPITest {
         fun `patch pickup 401`() {
             val form = PickupUpdateForm(1, LocalDateTime.now())
 
-            testPatch("/pickups", json.stringify(PickupUpdateForm.serializer(), form), null) {
+            testPatch("/pickups", Json.encodeToString(PickupUpdateForm.serializer(), form), null) {
                 assertEquals(HttpStatusCode.Unauthorized, response.status())
             }
         }
@@ -304,7 +303,7 @@ class EventAPITest {
         fun `patch pickup 403`() {
             val form = PickupUpdateForm(1, LocalDateTime.now())
 
-            testPatch("/pickups", json.stringify(PickupUpdateForm.serializer(), form), JwtMockConfig.partnerBearer1) {
+            testPatch("/pickups", Json.encodeToString(PickupUpdateForm.serializer(), form), JwtMockConfig.partnerBearer1) {
                 assertEquals(HttpStatusCode.Forbidden, response.status())
             }
         }
@@ -321,7 +320,7 @@ class EventAPITest {
             every { StationRepository.exists(1) } returns true
 
 
-            testPatch("/pickups", json.stringify(PickupUpdateForm.serializer(), form)) {
+            testPatch("/pickups", Json.encodeToString(PickupUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.InternalServerError, response.status())
             }
         }
@@ -338,7 +337,7 @@ class EventAPITest {
             every { PickupRepository.getPickupById(1) } returns initial.right()
             every { StationRepository.exists(1) } returns true
 
-            testPatch("/pickups", json.stringify(PickupUpdateForm.serializer(), form)) {
+            testPatch("/pickups", Json.encodeToString(PickupUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
                 assertEquals(
                     "startDateTime: has to be less than end datetime, endDateTime: has to be greater than start datetime",

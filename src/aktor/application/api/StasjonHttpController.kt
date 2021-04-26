@@ -8,14 +8,9 @@ import io.ktor.locations.delete
 import io.ktor.locations.get
 import io.ktor.request.receive
 import io.ktor.response.respond
-import io.ktor.routing.Routing
-import io.ktor.routing.patch
-import io.ktor.routing.post
-import io.ktor.routing.route
+import io.ktor.routing.*
 import ombruk.backend.aktor.application.api.dto.*
 import ombruk.backend.aktor.application.service.IStasjonService
-import ombruk.backend.calendar.form.station.*
-import ombruk.backend.calendar.service.IStationService
 import ombruk.backend.shared.api.Authorization
 import ombruk.backend.shared.api.Roles
 import ombruk.backend.shared.api.generateResponse
@@ -23,6 +18,7 @@ import ombruk.backend.shared.api.receiveCatching
 
 @KtorExperimentalLocationsAPI
 fun Routing.stasjoner(stasjonService: IStasjonService) {
+
 
     route("/stasjoner") {
 

@@ -1,9 +1,10 @@
 package ombruk.backend.aktor.domain.model
 
 import ombruk.backend.aktor.domain.enum.PartnerStorrelse
+import ombruk.backend.core.domain.model.FindParams
 
-abstract class PartnerFindParams(
-    open val navn: String? = null,
-    open val storrelse: PartnerStorrelse? = null,
-    open val ideell: Boolean? = null
-)
+abstract class PartnerFindParams : FindParams {
+    abstract val navn: String?
+    abstract val storrelse: PartnerStorrelse?
+    abstract val ideell: Boolean?
+}

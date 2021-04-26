@@ -5,7 +5,6 @@ import io.ktor.util.KtorExperimentalAPI
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
 import ombruk.backend.calendar.database.Events
 import ombruk.backend.calendar.database.Stations
 import ombruk.backend.calendar.model.Event
@@ -98,13 +97,11 @@ class ReportRepositoryTest {
                 Pair(DayOfWeek.THURSDAY, listOf(opensAt, closesAt)),
                 Pair(DayOfWeek.FRIDAY, listOf(opensAt, closesAt))
             )
-            val json = Json(JsonConfiguration.Stable)
 
             val testStationId = Stations.insertAndGetId {
                 it[name] = "Test Station 1"
                 it[Stations.hours] =
-                    json.toJson(MapSerializer(DayOfWeekSerializer, ListSerializer(LocalTimeSerializer)), hours)
-                        .toString()
+                    Json.encodeToString(MapSerializer(DayOfWeekSerializer, ListSerializer(LocalTimeSerializer)), hours)
             }.value
 
             testStation = Station(
@@ -125,14 +122,13 @@ class ReportRepositoryTest {
 
             val testStationId2 = Stations.insertAndGetId {
                 it[name] = "Test Station 2"
-                it[Stations.hours] = json.toJson(
+                it[Stations.hours] = Json.encodeToString(
                     MapSerializer(
                         DayOfWeekSerializer, ListSerializer(
                             LocalTimeSerializer
                         )
                     ), hours
                 )
-                    .toString()
             }.value
             testStation2 = Station(
                 testStationId2,

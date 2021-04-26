@@ -5,7 +5,6 @@ import arrow.core.left
 import arrow.core.right
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.json.JsonDecodingException
 import ombruk.backend.shared.error.*
 import org.slf4j.LoggerFactory
 import java.time.format.DateTimeParseException
@@ -20,7 +19,7 @@ private val logger = LoggerFactory.getLogger("ombruk.backend.shared.api.util")
 fun <T> receiveCatching(func: suspend () -> T) = runCatching { runBlocking { func() } }
     .fold({ it.right() }, {
         when (it) {
-            is JsonDecodingException,
+//            is JsonDecodingException,
             is DateTimeParseException -> ValidationError.InputError(it.message!!).left()
             else -> {
                 logger.error(it.message)

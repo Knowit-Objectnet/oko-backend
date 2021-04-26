@@ -71,7 +71,7 @@ object Authorization {
      *
      * @param role A [Pair] of a [Roles] and an [Int] specifying what group they belong to.
      * @param eventsFunc A function that either returns a [ServiceError] or a [List] of [Event] objects.
-     * @return [role] if the only [Event.partner.id] present in the results of [eventsFunc] is the one specified in [role].
+     * @return [role] if the only [Event.partner!.id] present in the results of [eventsFunc] is the one specified in [role].
      * Else, return a [AuthorizationError]
      */
     fun authorizePartnerID(role: Pair<Roles, Int>, eventsFunc: () -> Either<ServiceError, List<Event>>) = eventsFunc()

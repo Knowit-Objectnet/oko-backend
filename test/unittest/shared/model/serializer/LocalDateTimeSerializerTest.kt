@@ -33,7 +33,7 @@ class LocalDateTimeSerializerTest {
     @MethodSource("parameterProvider")
     fun `serialize local date time`(dtToString: Pair<LocalDateTime, String>) {
         val expected = "\"${dtToString.second}\""
-        val actual = Json(DefaultJsonConfiguration).stringify(LocalDateTimeSerializer, dtToString.first)
+        val actual = Json.encodeToString(LocalDateTimeSerializer, dtToString.first)
         assertEquals(expected, actual)
     }
 
@@ -42,7 +42,7 @@ class LocalDateTimeSerializerTest {
     @MethodSource("parameterProvider")
     fun `deserialize local date time`(dtToString: Pair<LocalDateTime, String>) {
         val expected = dtToString.first
-        val actual = Json(DefaultJsonConfiguration).parse(
+        val actual = Json.decodeFromString(
             LocalDateTimeContainer.serializer(),
             "{\"dt\": \"${dtToString.second}\"}"
         )

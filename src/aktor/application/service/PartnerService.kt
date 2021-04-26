@@ -20,7 +20,7 @@ class PartnerService constructor(
 
     @KtorExperimentalAPI
     override fun savePartner(dto: PartnerPostDto): Either<ServiceError, Partner> = transaction {
-        partnerRepository.save(dto).flatMap { partner ->
+        partnerRepository.insert(dto).flatMap { partner ->
             keycloakGroupIntegration.createGroup(partner.navn, partner.id)
                 .bimap({ rollback(); it }, { partner })
         }
@@ -46,7 +46,7 @@ class PartnerService constructor(
     override fun updatePartner(dto: PartnerUpdateDto): Either<ServiceError, Partner> = transaction {
         getPartnerById(dto.id).flatMap { partner ->
             partnerRepository.update(dto).flatMap { newPartner ->
-                KeycloakGroupIntegration.updateGroup(partner.navn, newPartner.navn)
+                keycloakGroupIntegration.updateGroup(partner.navn, newPartner.navn)
                     .bimap({ rollback(); it }, { newPartner })
             }
         }

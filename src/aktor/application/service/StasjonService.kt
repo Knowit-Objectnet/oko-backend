@@ -18,7 +18,7 @@ class StasjonService(
     IStasjonService {
     override fun save(dto: StasjonCreateDto): Either<ServiceError, Stasjon> {
         return transaction {
-            stasjonRepository.create(dto).flatMap { stasjon ->
+            stasjonRepository.insert(dto).flatMap { stasjon ->
                 keycloakGroupIntegration.createGroup(stasjon.navn, stasjon.id)
                     .bimap({ rollback(); it }, { stasjon })
             }

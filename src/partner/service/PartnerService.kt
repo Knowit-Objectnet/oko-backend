@@ -15,10 +15,12 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 object PartnerService : IPartnerService {
 
+    val keycloakGroupIntegration = KeycloakGroupIntegration()
+
     @KtorExperimentalAPI
     override fun savePartner(partnerForm: PartnerPostForm): Either<ServiceError, Partner> = transaction {
         PartnerRepository.insertPartner(partnerForm).flatMap { partner ->
-            KeycloakGroupIntegration.createGroup(partner.name, partner.id)
+            keycloakGroupIntegration.createGroup(partner.name, partner.id)
                 .bimap({ rollback(); it }, { partner })
         }
     }
@@ -33,7 +35,7 @@ object PartnerService : IPartnerService {
     override fun deletePartnerById(id: Int): Either<ServiceError, Partner> = transaction {
         getPartnerById(id).flatMap { partner ->
             PartnerRepository.deletePartner(id)
-                .flatMap { KeycloakGroupIntegration.deleteGroup(partner.name) }
+                .flatMap { keycloakGroupIntegration.deleteGroup(partner.name) }
                 .bimap({ rollback(); it }, { partner })
         }
     }
@@ -43,7 +45,7 @@ object PartnerService : IPartnerService {
     override fun updatePartner(partnerForm: PartnerUpdateForm): Either<ServiceError, Partner> = transaction {
         getPartnerById(partnerForm.id).flatMap { partner ->
             PartnerRepository.updatePartner(partnerForm).flatMap { newPartner ->
-                KeycloakGroupIntegration.updateGroup(partner.name, newPartner.name)
+                keycloakGroupIntegration.updateGroup(partner.name, newPartner.name)
                     .bimap({ rollback(); it }, { newPartner })
             }
         }

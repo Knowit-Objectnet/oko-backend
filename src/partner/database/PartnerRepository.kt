@@ -5,7 +5,6 @@ import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
 import io.ktor.locations.KtorExperimentalLocationsAPI
-import ombruk.backend.calendar.database.RecurrenceRules
 import ombruk.backend.partner.form.PartnerGetForm
 
 import ombruk.backend.partner.form.PartnerPostForm
@@ -71,7 +70,7 @@ object PartnerRepository : IPartnerRepository {
             .fold(
                 {
                     Either.cond(it > 0,
-                        { Unit },
+                        {  },
                         { RepositoryError.NoRowsFound("$partnerID not found") })
                 },
                 { RepositoryError.DeleteError(it.message).left() })
@@ -82,7 +81,7 @@ object PartnerRepository : IPartnerRepository {
             .fold(
                 {
                     Either.cond(it > 0,
-                        { Unit },
+                        {  },
                         { RepositoryError.NoRowsFound("not found") })
                 },
                 { RepositoryError.DeleteError(it.message).left() })
