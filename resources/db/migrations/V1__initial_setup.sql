@@ -2,14 +2,14 @@ create TABLE partner (
     id serial primary key,
     navn varchar(255) not null unique,
     partner_storrelse varchar not null,
-    ideell number(1)
+    ideell numeric(1)
 );
 
 create TABLE stasjon (
     id serial primary key,
     navn varchar(255) not null unique,
     type varchar not null,
-    ideell number(1)
+    ideell numeric(1)
 );
 
 create TABLE kontakt (

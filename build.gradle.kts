@@ -60,6 +60,9 @@ dependencies {
 
     testImplementation("io.insert-koin:koin-test:$koin_version")
     testImplementation("io.insert-koin:koin-test-junit5:$koin_version")
+    testImplementation("org.testcontainers:junit-jupiter:1.15.3")
+    testCompile("org.junit.jupiter:junit-jupiter-api:5.6.2")
+    testImplementation("org.testcontainers:postgresql:1.15.3")
     testImplementation("io.mockk:mockk:1.10.0")
     testImplementation(kotlin("test-junit5"))
     testImplementation(ktor("server-tests"))
