@@ -3,13 +3,12 @@ package pickup.api
 import arrow.core.left
 import arrow.core.right
 import io.ktor.http.HttpStatusCode
-import io.ktor.serialization.DefaultJsonConfiguration
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkObject
 import io.mockk.unmockkAll
-import kotlinx.serialization.builtins.list
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import ombruk.backend.calendar.model.Station
 import ombruk.backend.partner.database.PartnerRepository
@@ -34,8 +33,6 @@ import kotlin.test.assertEquals
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockKExtension::class)
 class RequestApiTest {
-    val json = Json(DefaultJsonConfiguration.copy(prettyPrint = true))
-
     @BeforeEach
     fun setup() {
         mockkObject(RequestService)
@@ -70,7 +67,7 @@ class RequestApiTest {
 
             testGet("/requests") {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Request.serializer().list, expected), response.content)
+                assertEquals(Json.encodeToString(ListSerializer(Request.serializer()), expected), response.content)
             }
         }
 
@@ -127,9 +124,13 @@ class RequestApiTest {
             every { PickupRepository.exists(pickup.id) } returns true
             every { PartnerRepository.exists(partner.id) } returns true
 
-            testPost("/requests", json.stringify(RequestPostForm.serializer(), form), JwtMockConfig.partnerBearer1) {
+            testPost(
+                "/requests",
+                Json.encodeToString(RequestPostForm.serializer(), form),
+                JwtMockConfig.partnerBearer1
+            ) {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Request.serializer(), expected), response.content)
+                assertEquals(Json.encodeToString(Request.serializer(), expected), response.content)
             }
         }
 
@@ -140,7 +141,7 @@ class RequestApiTest {
         fun `post request 401`() {
             val form = RequestPostForm(1, 1)
 
-            testPost("/requests", json.stringify(RequestPostForm.serializer(), form), null) {
+            testPost("/requests", Json.encodeToString(RequestPostForm.serializer(), form), null) {
                 assertEquals(HttpStatusCode.Unauthorized, response.status())
             }
         }
@@ -152,7 +153,11 @@ class RequestApiTest {
         fun `post request 403`() {
             val form = RequestPostForm(1, 1)
 
-            testPost("/requests", json.stringify(RequestPostForm.serializer(), form), JwtMockConfig.partnerBearer2) {
+            testPost(
+                "/requests",
+                Json.encodeToString(RequestPostForm.serializer(), form),
+                JwtMockConfig.partnerBearer2
+            ) {
                 assertEquals(HttpStatusCode.Forbidden, response.status())
             }
         }
@@ -170,7 +175,11 @@ class RequestApiTest {
             every { PickupRepository.exists(1) } returns true
 
 
-            testPost("/requests", json.stringify(RequestPostForm.serializer(), form), JwtMockConfig.partnerBearer1) {
+            testPost(
+                "/requests",
+                Json.encodeToString(RequestPostForm.serializer(), form),
+                JwtMockConfig.partnerBearer1
+            ) {
                 assertEquals(HttpStatusCode.InternalServerError, response.status())
             }
         }
@@ -185,7 +194,11 @@ class RequestApiTest {
             every { PartnerRepository.exists(1) } returns true
             every { PickupRepository.exists(-1) } returns true
 
-            testPost("/requests", json.stringify(RequestPostForm.serializer(), form), JwtMockConfig.partnerBearer1) {
+            testPost(
+                "/requests",
+                Json.encodeToString(RequestPostForm.serializer(), form),
+                JwtMockConfig.partnerBearer1
+            ) {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
                 assertEquals("pickupId: Must be greater than 0", response.content)
             }

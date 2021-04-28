@@ -13,9 +13,8 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.builtins.list
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
 import ombruk.backend.partner.model.KeycloakPartner
 import ombruk.backend.partner.model.TokenResponse
 import ombruk.backend.shared.error.KeycloakIntegrationError
@@ -31,7 +30,7 @@ import org.slf4j.LoggerFactory
  * partner is changed in the database.
  */
 @KtorExperimentalAPI
-object KeycloakGroupIntegration {
+class KeycloakGroupIntegration {
 
     @KtorExperimentalAPI
     private val appConfig = HoconApplicationConfig(ConfigFactory.load())
@@ -44,11 +43,11 @@ object KeycloakGroupIntegration {
     private val keycloakBaseUrl = appConfig.property("ktor.keycloak.keycloakUrl").getString()
     private val tokenUrl = keycloakBaseUrl + "realms/staging/protocol/openid-connect/token"
     private val groupsUrl = keycloakBaseUrl + "admin/realms/staging/groups/"
-    private const val grantType = "client_credentials"
-    private const val clientID = "partner-microservice"
+    private val grantType = "client_credentials"
+    private val clientID = "partner-microservice"
     private val clientSecret = appConfig.property("ktor.keycloak.clientSecret").getString()
 
-    private val json = Json(JsonConfiguration.Stable)
+//    private val json = Json(JsonConfiguration.Stable)
 
     private lateinit var token: TokenResponse
 
@@ -150,7 +149,7 @@ object KeycloakGroupIntegration {
     }
         .onFailure { logger.warn("Failed to perform auth request") }
         .fold(
-            { token = json.parse(TokenResponse.serializer(), it); Unit.right() },
+            { token = Json.decodeFromString<TokenResponse>(TokenResponse.serializer(), it); Unit.right() },
             {
                 KeycloakIntegrationError.AuthenticationError("Failed to perform auth request")
                     .left()
@@ -164,12 +163,12 @@ object KeycloakGroupIntegration {
      * @return An [Either] object consisting of a [KeycloakIntegrationError] on failure and a [List] of
      * [KeycloakPartner] objects on success.
      */
-    private fun getGroups() = performRequest(
-        method = HttpMethod.Get,
-        url = groupsUrl
-    )
-        .fold({ it.left() }, { json.parse(KeycloakPartner.serializer().list, it).right() })
-
+    private fun getGroups(): Either<KeycloakIntegrationError, List<KeycloakPartner>> =
+        performRequest(method = HttpMethod.Get, url = groupsUrl)
+            .fold(
+                { it.left() },
+                { Json.decodeFromString(ListSerializer(KeycloakPartner.serializer()), it).right() }
+            )
 
     /**
      * Helper function for getting a group based on its name. Keycloak only supports fetching groups by their ID, so a solution

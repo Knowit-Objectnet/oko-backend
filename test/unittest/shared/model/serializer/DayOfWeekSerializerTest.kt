@@ -27,7 +27,7 @@ class DayOfWeekSerializerTest {
     @MethodSource("daysParameterProvider")
     fun `serialize days`(dayToString: Pair<DayOfWeek, String>) {
         val expected = "\"${dayToString.second}\""
-        val actual = Json(DefaultJsonConfiguration).stringify(DayOfWeekSerializer, dayToString.first)
+        val actual = Json.encodeToString(DayOfWeekSerializer, dayToString.first)
         assertEquals(expected, actual)
     }
 
@@ -36,7 +36,7 @@ class DayOfWeekSerializerTest {
     @MethodSource("daysParameterProvider")
     fun `deserialize days`(dayToString: Pair<DayOfWeek, String>) {
         val expected = dayToString.first
-        val actual = Json(DefaultJsonConfiguration).parse(DayOfWeekSerializer, dayToString.second)
+        val actual = Json.decodeFromString(DayOfWeekSerializer, dayToString.second)
         assertEquals(expected, actual)
     }
 

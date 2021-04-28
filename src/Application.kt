@@ -10,7 +10,6 @@ import io.ktor.auth.jwt.JWTPrincipal
 import io.ktor.auth.jwt.jwt
 import io.ktor.config.HoconApplicationConfig
 import io.ktor.features.*
-import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
@@ -19,26 +18,21 @@ import io.ktor.locations.Locations
 import io.ktor.response.respond
 import io.ktor.routing.get
 import io.ktor.routing.routing
-import io.ktor.serialization.DefaultJsonConfiguration
 import io.ktor.serialization.json
 import io.ktor.util.DataConversionException
-import io.ktor.util.KtorExperimentalAPI
 import kotlinx.serialization.json.Json
-import ombruk.backend.calendar.api.events
+import ombruk.backend.aktor.aktorModule
+import ombruk.backend.aktor.application.api.partnere
+import ombruk.backend.aktor.application.api.stasjoner
 import ombruk.backend.calendar.api.stations
-import ombruk.backend.calendar.service.EventService
 import ombruk.backend.calendar.service.StationService
-import ombruk.backend.partner.api.partners
-import ombruk.backend.partner.service.PartnerService
-import ombruk.backend.pickup.api.pickup
-import ombruk.backend.pickup.api.request
-import ombruk.backend.pickup.service.PickupService
-import ombruk.backend.pickup.service.RequestService
 import ombruk.backend.reporting.api.report
 import ombruk.backend.reporting.service.ReportService
 import ombruk.backend.shared.api.Authorization
 import ombruk.backend.shared.api.JwtMockConfig
 import ombruk.backend.shared.database.initDB
+import org.koin.ktor.ext.Koin
+import org.koin.ktor.ext.get
 import org.valiktor.ConstraintViolationException
 import org.valiktor.i18n.mapToMessage
 import java.net.URL
@@ -56,7 +50,6 @@ var keycloakUrl = appConfig.property("ktor.keycloak.keycloakUrl").getString()
 var keycloakRealm = appConfig.property("ktor.keycloak.keycloakRealm").getString()
 
 @KtorExperimentalLocationsAPI
-@KtorExperimentalAPI
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
 fun Application.module(testing: Boolean = false) {
@@ -162,21 +155,31 @@ fun Application.module(testing: Boolean = false) {
     }
 
     install(ContentNegotiation) {
-        this.json(
-            json = Json(DefaultJsonConfiguration.copy(prettyPrint = true)),
-            contentType = ContentType.Application.Json
+        json(Json {
+            prettyPrint = true
+//            contentType = ContentType.Application.Json
+
+        }
         )
     }
 
+    install(Koin) {
+//        slf4jLogger()
+        modules(aktorModule)
+    }
+
+
     routing {
-        events(EventService)
-        partners(PartnerService)
-        report(ReportService)
-        pickup(PickupService)
-        stations(StationService)
-        request(RequestService)
+        stasjoner(get())
+        partnere(get())
+//        events(EventService)
+//        partners(PartnerService)
+//        report(ReportService)
+//        pickup(PickupService)
+//        stations(StationService)
+//        request(RequestService)
         get("/health_check") {
-            call.respond(HttpStatusCode.OK)
+            call.respond(HttpStatusCode.OK, "HELLO6")
         }
 
         install(StatusPages) {

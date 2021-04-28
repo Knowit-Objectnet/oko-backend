@@ -9,7 +9,7 @@ import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkObject
 import io.mockk.unmockkAll
-import kotlinx.serialization.builtins.list
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import ombruk.backend.partner.database.PartnerRepository
 import ombruk.backend.partner.form.PartnerGetForm
@@ -31,7 +31,6 @@ import kotlin.test.assertEquals
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockKExtension::class)
 class PartnerApiTest {
-    val json = Json(DefaultJsonConfiguration.copy(prettyPrint = true))
 
     @BeforeEach
     fun setup() {
@@ -63,7 +62,7 @@ class PartnerApiTest {
 
             testGet("/partners/1") {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Partner.serializer(), expected), response.content)
+                assertEquals(Json.encodeToString(Partner.serializer(), expected), response.content)
             }
         }
 
@@ -130,7 +129,7 @@ class PartnerApiTest {
 
             testGet("/partners") {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Partner.serializer().list, expected), response.content)
+                assertEquals(Json.encodeToString(ListSerializer(Partner.serializer()), expected), response.content)
             }
         }
 
@@ -171,9 +170,9 @@ class PartnerApiTest {
             val expected = Partner(1, "test")
             every { PartnerService.savePartner(form) } returns expected.right()
 
-            testPost("/partners", json.stringify(PartnerPostForm.serializer(), form)) {
+            testPost("/partners", Json.encodeToString(PartnerPostForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Partner.serializer(), expected), response.content)
+                assertEquals(Json.encodeToString(Partner.serializer(), expected), response.content)
             }
         }
 
@@ -184,7 +183,7 @@ class PartnerApiTest {
         fun `post partner 401`() {
             val form = PartnerPostForm("test")
 
-            testPost("/partners", json.stringify(PartnerPostForm.serializer(), form), null) {
+            testPost("/partners", Json.encodeToString(PartnerPostForm.serializer(), form), null) {
                 assertEquals(HttpStatusCode.Unauthorized, response.status())
             }
         }
@@ -196,7 +195,7 @@ class PartnerApiTest {
         fun `post partner 403`() {
             val form = PartnerPostForm("test")
 
-            testPost("/partners", json.stringify(PartnerPostForm.serializer(), form), JwtMockConfig.partnerBearer1) {
+            testPost("/partners", Json.encodeToString(PartnerPostForm.serializer(), form), JwtMockConfig.partnerBearer1) {
                 assertEquals(HttpStatusCode.Forbidden, response.status())
             }
         }
@@ -211,7 +210,7 @@ class PartnerApiTest {
 
             every { PartnerService.savePartner(form) } returns ServiceError("test").left()
 
-            testPost("/partners", json.stringify(PartnerPostForm.serializer(), form)) {
+            testPost("/partners", Json.encodeToString(PartnerPostForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.InternalServerError, response.status())
             }
         }
@@ -223,7 +222,7 @@ class PartnerApiTest {
         fun `post partner 422`() {
             val form = PartnerPostForm("test", phone = "2143")
 
-            testPost("/partners", json.stringify(PartnerPostForm.serializer(), form)) {
+            testPost("/partners", Json.encodeToString(PartnerPostForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
                 assertEquals("phone: has to be valid Norwegian phone number", response.content)
             }
@@ -255,9 +254,9 @@ class PartnerApiTest {
             every { PartnerService.updatePartner(form) } returns expected.right()
             every { PartnerRepository.getPartners(PartnerGetForm("updated")) } returns listOf<Partner>().right()
 
-            testPatch("/partners", json.stringify(PartnerUpdateForm.serializer(), form)) {
+            testPatch("/partners", Json.encodeToString(PartnerUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Partner.serializer(), expected), response.content)
+                assertEquals(Json.encodeToString(Partner.serializer(), expected), response.content)
             }
         }
 
@@ -268,7 +267,7 @@ class PartnerApiTest {
         fun `patch partner 401`() {
             val form = PartnerUpdateForm(1, "updated")
 
-            testPatch("/partners", json.stringify(PartnerUpdateForm.serializer(), form), null) {
+            testPatch("/partners", Json.encodeToString(PartnerUpdateForm.serializer(), form), null) {
                 assertEquals(HttpStatusCode.Unauthorized, response.status())
             }
         }
@@ -280,7 +279,7 @@ class PartnerApiTest {
         fun `patch partner 403`() {
             val form = PartnerUpdateForm(1, "updated")
 
-            testPatch("/partners", json.stringify(PartnerUpdateForm.serializer(), form), JwtMockConfig.partnerBearer1) {
+            testPatch("/partners", Json.encodeToString(PartnerUpdateForm.serializer(), form), JwtMockConfig.partnerBearer1) {
                 assertEquals(HttpStatusCode.Forbidden, response.status())
             }
         }
@@ -295,7 +294,7 @@ class PartnerApiTest {
             every { PartnerService.updatePartner(form) } returns ServiceError("test").left()
             every { PartnerRepository.getPartners(PartnerGetForm("updated")) } returns listOf<Partner>().right()
 
-            testPatch("/partners", json.stringify(PartnerUpdateForm.serializer(), form)) {
+            testPatch("/partners", Json.encodeToString(PartnerUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.InternalServerError, response.status())
             }
         }
@@ -307,7 +306,7 @@ class PartnerApiTest {
         fun `patch partner 422`() {
             val form = PartnerUpdateForm(1, "updated", phone = "234")
 
-            testPatch("/partners", json.stringify(PartnerUpdateForm.serializer(), form)) {
+            testPatch("/partners", Json.encodeToString(PartnerUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
                 assertEquals("phone: has to be valid Norwegian phone number", response.content)
             }
@@ -337,7 +336,7 @@ class PartnerApiTest {
 
             testDelete("/partners/1") {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Partner.serializer(), expected), response.content)
+                assertEquals(Json.encodeToString(Partner.serializer(), expected), response.content)
             }
         }
 

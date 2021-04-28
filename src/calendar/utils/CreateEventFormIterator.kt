@@ -15,8 +15,8 @@ class CreateEventFormIterator(postForm: EventPostForm) : Iterator<EventPostForm>
         // Make iteration start on the first day of the days list. Next week if start date doesn't correspond with first value in days.
         rRule.days?.let { days ->
             if (currentForm.startDateTime.dayOfWeek !in days) {
-                val nextStartDate = currentForm.startDateTime.with(TemporalAdjusters.next(days.min()))
-                val nextEndDate = currentForm.endDateTime.with(TemporalAdjusters.next(days.min()))
+                val nextStartDate = currentForm.startDateTime.with(TemporalAdjusters.next(days.minOrNull()))
+                val nextEndDate = currentForm.endDateTime.with(TemporalAdjusters.next(days.minOrNull()))
                 currentForm = currentForm.copy(startDateTime = nextStartDate, endDateTime = nextEndDate)
             }
         }

@@ -3,15 +3,16 @@ val ktor_version: String by project
 val kotlin_version: String by project
 val exposed_version: String by project
 val valiktor_version: String by project
+val koin_version: String by project
 
 group = "oslokommune.ombruk"
 
 plugins {
     application
-    kotlin("jvm") version "1.3.70"
-    kotlin("plugin.serialization") version "1.3.61"
-    id("com.github.johnrengelman.shadow") version "5.0.0"
-    jacoco
+    kotlin("jvm") version "1.4.32"
+    kotlin("plugin.serialization") version "1.4.32"
+    id("com.github.johnrengelman.shadow") version "5.2.0"
+//    jacoco
 }
 
 application {
@@ -49,7 +50,19 @@ dependencies {
     implementation("org.flywaydb:flyway-core:6.4.4")
     implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation("com.h2database:h2:1.4.200")
+    implementation("io.insert-koin:koin-core:$koin_version")
+    implementation("io.insert-koin:koin-ktor:$koin_version")
+    implementation("io.insert-koin:koin-logger-slf4j:$koin_version")
 
+
+
+
+
+    testImplementation("io.insert-koin:koin-test:$koin_version")
+    testImplementation("io.insert-koin:koin-test-junit5:$koin_version")
+    testImplementation("org.testcontainers:junit-jupiter:1.15.3")
+    testCompile("org.junit.jupiter:junit-jupiter-api:5.6.2")
+    testImplementation("org.testcontainers:postgresql:1.15.3")
     testImplementation("io.mockk:mockk:1.10.0")
     testImplementation(kotlin("test-junit5"))
     testImplementation(ktor("server-tests"))

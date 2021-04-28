@@ -1,6 +1,6 @@
 package ombruk.backend.aktor.domain.entity
 
-data class KontaktPerson (
+data class Kontakt (
     val id: Int,
     val navn: String,
     val telefon: String,

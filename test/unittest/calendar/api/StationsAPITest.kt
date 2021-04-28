@@ -4,12 +4,13 @@ import arrow.core.left
 import arrow.core.right
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.DefaultJsonConfiguration
+import io.ktor.util.Identity.encode
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkObject
 import io.mockk.unmockkAll
-import kotlinx.serialization.builtins.list
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import ombruk.backend.calendar.database.StationRepository
 import ombruk.backend.calendar.form.station.StationGetForm
@@ -36,8 +37,6 @@ import kotlin.test.assertEquals
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockKExtension::class)
 class StationsAPITest {
-    val json = Json(DefaultJsonConfiguration.copy(prettyPrint = true))
-
     @BeforeEach
     fun setup() {
         mockkObject(StationRepository)
@@ -67,7 +66,7 @@ class StationsAPITest {
             every { StationService.getStationById(1) } returns expected.right()
 
             testGet("/stations/1") {
-                val receivedStation: Station = json.parse(Station.serializer(), response.content!!)
+                val receivedStation: Station = Json.decodeFromString(Station.serializer(), response.content!!)
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(expected.name, receivedStation.name)
             }
@@ -139,7 +138,7 @@ class StationsAPITest {
 
             testGet("/stations/") {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Station.serializer().list, expected), response.content)
+                assertEquals(Json.encodeToString(ListSerializer(Station.serializer()), expected), response.content)
             }
         }
 
@@ -157,7 +156,7 @@ class StationsAPITest {
 
             testGet("/stations/?name=Test+2") {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Station.serializer().list, expected), response.content)
+                assertEquals(Json.encodeToString(ListSerializer(Station.serializer()), expected), response.content)
             }
         }
 
@@ -207,9 +206,9 @@ class StationsAPITest {
             every { StationRepository.exists(1) } returns false
             every { StationService.saveStation(form) } returns expected.right()
 
-            testPost("/stations/", json.stringify(StationPostForm.serializer(), form)) {
+            testPost("/stations/", Json.encodeToString(StationPostForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Station.serializer(), expected), response.content)
+                assertEquals(Json.encodeToString(Station.serializer(), expected), response.content)
             }
         }
 
@@ -261,9 +260,9 @@ class StationsAPITest {
             every { StationRepository.exists(1) } returns false
             every { StationService.saveStation(form) } returns expected.right()
 
-            testPost("/stations/", json.stringify(StationPostForm.serializer(), form)) {
+            testPost("/stations/", Json.encodeToString(StationPostForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Station.serializer(), expected), response.content)
+                assertEquals(Json.encodeToString(Station.serializer(), expected), response.content)
             }
         }
 
@@ -321,7 +320,7 @@ class StationsAPITest {
             every { StationRepository.exists(1) } returns false
             every { StationService.saveStation(form) } returns ValidationError.Unprocessable("test").left()
 
-            testPost("/stations/", json.stringify(StationPostForm.serializer(), form)) {
+            testPost("/stations/", Json.encodeToString(StationPostForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
                 println(response.content)
             }
@@ -336,7 +335,7 @@ class StationsAPITest {
 
             every { StationRepository.exists(1) } returns false
 
-            testPost("/stations/", json.stringify(StationPostForm.serializer(), form), null) {
+            testPost("/stations/", Json.encodeToString(StationPostForm.serializer(), form), null) {
                 assertEquals(HttpStatusCode.Unauthorized, response.status())
             }
         }
@@ -352,7 +351,7 @@ class StationsAPITest {
 
             testPost(
                 "/stations/",
-                json.stringify(StationPostForm.serializer(), form),
+                Json.encodeToString(StationPostForm.serializer(), form),
                 JwtMockConfig.regEmployeeBearer.drop(5)
             ) {
                 assertEquals(HttpStatusCode.Unauthorized, response.status())
@@ -368,7 +367,7 @@ class StationsAPITest {
 
             every { StationRepository.exists(1) } returns false
 
-            testPost("/stations/", json.stringify(StationPostForm.serializer(), form), JwtMockConfig.partnerBearer1) {
+            testPost("/stations/", Json.encodeToString(StationPostForm.serializer(), form), JwtMockConfig.partnerBearer1) {
                 assertEquals(HttpStatusCode.Forbidden, response.status())
             }
         }
@@ -384,7 +383,7 @@ class StationsAPITest {
 
             testPost(
                 "/stations/",
-                json.stringify(StationPostForm.serializer(), form),
+                Json.encodeToString(StationPostForm.serializer(), form),
                 JwtMockConfig.reuseStationBearer
             ) {
                 assertEquals(HttpStatusCode.Forbidden, response.status())
@@ -421,9 +420,9 @@ class StationsAPITest {
             every { StationService.getStationById(1) } returns initial.right()
             every { StationService.updateStation(form) } returns expected.right()
 
-            testPatch("/stations/", json.stringify(StationUpdateForm.serializer(), form)) {
+            testPatch("/stations/", Json.encodeToString(StationUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Station.serializer(), expected), response.content)
+                assertEquals(Json.encodeToString(Station.serializer(), expected), response.content)
             }
         }
 
@@ -433,7 +432,7 @@ class StationsAPITest {
         @Test
         fun `patch station no bearer 401`() {
             val form = StationUpdateForm(1, "Test")
-            testPatch("/stations/", json.stringify(StationUpdateForm.serializer(), form), null) {
+            testPatch("/stations/", Json.encodeToString(StationUpdateForm.serializer(), form), null) {
                 assertEquals(HttpStatusCode.Unauthorized, response.status())
             }
         }
@@ -446,7 +445,7 @@ class StationsAPITest {
             val form = StationUpdateForm(1, "Test")
             testPatch(
                 "/stations/",
-                json.stringify(StationUpdateForm.serializer(), form),
+                Json.encodeToString(StationUpdateForm.serializer(), form),
                 JwtMockConfig.partnerBearer2
             ) {
                 assertEquals(HttpStatusCode.Forbidden, response.status())
@@ -461,7 +460,7 @@ class StationsAPITest {
             val form = StationUpdateForm(1, "Test")
             testPatch(
                 "/stations/",
-                json.stringify(StationUpdateForm.serializer(), form),
+                Json.encodeToString(StationUpdateForm.serializer(), form),
                 JwtMockConfig.reuseStationBearer
             ) {
                 assertEquals(HttpStatusCode.Forbidden, response.status())
@@ -476,7 +475,7 @@ class StationsAPITest {
             val form = StationUpdateForm(1, "Test")
             every { StationService.updateStation(form) } returns ServiceError("test").left()
 
-            testPatch("/stations/", json.stringify(StationUpdateForm.serializer(), form)) {
+            testPatch("/stations/", Json.encodeToString(StationUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.InternalServerError, response.status())
             }
         }
@@ -489,7 +488,7 @@ class StationsAPITest {
             val form = StationUpdateForm(1, "Test")
             every { StationService.updateStation(form) } returns RepositoryError.NoRowsFound("1").left()
 
-            testPatch("/stations/", json.stringify(StationUpdateForm.serializer(), form)) {
+            testPatch("/stations/", Json.encodeToString(StationUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.NotFound, response.status())
             }
         }
@@ -512,7 +511,7 @@ class StationsAPITest {
         fun `patch station invalid state`() {
             val form = StationUpdateForm(0, "Test")
 
-            testPatch("/stations/2", json.stringify(StationUpdateForm.serializer(), form)) {
+            testPatch("/stations/2", Json.encodeToString(StationUpdateForm.serializer(), form)) {
                 assertEquals(HttpStatusCode.UnprocessableEntity, response.status())
             }
         }
@@ -533,7 +532,7 @@ class StationsAPITest {
 
             testDelete("/stations/1") {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Station.serializer(), expected), response.content)
+                assertEquals(Json.encodeToString(Station.serializer(), expected), response.content)
             }
         }
 

@@ -1,7 +1,7 @@
 package ombruk.backend.aktor.domain.entity
 
 interface Aktor {
-    var id: Int
+    val id: Int
     var navn: String
-    var kontaktPersoner: List<KontaktPerson>
+    var kontaktPersoner: List<Kontakt>
 }
