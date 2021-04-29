@@ -1,7 +1,7 @@
-package aktor.stasjon.repository
+package aktor.kontakt.repository
 
 import arrow.core.Either
-import ombruk.backend.aktor.infrastructure.repository.StasjonRepository
+import ombruk.backend.aktor.infrastructure.repository.KontaktRepository
 import ombruk.backend.shared.error.RepositoryError
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -11,12 +11,12 @@ import testutils.TestContainer
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Testcontainers
-class StasjonRepositoryTest {
-    private lateinit var stasjonRepository: StasjonRepository
+class KontaktRepositoryTest {
+    private lateinit var kontaktRepository: KontaktRepository
 
     @BeforeEach
     fun setup() {
-        stasjonRepository = StasjonRepository()
+        kontaktRepository = KontaktRepository()
         TestContainer()
     }
 
@@ -24,7 +24,7 @@ class StasjonRepositoryTest {
     fun testFindOne() {
         val id = 1
 
-        val findOne = stasjonRepository.findOne(id)
+        val findOne = kontaktRepository.findOne(id)
         require(findOne is Either.Left)
 
         assert(findOne.a is RepositoryError.NoRowsFound)
