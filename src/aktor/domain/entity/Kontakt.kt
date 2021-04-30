@@ -1,5 +1,8 @@
 package ombruk.backend.aktor.domain.entity
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Kontakt (
     val id: Int,
     val navn: String,

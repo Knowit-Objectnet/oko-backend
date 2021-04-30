@@ -1,10 +1,14 @@
 package ombruk.backend.avtale.domain.entity
 
-import ombruk.backend.avtale.domain.enum.AvtaleType
+import kotlinx.serialization.Serializable
+import ombruk.backend.aktor.domain.entity.Aktor
+import ombruk.backend.avtale.model.AvtaleType
+import ombruk.backend.henting.domain.entity.Henteplan
 
+@Serializable
 data class Avtale(
     val id: Int,
-    val aktorId: Int,
-    val type: AvtaleType
-    //TODO: Should Avtale have a list of Henteplan?
+    val aktor: Aktor,
+    val type: AvtaleType,
+    val henteplaner: List<Henteplan> = emptyList()
 )
