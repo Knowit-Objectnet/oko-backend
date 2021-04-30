@@ -39,7 +39,7 @@ class AvtaleService(val avtaleRepository: IAvtaleRepository, val hentePlanServic
         if (avtaler.isLeft()) {
             return avtaler
         }
-        val avtaleIds = avtaler.map { it.id }
+//        val avtaleIds = avtaler.map { it.id }
         TODO("Not yet implemented")
     }
 

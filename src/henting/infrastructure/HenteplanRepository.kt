@@ -27,7 +27,13 @@ class HenteplanRepository :
     }
 
     override fun updateQuery(params: HenteplanUpdateParams): Int {
-        TODO("Not yet implemented")
+        return table.update ( {table.id eq params.id} ) { row ->
+            params.frekvens?.let { row[frekvens] = it }
+            params.merknad?.let { row[merknad] = it }
+            params.sluttTidspunkt?.let { row[sluttTidspunkt] = it }
+            params.startTidspunkt?.let { row[startTidspunkt] = it }
+            params.ukeDag?.let { row[ukedag] = it.value }
+        }
     }
 
     override fun prepareQuery(params: HenteplanFindParams): Query {
@@ -46,12 +52,12 @@ class HenteplanRepository :
         return Henteplan(
             row[table.id].value,
             row[table.avtaleId],
-            row[table.stasjonId],
+            row[table.stasjonId], // Add a mapper from Stasjon Table entity to actual entity
             row[table.frekvens],
             row[table.startTidspunkt],
             row[table.sluttTidspunkt],
             DayOfWeek.of(row[table.ukedag]),
-            row[HenteplanTable.merknad]
+            row[table.merknad]
         )
     }
 
