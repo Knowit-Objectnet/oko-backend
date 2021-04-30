@@ -2,9 +2,9 @@ package ombruk.backend.avtale.domain.port
 
 import arrow.core.Either
 import ombruk.backend.avtale.domain.entity.Avtale
-import ombruk.backend.avtale.domain.model.AvtaleCreateParams
-import ombruk.backend.avtale.domain.model.AvtaleFindParams
-import ombruk.backend.avtale.domain.model.AvtaleUpdateParams
+import ombruk.backend.avtale.domain.params.AvtaleCreateParams
+import ombruk.backend.avtale.domain.params.AvtaleFindParams
+import ombruk.backend.avtale.domain.params.AvtaleUpdateParams
 import ombruk.backend.shared.error.RepositoryError
 
 interface IAvtaleRepository {
