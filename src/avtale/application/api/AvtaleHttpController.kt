@@ -33,7 +33,7 @@ fun Routing.avtaler(avtaleService: IAvtaleService) {
         }
 
         authenticate {
-            patch {
+            post {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
                     .flatMap { receiveCatching { call.receive<AvtalePostDto>() } }
                     .flatMap { it.validOrError() }
