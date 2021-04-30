@@ -17,18 +17,16 @@ import java.time.LocalDateTime
 @Serializable
 data class HenteplanUpdateDto(
     override val id: Int,
-    override val stasjonId: Int?,
     override val frekvens: HenteplanFrekvens?,
     @Serializable(with = LocalDateTimeSerializer::class) override val startTidspunkt: LocalDateTime?,
     @Serializable(with = LocalDateTimeSerializer::class) override val sluttTidspunkt: LocalDateTime?,
     override val ukeDag: DayOfWeek?,
     override val merknad: String?
 ) : IForm<HenteplanUpdateDto>, HenteplanUpdateParams() {
-    override fun validOrError(): Either<ValidationError, HenteplanUpdateDto> = runCatchingValidation{
+    override fun validOrError(): Either<ValidationError, HenteplanUpdateDto> = runCatchingValidation {
         validate(this) {
             validate(HenteplanUpdateDto::id).isPositive()
-            stasjonId?.let { validate(HenteplanUpdateDto::stasjonId).isPositive() }
-            if(startTidspunkt != null && sluttTidspunkt != null ) {
+            if (startTidspunkt != null && sluttTidspunkt != null) {
                 validate(HenteplanUpdateDto::sluttTidspunkt).isGreaterThanStartDateTime(startTidspunkt)
             }
         }

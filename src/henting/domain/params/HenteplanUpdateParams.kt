@@ -9,7 +9,6 @@ import java.time.LocalTime
 
 abstract class HenteplanUpdateParams: UpdateParams {
     abstract override val id: Int
-    abstract val stasjonId: Int?
     abstract val frekvens: HenteplanFrekvens?
     abstract val startTidspunkt: LocalDateTime?
     abstract val sluttTidspunkt: LocalDateTime?
