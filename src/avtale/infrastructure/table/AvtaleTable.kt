@@ -5,6 +5,6 @@ import ombruk.backend.avtale.model.AvtaleType
 import org.jetbrains.exposed.dao.id.IntIdTable
 
 object AvtaleTable : IntIdTable("avtale"){
-    val aktorId =  integer("aktor_id").references(PartnerTable.id)
+    val aktorId =  uuid("aktor_id")
     val type = enumeration("type", AvtaleType::class)
 }
