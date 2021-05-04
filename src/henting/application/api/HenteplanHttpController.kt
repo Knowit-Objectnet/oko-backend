@@ -21,7 +21,7 @@ import ombruk.backend.shared.api.receiveCatching
 @KtorExperimentalLocationsAPI
 fun Routing.henteplaner(henteplanService: IHenteplanService) {
 
-    route("henteplaner") {
+    route("/henteplaner") {
 
         get<HenteplanFindOneDto> { form ->
             form.validOrError()
