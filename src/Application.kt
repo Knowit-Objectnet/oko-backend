@@ -25,8 +25,12 @@ import ombruk.backend.aktor.aktorModule
 import ombruk.backend.aktor.application.api.aktor
 import ombruk.backend.aktor.application.api.partnere
 import ombruk.backend.aktor.application.api.stasjoner
+import ombruk.backend.avtale.application.api.dto.avtaler
+import ombruk.backend.avtale.avtaleModule
 import ombruk.backend.calendar.api.stations
 import ombruk.backend.calendar.service.StationService
+import ombruk.backend.henting.application.api.henteplaner
+import ombruk.backend.henting.hentingModule
 import ombruk.backend.reporting.api.report
 import ombruk.backend.reporting.service.ReportService
 import ombruk.backend.shared.api.Authorization
@@ -167,6 +171,8 @@ fun Application.module(testing: Boolean = false) {
     install(Koin) {
 //        slf4jLogger()
         modules(aktorModule)
+        modules(avtaleModule)
+        modules(hentingModule)
     }
 
 
@@ -174,6 +180,8 @@ fun Application.module(testing: Boolean = false) {
         aktor(get())
         stasjoner(get())
         partnere(get())
+        avtaler(get())
+        henteplaner(get())
 //        events(EventService)
 //        partners(PartnerService)
 //        report(ReportService)
