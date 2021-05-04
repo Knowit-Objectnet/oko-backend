@@ -20,6 +20,7 @@ import java.time.LocalDateTime
 @Location("/")
 data class HenteplanFindDto(
     override val avtaleId: Int? = null,
+    override val avtaleIds: List<Int>? = null,
     override val stasjonId: Int? = null,
     override val frekvens: HenteplanFrekvens? = null,
     @Serializable(with = LocalDateTimeSerializer::class) override val before: LocalDateTime? = null,

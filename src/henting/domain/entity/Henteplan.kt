@@ -15,7 +15,7 @@ import java.time.LocalTime
 data class Henteplan(
     val id: Int,
     val avtaleId: Int,
-    val stasjon: Stasjon,
+    val stasjonId: Int,
     val frekvens: HenteplanFrekvens,
     @Serializable(with = LocalDateTimeSerializer::class) val startTidspunkt: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class) val sluttTidspunkt: LocalDateTime,
