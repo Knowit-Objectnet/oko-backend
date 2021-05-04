@@ -17,6 +17,8 @@ class AvtaleRepository : RepositoryBase<Avtale, AvtaleCreateParams, AvtaleUpdate
         return table.insertAndGetId {
             it[aktorId] = params.aktorId
             it[type] = params.type
+            it[startDato] = params.startDato
+            it[sluttDato] = params.sluttDato
         }
     }
 
@@ -29,6 +31,8 @@ class AvtaleRepository : RepositoryBase<Avtale, AvtaleCreateParams, AvtaleUpdate
         params.id?.let { query.andWhere { table.id eq it } }
         params.aktorId?.let { query.andWhere { table.aktorId eq it } }
         params.type?.let { query.andWhere { table.type eq it } }
+        params.startDato?.let {query.andWhere { table.startDato eq it }}
+        params.sluttDato?.let {query.andWhere { table.sluttDato eq it }}
         return query.groupBy(HenteplanTable.id)
     }
 
@@ -37,6 +41,9 @@ class AvtaleRepository : RepositoryBase<Avtale, AvtaleCreateParams, AvtaleUpdate
             row[table.id].value,
             row[table.aktorId], // TODO: Figure out how to handle both Partner and Stasjon here.
             row[table.type],
+            emptyList(),
+            row[table.startDato],
+            row[table.sluttDato]
         )
     }
 
