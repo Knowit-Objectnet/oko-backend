@@ -11,7 +11,7 @@ import java.time.format.DateTimeFormatter
 
 @Serializer(forClass = LocalTime::class)
 object LocalTimeSerializer : KSerializer<LocalTime> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("DateAsString", PrimitiveKind.STRING)
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("TimeAsString", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, obj: LocalTime) =
         encoder.encodeString(obj.format(DateTimeFormatter.ISO_TIME) + "Z")
