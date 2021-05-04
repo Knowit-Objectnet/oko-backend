@@ -6,7 +6,7 @@ import java.time.LocalDate
 import java.util.*
 
 abstract class AvtaleFindParams: FindParams {
-    abstract val aktorId: UUID?
+    abstract val aktorId: String?
     abstract val type: AvtaleType?
     abstract val startDato: LocalDate?
     abstract val sluttDato: LocalDate?

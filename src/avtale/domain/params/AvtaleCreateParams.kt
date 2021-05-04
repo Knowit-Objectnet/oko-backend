@@ -6,7 +6,7 @@ import java.time.LocalDate
 import java.util.*
 
 abstract class AvtaleCreateParams {
-    abstract val aktorId: UUID
+    abstract val aktorId: String
     abstract val type: AvtaleType
     abstract val henteplaner: List<HenteplanCreateParams>
     abstract val startDato: LocalDate

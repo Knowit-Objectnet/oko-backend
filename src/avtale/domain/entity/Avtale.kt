@@ -12,8 +12,7 @@ import java.util.*
 @Serializable(with = LocalDateSerializer::class)
 data class Avtale(
     val id: Int,
-    @Serializable(with = UUIDSerializer::class)
-    val aktorId: UUID,
+    val aktorId: String,
     val type: AvtaleType,
     val henteplaner: List<Henteplan> = emptyList(),
     val startDato: LocalDate,
