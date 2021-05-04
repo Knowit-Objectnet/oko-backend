@@ -1,9 +1,6 @@
 package ombruk.backend.aktor
 
-import ombruk.backend.aktor.application.service.IPartnerService
-import ombruk.backend.aktor.application.service.IStasjonService
-import ombruk.backend.aktor.application.service.PartnerService
-import ombruk.backend.aktor.application.service.StasjonService
+import ombruk.backend.aktor.application.service.*
 import ombruk.backend.aktor.domain.port.IPartnerRepository
 import ombruk.backend.aktor.domain.port.IStasjonRepository
 import ombruk.backend.aktor.infrastructure.repository.PartnerRepository
@@ -16,6 +13,7 @@ val aktorModule = module(createdAtStart = true) {
     single<IPartnerRepository> { PartnerRepository() }
     single<IStasjonRepository> { StasjonRepository() }
 
+    single<IAktorService> {AktorService(get(), get()) }
     single<IStasjonService> {StasjonService(get(), get()) }
     single<IPartnerService> {PartnerService(get(), get()) }
 }

@@ -22,6 +22,7 @@ import io.ktor.serialization.json
 import io.ktor.util.DataConversionException
 import kotlinx.serialization.json.Json
 import ombruk.backend.aktor.aktorModule
+import ombruk.backend.aktor.application.api.aktor
 import ombruk.backend.aktor.application.api.partnere
 import ombruk.backend.aktor.application.api.stasjoner
 import ombruk.backend.calendar.api.stations
@@ -170,6 +171,7 @@ fun Application.module(testing: Boolean = false) {
 
 
     routing {
+        aktor(get())
         stasjoner(get())
         partnere(get())
 //        events(EventService)

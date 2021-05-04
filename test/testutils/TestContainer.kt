@@ -14,34 +14,38 @@ import org.testcontainers.junit.jupiter.Testcontainers
 class TestContainer {
     companion object {
         @Container
-        val container = PostgreSQLContainer<Nothing>("postgres:13.2")
-            .apply {
-                withDatabaseName("db")
-                withUsername("user")
-                withPassword("password")
-                start()
-            }
-
-        private lateinit var db: HikariDataSource
+        private val container = PostgreSQLContainer<Nothing>("postgres:13.2")
+        private val appConfig = HoconApplicationConfig(ConfigFactory.load())
 
         init {
-            if (container.isRunning) {
-                println("container is running. Connecting with Hikari")
-                db = HikariDataSource()
-                db.jdbcUrl = container.jdbcUrl
-                db.username = container.username
-                db.password = container.password
-                Database.connect(db)
+            launchContainer()
+            connect()
+            migrate()
+        }
 
-                println("Connected to db. Running migrate...")
-                migrate()
+        private fun launchContainer() {
+            val name = "testdb"
+            val user = appConfig.property("ktor.db.user").getString()
+            val password = appConfig.property("ktor.db.password").getString()
+
+            container.apply {
+                withDatabaseName(name)
+                withUsername(user)
+                withPassword(password)
+                start()
             }
+        }
+
+        private fun connect() {
+            val db = HikariDataSource()
+            db.jdbcUrl = container.jdbcUrl
+            db.username = container.username
+            db.password = container.password
+            Database.connect(db)
         }
 
         @KtorExperimentalAPI
         private fun migrate() {
-            val appConfig = HoconApplicationConfig(ConfigFactory.load())
-
             val flyway = Flyway.configure().dataSource(
                 container.jdbcUrl,
                 container.username,
@@ -52,8 +56,6 @@ class TestContainer {
                 .load()
 
             flyway.migrate()
-
-            println("migration done")
         }
     }
 }

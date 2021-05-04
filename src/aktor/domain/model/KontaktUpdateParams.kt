@@ -1,8 +1,8 @@
 package ombruk.backend.aktor.domain.model
 
-import ombruk.backend.core.domain.model.FindParams
+import ombruk.backend.core.domain.model.UpdateParams
 
-abstract class KontaktFindParams : FindParams {
+abstract class KontaktUpdateParams : UpdateParams {
     abstract override val id: Int
     abstract val navn: String
     abstract val telefon: String?
