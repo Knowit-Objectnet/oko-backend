@@ -41,4 +41,35 @@ class StasjonRepositoryTest {
         assert(findOne.a is RepositoryError.NoRowsFound)
 
     }
+
+    @Test
+    fun testFind() {
+
+        val findParams = object : StasjonFindParams() {
+            override val id: UUID? = null
+            override val navn: String? = null
+            override val type: StasjonType? = null
+        }
+
+        val find = transaction { stasjonRepository.find(findParams) }
+        println(find)
+        require(find is Either.Right)
+        assert(find.b.isEmpty())
+    }
+
+    @Test
+    fun testInsert() {
+
+        val params = object : StasjonCreateParams() {
+            override val navn: String = "Grefsen"
+            override val type: StasjonType = StasjonType.GJENBRUK
+        }
+
+        val insert = transaction{ stasjonRepository.insert(params) }
+        println(insert)
+        require(insert is Either.Right)
+        assert(insert.b.navn == params.navn)
+        assert(insert.b.type == params.type)
+
+    }
 }
