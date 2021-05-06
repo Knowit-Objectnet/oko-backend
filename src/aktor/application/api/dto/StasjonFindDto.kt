@@ -9,19 +9,21 @@ import ombruk.backend.shared.utils.validation.runCatchingValidation
 import org.valiktor.functions.isGreaterThan
 import org.valiktor.functions.isNotBlank
 import org.valiktor.validate
+import java.util.*
 
 @KtorExperimentalLocationsAPI
 @Location("/")
 data class StasjonFindDto(
     override val navn: String? = null,
     override val type: StasjonType? = null,
-    override val id: Int? = null
+    override val id: UUID? = null
 ) : IForm<StasjonFindDto>,
     StasjonFindParams() {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
             navn?.let { validate(StasjonFindDto::navn).isNotBlank() }
-            id?.let { validate(StasjonFindDto::id).isGreaterThan(0) }
+//            id?.let { validate(StasjonFindDto::id).isGreaterThan(0) }
+            //FIXME: Validate UUID?
         }
     }
 }

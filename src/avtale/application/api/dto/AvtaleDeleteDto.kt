@@ -8,13 +8,15 @@ import ombruk.backend.shared.form.IForm
 import ombruk.backend.shared.utils.validation.runCatchingValidation
 import org.valiktor.functions.isPositive
 import org.valiktor.validate
+import shared.model.serializer.UUIDSerializer
+import java.util.*
 
-@Serializable
+@Serializable(with = UUIDSerializer::class)
 @Location("/{id}")
-data class AvtaleDeleteDto(val id: Int) : IForm<AvtaleDeleteDto> {
+data class AvtaleDeleteDto(val id: UUID) : IForm<AvtaleDeleteDto> {
     override fun validOrError(): Either<ValidationError, AvtaleDeleteDto> = runCatchingValidation {
         validate(this) {
-            validate(AvtaleDeleteDto::id).isPositive()
+//            validate(AvtaleDeleteDto::id).isPositive()
         }
     }
 }

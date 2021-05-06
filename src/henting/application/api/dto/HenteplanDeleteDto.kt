@@ -8,14 +8,16 @@ import ombruk.backend.shared.form.IForm
 import ombruk.backend.shared.utils.validation.runCatchingValidation
 import org.valiktor.functions.isPositive
 import org.valiktor.validate
+import shared.model.serializer.UUIDSerializer
+import java.util.*
 
 @KtorExperimentalLocationsAPI
-@Serializable
+@Serializable(with = UUIDSerializer::class)
 @Location("/{id}")
-data class HenteplanDeleteDto(val id: Int): IForm<HenteplanDeleteDto> {
+data class HenteplanDeleteDto(val id: UUID): IForm<HenteplanDeleteDto> {
     override fun validOrError(): Either<ValidationError, HenteplanDeleteDto> = runCatchingValidation{
         validate(this) {
-            validate(HenteplanDeleteDto::id).isPositive()
+//            validate(HenteplanDeleteDto::id).isPositive()
         }
     }
 }

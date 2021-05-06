@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
+import java.util.*
 import kotlin.test.assertEquals
 
 
@@ -31,7 +32,7 @@ internal class PartnerServiceTest {
 
     @Test
     internal fun testFindOne(@MockK expected: Stasjon) {
-        val id = 1
+        val id = UUID.randomUUID()
 
         every { stasjonRepository.findOne(id) } returns expected.right()
 

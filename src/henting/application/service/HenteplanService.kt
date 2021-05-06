@@ -15,6 +15,7 @@ import ombruk.backend.henting.domain.entity.Henteplan
 import ombruk.backend.henting.domain.port.IHenteplanRepository
 import ombruk.backend.shared.error.ServiceError
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.util.*
 
 @KtorExperimentalLocationsAPI
 class HenteplanService(val henteplanRepository: IHenteplanRepository) : IHenteplanService {
@@ -40,7 +41,7 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository) : IHentepl
         }
     }
 
-    override fun findOne(id: Int): Either<ServiceError, Henteplan> {
+    override fun findOne(id: UUID): Either<ServiceError, Henteplan> {
         return henteplanRepository.findOne(id)
     }
 

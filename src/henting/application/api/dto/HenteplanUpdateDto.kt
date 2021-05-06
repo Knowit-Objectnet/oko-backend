@@ -11,12 +11,14 @@ import ombruk.backend.shared.utils.validation.isGreaterThanStartDateTime
 import ombruk.backend.shared.utils.validation.runCatchingValidation
 import org.valiktor.functions.isPositive
 import org.valiktor.validate
+import shared.model.serializer.UUIDSerializer
 import java.time.DayOfWeek
 import java.time.LocalDateTime
+import java.util.*
 
-@Serializable
+@Serializable(with = UUIDSerializer::class)
 data class HenteplanUpdateDto(
-    override val id: Int,
+    override val id: UUID,
     override val frekvens: HenteplanFrekvens?,
     @Serializable(with = LocalDateTimeSerializer::class) override val startTidspunkt: LocalDateTime?,
     @Serializable(with = LocalDateTimeSerializer::class) override val sluttTidspunkt: LocalDateTime?,
@@ -25,7 +27,7 @@ data class HenteplanUpdateDto(
 ) : IForm<HenteplanUpdateDto>, HenteplanUpdateParams() {
     override fun validOrError(): Either<ValidationError, HenteplanUpdateDto> = runCatchingValidation {
         validate(this) {
-            validate(HenteplanUpdateDto::id).isPositive()
+//            validate(HenteplanUpdateDto::id).isPositive()
             if (startTidspunkt != null && sluttTidspunkt != null) {
                 validate(HenteplanUpdateDto::sluttTidspunkt).isGreaterThanStartDateTime(startTidspunkt)
             }

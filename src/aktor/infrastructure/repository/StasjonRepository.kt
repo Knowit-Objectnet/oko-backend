@@ -9,10 +9,11 @@ import ombruk.backend.aktor.infrastructure.table.StasjonTable
 import ombruk.backend.core.infrastructure.RepositoryBase
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.*
+import java.util.*
 
 class StasjonRepository : RepositoryBase<Stasjon, StasjonCreateParams, StasjonUpdateParams, StasjonFindParams>(),
     IStasjonRepository {
-    override fun insertQuery(params: StasjonCreateParams): EntityID<Int> {
+    override fun insertQuery(params: StasjonCreateParams): EntityID<UUID> {
         return table.insertAndGetId {
             it[navn] = params.navn
             it[type] = params.type
@@ -36,6 +37,7 @@ class StasjonRepository : RepositoryBase<Stasjon, StasjonCreateParams, StasjonUp
     }
 
     override val table = StasjonTable
+
     override fun updateQuery(params: StasjonUpdateParams): Int {
         return table.update({ table.id eq params.id }) { row ->
             params.navn?.let { row[navn] = it }

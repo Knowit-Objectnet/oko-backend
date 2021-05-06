@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.testcontainers.junit.jupiter.Testcontainers
 import testutils.TestContainer
+import java.util.*
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Testcontainers
@@ -22,7 +23,7 @@ class KontaktRepositoryTest {
 
     @Test
     fun testFindOne() {
-        val id = 1
+        val id = UUID.randomUUID()
 
         val findOne = kontaktRepository.findOne(id)
         require(findOne is Either.Left)

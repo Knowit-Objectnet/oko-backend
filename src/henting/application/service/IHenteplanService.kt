@@ -7,13 +7,14 @@ import ombruk.backend.henting.application.api.dto.HenteplanFindDto
 import ombruk.backend.henting.application.api.dto.HenteplanUpdateDto
 import ombruk.backend.henting.domain.entity.Henteplan
 import ombruk.backend.shared.error.ServiceError
+import java.util.*
 
 interface IHenteplanService {
     fun create(dto: HenteplanPostDto): Either<ServiceError, Henteplan>
 
     fun batchCreate(dto: List<HenteplanPostDto>): Either<ServiceError, List<Henteplan>>
 
-    fun findOne(id: Int): Either<ServiceError, Henteplan>
+    fun findOne(id: UUID): Either<ServiceError, Henteplan>
 
     fun find(dto: HenteplanFindDto): Either<ServiceError, List<Henteplan>>
 

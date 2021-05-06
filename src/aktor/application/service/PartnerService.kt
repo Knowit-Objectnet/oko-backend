@@ -12,6 +12,7 @@ import ombruk.backend.aktor.domain.port.IPartnerRepository
 import ombruk.backend.shared.api.KeycloakGroupIntegration
 import ombruk.backend.shared.error.ServiceError
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.util.*
 
 class PartnerService constructor(
     private val keycloakGroupIntegration: KeycloakGroupIntegration,
@@ -26,14 +27,14 @@ class PartnerService constructor(
         }
     }
 
-    override fun getPartnerById(id: Int): Either<ServiceError, Partner> = partnerRepository.findOne(id)
+    override fun getPartnerById(id: UUID): Either<ServiceError, Partner> = partnerRepository.findOne(id)
 
     @KtorExperimentalLocationsAPI
     override fun getPartnere(dto: PartnerGetDto): Either<ServiceError, List<Partner>> =
         partnerRepository.find(dto)
 
     @KtorExperimentalAPI
-    override fun deletePartnerById(id: Int): Either<ServiceError, Partner> = transaction {
+    override fun deletePartnerById(id: UUID): Either<ServiceError, Partner> = transaction {
         getPartnerById(id).flatMap { partner ->
             partnerRepository.delete(id)
                 .flatMap { keycloakGroupIntegration.deleteGroup(partner.navn) }

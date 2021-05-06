@@ -9,23 +9,26 @@ import ombruk.backend.core.domain.model.UpdateParams
 import ombruk.backend.shared.error.RepositoryError
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
+import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.Query
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.util.*
 
 abstract class RepositoryBase<Entity : Any, EntityParams, EntityUpdateParams: UpdateParams, EntityFindParams : FindParams> {
 
-    abstract fun insertQuery(params: EntityParams): EntityID<Int>
+    abstract fun insertQuery(params: EntityParams): EntityID<UUID>
 
     abstract fun updateQuery(params: EntityUpdateParams): Int
+    //FIXME: It has to return Int as Table.update returns this. If this is an issue, Table.update might have to be overridden.
 
     abstract fun prepareQuery(params: EntityFindParams): Query
 
     abstract fun toEntity(row: ResultRow): Entity
 
-    abstract val table: IntIdTable
+    abstract val table: UUIDTable
 
     fun insert(params: EntityParams): Either<RepositoryError, Entity> {
         return transaction {
@@ -55,7 +58,7 @@ abstract class RepositoryBase<Entity : Any, EntityParams, EntityUpdateParams: Up
             .flatMap { it }
     }
 
-    fun findOne(id: Int): Either<RepositoryError, Entity> {
+    fun findOne(id: UUID): Either<RepositoryError, Entity> {
         return runCatching {
             table.select { table.id eq id }.mapNotNull { toEntity(it) }
         }.fold(
@@ -66,7 +69,7 @@ abstract class RepositoryBase<Entity : Any, EntityParams, EntityUpdateParams: Up
         )
     }
 
-    fun delete(id: Int): Either<RepositoryError, Unit> = runCatching {
+    fun delete(id: UUID): Either<RepositoryError, Unit> = runCatching {
         table.deleteWhere { table.id eq id }
     }.fold(
         { Unit.right() },

@@ -20,6 +20,7 @@ import ombruk.backend.partner.model.TokenResponse
 import ombruk.backend.shared.error.KeycloakIntegrationError
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.util.*
 
 /**
  * This class is used for integration with Keycloak, the provider of OKO's identity management system. In order to
@@ -228,7 +229,7 @@ class KeycloakGroupIntegration {
      * @param id The ID of the created group. Must match the ID the partner has in the database.
      * @return An [Either] object, consisting of a [KeycloakIntegrationError] on failure and a [String] on success.
      */
-    fun createGroup(name: String, id: Int) = takeIf { isDebug }?.let { Unit.right() }
+    fun createGroup(name: String, id: String) = takeIf { isDebug }?.let { Unit.right() }
         ?: runBlocking {
             performRequest(
                 HttpMethod.Post,
@@ -237,4 +238,12 @@ class KeycloakGroupIntegration {
                 body = "{\"name\": \"$name\", \"attributes\": {\"GroupID\": [$id]}}"
             )
         }
+
+    fun createGroup(name: String, id: Int): Either<KeycloakIntegrationError, Any> {
+        return createGroup(name, id.toString())
+    }
+
+    fun createGroup(name: String, id: UUID): Either<KeycloakIntegrationError, Any> {
+        return createGroup(name, id.toString())
+    }
 }

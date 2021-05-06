@@ -9,10 +9,11 @@ import ombruk.backend.aktor.infrastructure.table.PartnerTable
 import ombruk.backend.core.infrastructure.RepositoryBase
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.*
+import java.util.*
 
 class PartnerRepository : RepositoryBase<Partner, PartnerCreateParams, PartnerUpdateParams, PartnerFindParams>(),
     IPartnerRepository {
-    override fun insertQuery(params: PartnerCreateParams): EntityID<Int> {
+    override fun insertQuery(params: PartnerCreateParams): EntityID<UUID> {
         return table.insertAndGetId {
             it[navn] = params.navn
             it[storrelse] = params.storrelse

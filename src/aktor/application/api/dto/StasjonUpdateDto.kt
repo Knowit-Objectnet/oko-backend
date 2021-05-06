@@ -8,19 +8,21 @@ import ombruk.backend.shared.utils.validation.runCatchingValidation
 import org.valiktor.functions.isGreaterThan
 import org.valiktor.functions.isNotBlank
 import org.valiktor.validate
+import shared.model.serializer.UUIDSerializer
+import java.util.*
 
-@Serializable
+@Serializable(with = UUIDSerializer::class)
 data class StasjonUpdateDto(
-    override val id: Int,
+    override val id: UUID,
     override val navn: String?,
     override val type: StasjonType?
 ) : IForm<StasjonUpdateDto>, StasjonUpdateParams() {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
-            validate(StasjonUpdateDto::id).isGreaterThan(0)
+//            validate(StasjonUpdateDto::id).isGreaterThan(0)
             navn?.let{validate(StasjonUpdateDto::navn).isNotBlank()}
 //            validate(StationUpdateForm::name).isUniqueInRepository(StationRepository)
-
+            //FIXME: Validate UUID?
         }
     }
 }
