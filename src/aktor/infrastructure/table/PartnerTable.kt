@@ -6,6 +6,6 @@ import org.jetbrains.exposed.dao.id.UUIDTable
 
 object PartnerTable : UUIDTable("partner") {
     val navn = varchar("navn", 255)
-    val storrelse = enumeration("partner_storrelse", PartnerStorrelse::class)
+    val storrelse = varchar("partner_storrelse", 255)
     val ideell = bool("ideell")
 }

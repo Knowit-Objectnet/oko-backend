@@ -6,6 +6,5 @@ import org.jetbrains.exposed.dao.id.UUIDTable
 
 object StasjonTable : UUIDTable("stasjon") {
     val navn = varchar("navn", 255)
-    val type = enumeration("type", StasjonType::class)
-    val ideell = bool("ideell")
+    val type = varchar("type", 255)
 }

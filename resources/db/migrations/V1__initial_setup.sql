@@ -4,14 +4,13 @@ create TABLE partner (
     id uuid default uuid_generate_v4() primary key,
     navn varchar(255) not null unique,
     partner_storrelse varchar not null,
-    ideell numeric(1)
+    ideell boolean
 );
 
 create TABLE stasjon (
     id uuid default uuid_generate_v4() primary key,
-    navn varchar(255) not null unique,
-    type varchar not null,
-    ideell numeric(1)
+    navn varchar(255) not null,
+    type varchar not null
 );
 
 create TABLE kontakt (
