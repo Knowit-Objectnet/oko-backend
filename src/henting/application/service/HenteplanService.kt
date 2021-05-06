@@ -23,7 +23,7 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository) : IHentepl
         if(dto.avtaleId == null) {
             return ServiceError(message = "avtaleId cannot be null").left()
         }
-        return henteplanRepository.insert(dto)
+        return transaction { henteplanRepository.insert(dto) }
         // TODO: Add planlagt henting insertion logic
     }
 
@@ -42,19 +42,19 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository) : IHentepl
     }
 
     override fun findOne(id: UUID): Either<ServiceError, Henteplan> {
-        return henteplanRepository.findOne(id)
+        return transaction { henteplanRepository.findOne(id) }
     }
 
     override fun find(dto: HenteplanFindDto): Either<ServiceError, List<Henteplan>> {
-        return henteplanRepository.find(dto)
+        return transaction { henteplanRepository.find(dto) }
     }
 
     override fun delete(dto: HenteplanDeleteDto): Either<ServiceError, Unit> {
-        return henteplanRepository.delete(dto.id)
+        return transaction { henteplanRepository.delete(dto.id) }
     }
 
     override fun update(dto: HenteplanUpdateDto): Either<ServiceError, Henteplan> {
         // TODO: Add planlagt henting update logic
-        return henteplanRepository.update(dto)
+        return transaction { henteplanRepository.update(dto) }
     }
 }

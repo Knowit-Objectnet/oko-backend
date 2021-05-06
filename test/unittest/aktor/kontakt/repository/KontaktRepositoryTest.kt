@@ -3,6 +3,7 @@ package aktor.kontakt.repository
 import arrow.core.Either
 import ombruk.backend.aktor.infrastructure.repository.KontaktRepository
 import ombruk.backend.shared.error.RepositoryError
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -25,7 +26,7 @@ class KontaktRepositoryTest {
     fun testFindOne() {
         val id = UUID.randomUUID()
 
-        val findOne = kontaktRepository.findOne(id)
+        val findOne = transaction { kontaktRepository.findOne(id) }
         require(findOne is Either.Left)
 
         assert(findOne.a is RepositoryError.NoRowsFound)

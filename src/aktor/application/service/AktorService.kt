@@ -8,6 +8,7 @@ import ombruk.backend.aktor.domain.port.IStasjonRepository
 import ombruk.backend.shared.api.KeycloakGroupIntegration
 import ombruk.backend.shared.error.ServiceError
 import ombruk.backend.aktor.domain.enum.AktorType
+import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
 class AktorService(
@@ -18,15 +19,17 @@ class AktorService(
 
     override fun findOne(id: UUID): Either<ServiceError, AktorType> {
         // Check if ID exists in stasjon
-        return stasjonRepository.findOne(id).fold(
-            {
-                // Check if ID exists in partner
-                partnerRepository.findOne(id).fold(
-                    { ServiceError("Not found").left() },
-                    { AktorType.PARTNER.right() }
-                )
-            },
-            { AktorType.STASJON.right() }
-        )
+        return transaction{
+             stasjonRepository.findOne(id).fold(
+                {
+                    // Check if ID exists in partner
+                    partnerRepository.findOne(id).fold(
+                        { ServiceError("Not found").left() },
+                        { AktorType.PARTNER.right() }
+                    )
+                },
+                { AktorType.STASJON.right() }
+            )
+        }
     }
 }

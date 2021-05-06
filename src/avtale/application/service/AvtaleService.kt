@@ -27,15 +27,17 @@ class AvtaleService(val avtaleRepository: IAvtaleRepository, val hentePlanServic
     }
 
     override fun findOne(id: UUID): Either<ServiceError, Avtale> {
-        return avtaleRepository.findOne(id)
-            .flatMap { avtale ->
-                hentePlanService.find(HenteplanFindDto(avtaleId = avtale.id))
-                    .flatMap { planer -> avtale.copy(henteplaner = planer).right() }
-            }
+        return transaction {
+            avtaleRepository.findOne(id)
+                .flatMap { avtale ->
+                    hentePlanService.find(HenteplanFindDto(avtaleId = avtale.id))
+                        .flatMap { planer -> avtale.copy(henteplaner = planer).right() }
+                }
+        }
     }
 
     override fun find(dto: AvtaleFindDto): Either<ServiceError, List<Avtale>> {
-        val avtaler = avtaleRepository.find(dto)
+        val avtaler = transaction { avtaleRepository.find(dto) }
         if (avtaler.isLeft()) {
             return avtaler
         }

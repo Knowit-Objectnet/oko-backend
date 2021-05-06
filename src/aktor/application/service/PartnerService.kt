@@ -27,11 +27,11 @@ class PartnerService constructor(
         }
     }
 
-    override fun getPartnerById(id: UUID): Either<ServiceError, Partner> = partnerRepository.findOne(id)
+    override fun getPartnerById(id: UUID): Either<ServiceError, Partner> = transaction{ partnerRepository.findOne(id) }
 
     @KtorExperimentalLocationsAPI
     override fun getPartnere(dto: PartnerGetDto): Either<ServiceError, List<Partner>> =
-        partnerRepository.find(dto)
+        transaction { partnerRepository.find(dto) }
 
     @KtorExperimentalAPI
     override fun deletePartnerById(id: UUID): Either<ServiceError, Partner> = transaction {

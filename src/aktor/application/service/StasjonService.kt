@@ -27,11 +27,11 @@ class StasjonService(
     }
 
     override fun findOne(id: UUID): Either<ServiceError, Stasjon> {
-        return stasjonRepository.findOne(id)
+        return transaction { stasjonRepository.findOne(id) }
     }
 
     override fun find(dto: StasjonFindDto): Either<ServiceError, List<Stasjon>> {
-        return stasjonRepository.find((dto))
+        return transaction { stasjonRepository.find((dto)) }
     }
 
     override fun delete(id: UUID): Either<ServiceError, Stasjon> {
