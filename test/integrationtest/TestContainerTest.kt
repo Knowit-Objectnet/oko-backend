@@ -13,42 +13,40 @@ import org.junit.jupiter.api.TestInstance
 import org.testcontainers.junit.jupiter.Testcontainers
 import testutils.TestContainer
 import javax.swing.text.html.parser.Entity
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Testcontainers
-class KontaktRepositoryTest {
+class TestContainerTest {
     private lateinit var testContainer: TestContainer
-    private lateinit var kontaktRepository: KontaktRepository
 
     @BeforeEach
     fun setup() {
         testContainer = TestContainer()
-        kontaktRepository = KontaktRepository()
     }
 
     @Test
-    fun testInsert() {
-        val kontakt = object: KontaktCreateParams() {
-            val id: Int = 1
-            override val navn: String = "Oslo"
-            override val telefon: String = "40404040"
-            override val rolle: String = "Leder"
+    fun testNativeSQL() {
+        // Create test table
+        val query =
+            """
+                create TABLE test (
+                    id serial primary key,
+                    name varchar(255) not null unique
+                )
+            """.trimIndent()
+        testContainer.exec(query) {}
+
+        // Insert value to test table
+        testContainer.exec("insert into test(name) values ('test')") {}
+
+        // Get all values from test table
+        val result = testContainer.exec("select * from test") { rs ->
+            rs.getString("name")
         }
 
-        transaction {
-            val insert = kontaktRepository.insert(kontakt)
-            assert(insert is Either.Right<Kontakt>)
-        }
-    }
-
-    @Test
-    fun testFindOne() {
-        val id = 1
-
-        val findOne = kontaktRepository.findOne(id)
-        require(findOne is Either.Left)
-
-        assert(findOne.a is RepositoryError.NoRowsFound)
-
+        assertTrue(result.count() == 1)
+        assertEquals("test", result[0])
     }
 }

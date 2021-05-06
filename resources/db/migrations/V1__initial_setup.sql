@@ -14,7 +14,6 @@ create TABLE stasjon (
 
 create TABLE kontakt (
     id serial primary key,
-    stasjon_id int not null,
     navn varchar(255) not null,
     telefon varchar(20) not null,
     rolle varchar(40)
