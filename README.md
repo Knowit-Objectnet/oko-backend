@@ -14,6 +14,9 @@ Intellij IDEA has excellent Kotlin tooling, and it's highly recommended for ever
 If you want to run without it, you will need to install Gradle. Furthermore, you'll need to have JDK 8 installed.
 We have been using 1.8.252.
 
+Before running locally, a database instance must be initialised. This can be done using the following command:
+`docker run -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=admin -e POSTGRES_DB=db -p 5432:5432 postgres:13.2`
+
 You can install dependencies and run the application with `gradle run`.
 
 ### Environment Variables
