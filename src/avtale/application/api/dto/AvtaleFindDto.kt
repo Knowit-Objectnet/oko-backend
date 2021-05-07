@@ -20,12 +20,12 @@ import java.time.LocalDate
 import java.util.*
 
 @Location("/")
-@Serializable
+@Serializable(with = UUIDSerializer::class)
 data class AvtaleFindDto(
     @Serializable( with = UUIDSerializer::class)
-    override val aktorId: String?,
+    override val aktorId: UUID?,
     override val type: AvtaleType?,
-    override val id: Int?,
+    override val id: UUID?,
     @Serializable( with = LocalDateSerializer::class)
     override val startDato: LocalDate,
     @Serializable( with = LocalDateSerializer::class)
@@ -33,17 +33,16 @@ data class AvtaleFindDto(
 ) : IForm<AvtaleFindDto>, AvtaleFindParams() {
     override fun validOrError(): Either<ValidationError, AvtaleFindDto> = runCatchingValidation {
         validate(this) {
-            aktorId?.let { validate(AvtaleFindDto::aktorId).isValid {
-                    try {
-                        UUID.fromString(it)
-                        return@isValid true
-                    }
-                    catch (e: Exception) {
-                        return@isValid false
-                    }
-                }
-            }
-            id?.let { validate(AvtaleFindDto::id).isPositive() }
+//            aktorId?.let { validate(AvtaleFindDto::aktorId).isValid {
+//                    try {
+//                        UUID.fromString(it)
+//                        return@isValid true
+//                    }
+//                    catch (e: Exception) {
+//                        return@isValid false
+//                    }
+//                }
+//            }
         }
     }
 }

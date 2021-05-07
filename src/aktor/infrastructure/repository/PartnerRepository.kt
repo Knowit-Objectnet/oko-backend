@@ -1,6 +1,7 @@
 package ombruk.backend.aktor.infrastructure.repository
 
 import ombruk.backend.aktor.domain.entity.Partner
+import ombruk.backend.aktor.domain.enum.PartnerStorrelse
 import ombruk.backend.aktor.domain.model.PartnerCreateParams
 import ombruk.backend.aktor.domain.model.PartnerFindParams
 import ombruk.backend.aktor.domain.model.PartnerUpdateParams
@@ -9,13 +10,14 @@ import ombruk.backend.aktor.infrastructure.table.PartnerTable
 import ombruk.backend.core.infrastructure.RepositoryBase
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.*
+import java.util.*
 
 class PartnerRepository : RepositoryBase<Partner, PartnerCreateParams, PartnerUpdateParams, PartnerFindParams>(),
     IPartnerRepository {
-    override fun insertQuery(params: PartnerCreateParams): EntityID<Int> {
+    override fun insertQuery(params: PartnerCreateParams): EntityID<UUID> {
         return table.insertAndGetId {
             it[navn] = params.navn
-            it[storrelse] = params.storrelse
+            it[storrelse] = params.storrelse.name
             it[ideell] = params.ideell
         }
     }
@@ -24,7 +26,7 @@ class PartnerRepository : RepositoryBase<Partner, PartnerCreateParams, PartnerUp
         return table.update({ PartnerTable.id eq params.id })
         { row ->
             params.navn?.let { row[navn] = it }
-            params.storrelse?.let { row[storrelse] = it }
+            params.storrelse?.let { row[storrelse] = it.name }
             params.ideell?.let { row[ideell] = it }
         }
     }
@@ -33,7 +35,7 @@ class PartnerRepository : RepositoryBase<Partner, PartnerCreateParams, PartnerUp
         val query = (table).selectAll()
         params.navn?.let { query.andWhere { table.navn eq it } }
         params.ideell?.let { query.andWhere { table.ideell eq it } }
-        params.storrelse?.let { query.andWhere { table.storrelse eq it } }
+        params.storrelse?.let { query.andWhere { table.storrelse eq it.name } }
         return query
     }
 
@@ -49,7 +51,7 @@ class PartnerRepository : RepositoryBase<Partner, PartnerCreateParams, PartnerUp
             row[table.id].value,
             row[table.navn],
             emptyList(),
-            row[table.storrelse],
+            PartnerStorrelse.valueOf(row[table.storrelse]),
             row[table.ideell]
         )
     }

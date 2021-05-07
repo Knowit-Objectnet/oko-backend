@@ -1,27 +1,28 @@
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 create TABLE partner (
-    id serial primary key,
+    id uuid default uuid_generate_v4() primary key,
     navn varchar(255) not null unique,
     partner_storrelse varchar not null,
-    ideell numeric(1)
+    ideell boolean
 );
 
 create TABLE stasjon (
-    id serial primary key,
-    navn varchar(255) not null unique,
-    type varchar not null,
-    ideell numeric(1)
+    id uuid default uuid_generate_v4() primary key,
+    navn varchar(255) not null,
+    type varchar not null
 );
 
 create TABLE kontakt (
-    id serial primary key,
+    id uuid default uuid_generate_v4() primary key,
     navn varchar(255) not null,
     telefon varchar(20) not null,
     rolle varchar(40)
 );
 
 create TABLE stasjon_kontakt_person (
-    id serial primary key,
-    stasjon_id int not null,
+    id uuid default uuid_generate_v4() primary key,
+    stasjon_id uuid not null,
     navn varchar(255) not null,
     telefon varchar(20) not null,
     rolle varchar(50),
@@ -30,8 +31,8 @@ create TABLE stasjon_kontakt_person (
 );
 
 create TABLE partner_kontakt_person (
-    id serial primary key,
-    partner_id int not null,
+    id uuid default uuid_generate_v4() primary key,
+    partner_id uuid not null,
     navn varchar(255) not null,
     telefon varchar(20) not null,
     rolle varchar(50),

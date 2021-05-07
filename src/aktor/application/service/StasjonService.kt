@@ -10,6 +10,7 @@ import ombruk.backend.aktor.domain.port.IStasjonRepository
 import ombruk.backend.shared.api.KeycloakGroupIntegration
 import ombruk.backend.shared.error.ServiceError
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.util.*
 
 class StasjonService(
     val stasjonRepository: IStasjonRepository,
@@ -25,15 +26,15 @@ class StasjonService(
         }
     }
 
-    override fun findOne(id: Int): Either<ServiceError, Stasjon> {
-        return stasjonRepository.findOne(id)
+    override fun findOne(id: UUID): Either<ServiceError, Stasjon> {
+        return transaction { stasjonRepository.findOne(id) }
     }
 
     override fun find(dto: StasjonFindDto): Either<ServiceError, List<Stasjon>> {
-        return stasjonRepository.find((dto))
+        return transaction { stasjonRepository.find((dto)) }
     }
 
-    override fun delete(id: Int): Either<ServiceError, Stasjon> {
+    override fun delete(id: UUID): Either<ServiceError, Stasjon> {
         return transaction {
             findOne(id).flatMap { stasjon ->
                 stasjonRepository.delete(id)

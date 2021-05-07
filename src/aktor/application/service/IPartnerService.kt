@@ -8,6 +8,7 @@ import ombruk.backend.shared.error.ServiceError
 
 import arrow.core.Either
 import ombruk.backend.aktor.application.api.dto.PartnerUpdateDto
+import java.util.*
 
 interface IPartnerService {
 
@@ -26,7 +27,7 @@ interface IPartnerService {
      * @param id The ID of the user to get.
      * @return An [Either] object consisting of a [ServiceError] on failure or the requested [Partner] on success.
      */
-    fun getPartnerById(id: Int): Either<ServiceError, Partner>
+    fun getPartnerById(id: UUID): Either<ServiceError, Partner>
 
     /**
      * Fetches partnere constrained by non-null values in the [PartnerGetDto].
@@ -41,7 +42,7 @@ interface IPartnerService {
      * @param id The ID of the user that should be deleted.
      * @return A [ServiceError] on failure and a [Partner] on success.
      */
-    fun deletePartnerById(id: Int): Either<ServiceError, Partner>
+    fun deletePartnerById(id: UUID): Either<ServiceError, Partner>
 
     /**
      * Updates a partner through the use of a partner dto (update object). The provided ID must correspond with

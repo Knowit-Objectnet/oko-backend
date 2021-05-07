@@ -11,9 +11,10 @@ import ombruk.backend.henting.infrastructure.HenteplanTable
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.*
+import java.util.*
 
 class AvtaleRepository : RepositoryBase<Avtale, AvtaleCreateParams, AvtaleUpdateParams, AvtaleFindParams>(), IAvtaleRepository {
-    override fun insertQuery(params: AvtaleCreateParams): EntityID<Int> {
+    override fun insertQuery(params: AvtaleCreateParams): EntityID<UUID> {
         return table.insertAndGetId {
             it[aktorId] = params.aktorId
             it[type] = params.type

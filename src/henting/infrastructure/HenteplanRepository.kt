@@ -10,11 +10,12 @@ import ombruk.backend.henting.domain.port.IHenteplanRepository
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.*
 import java.time.DayOfWeek
+import java.util.*
 
 class HenteplanRepository :
     RepositoryBase<Henteplan, HenteplanCreateParams, HenteplanUpdateParams, HenteplanFindParams>(),
     IHenteplanRepository {
-    override fun insertQuery(params: HenteplanCreateParams): EntityID<Int> {
+    override fun insertQuery(params: HenteplanCreateParams): EntityID<UUID> {
         return HenteplanTable.insertAndGetId {
             it[avtaleId] = params.avtaleId!!
             it[stasjonId] = params.stasjonId

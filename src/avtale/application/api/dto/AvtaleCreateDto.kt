@@ -18,7 +18,7 @@ import java.util.*
 @Serializable
 data class AvtalePostDto(
     @Serializable( with = UUIDSerializer::class)
-    override val aktorId: String,
+    override val aktorId: UUID,
     override val type: AvtaleType,
     override val henteplaner: List<HenteplanPostDto>,
     @Serializable( with = LocalDateSerializer::class)

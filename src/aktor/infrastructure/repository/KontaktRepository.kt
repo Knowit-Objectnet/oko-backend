@@ -7,12 +7,13 @@ import ombruk.backend.aktor.infrastructure.table.KontaktTable
 import ombruk.backend.core.infrastructure.RepositoryBase
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.*
+import java.util.*
 
 class KontaktRepository : RepositoryBase<Kontakt, KontaktCreateParams, KontaktUpdateParams, KontaktFindParams>(),
     IKontaktRepository {
     override val table = KontaktTable
 
-    override fun insertQuery(params: KontaktCreateParams): EntityID<Int> {
+    override fun insertQuery(params: KontaktCreateParams): EntityID<UUID> {
         return table.insertAndGetId {
             it[navn] = params.navn
             it[telefon] = params.telefon

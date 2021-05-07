@@ -17,6 +17,7 @@ data class StasjonCreateDto(
         validate(this) {
             validate(StasjonCreateDto::navn).isNotBlank()
 //            validate(StasjonCreateDto::name).isUniqueInRepository(StationRepository)
+            //FIXME: Validate UUID?
         }
     }
 }
