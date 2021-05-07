@@ -29,7 +29,6 @@ class KontaktRepositoryTest {
     @Test
     fun testInsert() {
         val kontakt = object: KontaktCreateParams() {
-            val id: Int = 1
             override val navn: String = "Oslo"
             override val telefon: String = "40404040"
             override val rolle: String = "Leder"
