@@ -32,12 +32,9 @@ data class HenteplanFindDto(
 ) : IForm<HenteplanFindDto>, HenteplanFindParams() {
     override fun validOrError(): Either<ValidationError, HenteplanFindDto> = runCatchingValidation {
         validate(this) {
-//            avtaleId?.let { validate(HenteplanFindDto::avtaleId).isPositive() }
-//            stasjonId?.let { validate(HenteplanFindDto::stasjonId).isPositive() }
             if(before != null && after != null) {
                 validate(HenteplanFindDto::after).isGreaterThanStartDateTime(before)
             }
-//            id?.let { validate(HenteplanFindDto::id).isPositive() }
         }
     }
 }

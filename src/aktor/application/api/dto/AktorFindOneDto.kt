@@ -13,7 +13,6 @@ import java.util.*
 data class AktorFindOneDto(val id: UUID) : IForm<AktorFindOneDto> {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
-//            validate(AktorFindOneDto::id)
             //FIXME: Validate UUID?
         }
     }

@@ -28,8 +28,6 @@ data class HenteplanPostDto(
 ) : IForm<HenteplanPostDto>, HenteplanCreateParams() {
     override fun validOrError(): Either<ValidationError, HenteplanPostDto> = runCatchingValidation {
         validate(this) {
-//            avtaleId?.let { validate(HenteplanPostDto::avtaleId).isPositive() }
-//            validate(HenteplanPostDto::stasjonId).isPositive()
             validate(HenteplanPostDto::sluttTidspunkt).isGreaterThanStartDateTime(startTidspunkt)
         }
     }

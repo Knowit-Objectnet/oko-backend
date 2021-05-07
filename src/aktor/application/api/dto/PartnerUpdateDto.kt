@@ -25,7 +25,6 @@ data class PartnerUpdateDto(
 ) : IForm<PartnerUpdateDto>, PartnerUpdateParams() {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
-//            validate(PartnerUpdateDto::id).isGreaterThan(0)
             validate(PartnerUpdateDto::navn).isNotBlank()
 //            validate(PartnerUpdateDto::beskrivelse).isNotBlank()
 //            validate(PartnerUpdateDto::telefon).isNotBlank().isNorwegianPhoneNumber()

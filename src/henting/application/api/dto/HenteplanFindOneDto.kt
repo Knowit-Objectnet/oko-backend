@@ -17,7 +17,6 @@ import java.util.*
 data class HenteplanFindOneDto(val id: UUID): IForm<HenteplanFindOneDto> {
     override fun validOrError(): Either<ValidationError, HenteplanFindOneDto>  = runCatchingValidation{
         validate(this) {
-//            validate(HenteplanFindOneDto::id).isPositive()
         }
     }
 }

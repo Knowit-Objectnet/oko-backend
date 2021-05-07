@@ -14,7 +14,6 @@ data class AvtaleFindOneDto(
 ) : IForm<AvtaleFindOneDto> {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
-//            validate(AvtaleFindOneDto::id).isGreaterThan(0)
         }
     }
 }

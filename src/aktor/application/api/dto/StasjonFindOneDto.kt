@@ -13,7 +13,6 @@ import java.util.*
 data class StasjonFindOneDto(val id: UUID) : IForm<StasjonFindOneDto> {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
-//            validate(StasjonFindOneDto::id).isGreaterThan(0)
             //FIXME: Validate UUID?
         }
     }

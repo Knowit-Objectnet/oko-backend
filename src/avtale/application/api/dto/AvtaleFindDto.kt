@@ -43,7 +43,6 @@ data class AvtaleFindDto(
 //                    }
 //                }
 //            }
-//            id?.let { validate(AvtaleFindDto::id).isPositive() }
         }
     }
 }

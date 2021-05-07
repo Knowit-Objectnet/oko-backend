@@ -19,7 +19,6 @@ data class StasjonUpdateDto(
 ) : IForm<StasjonUpdateDto>, StasjonUpdateParams() {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
-//            validate(StasjonUpdateDto::id).isGreaterThan(0)
             navn?.let{validate(StasjonUpdateDto::navn).isNotBlank()}
 //            validate(StationUpdateForm::name).isUniqueInRepository(StationRepository)
             //FIXME: Validate UUID?

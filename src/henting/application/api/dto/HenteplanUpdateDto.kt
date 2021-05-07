@@ -27,7 +27,6 @@ data class HenteplanUpdateDto(
 ) : IForm<HenteplanUpdateDto>, HenteplanUpdateParams() {
     override fun validOrError(): Either<ValidationError, HenteplanUpdateDto> = runCatchingValidation {
         validate(this) {
-//            validate(HenteplanUpdateDto::id).isPositive()
             if (startTidspunkt != null && sluttTidspunkt != null) {
                 validate(HenteplanUpdateDto::sluttTidspunkt).isGreaterThanStartDateTime(startTidspunkt)
             }

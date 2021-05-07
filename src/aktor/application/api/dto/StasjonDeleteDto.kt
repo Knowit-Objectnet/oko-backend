@@ -13,7 +13,6 @@ import java.util.*
 data class StasjonDeleteDto(val id: UUID): IForm<StasjonDeleteDto> {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
-//            validate(StasjonDeleteDto::id).isGreaterThan(0)
             //FIXME: Validate UUID?
         }
     }

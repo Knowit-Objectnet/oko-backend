@@ -15,7 +15,6 @@ val id: UUID
 ) : IForm<PartnerGetByIdDto> {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
-//            validate(PartnerGetByIdDto::id).isGreaterThan(0)
             //FIXME: Validate UUID?
         }
     }

@@ -16,7 +16,6 @@ import java.util.*
 data class AvtaleDeleteDto(val id: UUID) : IForm<AvtaleDeleteDto> {
     override fun validOrError(): Either<ValidationError, AvtaleDeleteDto> = runCatchingValidation {
         validate(this) {
-//            validate(AvtaleDeleteDto::id).isPositive()
         }
     }
 }

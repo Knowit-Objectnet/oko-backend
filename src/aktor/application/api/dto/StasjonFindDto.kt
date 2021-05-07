@@ -22,7 +22,6 @@ data class StasjonFindDto(
     override fun validOrError() = runCatchingValidation {
         validate(this) {
             navn?.let { validate(StasjonFindDto::navn).isNotBlank() }
-//            id?.let { validate(StasjonFindDto::id).isGreaterThan(0) }
             //FIXME: Validate UUID?
         }
     }
