@@ -1,14 +1,22 @@
 package testutils
 
+import arrow.core.extensions.id.applicative.unit
+import arrow.core.left
 import com.typesafe.config.ConfigFactory
 import com.zaxxer.hikari.HikariDataSource
 import io.ktor.config.*
 import io.ktor.util.*
+import kotlinx.coroutines.runBlocking
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.Transaction
+import org.jetbrains.exposed.sql.transactions.TransactionManager
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
+import java.sql.PreparedStatement
+import java.sql.ResultSet
 
 @Testcontainers
 class TestContainer {
@@ -16,6 +24,7 @@ class TestContainer {
         @Container
         private val container = PostgreSQLContainer<Nothing>("postgres:13.2")
         private val appConfig = HoconApplicationConfig(ConfigFactory.load())
+        private lateinit var database : Database
 
         init {
             launchContainer()
@@ -41,7 +50,7 @@ class TestContainer {
             db.jdbcUrl = container.jdbcUrl
             db.username = container.username
             db.password = container.password
-            Database.connect(db)
+            database = Database.connect(db)
         }
 
         @KtorExperimentalAPI
@@ -57,5 +66,19 @@ class TestContainer {
 
             flyway.migrate()
         }
+    }
+
+    fun <T:Any> exec(query: String, transform : (ResultSet) -> T) : List<T> {
+        val result = arrayListOf<T>()
+
+        transaction(database) {
+            exec(query) { rs ->
+                while (rs.next()) {
+                    result += transform(rs)
+                }
+            }
+        }
+
+        return result
     }
 }

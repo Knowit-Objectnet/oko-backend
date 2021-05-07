@@ -15,7 +15,6 @@ create TABLE stasjon (
 
 create TABLE kontakt (
     id uuid default uuid_generate_v4() primary key,
-    stasjon_id uuid not null,
     navn varchar(255) not null,
     telefon varchar(20) not null,
     rolle varchar(40)
