@@ -1,7 +1,7 @@
 package ombruk.backend.avtale.application.api.dto
 
 import arrow.core.extensions.either.monad.flatMap
-import avtale.application.api.dto.AvtalePostDto
+import avtale.application.api.dto.AvtaleCreateDto
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.locations.*
@@ -35,7 +35,7 @@ fun Routing.avtaler(avtaleService: IAvtaleService) {
         authenticate {
             post {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
-                    .flatMap { receiveCatching { call.receive<AvtalePostDto>() } }
+                    .flatMap { receiveCatching { call.receive<AvtaleCreateDto>() } }
                     .flatMap { it.validOrError() }
                     .flatMap { avtaleService.save(it) }
                     .run { generateResponse(this) }

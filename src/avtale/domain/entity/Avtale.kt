@@ -14,7 +14,7 @@ data class Avtale(
     val id: UUID,
     val aktorId: UUID,
     val type: AvtaleType,
-    val henteplaner: List<Henteplan> = emptyList(),
     val startDato: LocalDate,
-    val sluttDato: LocalDate
+    val sluttDato: LocalDate,
+    val henteplaner: List<Henteplan> = emptyList()
 )

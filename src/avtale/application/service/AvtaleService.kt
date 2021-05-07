@@ -4,7 +4,7 @@ import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
-import avtale.application.api.dto.AvtalePostDto
+import avtale.application.api.dto.AvtaleCreateDto
 import ombruk.backend.avtale.application.api.dto.AvtaleDeleteDto
 import ombruk.backend.avtale.application.api.dto.AvtaleFindDto
 import ombruk.backend.avtale.domain.entity.Avtale
@@ -16,12 +16,16 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
 class AvtaleService(val avtaleRepository: IAvtaleRepository, val hentePlanService: IHenteplanService) : IAvtaleService {
-    override fun save(dto: AvtalePostDto): Either<ServiceError, Avtale> {
+    override fun save(dto: AvtaleCreateDto): Either<ServiceError, Avtale> {
         return transaction {
             avtaleRepository.insert(dto)
                 .flatMap { avtale ->
-                    hentePlanService.batchCreate(dto.henteplaner.map { it.copy(avtaleId = avtale.id) })
-                        .fold({ it.left() }, { avtale.copy(henteplaner = it).right() })
+                    if(dto.henteplaner != null) {
+                        return@flatMap hentePlanService.batchCreate(dto.henteplaner.map { it.copy(avtaleId = avtale.id) })
+                            .fold({ it.left() }, { avtale.copy(henteplaner = it).right() })
+                    } else {
+                        return@flatMap avtale.right()
+                    }
                 }
         }
     }

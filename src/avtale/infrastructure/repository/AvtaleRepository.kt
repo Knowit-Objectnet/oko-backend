@@ -9,7 +9,6 @@ import ombruk.backend.avtale.infrastructure.table.AvtaleTable
 import ombruk.backend.core.infrastructure.RepositoryBase
 import ombruk.backend.henting.infrastructure.HenteplanTable
 import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.*
 import java.util.*
 
@@ -42,9 +41,9 @@ class AvtaleRepository : RepositoryBase<Avtale, AvtaleCreateParams, AvtaleUpdate
             row[table.id].value,
             row[table.aktorId], // TODO: Figure out how to handle both Partner and Stasjon here.
             row[table.type],
-            emptyList(),
             row[table.startDato],
-            row[table.sluttDato]
+            row[table.sluttDato],
+            emptyList()
         )
     }
 
