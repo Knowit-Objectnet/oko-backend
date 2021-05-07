@@ -4,11 +4,12 @@ import ombruk.backend.core.domain.model.FindParams
 import ombruk.backend.henting.domain.model.HenteplanFrekvens
 import java.time.DayOfWeek
 import java.time.LocalDateTime
+import java.util.*
 
 abstract class HenteplanFindParams: FindParams {
-    abstract val avtaleId: Int?
-    abstract val avtaleIds: List<Int>?
-    abstract val stasjonId: Int?
+    abstract val avtaleId: UUID?
+    abstract val avtaleIds: List<UUID>?
+    abstract val stasjonId: UUID?
     abstract val frekvens: HenteplanFrekvens?
     abstract val before: LocalDateTime?
     abstract val after: LocalDateTime?

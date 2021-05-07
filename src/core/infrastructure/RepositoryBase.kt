@@ -9,29 +9,30 @@ import ombruk.backend.core.domain.model.UpdateParams
 import ombruk.backend.shared.error.RepositoryError
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
+import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.Query
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.util.*
 
 abstract class RepositoryBase<Entity : Any, EntityParams, EntityUpdateParams: UpdateParams, EntityFindParams : FindParams> {
 
-    abstract fun insertQuery(params: EntityParams): EntityID<Int>
+    abstract fun insertQuery(params: EntityParams): EntityID<UUID>
 
+    //NOTE: Returns the number of updated entities
     abstract fun updateQuery(params: EntityUpdateParams): Int
 
     abstract fun prepareQuery(params: EntityFindParams): Query
 
     abstract fun toEntity(row: ResultRow): Entity
 
-    abstract val table: IntIdTable
+    abstract val table: UUIDTable
 
     fun insert(params: EntityParams): Either<RepositoryError, Entity> {
-        return transaction {
-            runCatching {
-                insertQuery(params)
-            }
+        return runCatching {
+            insertQuery(params)
         }
             .fold(
                 { findOne(it.value) },
@@ -40,10 +41,8 @@ abstract class RepositoryBase<Entity : Any, EntityParams, EntityUpdateParams: Up
     }
 
     fun update(params: EntityUpdateParams): Either<RepositoryError, Entity> {
-        return transaction {
-            runCatching {
-                updateQuery(params)
-            }
+        return runCatching {
+            updateQuery(params)
         }.fold(
             //Return right if more than 1 partner has been updated. Else, return an Error
             {
@@ -55,7 +54,7 @@ abstract class RepositoryBase<Entity : Any, EntityParams, EntityUpdateParams: Up
             .flatMap { it }
     }
 
-    fun findOne(id: Int): Either<RepositoryError, Entity> {
+    fun findOne(id: UUID): Either<RepositoryError, Entity> {
         return runCatching {
             table.select { table.id eq id }.mapNotNull { toEntity(it) }
         }.fold(
@@ -66,17 +65,18 @@ abstract class RepositoryBase<Entity : Any, EntityParams, EntityUpdateParams: Up
         )
     }
 
-    fun delete(id: Int): Either<RepositoryError, Unit> = runCatching {
-        table.deleteWhere { table.id eq id }
-    }.fold(
-        { Unit.right() },
-        { RepositoryError.DeleteError(it.message).left() }
-    )
+    fun delete(id: UUID): Either<RepositoryError, Unit> {
+        return runCatching {
+            table.deleteWhere { table.id eq id }
+        }.fold(
+            { Unit.right() },
+            { RepositoryError.DeleteError(it.message).left() }
+        )
+
+    }
 
     fun find(params: EntityFindParams): Either<RepositoryError, List<Entity>> = runCatching {
-        transaction {
-            prepareQuery(params).mapNotNull { toEntity(it) }
-        }
+        prepareQuery(params).mapNotNull { toEntity(it) }
     }.fold(
         { it.right() },
         { RepositoryError.SelectError(it.message).left() }

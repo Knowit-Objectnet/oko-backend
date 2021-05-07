@@ -1,7 +1,6 @@
 package ombruk.backend.avtale.application.service
 
 import arrow.core.Either
-import arrow.core.extensions.either.monad.flatMap
 import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
@@ -14,6 +13,7 @@ import ombruk.backend.henting.application.api.dto.HenteplanFindDto
 import ombruk.backend.henting.application.service.IHenteplanService
 import ombruk.backend.shared.error.ServiceError
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.util.*
 
 class AvtaleService(val avtaleRepository: IAvtaleRepository, val hentePlanService: IHenteplanService) : IAvtaleService {
     override fun save(dto: AvtalePostDto): Either<ServiceError, Avtale> {
@@ -26,16 +26,18 @@ class AvtaleService(val avtaleRepository: IAvtaleRepository, val hentePlanServic
         }
     }
 
-    override fun findOne(id: Int): Either<ServiceError, Avtale> {
-        return avtaleRepository.findOne(id)
-            .flatMap { avtale ->
-                hentePlanService.find(HenteplanFindDto(avtaleId = avtale.id))
-                    .flatMap { planer -> avtale.copy(henteplaner = planer).right() }
-            }
+    override fun findOne(id: UUID): Either<ServiceError, Avtale> {
+        return transaction {
+            avtaleRepository.findOne(id)
+                .flatMap { avtale ->
+                    hentePlanService.find(HenteplanFindDto(avtaleId = avtale.id))
+                        .flatMap { planer -> avtale.copy(henteplaner = planer).right() }
+                }
+        }
     }
 
     override fun find(dto: AvtaleFindDto): Either<ServiceError, List<Avtale>> {
-        val avtaler = avtaleRepository.find(dto)
+        val avtaler = transaction { avtaleRepository.find(dto) }
         if (avtaler.isLeft()) {
             return avtaler
         }

@@ -6,14 +6,16 @@ import ombruk.backend.shared.form.IForm
 import ombruk.backend.shared.utils.validation.runCatchingValidation
 import org.valiktor.functions.isGreaterThan
 import org.valiktor.validate
+import java.util.*
+
 @KtorExperimentalLocationsAPI
 @Location("/{id}") // TODO: remove?
 data class PartnerGetByIdDto(
-val id: Int
+val id: UUID
 ) : IForm<PartnerGetByIdDto> {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
-            validate(PartnerGetByIdDto::id).isGreaterThan(0)
+            //FIXME: Validate UUID?
         }
     }
 }

@@ -8,10 +8,12 @@ import ombruk.backend.shared.utils.validation.runCatchingValidation
 import org.valiktor.functions.isGreaterThan
 import org.valiktor.functions.isNotBlank
 import org.valiktor.validate
+import shared.model.serializer.UUIDSerializer
+import java.util.*
 
-@Serializable
+@Serializable(with = UUIDSerializer::class)
 data class PartnerUpdateDto(
-    override val id: Int,
+    override val id: UUID,
     override val navn: String? = null,
     override val ideell: Boolean? = null,
     override val storrelse: PartnerStorrelse? = null
@@ -23,7 +25,6 @@ data class PartnerUpdateDto(
 ) : IForm<PartnerUpdateDto>, PartnerUpdateParams() {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
-            validate(PartnerUpdateDto::id).isGreaterThan(0)
             validate(PartnerUpdateDto::navn).isNotBlank()
 //            validate(PartnerUpdateDto::beskrivelse).isNotBlank()
 //            validate(PartnerUpdateDto::telefon).isNotBlank().isNorwegianPhoneNumber()
@@ -32,6 +33,8 @@ data class PartnerUpdateDto(
 //            PartnerRepository.getPartnerByID(id).map {
 //                if (it.navn != navn) validate(PartnerUpdateForm::navn).isUniqueInRepository(PartnerRepository)
 //            }
+
+            //FIXME: Validate UUID?
         }
     }
 

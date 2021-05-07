@@ -7,15 +7,17 @@ import ombruk.backend.henting.domain.model.HenteplanFrekvens
 import ombruk.backend.shared.model.serializer.DayOfWeekSerializer
 import ombruk.backend.shared.model.serializer.LocalDateTimeSerializer
 import ombruk.backend.shared.model.serializer.LocalTimeSerializer
+import shared.model.serializer.UUIDSerializer
 import java.time.DayOfWeek
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.util.*
 
-@Serializable
+@Serializable(with = UUIDSerializer::class)
 data class Henteplan(
-    val id: Int,
-    val avtaleId: Int,
-    val stasjonId: Int,
+    val id: UUID,
+    val avtaleId: UUID,
+    val stasjonId: UUID,
     val frekvens: HenteplanFrekvens,
     @Serializable(with = LocalDateTimeSerializer::class) val startTidspunkt: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class) val sluttTidspunkt: LocalDateTime,

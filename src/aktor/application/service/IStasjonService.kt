@@ -4,6 +4,7 @@ import arrow.core.Either
 import ombruk.backend.aktor.application.api.dto.*
 import ombruk.backend.aktor.domain.entity.Stasjon
 import ombruk.backend.shared.error.ServiceError
+import java.util.*
 
 interface IStasjonService {
     /**
@@ -21,7 +22,7 @@ interface IStasjonService {
      * @param id The ID of the user to get.
      * @return An [Either] object consisting of a [ServiceError] on failure or the requested [Stasjon] on success.
      */
-    fun findOne(id: Int): Either<ServiceError, Stasjon>
+    fun findOne(id: UUID): Either<ServiceError, Stasjon>
 
     /**
      * Fetches stasjoner constrained by non-null values in the [StasjonFindDto].
@@ -36,7 +37,7 @@ interface IStasjonService {
      * @param id The ID of the user that should be deleted.
      * @return A [ServiceError] on failure and a [Stasjon] on success.
      */
-    fun delete(id: Int): Either<ServiceError, Stasjon>
+    fun delete(id: UUID): Either<ServiceError, Stasjon>
 
     /**
      * Updates a stasjon through the use of a stasjon dto (update object). The provided ID must correspond with

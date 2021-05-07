@@ -17,6 +17,7 @@ data class PartnerPostDto(
     override fun validOrError() = runCatchingValidation {
         validate(this) {
             validate(PartnerPostDto::navn).isNotBlank() //.isUniqueInRepository(PartnerRepository)
+            //FIXME: Validate UUID?
         }
     }
 

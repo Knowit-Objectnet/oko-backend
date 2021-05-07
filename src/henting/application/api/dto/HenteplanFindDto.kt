@@ -12,30 +12,29 @@ import ombruk.backend.shared.utils.validation.isGreaterThanStartDateTime
 import ombruk.backend.shared.utils.validation.runCatchingValidation
 import org.valiktor.functions.isPositive
 import org.valiktor.validate
+import shared.model.serializer.UUIDSerializer
 import java.time.DayOfWeek
 import java.time.LocalDateTime
+import java.util.*
 
 @KtorExperimentalLocationsAPI
-@Serializable
+@Serializable(with = UUIDSerializer::class)
 @Location("/")
 data class HenteplanFindDto(
-    override val avtaleId: Int? = null,
-    override val avtaleIds: List<Int>? = null,
-    override val stasjonId: Int? = null,
+    override val avtaleId: UUID? = null,
+    override val avtaleIds: List<UUID>? = null,
+    override val stasjonId: UUID? = null,
     override val frekvens: HenteplanFrekvens? = null,
     @Serializable(with = LocalDateTimeSerializer::class) override val before: LocalDateTime? = null,
     @Serializable(with = LocalDateTimeSerializer::class) override val after: LocalDateTime? = null,
     override val ukedag: DayOfWeek? = null,
-    override val id: Int? = null,
+    override val id: UUID? = null,
 ) : IForm<HenteplanFindDto>, HenteplanFindParams() {
     override fun validOrError(): Either<ValidationError, HenteplanFindDto> = runCatchingValidation {
         validate(this) {
-            avtaleId?.let { validate(HenteplanFindDto::avtaleId).isPositive() }
-            stasjonId?.let { validate(HenteplanFindDto::stasjonId).isPositive() }
             if(before != null && after != null) {
                 validate(HenteplanFindDto::after).isGreaterThanStartDateTime(before)
             }
-            id?.let { validate(HenteplanFindDto::id).isPositive() }
         }
     }
 }
