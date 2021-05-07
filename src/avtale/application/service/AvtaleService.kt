@@ -54,4 +54,6 @@ class AvtaleService(val avtaleRepository: IAvtaleRepository, val hentePlanServic
             avtaleRepository.delete(dto.id)
         }
     }
+
+    //TODO: Create call that will return all Henteplan with the Avtale
 }

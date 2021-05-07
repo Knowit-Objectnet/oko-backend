@@ -29,13 +29,13 @@ class AvtaleRepository : RepositoryBase<Avtale, AvtaleCreateParams, AvtaleUpdate
     }
 
     override fun prepareQuery(params: AvtaleFindParams): Query {
-        val query = (HenteplanTable leftJoin table).selectAll()
+        val query = table.selectAll()
         params.id?.let { query.andWhere { table.id eq it } }
         params.aktorId?.let { query.andWhere { table.aktorId eq it } }
         params.type?.let { query.andWhere { table.type eq it.name } }
         params.startDato?.let {query.andWhere { table.startDato eq it }}
         params.sluttDato?.let {query.andWhere { table.sluttDato eq it }}
-        return query.groupBy(HenteplanTable.id)
+        return query
     }
 
     override fun toEntity(row: ResultRow): Avtale {

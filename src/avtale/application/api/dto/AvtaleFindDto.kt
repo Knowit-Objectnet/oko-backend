@@ -24,11 +24,11 @@ import java.util.*
 @Location("/")
 @Serializable(with = UUIDSerializer::class)
 data class AvtaleFindDto(
-    override val aktorId: UUID?,
-    override val type: AvtaleType?,
-    override val id: UUID?,
-    @Serializable( with = LocalDateSerializer::class) override val startDato: LocalDate?,
-    @Serializable( with = LocalDateSerializer::class) override val sluttDato: LocalDate?
+    override val aktorId: UUID? = null,
+    override val type: AvtaleType? = null,
+    override val id: UUID? = null,
+    @Serializable( with = LocalDateSerializer::class) override val startDato: LocalDate? = null,
+    @Serializable( with = LocalDateSerializer::class) override val sluttDato: LocalDate? = null
 ) : IForm<AvtaleFindDto>, AvtaleFindParams() {
     override fun validOrError(): Either<ValidationError, AvtaleFindDto> = runCatchingValidation {
         validate(this) {
