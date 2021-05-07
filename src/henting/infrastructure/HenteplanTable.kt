@@ -7,12 +7,12 @@ import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.`java-time`.datetime
 
-object HenteplanTable: UUIDTable("avtale") {
+object HenteplanTable: UUIDTable("henteplan") {
     val avtaleId = uuid("avtale_id").references(AvtaleTable.id)
     val stasjonId = uuid("stasjon_id").references(StasjonTable.id)
-    val frekvens = enumeration("frekvens", HenteplanFrekvens::class)
+    val frekvens = varchar("frekvens", 255)
     val startTidspunkt = datetime("start_tidspunkt")
     val sluttTidspunkt = datetime("slutt_tidspunkt")
     val ukedag = integer("ukedag")
-    val merknad = varchar("merknad", 255).nullable()
+    val merknad = text("merknad").nullable()
 }
