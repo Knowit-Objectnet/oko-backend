@@ -9,6 +9,8 @@ import ombruk.backend.avtale.domain.entity.Avtale
 import ombruk.backend.avtale.domain.params.AvtaleCreateParams
 import ombruk.backend.avtale.infrastructure.repository.AvtaleRepository
 import ombruk.backend.avtale.model.AvtaleType
+import ombruk.backend.henting.application.api.dto.PlanlagtHentingFindDto
+import ombruk.backend.henting.application.api.dto.PlanlagtHentingUpdateDto
 import ombruk.backend.henting.domain.entity.Henteplan
 import ombruk.backend.henting.domain.entity.PlanlagtHenting
 import ombruk.backend.henting.domain.model.HenteplanFrekvens
@@ -148,17 +150,93 @@ internal class PlanlagtHentingRepositoryTest {
 
     @Test
     fun update() {
+
+        transaction {
+            val findHenting = planlagtHentingRepository.findOne(planlagtHenting.id)
+            require(findHenting is Either.Right)
+            assert(findHenting.b == planlagtHenting)
+            assert(findHenting.b.avlyst == null)
+        }
+
+        transaction {
+            val update = planlagtHentingRepository.update(PlanlagtHentingUpdateDto(id=planlagtHenting.id,avlyst = LocalDateTime.of(2021,5,10,12,0)))
+            require(update is Either.Right)
+            assert(update.b.avlyst == LocalDateTime.of(2021,5,10,12,0))
+        }
+
+        transaction {
+            val findHenting = planlagtHentingRepository.findOne(planlagtHenting.id)
+            require(findHenting is Either.Right)
+            assert(findHenting.b.avlyst == LocalDateTime.of(2021,5,10,12,0))
+        }
+
     }
 
     @Test
     fun findOne() {
+        val wrongId = UUID.randomUUID()
+        transaction {
+            val findOne = planlagtHentingRepository.findOne(wrongId)
+            require(findOne is Either.Left)
+            assert(findOne.a is RepositoryError.NoRowsFound)
+        }
+
+        transaction {
+            val findOne = planlagtHentingRepository.findOne(planlagtHenting.id)
+            println(findOne)
+            require(findOne is Either.Right)
+            assert(findOne.b == planlagtHenting)
+        }
     }
 
     @Test
     fun delete() {
+        transaction {
+            val findPlanlagtHenting = planlagtHentingRepository.findOne(planlagtHenting.id)
+            require(findPlanlagtHenting is Either.Right)
+            assert(findPlanlagtHenting.b == planlagtHenting)
+        }
+
+        transaction {
+            val deletePlanlagtHenting = planlagtHentingRepository.delete(planlagtHenting.id)
+            assert(deletePlanlagtHenting is Either.Right)
+        }
+
+        transaction {
+            val findPlanlagtHenting = planlagtHentingRepository.findOne(planlagtHenting.id)
+            require(findPlanlagtHenting is Either.Left)
+            assert(findPlanlagtHenting.a is RepositoryError.NoRowsFound)
+        }
+
+        transaction {
+            val deletePlanlagtHenting = planlagtHentingRepository.delete(planlagtHenting.id)
+            assert(deletePlanlagtHenting is Either.Right)
+        }
     }
 
     @Test
     fun find() {
+
+        //TODO: This currently doesn't work, as TestContainer does not reset between tests
+/*        transaction {
+            val findAll = planlagtHentingRepository.find(PlanlagtHentingFindDto())
+            println(findAll)
+            require(findAll is Either.Right)
+            assert(findAll.b.size == 1)
+            assert(findAll.b[0] == planlagtHenting)
+        }*/
+
+        transaction {
+            val findWrongHenteplanId = planlagtHentingRepository.find(PlanlagtHentingFindDto(henteplanId = UUID.randomUUID()))
+            require(findWrongHenteplanId is Either.Right)
+            assert(findWrongHenteplanId.b.isEmpty())
+        }
+
+        transaction {
+            val findCorrectHentepanId = planlagtHentingRepository.find(PlanlagtHentingFindDto(henteplanId = henteplan.id))
+            require(findCorrectHentepanId is Either.Right)
+            assert(findCorrectHentepanId.b.size == 1)
+            assert(findCorrectHentepanId.b[0] == planlagtHenting)
+        }
     }
 }
