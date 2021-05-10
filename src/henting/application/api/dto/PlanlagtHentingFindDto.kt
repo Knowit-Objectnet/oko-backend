@@ -31,7 +31,7 @@ data class PlanlagtHentingFindDto(
     override fun validOrError(): Either<ValidationError, PlanlagtHentingFindDto> = runCatchingValidation {
         validate(this) {
             if(before != null && after != null) {
-                validate(PlanlagtHentingFindDto::before).isGreaterThanStartDateTime(after)
+                validate(PlanlagtHentingFindDto::before).isGreaterThanOrEqualTo(after)
             }
         }
     }

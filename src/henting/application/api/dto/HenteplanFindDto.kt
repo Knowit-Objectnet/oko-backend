@@ -10,6 +10,7 @@ import ombruk.backend.shared.form.IForm
 import ombruk.backend.shared.model.serializer.LocalDateTimeSerializer
 import ombruk.backend.shared.utils.validation.isGreaterThanStartDateTime
 import ombruk.backend.shared.utils.validation.runCatchingValidation
+import org.valiktor.functions.isGreaterThanOrEqualTo
 import org.valiktor.functions.isPositive
 import org.valiktor.validate
 import shared.model.serializer.UUIDSerializer
@@ -32,7 +33,7 @@ data class HenteplanFindDto(
     override fun validOrError(): Either<ValidationError, HenteplanFindDto> = runCatchingValidation {
         validate(this) {
             if(before != null && after != null) {
-                validate(HenteplanFindDto::after).isGreaterThanStartDateTime(before)
+                validate(HenteplanFindDto::before).isGreaterThanOrEqualTo(after)
             }
         }
     }
