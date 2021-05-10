@@ -8,5 +8,4 @@ abstract class PlanlagtHentingCreateParams {
     abstract val sluttTidspunkt: LocalDateTime
     abstract val merknad: String?
     abstract val henteplanId: UUID
-    abstract val avlyst: LocalDateTime?
 }

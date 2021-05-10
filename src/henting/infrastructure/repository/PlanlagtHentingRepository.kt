@@ -20,7 +20,7 @@ class PlanlagtHentingRepository: RepositoryBase<PlanlagtHenting, PlanlagtHenting
             it[sluttTidspunkt] = params.sluttTidspunkt
             it[merknad] = params.merknad
             it[henteplanId] = params.henteplanId
-            it[avlyst] = params.avlyst
+            it[avlyst] = null
         }
     }
 
@@ -35,10 +35,11 @@ class PlanlagtHentingRepository: RepositoryBase<PlanlagtHenting, PlanlagtHenting
 
     override fun prepareQuery(params: PlanlagtHentingFindParams): Query {
         val query = table.selectAll()
-        params.startTidspunkt?.let { query.andWhere { table.startTidspunkt.greaterEq(it) } }
-        params.sluttTidspunkt?.let { query.andWhere { table.sluttTidspunkt.lessEq(it) } }
+        params.after?.let { query.andWhere { table.startTidspunkt.greaterEq(it) } }
+        params.before?.let { query.andWhere { table.sluttTidspunkt.lessEq(it) } }
         params.henteplanId?.let { query.andWhere { table.henteplanId eq it } }
-        params.avlyst?.let { query.andWhere { table.avlyst eq it } }
+        params.avlyst?.let { query.andWhere { if(it) table.avlyst.isNotNull() else table.avlyst.isNull()} }
+        params.merknad?.let { query.andWhere { table.merknad.like("%${it}%")} }
         return query
     }
 

@@ -9,5 +9,5 @@ abstract class PlanlagtHentingUpdateParams : UpdateParams{
     abstract val startTidspunkt: LocalDateTime?
     abstract val sluttTidspunkt: LocalDateTime?
     abstract val merknad: String?
-    abstract val avlyst: LocalDateTime?
+    abstract val avlyst: LocalDateTime? //Should this instead be a separate avlys-all?
 }

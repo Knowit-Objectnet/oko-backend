@@ -43,7 +43,8 @@ internal class PlanlagtHentingRepositoryTest {
     private lateinit var avtale: Avtale
     private lateinit var stasjon: Stasjon
     private lateinit var henteplan: Henteplan
-    private lateinit var planlagtHenting: PlanlagtHenting
+    private lateinit var planlagtHenting1: PlanlagtHenting
+    private lateinit var planlagtHenting2: PlanlagtHenting
 
     @BeforeEach
     fun setUp() {
@@ -85,7 +86,7 @@ internal class PlanlagtHentingRepositoryTest {
             override val startTidspunkt: LocalDateTime = LocalDateTime.now()
             override val sluttTidspunkt: LocalDateTime = LocalDateTime.now().plusYears(1).plusHours(2)
             override val ukedag: DayOfWeek = DayOfWeek.MONDAY
-            override val merknad: String? = "Default test Henteplan"
+            override val merknad: String = "Default test Henteplan"
         }
 
         transaction {
@@ -96,20 +97,34 @@ internal class PlanlagtHentingRepositoryTest {
             henteplan = insert.b
         }
 
-        val planlagtHentingCreateParams = object : PlanlagtHentingCreateParams() {
+        val planlagtHentingCreateParams1 = object : PlanlagtHentingCreateParams() {
             override val startTidspunkt: LocalDateTime = LocalDateTime.now()
             override val sluttTidspunkt: LocalDateTime = LocalDateTime.now().plusHours(2)
-            override val merknad: String? = null
+            override val merknad: String = "ABCDEFG"
             override val henteplanId: UUID = henteplan.id
-            override val avlyst: LocalDateTime? = null
         }
 
         transaction {
-            val insert = planlagtHentingRepository.insert(planlagtHentingCreateParams)
+            val insert = planlagtHentingRepository.insert(planlagtHentingCreateParams1)
             println(insert)
             require(insert is Either.Right)
             assert(insert.b.henteplanId == henteplan.id)
-            planlagtHenting = insert.b
+            planlagtHenting1 = insert.b
+        }
+
+        val planlagtHentingCreateParams2 = object : PlanlagtHentingCreateParams() {
+            override val startTidspunkt: LocalDateTime = LocalDateTime.now().plusHours(2)
+            override val sluttTidspunkt: LocalDateTime = LocalDateTime.now().plusHours(4)
+            override val merknad: String = "EFGHIJK"
+            override val henteplanId: UUID = henteplan.id
+        }
+
+        transaction {
+            val insert = planlagtHentingRepository.insert(planlagtHentingCreateParams2)
+            println(insert)
+            require(insert is Either.Right)
+            assert(insert.b.henteplanId == henteplan.id)
+            planlagtHenting2 = insert.b
         }
     }
 
@@ -121,7 +136,6 @@ internal class PlanlagtHentingRepositoryTest {
             override val sluttTidspunkt: LocalDateTime = LocalDateTime.now().plusHours(2)
             override val merknad: String? = null
             override val henteplanId: UUID = UUID.randomUUID()
-            override val avlyst: LocalDateTime? = null
         }
 
         transaction {
@@ -136,7 +150,6 @@ internal class PlanlagtHentingRepositoryTest {
             override val sluttTidspunkt: LocalDateTime = LocalDateTime.now().plusHours(2)
             override val merknad: String? = null
             override val henteplanId: UUID = henteplan.id
-            override val avlyst: LocalDateTime? = null
         }
 
         transaction {
@@ -144,6 +157,7 @@ internal class PlanlagtHentingRepositoryTest {
             println(insert)
             require(insert is Either.Right)
             assert(insert.b.henteplanId == henteplan.id)
+            assert(insert.b.avlyst == null)
         }
 
     }
@@ -152,22 +166,22 @@ internal class PlanlagtHentingRepositoryTest {
     fun update() {
 
         transaction {
-            val findHenting = planlagtHentingRepository.findOne(planlagtHenting.id)
+            val findHenting = planlagtHentingRepository.findOne(planlagtHenting1.id)
             require(findHenting is Either.Right)
-            assert(findHenting.b == planlagtHenting)
-            assert(findHenting.b.avlyst == null)
+            assert(findHenting.b == planlagtHenting1)
+            assert(findHenting.b.merknad == null)
         }
 
         transaction {
-            val update = planlagtHentingRepository.update(PlanlagtHentingUpdateDto(id=planlagtHenting.id,avlyst = LocalDateTime.of(2021,5,10,12,0)))
+            val update = planlagtHentingRepository.update(PlanlagtHentingUpdateDto(id=planlagtHenting1.id,avlyst = LocalDateTime.of(2021,5,10,12,0)))
             require(update is Either.Right)
-            assert(update.b.avlyst == LocalDateTime.of(2021,5,10,12,0))
+            assert(update.b.merknad == "I have been updated!")
         }
 
         transaction {
-            val findHenting = planlagtHentingRepository.findOne(planlagtHenting.id)
+            val findHenting = planlagtHentingRepository.findOne(planlagtHenting1.id)
             require(findHenting is Either.Right)
-            assert(findHenting.b.avlyst == LocalDateTime.of(2021,5,10,12,0))
+            assert(findHenting.b.merknad == "I have been updated!")
         }
 
     }
@@ -182,34 +196,34 @@ internal class PlanlagtHentingRepositoryTest {
         }
 
         transaction {
-            val findOne = planlagtHentingRepository.findOne(planlagtHenting.id)
+            val findOne = planlagtHentingRepository.findOne(planlagtHenting1.id)
             println(findOne)
             require(findOne is Either.Right)
-            assert(findOne.b == planlagtHenting)
+            assert(findOne.b == planlagtHenting1)
         }
     }
 
     @Test
     fun delete() {
         transaction {
-            val findPlanlagtHenting = planlagtHentingRepository.findOne(planlagtHenting.id)
+            val findPlanlagtHenting = planlagtHentingRepository.findOne(planlagtHenting1.id)
             require(findPlanlagtHenting is Either.Right)
-            assert(findPlanlagtHenting.b == planlagtHenting)
+            assert(findPlanlagtHenting.b == planlagtHenting1)
         }
 
         transaction {
-            val deletePlanlagtHenting = planlagtHentingRepository.delete(planlagtHenting.id)
+            val deletePlanlagtHenting = planlagtHentingRepository.delete(planlagtHenting1.id)
             assert(deletePlanlagtHenting is Either.Right)
         }
 
         transaction {
-            val findPlanlagtHenting = planlagtHentingRepository.findOne(planlagtHenting.id)
+            val findPlanlagtHenting = planlagtHentingRepository.findOne(planlagtHenting1.id)
             require(findPlanlagtHenting is Either.Left)
             assert(findPlanlagtHenting.a is RepositoryError.NoRowsFound)
         }
 
         transaction {
-            val deletePlanlagtHenting = planlagtHentingRepository.delete(planlagtHenting.id)
+            val deletePlanlagtHenting = planlagtHentingRepository.delete(planlagtHenting1.id)
             assert(deletePlanlagtHenting is Either.Right)
         }
     }
@@ -218,13 +232,13 @@ internal class PlanlagtHentingRepositoryTest {
     fun find() {
 
         //TODO: This currently doesn't work, as TestContainer does not reset between tests
-/*        transaction {
+        transaction {
             val findAll = planlagtHentingRepository.find(PlanlagtHentingFindDto())
             println(findAll)
             require(findAll is Either.Right)
-            assert(findAll.b.size == 1)
-            assert(findAll.b[0] == planlagtHenting)
-        }*/
+            assert(findAll.b.size == 2)
+            assert(findAll.b[0] == planlagtHenting1)
+        }
 
         transaction {
             val findWrongHenteplanId = planlagtHentingRepository.find(PlanlagtHentingFindDto(henteplanId = UUID.randomUUID()))
@@ -234,9 +248,75 @@ internal class PlanlagtHentingRepositoryTest {
 
         transaction {
             val findCorrectHentepanId = planlagtHentingRepository.find(PlanlagtHentingFindDto(henteplanId = henteplan.id))
+            println(findCorrectHentepanId)
             require(findCorrectHentepanId is Either.Right)
-            assert(findCorrectHentepanId.b.size == 1)
-            assert(findCorrectHentepanId.b[0] == planlagtHenting)
+            assert(findCorrectHentepanId.b.size == 2)
+            assert(findCorrectHentepanId.b[0] == planlagtHenting1)
+        }
+
+        transaction {
+            val findMerknadABC = planlagtHentingRepository.find(PlanlagtHentingFindDto(merknad = "ABC"))
+            println(findMerknadABC)
+            require(findMerknadABC is Either.Right)
+            assert(findMerknadABC.b.size == 1)
+            assert(findMerknadABC.b.contains(planlagtHenting1))
+        }
+
+        transaction {
+            val findMerknadEFG = planlagtHentingRepository.find(PlanlagtHentingFindDto(merknad = "EFG"))
+            println(findMerknadEFG)
+            require(findMerknadEFG is Either.Right)
+            assert(findMerknadEFG.b.size == 2)
+            assert(findMerknadEFG.b.containsAll(listOf(planlagtHenting1, planlagtHenting2)))
+        }
+
+        transaction {
+            val findMerknadNotExisting = planlagtHentingRepository.find(PlanlagtHentingFindDto(merknad = "This merknad does not exist"))
+            println(findMerknadNotExisting)
+            require(findMerknadNotExisting is Either.Right)
+            assert(findMerknadNotExisting.b.isEmpty())
+        }
+
+        transaction {
+            val findAllBetween = planlagtHentingRepository.find(PlanlagtHentingFindDto(
+                after = LocalDateTime.now().minusHours(1),
+                before = LocalDateTime.now().plusHours(3)
+            ))
+            println(findAllBetween)
+            require(findAllBetween is Either.Right)
+            assert(findAllBetween.b.size == 1)
+            assert(findAllBetween.b[0] == planlagtHenting1)
+        }
+
+        transaction {
+            val findAllBetween = planlagtHentingRepository.find(PlanlagtHentingFindDto(
+                after = LocalDateTime.now().minusHours(1),
+                before = LocalDateTime.now().plusHours(5)
+            ))
+            println(findAllBetween)
+            require(findAllBetween is Either.Right)
+            assert(findAllBetween.b.size == 2)
+            assert(findAllBetween.b.containsAll(listOf(planlagtHenting1, planlagtHenting2)))
+        }
+
+        transaction {
+            val findAllBetween = planlagtHentingRepository.find(PlanlagtHentingFindDto(
+                after = LocalDateTime.now().plusHours(1),
+                before = LocalDateTime.now().plusHours(5)
+            ))
+            println(findAllBetween)
+            require(findAllBetween is Either.Right)
+            assert(findAllBetween.b.size == 1)
+            assert(findAllBetween.b[0] == planlagtHenting2)
+        }
+
+        transaction {
+            val findAllBefore = planlagtHentingRepository.find(PlanlagtHentingFindDto(
+                before = LocalDateTime.now().plusHours(1)
+            ))
+            println(findAllBefore)
+            require(findAllBefore is Either.Right)
+            assert(findAllBefore.b.isEmpty())
         }
     }
 }
