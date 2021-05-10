@@ -7,7 +7,7 @@ import ombruk.backend.avtale.domain.params.AvtaleCreateParams
 import ombruk.backend.avtale.infrastructure.repository.AvtaleRepository
 import ombruk.backend.avtale.model.AvtaleType
 import ombruk.backend.henting.domain.params.HenteplanCreateParams
-import ombruk.backend.henting.infrastructure.HenteplanRepository
+import ombruk.backend.henting.infrastructure.repository.HenteplanRepository
 import ombruk.backend.shared.error.RepositoryError
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.BeforeEach

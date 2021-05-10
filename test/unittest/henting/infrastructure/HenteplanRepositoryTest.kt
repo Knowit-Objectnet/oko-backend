@@ -14,12 +14,11 @@ import ombruk.backend.henting.application.api.dto.HenteplanUpdateDto
 import ombruk.backend.henting.domain.entity.Henteplan
 import ombruk.backend.henting.domain.model.HenteplanFrekvens
 import ombruk.backend.henting.domain.params.HenteplanCreateParams
-import ombruk.backend.henting.infrastructure.HenteplanRepository
+import ombruk.backend.henting.infrastructure.repository.HenteplanRepository
 import ombruk.backend.shared.error.RepositoryError
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.*
 
-import org.junit.jupiter.api.Assertions.*
 import org.testcontainers.junit.jupiter.Testcontainers
 import testutils.TestContainer
 import java.time.DayOfWeek

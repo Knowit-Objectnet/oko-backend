@@ -1,4 +1,4 @@
-package ombruk.backend.henting.infrastructure
+package ombruk.backend.henting.infrastructure.repository
 
 import ombruk.backend.aktor.infrastructure.table.StasjonTable
 import ombruk.backend.core.infrastructure.RepositoryBase
@@ -8,6 +8,7 @@ import ombruk.backend.henting.domain.params.HenteplanCreateParams
 import ombruk.backend.henting.domain.params.HenteplanFindParams
 import ombruk.backend.henting.domain.params.HenteplanUpdateParams
 import ombruk.backend.henting.domain.port.IHenteplanRepository
+import ombruk.backend.henting.infrastructure.table.HenteplanTable
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.*
 import java.time.DayOfWeek
@@ -45,7 +46,7 @@ class HenteplanRepository :
         params.stasjonId?.let { query.andWhere { table.stasjonId eq it } }
         params.ukedag?.let { query.andWhere { table.ukedag eq it.value } }
         params.after?.let { query.andWhere { table.startTidspunkt.greaterEq(it) } }
-        params.before?.let { query.andWhere { table.startTidspunkt.lessEq(it) } }
+        params.before?.let { query.andWhere { table.sluttTidspunkt.lessEq(it) } }
         return query
     }
 

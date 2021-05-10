@@ -1,4 +1,4 @@
-package ombruk.backend.henting.infrastructure
+package ombruk.backend.henting.infrastructure.table
 
 import ombruk.backend.aktor.infrastructure.table.StasjonTable
 import ombruk.backend.avtale.infrastructure.table.AvtaleTable

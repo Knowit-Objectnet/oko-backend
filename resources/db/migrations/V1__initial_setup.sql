@@ -61,6 +61,16 @@ create TABLE henteplan (
     FOREIGN KEY (stasjon_id) references stasjon
 );
 
+create TABLE planlagt_henting (
+    id uuid default uuid_generate_v4() primary key,
+    start_tidspunkt timestamp not null,
+    slutt_tidspunkt timestamp not null,
+    merknad text,
+    henteplan_id uuid not null,
+    avlyst timestamp,
+    FOREIGN KEY (henteplan_id) references henteplan
+);
+
 --create TABLE stations
 --(
 --    id   serial primary key,

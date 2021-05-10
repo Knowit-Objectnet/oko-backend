@@ -8,8 +8,6 @@ import ombruk.backend.avtale.domain.port.IAvtaleRepository
 import ombruk.backend.avtale.infrastructure.table.AvtaleTable
 import ombruk.backend.avtale.model.AvtaleType
 import ombruk.backend.core.infrastructure.RepositoryBase
-import ombruk.backend.henting.infrastructure.HenteplanRepository
-import ombruk.backend.henting.infrastructure.HenteplanTable
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.*
 import java.util.*
