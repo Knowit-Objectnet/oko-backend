@@ -19,11 +19,11 @@ import java.util.*
 @Serializable(with = UUIDSerializer::class)
 data class HenteplanUpdateDto(
     override val id: UUID,
-    override val frekvens: HenteplanFrekvens?,
-    @Serializable(with = LocalDateTimeSerializer::class) override val startTidspunkt: LocalDateTime?,
-    @Serializable(with = LocalDateTimeSerializer::class) override val sluttTidspunkt: LocalDateTime?,
-    override val ukeDag: DayOfWeek?,
-    override val merknad: String?
+    override val frekvens: HenteplanFrekvens? = null,
+    @Serializable(with = LocalDateTimeSerializer::class) override val startTidspunkt: LocalDateTime? = null,
+    @Serializable(with = LocalDateTimeSerializer::class) override val sluttTidspunkt: LocalDateTime? = null,
+    override val ukeDag: DayOfWeek? = null,
+    override val merknad: String? = null
 ) : IForm<HenteplanUpdateDto>, HenteplanUpdateParams() {
     override fun validOrError(): Either<ValidationError, HenteplanUpdateDto> = runCatchingValidation {
         validate(this) {

@@ -18,7 +18,7 @@ class HenteplanRepository :
     IHenteplanRepository {
     override fun insertQuery(params: HenteplanCreateParams): EntityID<UUID> {
         return HenteplanTable.insertAndGetId {
-            it[avtaleId] = params.avtaleId!!
+            it[avtaleId] = params.avtaleId
             it[stasjonId] = params.stasjonId
             it[frekvens] = params.frekvens.name
             it[startTidspunkt] = params.startTidspunkt
@@ -41,7 +41,6 @@ class HenteplanRepository :
     override fun prepareQuery(params: HenteplanFindParams): Query {
         val query = (table innerJoin StasjonTable).selectAll()
         params.avtaleId?.let { query.andWhere { table.avtaleId eq it } }
-        params.avtaleIds?.let { query.andWhere { table.avtaleId.inList(it) } }
         params.frekvens?.let { query.andWhere { table.frekvens eq it.name } }
         params.stasjonId?.let { query.andWhere { table.stasjonId eq it } }
         params.ukedag?.let { query.andWhere { table.ukedag eq it.value } }

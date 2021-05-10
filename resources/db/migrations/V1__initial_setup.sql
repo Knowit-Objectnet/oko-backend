@@ -57,7 +57,8 @@ create TABLE henteplan (
     slutt_tidspunkt timestamp not null,
     ukedag int not null,
     merknad text,
-    FOREIGN KEY (avtale_id) references avtale
+    FOREIGN KEY (avtale_id) references avtale,
+    FOREIGN KEY (stasjon_id) references stasjon
 );
 
 --create TABLE stations

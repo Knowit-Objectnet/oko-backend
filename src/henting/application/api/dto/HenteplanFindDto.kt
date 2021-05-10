@@ -22,7 +22,6 @@ import java.util.*
 @Location("/")
 data class HenteplanFindDto(
     override val avtaleId: UUID? = null,
-    override val avtaleIds: List<UUID>? = null,
     override val stasjonId: UUID? = null,
     override val frekvens: HenteplanFrekvens? = null,
     @Serializable(with = LocalDateTimeSerializer::class) override val before: LocalDateTime? = null,
