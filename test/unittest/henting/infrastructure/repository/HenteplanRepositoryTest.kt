@@ -1,4 +1,4 @@
-package henting.infrastructure
+package henting.infrastructure.repository
 
 import arrow.core.Either
 import ombruk.backend.aktor.domain.entity.Stasjon
