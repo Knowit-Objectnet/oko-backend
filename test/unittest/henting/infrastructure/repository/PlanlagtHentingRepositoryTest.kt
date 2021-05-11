@@ -30,6 +30,7 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
+import kotlin.test.assertEquals
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Testcontainers
@@ -169,13 +170,13 @@ internal class PlanlagtHentingRepositoryTest {
             val findHenting = planlagtHentingRepository.findOne(planlagtHenting1.id)
             require(findHenting is Either.Right)
             assert(findHenting.b == planlagtHenting1)
-            assert(findHenting.b.merknad == null)
+            println(findHenting.b.merknad)
         }
 
         transaction {
-            val update = planlagtHentingRepository.update(PlanlagtHentingUpdateDto(id=planlagtHenting1.id,avlyst = LocalDateTime.of(2021,5,10,12,0)))
+            val update = planlagtHentingRepository.update(PlanlagtHentingUpdateDto(id=planlagtHenting1.id, merknad = "I have been updated!"))
             require(update is Either.Right)
-            assert(update.b.merknad == "I have been updated!")
+            assertEquals("I have been updated!", update.b.merknad)
         }
 
         transaction {
