@@ -13,6 +13,7 @@ import ombruk.backend.henting.domain.entity.Henteplan
 import ombruk.backend.henting.domain.entity.PlanlagtHenting
 import ombruk.backend.henting.domain.model.HenteplanFrekvens
 import ombruk.backend.henting.infrastructure.repository.HenteplanRepository
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -21,17 +22,15 @@ import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
 import org.testcontainers.junit.jupiter.Testcontainers
 import testutils.TestContainer
+import testutils.mockDatabase
+import testutils.unmockDatabase
 import java.time.DayOfWeek
 import java.time.LocalDateTime
 import java.util.*
 
-//TODO: Make work without TestContainer
-
 @ExtendWith(MockKExtension::class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@Testcontainers
 internal class HenteplanServiceTest {
-    private lateinit var testContainer: TestContainer
     private lateinit var henteplanService: HenteplanService
     private val henteplanRepository = mockkClass(HenteplanRepository::class)
     private val planlagtHentingService: PlanlagtHentingService = mockkClass(PlanlagtHentingService::class)
@@ -41,7 +40,7 @@ internal class HenteplanServiceTest {
 
     @BeforeEach
     fun setUp() {
-        testContainer = TestContainer()
+        mockDatabase()
         henteplanService = HenteplanService(henteplanRepository, planlagtHentingService)
 
         henteplanPostDto = HenteplanPostDto(
@@ -65,6 +64,11 @@ internal class HenteplanServiceTest {
             henteplanPostDto.merknad,
             emptyList()
         )
+    }
+
+    @AfterEach
+    fun tearDown() {
+        unmockDatabase()
     }
 
     @Test

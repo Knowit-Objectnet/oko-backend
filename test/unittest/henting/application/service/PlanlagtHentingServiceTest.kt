@@ -11,6 +11,7 @@ import ombruk.backend.henting.application.api.dto.PlanlagtHentingPostDto
 import ombruk.backend.henting.application.service.PlanlagtHentingService
 import ombruk.backend.henting.domain.entity.PlanlagtHenting
 import ombruk.backend.henting.infrastructure.repository.PlanlagtHentingRepository
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -18,16 +19,15 @@ import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
 import org.testcontainers.junit.jupiter.Testcontainers
 import testutils.TestContainer
+import testutils.mockDatabase
+import testutils.unmockDatabase
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 import kotlin.test.assertEquals
 
-//TODO: Make work without TestContainer
-
 @ExtendWith(MockKExtension::class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@Testcontainers
 internal class PlanlagtHentingServiceTest {
     private lateinit var testContainer: TestContainer
     private lateinit var planlagtHentingService: PlanlagtHentingService
@@ -35,8 +35,13 @@ internal class PlanlagtHentingServiceTest {
 
     @BeforeEach
     fun setUp() {
-        testContainer = TestContainer()
+        mockDatabase()
         planlagtHentingService = PlanlagtHentingService(planlagtHentingRepository)
+    }
+
+    @AfterEach
+    fun tearDown() {
+        unmockDatabase()
     }
 
     @Test
