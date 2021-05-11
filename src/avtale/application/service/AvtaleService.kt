@@ -34,7 +34,7 @@ class AvtaleService(val avtaleRepository: IAvtaleRepository, val hentePlanServic
         return transaction {
             avtaleRepository.findOne(id)
                 .flatMap { avtale ->
-                    hentePlanService.find(HenteplanFindDto(avtaleId = avtale.id))
+                    hentePlanService.findAllForAvtale(avtale.id)
                         .flatMap { planer -> avtale.copy(henteplaner = planer).right() }
                 }
         }
