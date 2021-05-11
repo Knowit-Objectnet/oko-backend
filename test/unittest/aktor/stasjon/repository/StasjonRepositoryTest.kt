@@ -1,19 +1,13 @@
 package aktor.stasjon.repository
 
 import arrow.core.Either
-import arrow.core.extensions.either.foldable.isEmpty
-import arrow.core.extensions.either.foldable.size
-import arrow.core.right
 import ombruk.backend.aktor.domain.enum.StasjonType
 import ombruk.backend.aktor.domain.model.StasjonCreateParams
 import ombruk.backend.aktor.domain.model.StasjonFindParams
 import ombruk.backend.aktor.infrastructure.repository.StasjonRepository
 import ombruk.backend.shared.error.RepositoryError
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.*
 import org.testcontainers.junit.jupiter.Testcontainers
 import testutils.TestContainer
 import java.util.*
@@ -22,18 +16,18 @@ import java.util.*
 @Testcontainers
 class StasjonRepositoryTest {
     private lateinit var stasjonRepository: StasjonRepository
-    private lateinit var testContainer: TestContainer
+    private val testContainer: TestContainer = TestContainer()
 
     @BeforeEach
     fun setup() {
+        testContainer.start()
         stasjonRepository = StasjonRepository()
-        testContainer = TestContainer()
     }
 
-    /*@AfterEach
+    @AfterEach
     fun tearDown() {
-        testContainer.disconnect()
-    }*/
+        testContainer.stop()
+    }
 
     @Test
     fun testFindOne() {
