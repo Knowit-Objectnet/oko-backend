@@ -7,13 +7,14 @@ import ombruk.backend.henting.application.api.dto.PlanlagtHentingFindDto
 import ombruk.backend.henting.application.api.dto.PlanlagtHentingPostDto
 import ombruk.backend.henting.application.api.dto.PlanlagtHentingUpdateDto
 import ombruk.backend.henting.domain.entity.PlanlagtHenting
+import ombruk.backend.henting.domain.port.IPlanlagtHentingRepository
 import ombruk.backend.henting.infrastructure.repository.PlanlagtHentingRepository
 import ombruk.backend.shared.error.ServiceError
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
 @KtorExperimentalLocationsAPI
-class PlanlagtHentingService(val planlagtHentingRepository: PlanlagtHentingRepository): IPlanlagtHentingService {
+class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepository): IPlanlagtHentingService {
     override fun create(dto: PlanlagtHentingPostDto): Either<ServiceError, PlanlagtHenting> {
         return transaction { planlagtHentingRepository.insert(dto) }
     }
