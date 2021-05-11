@@ -70,6 +70,10 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
         return transaction { henteplanRepository.find(dto) }
     }
 
+    override fun findAllForAvtale(avtaleId: UUID): Either<ServiceError, List<Henteplan>> {
+        return find(HenteplanFindDto(avtaleId = avtaleId))
+    }
+
     override fun delete(dto: HenteplanDeleteDto): Either<ServiceError, Unit> {
         return transaction { henteplanRepository.delete(dto.id) }
     }
