@@ -10,6 +10,7 @@ import ombruk.backend.aktor.domain.model.StasjonFindParams
 import ombruk.backend.aktor.infrastructure.repository.StasjonRepository
 import ombruk.backend.shared.error.RepositoryError
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -21,30 +22,30 @@ import java.util.*
 @Testcontainers
 class StasjonRepositoryTest {
     private lateinit var stasjonRepository: StasjonRepository
+    private lateinit var testContainer: TestContainer
 
     @BeforeEach
     fun setup() {
         stasjonRepository = StasjonRepository()
-        TestContainer()
+        testContainer = TestContainer()
     }
+
+    /*@AfterEach
+    fun tearDown() {
+        testContainer.disconnect()
+    }*/
 
     @Test
     fun testFindOne() {
         val id = UUID.randomUUID()
-
         val findOne = transaction { stasjonRepository.findOne(id) }
 
-        println(findOne)
-
         require(findOne is Either.Left)
-
         assert(findOne.a is RepositoryError.NoRowsFound)
-
     }
 
     @Test
     fun testFind() {
-
         val findParams = object : StasjonFindParams() {
             override val id: UUID? = null
             override val navn: String? = null

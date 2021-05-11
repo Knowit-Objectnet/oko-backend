@@ -10,12 +10,15 @@ import ombruk.backend.aktor.application.service.StasjonService
 import ombruk.backend.aktor.domain.entity.Stasjon
 import ombruk.backend.aktor.domain.port.IStasjonRepository
 import ombruk.backend.shared.api.KeycloakGroupIntegration
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
 import java.util.*
 import kotlin.test.assertEquals
+import testutils.mockDatabase
+import testutils.unmockDatabase
 
 
 @ExtendWith(MockKExtension::class)
@@ -28,6 +31,12 @@ internal class PartnerServiceTest {
     @BeforeEach
     fun setup() {
         stasjonService = StasjonService(stasjonRepository, keycloakGroupIntegration)
+        mockDatabase()
+    }
+
+    @AfterEach
+    fun tearDown() {
+        unmockDatabase()
     }
 
     @Test
