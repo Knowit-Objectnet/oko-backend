@@ -36,11 +36,14 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
 
     override fun create(dto: HenteplanPostDto): Either<ServiceError, Henteplan> {
 
-        val henteplan = transaction { henteplanRepository.insert(dto) }
-            .fold(
-                {Either.Left(ServiceError(it.message))},
-                { appendPlanlagtHentinger(dto, it.id, it) }
-            )
+        val henteplan = transaction {
+            henteplanRepository.insert(dto)
+                .fold(
+                    { Either.Left(ServiceError(it.message)) },
+                    { appendPlanlagtHentinger(dto, it.id, it) }
+                )
+                .fold({rollback(); it.left()}, {it.right()})
+        }
         return henteplan
 
     }
