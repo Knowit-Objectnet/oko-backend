@@ -59,7 +59,8 @@ class HenteplanRepository :
             row[table.startTidspunkt],
             row[table.sluttTidspunkt],
             DayOfWeek.of(row[table.ukedag]),
-            row[table.merknad]
+            row[table.merknad],
+            emptyList()
         )
     }
 
