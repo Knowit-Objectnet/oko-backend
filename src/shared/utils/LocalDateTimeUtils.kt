@@ -1,5 +1,8 @@
 package ombruk.backend.shared.utils
 
+import ombruk.backend.henting.domain.model.HenteplanFrekvens
+import java.time.DayOfWeek
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 
@@ -39,6 +42,36 @@ class LocalDateTimeProgression(
 
     override fun iterator(): Iterator<LocalDateTime> =
         LocalDateTimeIterator(start, endInclusive, stepDays)
+}
+
+class LocalDateTimeProgressionWithDayFrekvens(
+    override val start: LocalDateTime,
+    override val endInclusive: LocalDateTime,
+    private val dayOfWeek: DayOfWeek,
+    private val frekvens: HenteplanFrekvens
+) :
+    Iterable<LocalDateTime>, ClosedRange<LocalDateTime> {
+
+    fun findFirstDateOfDay(): LocalDateTime{
+        if (frekvens == HenteplanFrekvens.Enkelt) return start
+        val dayDifference = dayOfWeek.value - start.dayOfWeek.value
+        return start.plusDays(((dayDifference + 7)%7).toLong())
+    }
+
+    fun findStepFromFrekvens(): Int {
+        return when(frekvens) {
+            HenteplanFrekvens.Enkelt -> 1
+            HenteplanFrekvens.Ukentlig -> 7
+            HenteplanFrekvens.Annenhver -> 14
+        }
+    }
+
+    fun createIterator() : Iterator<LocalDateTime> {
+        if (frekvens == HenteplanFrekvens.Enkelt) return LocalDateTimeIterator(start, start, 1)
+        else return LocalDateTimeIterator(findFirstDateOfDay(), endInclusive, findStepFromFrekvens().toLong())
+    }
+
+    override fun iterator(): Iterator<LocalDateTime> = createIterator()
 }
 
 /**
