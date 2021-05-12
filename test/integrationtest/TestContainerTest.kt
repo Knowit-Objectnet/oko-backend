@@ -1,4 +1,4 @@
-import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.testcontainers.junit.jupiter.Testcontainers
@@ -9,11 +9,11 @@ import kotlin.test.assertTrue
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Testcontainers
 class TestContainerTest {
-    private lateinit var testContainer: TestContainer
+    private val testContainer: TestContainer = TestContainer()
 
-    @BeforeEach
+    @BeforeAll
     fun setup() {
-        testContainer = TestContainer()
+        testContainer.start()
     }
 
     @Test

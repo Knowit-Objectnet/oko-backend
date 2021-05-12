@@ -31,15 +31,15 @@ import kotlin.test.assertNotEquals
 @ExtendWith(MockKExtension::class)
 @Testcontainers
 class StasjonTest {
-    private lateinit var testContainer: TestContainer
+    private val testContainer: TestContainer = TestContainer()
     private lateinit var stasjonService: StasjonService
     private var stasjonRepository = StasjonRepository()
     private var keycloakGroupIntegration = mockkClass(KeycloakGroupIntegration::class)
 
     @OptIn(KtorExperimentalAPI::class)
-    @BeforeEach
+    @BeforeAll
     fun setup() {
-        testContainer = TestContainer()
+        testContainer.start()
         stasjonService = StasjonService(stasjonRepository, keycloakGroupIntegration)
     }
 
