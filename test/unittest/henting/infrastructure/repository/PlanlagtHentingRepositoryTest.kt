@@ -20,6 +20,7 @@ import ombruk.backend.henting.infrastructure.repository.HenteplanRepository
 import ombruk.backend.henting.infrastructure.repository.PlanlagtHentingRepository
 import ombruk.backend.shared.error.RepositoryError
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -36,7 +37,7 @@ import kotlin.test.assertEquals
 @Testcontainers
 internal class PlanlagtHentingRepositoryTest {
 
-    private lateinit var testContainer: TestContainer
+    private val testContainer: TestContainer = TestContainer()
     private lateinit var planlagtHentingRepository: PlanlagtHentingRepository
     private lateinit var henteplanRepository: HenteplanRepository
     private lateinit var stasjonRepository: StasjonRepository
@@ -49,7 +50,7 @@ internal class PlanlagtHentingRepositoryTest {
 
     @BeforeEach
     fun setUp() {
-        testContainer = TestContainer()
+        testContainer.start()
         planlagtHentingRepository = PlanlagtHentingRepository()
         henteplanRepository = HenteplanRepository()
         stasjonRepository = StasjonRepository()
@@ -127,6 +128,11 @@ internal class PlanlagtHentingRepositoryTest {
             assert(insert.b.henteplanId == henteplan.id)
             planlagtHenting2 = insert.b
         }
+    }
+
+    @AfterEach
+    fun tearDown() {
+        testContainer.stop()
     }
 
     @Test
@@ -232,7 +238,6 @@ internal class PlanlagtHentingRepositoryTest {
     @Test
     fun find() {
 
-        //TODO: This currently doesn't work, as TestContainer does not reset between tests
         transaction {
             val findAll = planlagtHentingRepository.find(PlanlagtHentingFindDto())
             println(findAll)

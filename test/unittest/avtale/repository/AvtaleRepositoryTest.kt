@@ -10,6 +10,7 @@ import ombruk.backend.henting.domain.params.HenteplanCreateParams
 import ombruk.backend.henting.infrastructure.repository.HenteplanRepository
 import ombruk.backend.shared.error.RepositoryError
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -23,14 +24,14 @@ import java.util.*
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Testcontainers
 class AvtaleRepositoryTest {
-    private lateinit var testContainer: TestContainer
+    private val testContainer: TestContainer = TestContainer()
     private lateinit var avtaleRepository: AvtaleRepository
     private lateinit var henteplanRepository: HenteplanRepository
     private lateinit var avtale: Avtale
 
     @BeforeEach
     fun setUp() {
-        testContainer = TestContainer()
+        testContainer.start()
         avtaleRepository = AvtaleRepository()
         henteplanRepository = HenteplanRepository()
 
@@ -47,6 +48,11 @@ class AvtaleRepositoryTest {
             require(insert is Either.Right)
             avtale = insert.b
         }
+    }
+
+    @AfterEach
+    fun tearDown() {
+        testContainer.stop()
     }
 
     @Test

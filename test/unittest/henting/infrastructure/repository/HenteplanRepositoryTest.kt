@@ -30,7 +30,7 @@ import java.util.*
 @Testcontainers
 internal class HenteplanRepositoryTest {
 
-    private lateinit var testContainer: TestContainer
+    private val testContainer: TestContainer = TestContainer()
     private lateinit var henteplanRepository: HenteplanRepository
     private lateinit var stasjonRepository: StasjonRepository
     private lateinit var avtaleRepository: AvtaleRepository
@@ -40,7 +40,7 @@ internal class HenteplanRepositoryTest {
 
     @BeforeEach
     fun setUp() {
-        testContainer = TestContainer()
+        testContainer.start()
         henteplanRepository = HenteplanRepository()
         stasjonRepository = StasjonRepository()
         avtaleRepository = AvtaleRepository()
@@ -92,8 +92,8 @@ internal class HenteplanRepositoryTest {
 
     @AfterEach
     fun tearDown() {
+        testContainer.stop()
     }
-
     @Test
     fun insert() {
         val createParams1 = object : HenteplanCreateParams() {
@@ -214,14 +214,13 @@ internal class HenteplanRepositoryTest {
     @Test
     fun find() {
 
-        //TODO: This currently doesn't work, as TestContainer does not reset between tests
-//        transaction {
-//            val findAll = henteplanRepository.find(HenteplanFindDto())
-//            println(findAll)
-//            require(findAll is Either.Right)
-//            assert(findAll.b.size == 1)
-//            assert(findAll.b[0] == henteplan)
-//        }
+        transaction {
+            val findAll = henteplanRepository.find(HenteplanFindDto())
+            println(findAll)
+            require(findAll is Either.Right)
+            assert(findAll.b.size == 1)
+            assert(findAll.b[0] == henteplan)
+        }
 
         transaction {
             val findWrongAvtaleId = henteplanRepository.find(HenteplanFindDto(avtaleId = UUID.randomUUID()))

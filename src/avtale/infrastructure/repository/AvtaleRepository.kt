@@ -39,7 +39,7 @@ class AvtaleRepository : RepositoryBase<Avtale, AvtaleCreateParams, AvtaleUpdate
     override fun toEntity(row: ResultRow): Avtale {
         return Avtale(
             row[table.id].value,
-            row[table.aktorId], // TODO: Figure out how to handle both Partner and Stasjon here.
+            row[table.aktorId],
             AvtaleType.valueOf(row[table.type]),
             row[table.startDato],
             row[table.sluttDato],
