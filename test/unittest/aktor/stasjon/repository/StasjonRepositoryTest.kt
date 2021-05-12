@@ -30,10 +30,10 @@ class StasjonRepositoryTest {
         testContainer = TestContainer()
     }
 
-    @AfterEach
+    /*@AfterEach
     fun tearDown() {
         testContainer.disconnect()
-    }
+    }*/
 
     @Test
     fun testFindOne() {
