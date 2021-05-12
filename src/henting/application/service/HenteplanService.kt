@@ -62,6 +62,8 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
         }
     }
 
+    //TODO: Create find calls including planlagteHentinger
+
     override fun findOne(id: UUID): Either<ServiceError, Henteplan> {
         return transaction { henteplanRepository.findOne(id) }
     }
