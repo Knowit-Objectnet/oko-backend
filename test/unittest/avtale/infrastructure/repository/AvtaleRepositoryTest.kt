@@ -1,4 +1,4 @@
-package avtale.repository
+package avtale.infrastructure.repository
 
 import arrow.core.Either
 import ombruk.backend.avtale.application.api.dto.AvtaleFindDto
