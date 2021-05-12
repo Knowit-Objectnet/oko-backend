@@ -29,15 +29,15 @@ import java.util.*
 @ExtendWith(MockKExtension::class)
 @Testcontainers
 class PartnerTest {
-    private lateinit var testContainer: TestContainer
+    private val testContainer: TestContainer = TestContainer()
     private lateinit var partnerService: PartnerService
     private var partnerRepository = PartnerRepository()
     private var keycloakGroupIntegration = mockkClass(KeycloakGroupIntegration::class)
 
     @OptIn(KtorExperimentalAPI::class)
-    @BeforeEach
+    @BeforeAll
     fun setup() {
-        testContainer = TestContainer()
+        testContainer.start()
         partnerService = PartnerService(keycloakGroupIntegration, partnerRepository)//PartnerService(partnerRepository, keycloakGroupIntegration)
     }
 

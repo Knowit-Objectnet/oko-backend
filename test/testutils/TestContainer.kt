@@ -29,8 +29,6 @@ class TestContainer {
 
         init {
             launchContainer()
-            connect()
-            migrate()
         }
 
         private fun launchContainer() {
@@ -42,7 +40,6 @@ class TestContainer {
                 withDatabaseName(name)
                 withUsername(user)
                 withPassword(password)
-                start()
             }
         }
 
@@ -83,5 +80,10 @@ class TestContainer {
         return result
     }
 
+    fun start() {
+        container.start()
+        connect()
+        migrate()
+    }
     fun stop() { container.stop() }
 }
