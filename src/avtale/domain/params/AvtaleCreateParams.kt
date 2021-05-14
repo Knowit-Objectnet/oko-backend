@@ -8,7 +8,7 @@ import java.util.*
 abstract class AvtaleCreateParams {
     abstract val aktorId: UUID
     abstract val type: AvtaleType
-    abstract val henteplaner: List<HenteplanCreateParams>
     abstract val startDato: LocalDate
     abstract val sluttDato: LocalDate
+    abstract val henteplaner: List<HenteplanCreateParams>?
 }

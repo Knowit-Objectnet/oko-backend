@@ -8,7 +8,6 @@ import java.util.*
 
 abstract class HenteplanFindParams: FindParams {
     abstract val avtaleId: UUID?
-    abstract val avtaleIds: List<UUID>?
     abstract val stasjonId: UUID?
     abstract val frekvens: HenteplanFrekvens?
     abstract val before: LocalDateTime?

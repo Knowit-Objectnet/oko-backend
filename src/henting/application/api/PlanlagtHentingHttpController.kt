@@ -1,33 +1,34 @@
-package ombruk.backend.avtale.application.api.dto
+package ombruk.backend.henting.application.api
 
 import arrow.core.extensions.either.monad.flatMap
-import avtale.application.api.dto.AvtaleCreateDto
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.locations.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import ombruk.backend.avtale.application.service.IAvtaleService
+import ombruk.backend.henting.application.api.dto.*
+import ombruk.backend.henting.application.service.IPlanlagtHentingService
 import ombruk.backend.shared.api.Authorization
 import ombruk.backend.shared.api.Roles
 import ombruk.backend.shared.api.generateResponse
 import ombruk.backend.shared.api.receiveCatching
 
 @KtorExperimentalLocationsAPI
-fun Routing.avtaler(avtaleService: IAvtaleService) {
+fun Routing.planlagteHentinger(planlagtHentingService: IPlanlagtHentingService) {
 
-    route("/avtaler") {
-        get<AvtaleFindOneDto> { form ->
+    route("/planlagte-hentinger") {
+
+        get<PlanlagtHentingFindOneDto> { form ->
             form.validOrError()
-                .flatMap { avtaleService.findOne(form.id) }
+                .flatMap { planlagtHentingService.findOne(form.id) }
                 .run { generateResponse(this) }
                 .also { (code, response) -> call.respond(code, response) }
         }
 
-        get<AvtaleFindDto> { form ->
+        get<PlanlagtHentingFindDto> { form ->
             form.validOrError()
-                .flatMap { avtaleService.find(form) }
+                .flatMap { planlagtHentingService.find(form) }
                 .run { generateResponse(this) }
                 .also { (code, response) -> call.respond(code, response) }
         }
@@ -35,19 +36,29 @@ fun Routing.avtaler(avtaleService: IAvtaleService) {
         authenticate {
             post {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
-                    .flatMap { receiveCatching { call.receive<AvtaleCreateDto>() } }
+                    .flatMap { receiveCatching { call.receive<PlanlagtHentingPostDto>() } }
                     .flatMap { it.validOrError() }
-                    .flatMap { avtaleService.save(it) }
+                    .flatMap { planlagtHentingService.create(it) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }
         }
 
         authenticate {
-            delete<AvtaleDeleteDto> { form ->
+            delete<PlanlagtHentingDeleteDto> { form ->
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
                     .flatMap { form.validOrError() }
-                    .flatMap { avtaleService.delete(form) }
+                    .flatMap { planlagtHentingService.delete(form) }
+                    .run { generateResponse(this) }
+                    .also { (code, response) -> call.respond(code, response) }
+            }
+        }
+
+        authenticate {
+            patch<PlanlagtHentingUpdateDto> { form ->
+                Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
+                    .flatMap { form.validOrError() }
+                    .flatMap { planlagtHentingService.update(form) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }

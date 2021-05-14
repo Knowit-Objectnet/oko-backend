@@ -18,6 +18,8 @@ interface IHenteplanService {
 
     fun find(dto: HenteplanFindDto): Either<ServiceError, List<Henteplan>>
 
+    fun findAllForAvtale(avtaleId: UUID): Either<ServiceError, List<Henteplan>>
+
     fun delete(dto: HenteplanDeleteDto): Either<ServiceError, Unit>
 
     fun update(dto: HenteplanUpdateDto): Either<ServiceError, Henteplan>

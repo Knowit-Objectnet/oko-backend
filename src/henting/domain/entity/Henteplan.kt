@@ -23,4 +23,5 @@ data class Henteplan(
     @Serializable(with = LocalDateTimeSerializer::class) val sluttTidspunkt: LocalDateTime,
     @Serializable(with= DayOfWeekSerializer::class) val ukedag: DayOfWeek,
     var merknad: String?,
+    val planlagteHentinger: List<PlanlagtHenting>?
     )

@@ -30,6 +30,7 @@ import ombruk.backend.avtale.avtaleModule
 import ombruk.backend.calendar.api.stations
 import ombruk.backend.calendar.service.StationService
 import ombruk.backend.henting.application.api.henteplaner
+import ombruk.backend.henting.application.api.planlagteHentinger
 import ombruk.backend.henting.hentingModule
 import ombruk.backend.reporting.api.report
 import ombruk.backend.reporting.service.ReportService
@@ -182,6 +183,7 @@ fun Application.module(testing: Boolean = false) {
         partnere(get())
         avtaler(get())
         henteplaner(get())
+        planlagteHentinger(get())
 //        events(EventService)
 //        partners(PartnerService)
 //        report(ReportService)

@@ -8,10 +8,7 @@ import io.ktor.locations.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import ombruk.backend.henting.application.api.dto.HenteplanDeleteDto
-import ombruk.backend.henting.application.api.dto.HenteplanFindDto
-import ombruk.backend.henting.application.api.dto.HenteplanFindOneDto
-import ombruk.backend.henting.application.api.dto.HenteplanUpdateDto
+import ombruk.backend.henting.application.api.dto.*
 import ombruk.backend.henting.application.service.IHenteplanService
 import ombruk.backend.shared.api.Authorization
 import ombruk.backend.shared.api.Roles
@@ -26,6 +23,13 @@ fun Routing.henteplaner(henteplanService: IHenteplanService) {
         get<HenteplanFindOneDto> { form ->
             form.validOrError()
                 .flatMap { henteplanService.findOne(form.id) }
+                .run { generateResponse(this) }
+                .also { (code, response) -> call.respond(code, response) }
+        }
+
+        get<HenteplanFindByAvtaleIdDto> { form ->
+            form.validOrError()
+                .flatMap { henteplanService.findAllForAvtale(form.avtaleId) }
                 .run { generateResponse(this) }
                 .also { (code, response) -> call.respond(code, response) }
         }

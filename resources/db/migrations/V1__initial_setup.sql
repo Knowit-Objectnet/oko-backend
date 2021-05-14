@@ -40,6 +40,37 @@ create TABLE partner_kontakt_person (
     FOREIGN KEY (partner_id) references partner on delete cascade
 );
 
+create TABLE avtale (
+    id uuid default uuid_generate_v4() primary key,
+    aktor_id uuid not null,
+    type varchar not null,
+    start_dato date,
+    slutt_dato date
+);
+
+create TABLE henteplan (
+    id uuid default uuid_generate_v4() primary key,
+    avtale_id uuid not null,
+    stasjon_id uuid not null,
+    frekvens varchar not null,
+    start_tidspunkt timestamp not null,
+    slutt_tidspunkt timestamp not null,
+    ukedag int not null,
+    merknad text,
+    FOREIGN KEY (avtale_id) references avtale,
+    FOREIGN KEY (stasjon_id) references stasjon
+);
+
+create TABLE planlagt_henting (
+    id uuid default uuid_generate_v4() primary key,
+    start_tidspunkt timestamp not null,
+    slutt_tidspunkt timestamp not null,
+    merknad text,
+    henteplan_id uuid not null,
+    avlyst timestamp,
+    FOREIGN KEY (henteplan_id) references henteplan
+);
+
 --create TABLE stations
 --(
 --    id   serial primary key,
