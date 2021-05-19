@@ -3,6 +3,7 @@ package ombruk.backend.henting.application.service
 import arrow.core.Either
 import ombruk.backend.henting.application.api.dto.*
 import ombruk.backend.henting.domain.entity.PlanlagtHenting
+import ombruk.backend.henting.domain.entity.PlanlagtHentingWithParents
 import ombruk.backend.shared.error.ServiceError
 import java.util.*
 
@@ -19,4 +20,7 @@ interface IPlanlagtHentingService {
     fun update(dto: PlanlagtHentingUpdateDto): Either<ServiceError, PlanlagtHenting>
 
     fun batchCreateForHenteplan(dto: PlanlagtHentingBatchPostDto): Either<ServiceError, List<PlanlagtHenting>>
+
+    fun findWithParents(dto: PlanlagtHentingFindDto): Either<ServiceError, List<PlanlagtHentingWithParents>>
+
 }

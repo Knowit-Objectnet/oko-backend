@@ -15,3 +15,17 @@ data class PlanlagtHenting(
     @Serializable(with = UUIDSerializer::class) val henteplanId: UUID,
     @Serializable(with = LocalDateTimeSerializer::class) val avlyst: LocalDateTime?
 ) : Henting()
+
+data class PlanlagtHentingWithParents(
+    override val id: UUID,
+    override val startTidspunkt: LocalDateTime,
+    override val sluttTidspunkt: LocalDateTime,
+    override val merknad: String?,
+    val henteplanId: UUID,
+    val avlyst: LocalDateTime?,
+    val avtaleId: UUID,
+//    val aktorId: UUID,
+//    val aktorName: String,
+    val stasjonId: UUID,
+    val stasjonNavn: String
+) : Henting()

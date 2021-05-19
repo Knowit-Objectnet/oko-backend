@@ -9,6 +9,7 @@ import arrow.core.right
 import io.ktor.locations.*
 import ombruk.backend.henting.application.api.dto.*
 import ombruk.backend.henting.domain.entity.PlanlagtHenting
+import ombruk.backend.henting.domain.entity.PlanlagtHentingWithParents
 import ombruk.backend.henting.domain.port.IPlanlagtHentingRepository
 import ombruk.backend.shared.error.ServiceError
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -54,4 +55,9 @@ class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepo
                 .fold({rollback(); it.left()}, {it.right()})
         }
     }
+
+    override fun findWithParents(dto: PlanlagtHentingFindDto): Either<ServiceError, List<PlanlagtHentingWithParents>> {
+        return transaction { planlagtHentingRepository.findWithParents(dto) }
+    }
+
 }
