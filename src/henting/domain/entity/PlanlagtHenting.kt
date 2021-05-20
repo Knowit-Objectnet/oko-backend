@@ -24,8 +24,8 @@ data class PlanlagtHentingWithParents(
     val henteplanId: UUID,
     val avlyst: LocalDateTime?,
     val avtaleId: UUID,
-//    val aktorId: UUID,
-//    val aktorName: String,
+    val aktorId: UUID,
+    val aktorName: String,
     val stasjonId: UUID,
     val stasjonNavn: String
 ) : Henting()

@@ -91,7 +91,7 @@ class AvtaleTest {
     @Order(2)
     fun createANewAvtale() {
         val avtaleCreateDto = AvtaleSaveDto(
-            UUID.randomUUID(), //TODO: This needs to verify that it is a legal Aktor
+            partner.id, //TODO: This needs to verify that it is a legal Aktor
             AvtaleType.FAST,
             LocalDate.of(2021,1,1),
             LocalDate.of(2022,1,1),
@@ -179,6 +179,20 @@ class AvtaleTest {
         assert(findAll.b.containsAll(henteplan1.planlagteHentinger!!.subList(0,3)))
         assert(findAll.b.containsAll(henteplan2.planlagteHentinger!!))
         assert(findAll.b.size == 4)
+    }
+
+    @Test
+    @Order(7)
+    fun testGetHentingWithParents() {
+        val findallWithParents = planlagtHentingService.findWithParents(
+            PlanlagtHentingFindDto(
+                after = henteplan1.planlagteHentinger!![0].startTidspunkt.minusHours(1),
+                before = henteplan1.planlagteHentinger!![3].startTidspunkt.plusHours(1)
+        ))
+
+        println(findallWithParents)
+        require(findallWithParents is Either.Right)
+        assert(findallWithParents.b.size == 4)
     }
 
     //TODO: Make update tests
