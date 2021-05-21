@@ -23,7 +23,8 @@ fun Routing.stasjoner(stasjonService: IStasjonService) {
 
     route("/stasjoner") {
         get<StasjonFindOneDto> { form ->
-                stasjonService.findOne(UUID.fromString(form.id))
+            form.validOrError()
+                .flatMap { stasjonService.findOne(it.id) }
                 .run { generateResponse(this) }
                 .also { (code, response) -> call.respond(code, response) }
         }

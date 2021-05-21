@@ -10,7 +10,7 @@ import java.util.*
 
 @KtorExperimentalLocationsAPI
 @Location("/{id}")
-data class StasjonFindOneDto(val id: String) : IForm<StasjonFindOneDto> {
+data class StasjonFindOneDto(val id: UUID) : IForm<StasjonFindOneDto> {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
             // @TODO fix uuid check
