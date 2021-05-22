@@ -12,9 +12,9 @@ import shared.model.serializer.UUIDSerializer
 import java.util.*
 
 @KtorExperimentalLocationsAPI
-@Serializable(with = UUIDSerializer::class)
+@Serializable
 @Location("/{id}")
-data class HenteplanDeleteDto(val id: UUID): IForm<HenteplanDeleteDto> {
+data class HenteplanDeleteDto(@Serializable(with = UUIDSerializer::class) val id: UUID): IForm<HenteplanDeleteDto> {
     override fun validOrError(): Either<ValidationError, HenteplanDeleteDto> = runCatchingValidation{
         validate(this) {
         }

@@ -22,11 +22,11 @@ import java.time.LocalDate
 import java.util.*
 
 @Location("/")
-@Serializable(with = UUIDSerializer::class)
+@Serializable
 data class AvtaleFindDto(
-    override val aktorId: UUID? = null,
+    @Serializable(with = UUIDSerializer::class) override val aktorId: UUID? = null,
     override val type: AvtaleType? = null,
-    override val id: UUID? = null,
+    @Serializable(with = UUIDSerializer::class) override val id: UUID? = null,
     @Serializable( with = LocalDateSerializer::class) override val startDato: LocalDate? = null,
     @Serializable( with = LocalDateSerializer::class) override val sluttDato: LocalDate? = null
 ) : IForm<AvtaleFindDto>, AvtaleFindParams() {

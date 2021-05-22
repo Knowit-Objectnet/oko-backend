@@ -15,9 +15,9 @@ import shared.model.serializer.UUIDSerializer
 import java.time.LocalDate
 import java.util.*
 
-@Serializable(with = UUIDSerializer::class)
+@Serializable
 data class AvtaleCreateDto(
-    override val aktorId: UUID,
+    @Serializable(with = UUIDSerializer::class) override val aktorId: UUID,
     override val type: AvtaleType,
     @Serializable( with = LocalDateSerializer::class) override val startDato: LocalDate,
     @Serializable( with = LocalDateSerializer::class) override val sluttDato: LocalDate,

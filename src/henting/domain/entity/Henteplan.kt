@@ -13,11 +13,11 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.*
 
-@Serializable(with = UUIDSerializer::class)
+@Serializable
 data class Henteplan(
-    val id: UUID,
-    val avtaleId: UUID,
-    val stasjonId: UUID,
+    @Serializable(with = UUIDSerializer::class) val id: UUID,
+    @Serializable(with = UUIDSerializer::class) val avtaleId: UUID,
+    @Serializable(with = UUIDSerializer::class) val stasjonId: UUID,
     val frekvens: HenteplanFrekvens,
     @Serializable(with = LocalDateTimeSerializer::class) val startTidspunkt: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class) val sluttTidspunkt: LocalDateTime,

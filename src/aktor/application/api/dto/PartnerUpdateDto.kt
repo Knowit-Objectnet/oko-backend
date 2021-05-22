@@ -11,9 +11,9 @@ import org.valiktor.validate
 import shared.model.serializer.UUIDSerializer
 import java.util.*
 
-@Serializable(with = UUIDSerializer::class)
+@Serializable
 data class PartnerUpdateDto(
-    override val id: UUID,
+    @Serializable(with = UUIDSerializer::class) override val id: UUID,
     override val navn: String? = null,
     override val ideell: Boolean? = null,
     override val storrelse: PartnerStorrelse? = null

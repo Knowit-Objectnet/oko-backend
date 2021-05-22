@@ -16,10 +16,10 @@ import java.time.DayOfWeek
 import java.time.LocalDateTime
 import java.util.*
 
-@Serializable(with = UUIDSerializer::class)
+@Serializable
 data class HenteplanPostDto(
-    override val avtaleId: UUID,
-    override val stasjonId: UUID,
+    @Serializable(with = UUIDSerializer::class) override val avtaleId: UUID,
+    @Serializable(with = UUIDSerializer::class) override val stasjonId: UUID,
     override val frekvens: HenteplanFrekvens,
     @Serializable(with = LocalDateTimeSerializer::class) override val startTidspunkt: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class) override val sluttTidspunkt: LocalDateTime,

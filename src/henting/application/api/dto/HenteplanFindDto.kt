@@ -19,16 +19,16 @@ import java.time.LocalDateTime
 import java.util.*
 
 @KtorExperimentalLocationsAPI
-@Serializable(with = UUIDSerializer::class)
+@Serializable
 @Location("/")
 data class HenteplanFindDto(
-    override val avtaleId: UUID? = null,
-    override val stasjonId: UUID? = null,
+    @Serializable(with = UUIDSerializer::class) override val avtaleId: UUID? = null,
+    @Serializable(with = UUIDSerializer::class) override val stasjonId: UUID? = null,
     override val frekvens: HenteplanFrekvens? = null,
     @Serializable(with = LocalDateTimeSerializer::class) override val before: LocalDateTime? = null,
     @Serializable(with = LocalDateTimeSerializer::class) override val after: LocalDateTime? = null,
     override val ukedag: DayOfWeek? = null,
-    override val id: UUID? = null,
+    @Serializable(with = UUIDSerializer::class) override val id: UUID? = null,
 ) : IForm<HenteplanFindDto>, HenteplanFindParams() {
     override fun validOrError(): Either<ValidationError, HenteplanFindDto> = runCatchingValidation {
         validate(this) {
