@@ -47,5 +47,7 @@ private fun migrate() {
     ).baselineOnMigrate(true)
         .load()
 
+    flyway.clean() //TODO: Should be removed once migrated to new database
+
     flyway.migrate()
 }
