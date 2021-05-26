@@ -13,6 +13,9 @@ create TABLE stasjon (
     type varchar not null
 );
 
+INSERT INTO stasjon (id, navn, type) VALUES ('a393406b-2e0a-42e9-9666-1c3df5ea8a1c', 'test1', 'GJENBRUK');
+
+
 create TABLE kontakt (
     id uuid default uuid_generate_v4() primary key,
     navn varchar(255) not null,

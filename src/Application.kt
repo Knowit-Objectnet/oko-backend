@@ -191,7 +191,7 @@ fun Application.module(testing: Boolean = false) {
 //        stations(StationService)
 //        request(RequestService)
         get("/health_check") {
-            call.respond(HttpStatusCode.OK, "HELLO6")
+            call.respond(HttpStatusCode.OK, "HELLO7")
         }
 
         install(StatusPages) {
