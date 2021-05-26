@@ -11,13 +11,9 @@ import java.util.*
 @KtorExperimentalLocationsAPI
 @Location("/{id}")
 data class StasjonFindOneDto(val id: String) : IForm<StasjonFindOneDto> {
-    init {
-        println("init 4 days")
-    }
     override fun validOrError() = runCatchingValidation {
-        println("VALIDATE THE UUID! $id")
         validate(this) {
-            //UUID.fromString(id)
+            // @TODO fix uuid check
         }
     }
 }
