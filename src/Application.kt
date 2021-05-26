@@ -45,6 +45,7 @@ import java.net.URL
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
@@ -92,6 +93,16 @@ fun Application.module(testing: Boolean = false) {
                     is LocalTime -> listOf(value.format(DateTimeFormatter.ISO_TIME))
                     else -> throw DataConversionException("Cannot convert $value as LocalTime")
                 }
+            }
+        }
+
+        convert<UUID> {
+            decode { values, _ ->
+                values.singleOrNull()?.let { UUID.fromString(it) }                    
+            }
+            
+            encode { value ->  
+                listOf(value.toString())
             }
         }
     }
