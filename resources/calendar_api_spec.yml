@@ -4,7 +4,7 @@ servers:
   - description: SwaggerHub API Auto Mocking
     url: https://virtserver.swaggerhub.com/oko8/Events/1.0.0
   - description: Actual API
-    url: https://tcuk58u5ge.execute-api.eu-central-1.amazonaws.com/staging/calendar/
+    url: https://tcuk58u5ge.execute-api.eu-central-1.amazonaws.com/test/calendar/
 info:
   description: API documentation for the OKO events endpoint
   version: "1.0.0"
