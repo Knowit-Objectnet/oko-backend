@@ -1,19 +1,19 @@
 package ombruk.backend.aktor.application.api.dto
 
+import arrow.core.right
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.locations.Location
 import ombruk.backend.shared.form.IForm
 import ombruk.backend.shared.utils.validation.runCatchingValidation
-import org.valiktor.functions.isGreaterThan
 import org.valiktor.validate
 import java.util.*
 
 @KtorExperimentalLocationsAPI
 @Location("/{id}")
-data class StasjonFindOneDto(val id: UUID) : IForm<StasjonFindOneDto> {
+data class StasjonFindOneDto(val id: String) : IForm<StasjonFindOneDto> {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
-            //FIXME: Validate UUID?
+            // @TODO fix uuid check
         }
     }
 }

@@ -5,9 +5,9 @@ import ombruk.backend.aktor.domain.enum.StasjonType
 import shared.model.serializer.UUIDSerializer
 import java.util.*
 
-@Serializable(with = UUIDSerializer::class)
+@Serializable
 data class Stasjon (
-    override val id: UUID,
+    @Serializable (with = UUIDSerializer::class) override val id: UUID,
     override var navn: String,
     override var kontaktPersoner: List<Kontakt>,
     val type: StasjonType
