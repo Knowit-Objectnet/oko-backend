@@ -150,7 +150,7 @@ fun Application.module(testing: Boolean = false) {
         host(
             host = "oko.knowit.no",
             schemes = listOf("http", "https"),
-            subDomains = listOf("test")
+            subDomains = listOf("staging", "test")
         )
         host(
             host = "0.0.0.0:8080",
