@@ -129,8 +129,6 @@ class KeycloakGroupIntegration {
                 .left()
         }
         else -> {
-            logger.error("HELLO")
-            print(e.stackTrace)
             logger.error(e.message)
             KeycloakIntegrationError.KeycloakError("Failed to perform Keycloak request").left()
         }
