@@ -3,7 +3,7 @@ package ombruk.backend.henting.application.service
 import arrow.core.*
 import arrow.core.extensions.either.applicative.applicative
 import arrow.core.extensions.list.traverse.sequence
-import henting.application.api.dto.HenteplanInsertDto
+import henting.application.api.dto.HenteplanSaveDto
 import io.ktor.locations.*
 import ombruk.backend.henting.application.api.dto.*
 import ombruk.backend.henting.domain.entity.Henteplan
@@ -17,15 +17,15 @@ import java.util.*
 @KtorExperimentalLocationsAPI
 class HenteplanService(val henteplanRepository: IHenteplanRepository, val planlagtHentingService: IPlanlagtHentingService) : IHenteplanService {
 
-    fun createPlanlagtHentinger(dto: HenteplanInsertDto, henteplanId: UUID): Either<ServiceError, List<PlanlagtHenting>> {
+    fun createPlanlagtHentinger(dto: HenteplanSaveDto, henteplanId: UUID): Either<ServiceError, List<PlanlagtHenting>> {
         //Find all dates
         val dates = LocalDateTimeProgressionWithDayFrekvens(dto.startTidspunkt, dto.sluttTidspunkt, dto.ukedag, dto.frekvens)
             .map { it.toLocalDate() }
-        val postDto = PlanlagtHentingInsertDto(dto.startTidspunkt, dto.sluttTidspunkt, null, henteplanId)
+        val postDto = PlanlagtHentingSaveDto(dto.startTidspunkt, dto.sluttTidspunkt, null, henteplanId)
         return planlagtHentingService.batchCreateForHenteplan(PlanlagtHentingBatchPostDto(postDto, dates))
     }
 
-    fun appendPlanlagtHentinger(dto: HenteplanInsertDto, id: UUID, henteplan: Henteplan) =
+    fun appendPlanlagtHentinger(dto: HenteplanSaveDto, id: UUID, henteplan: Henteplan) =
         run {
             val hentinger: Either<ServiceError, List<PlanlagtHenting>> = createPlanlagtHentinger(dto, id)
             when (hentinger) {
@@ -34,7 +34,7 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
             }
         }
 
-    override fun create(dto: HenteplanInsertDto): Either<ServiceError, Henteplan> {
+    override fun create(dto: HenteplanSaveDto): Either<ServiceError, Henteplan> {
 
         val henteplan = transaction {
             henteplanRepository.insert(dto)
@@ -48,7 +48,7 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
 
     }
 
-    override fun batchCreate(dto: List<HenteplanInsertDto>): Either<ServiceError, List<Henteplan>> {
+    override fun batchCreate(dto: List<HenteplanSaveDto>): Either<ServiceError, List<Henteplan>> {
         return transaction {
             dto.map {curDto -> henteplanRepository.insert(curDto)
                 .fold(

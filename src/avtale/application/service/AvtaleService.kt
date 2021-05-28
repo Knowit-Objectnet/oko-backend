@@ -3,7 +3,7 @@ package ombruk.backend.avtale.application.service
 import arrow.core.*
 import arrow.core.extensions.either.applicative.applicative
 import arrow.core.extensions.list.traverse.sequence
-import avtale.application.api.dto.AvtaleInsertDto
+import avtale.application.api.dto.AvtaleSaveDto
 import ombruk.backend.avtale.application.api.dto.AvtaleDeleteDto
 import ombruk.backend.avtale.application.api.dto.AvtaleFindDto
 import ombruk.backend.avtale.domain.entity.Avtale
@@ -14,7 +14,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
 class AvtaleService(val avtaleRepository: IAvtaleRepository, val hentePlanService: IHenteplanService) : IAvtaleService {
-    override fun save(dto: AvtaleInsertDto): Either<ServiceError, Avtale> {
+    override fun save(dto: AvtaleSaveDto): Either<ServiceError, Avtale> {
         return transaction {
             avtaleRepository.insert(dto)
                 .flatMap { avtale ->

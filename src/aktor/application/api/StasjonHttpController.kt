@@ -38,7 +38,7 @@ fun Routing.stasjoner(stasjonService: IStasjonService) {
         authenticate {
             post {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
-                    .flatMap { receiveCatching { call.receive<StasjonInsertDto>() } }
+                    .flatMap { receiveCatching { call.receive<StasjonSaveDto>() } }
                     .flatMap { it.validOrError() }
                     .flatMap { stasjonService.save(it) }
                     .run { generateResponse(this) }

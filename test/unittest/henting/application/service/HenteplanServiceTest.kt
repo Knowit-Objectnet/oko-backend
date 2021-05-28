@@ -2,7 +2,7 @@ package henting.application.service
 
 import arrow.core.Either
 import arrow.core.right
-import henting.application.api.dto.HenteplanInsertDto
+import henting.application.api.dto.HenteplanSaveDto
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -33,7 +33,7 @@ internal class HenteplanServiceTest {
     private val henteplanRepository = mockkClass(HenteplanRepository::class)
     private val planlagtHentingService: PlanlagtHentingService = mockkClass(PlanlagtHentingService::class)
 
-    private lateinit var henteplanPostDto : HenteplanInsertDto
+    private lateinit var henteplanPostDto : HenteplanSaveDto
     private lateinit var henteplan : Henteplan
 
     @BeforeEach
@@ -41,7 +41,7 @@ internal class HenteplanServiceTest {
         mockDatabase()
         henteplanService = HenteplanService(henteplanRepository, planlagtHentingService)
 
-        henteplanPostDto = HenteplanInsertDto(
+        henteplanPostDto = HenteplanSaveDto(
             UUID.randomUUID(),
             UUID.randomUUID(),
             HenteplanFrekvens.UKENTLIG,

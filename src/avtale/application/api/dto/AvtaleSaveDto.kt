@@ -1,7 +1,7 @@
 package avtale.application.api.dto
 
 import arrow.core.Either
-import henting.application.api.dto.HenteplanInsertDto
+import henting.application.api.dto.HenteplanSaveDto
 import kotlinx.serialization.Serializable
 import ombruk.backend.avtale.domain.params.AvtaleCreateParams
 import ombruk.backend.avtale.model.AvtaleType
@@ -16,16 +16,16 @@ import java.time.LocalDate
 import java.util.*
 
 @Serializable
-data class AvtaleInsertDto(
+data class AvtaleSaveDto(
     @Serializable(with = UUIDSerializer::class) override val aktorId: UUID,
     override val type: AvtaleType,
     @Serializable( with = LocalDateSerializer::class) override val startDato: LocalDate,
     @Serializable( with = LocalDateSerializer::class) override val sluttDato: LocalDate,
-    override val henteplaner: List<HenteplanInsertDto>?
-    ) : IForm<AvtaleInsertDto>, AvtaleCreateParams() {
-    override fun validOrError(): Either<ValidationError, AvtaleInsertDto> = runCatchingValidation {
+    override val henteplaner: List<HenteplanSaveDto>?
+    ) : IForm<AvtaleSaveDto>, AvtaleCreateParams() {
+    override fun validOrError(): Either<ValidationError, AvtaleSaveDto> = runCatchingValidation {
         validate(this) {
-            validate(AvtaleInsertDto::startDato).isLessThan(sluttDato)
+            validate(AvtaleSaveDto::startDato).isLessThan(sluttDato)
         }
     }
 }

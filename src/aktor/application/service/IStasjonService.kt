@@ -14,7 +14,7 @@ interface IStasjonService {
      * @param dto A custom object used to edit existing stasjoner. [dto] id must belong to an existing user.
      * @return An [Either] object consisting of [ServiceError] on failure or the ID of the saved stasjon on success.
      */
-    fun save(dto: StasjonInsertDto): Either<ServiceError, Stasjon>
+    fun save(dto: StasjonSaveDto): Either<ServiceError, Stasjon>
 
     /**
      * Gets a stasjon by its ID.

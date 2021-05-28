@@ -1,7 +1,7 @@
 package ombruk.backend.avtale.application.service
 
 import arrow.core.Either
-import avtale.application.api.dto.AvtaleInsertDto
+import avtale.application.api.dto.AvtaleSaveDto
 import ombruk.backend.avtale.application.api.dto.AvtaleDeleteDto
 import ombruk.backend.avtale.application.api.dto.AvtaleFindDto
 import ombruk.backend.avtale.domain.entity.Avtale
@@ -9,7 +9,7 @@ import ombruk.backend.shared.error.ServiceError
 import java.util.*
 
 interface IAvtaleService {
-    fun save(dto: AvtaleInsertDto): Either<ServiceError, Avtale>
+    fun save(dto: AvtaleSaveDto): Either<ServiceError, Avtale>
 
     fun findOne(id: UUID): Either<ServiceError, Avtale>
 

@@ -14,15 +14,15 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
-data class PlanlagtHentingInsertDto(
+data class PlanlagtHentingSaveDto(
     @Serializable(with = LocalDateTimeSerializer::class) override val startTidspunkt: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class) override val sluttTidspunkt: LocalDateTime,
     override val merknad: String?,
     @Serializable(with = UUIDSerializer::class) override val henteplanId: UUID
-) : IForm<PlanlagtHentingInsertDto>, PlanlagtHentingCreateParams() {
-    override fun validOrError(): Either<ValidationError, PlanlagtHentingInsertDto> = runCatchingValidation {
+) : IForm<PlanlagtHentingSaveDto>, PlanlagtHentingCreateParams() {
+    override fun validOrError(): Either<ValidationError, PlanlagtHentingSaveDto> = runCatchingValidation {
         validate(this) {
-            validate(PlanlagtHentingInsertDto::sluttTidspunkt).isGreaterThanStartDateTime(startTidspunkt)
+            validate(PlanlagtHentingSaveDto::sluttTidspunkt).isGreaterThanStartDateTime(startTidspunkt)
         }
     }
 }

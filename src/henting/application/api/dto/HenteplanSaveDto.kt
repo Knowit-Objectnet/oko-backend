@@ -16,7 +16,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
-data class HenteplanInsertDto(
+data class HenteplanSaveDto(
     @Serializable(with = UUIDSerializer::class) override val avtaleId: UUID,
     @Serializable(with = UUIDSerializer::class) override val stasjonId: UUID,
     override val frekvens: HenteplanFrekvens,
@@ -24,10 +24,10 @@ data class HenteplanInsertDto(
     @Serializable(with = LocalDateTimeSerializer::class) override val sluttTidspunkt: LocalDateTime,
     override val ukedag: DayOfWeek,
     override val merknad: String?
-) : IForm<HenteplanInsertDto>, HenteplanCreateParams() {
-    override fun validOrError(): Either<ValidationError, HenteplanInsertDto> = runCatchingValidation {
+) : IForm<HenteplanSaveDto>, HenteplanCreateParams() {
+    override fun validOrError(): Either<ValidationError, HenteplanSaveDto> = runCatchingValidation {
         validate(this) {
-            validate(HenteplanInsertDto::sluttTidspunkt).isGreaterThanStartDateTime(startTidspunkt)
+            validate(HenteplanSaveDto::sluttTidspunkt).isGreaterThanStartDateTime(startTidspunkt)
         }
     }
 }

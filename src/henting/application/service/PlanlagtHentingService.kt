@@ -17,7 +17,7 @@ import java.util.*
 
 @KtorExperimentalLocationsAPI
 class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepository): IPlanlagtHentingService {
-    override fun create(dto: PlanlagtHentingInsertDto): Either<ServiceError, PlanlagtHenting> {
+    override fun create(dto: PlanlagtHentingSaveDto): Either<ServiceError, PlanlagtHenting> {
         return transaction { planlagtHentingRepository.insert(dto) }
     }
 
@@ -41,11 +41,11 @@ class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepo
         return transaction {
             dto.dateList.map {
                 planlagtHentingRepository.insert(
-                    PlanlagtHentingInsertDto(
-                        henteplanId = dto.insertDto.henteplanId,
-                        merknad = dto.insertDto.merknad,
-                        startTidspunkt = LocalDateTime.of(it, dto.insertDto.startTidspunkt.toLocalTime()),
-                        sluttTidspunkt = LocalDateTime.of(it, dto.insertDto.sluttTidspunkt.toLocalTime()),
+                    PlanlagtHentingSaveDto(
+                        henteplanId = dto.saveDto.henteplanId,
+                        merknad = dto.saveDto.merknad,
+                        startTidspunkt = LocalDateTime.of(it, dto.saveDto.startTidspunkt.toLocalTime()),
+                        sluttTidspunkt = LocalDateTime.of(it, dto.saveDto.sluttTidspunkt.toLocalTime()),
                     ))
             }
                 .sequence(Either.applicative())

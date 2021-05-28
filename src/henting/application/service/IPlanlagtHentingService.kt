@@ -8,7 +8,7 @@ import java.util.*
 
 interface IPlanlagtHentingService {
 
-    fun create(dto: PlanlagtHentingInsertDto): Either<ServiceError, PlanlagtHenting>
+    fun create(dto: PlanlagtHentingSaveDto): Either<ServiceError, PlanlagtHenting>
 
     fun findOne(id: UUID): Either<ServiceError, PlanlagtHenting>
 

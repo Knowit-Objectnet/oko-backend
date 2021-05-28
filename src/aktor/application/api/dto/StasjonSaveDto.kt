@@ -9,13 +9,13 @@ import org.valiktor.functions.isNotBlank
 import org.valiktor.validate
 
 @Serializable
-data class StasjonInsertDto(
+data class StasjonSaveDto(
     override val navn: String,
     override val type: StasjonType
-) : IForm<StasjonInsertDto>, StasjonCreateParams() {
+) : IForm<StasjonSaveDto>, StasjonCreateParams() {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
-            validate(StasjonInsertDto::navn).isNotBlank()
+            validate(StasjonSaveDto::navn).isNotBlank()
 //            validate(StasjonCreateDto::name).isUniqueInRepository(StationRepository)
             //FIXME: Validate UUID?
         }

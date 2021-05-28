@@ -1,13 +1,13 @@
 import arrow.core.Either
 import arrow.core.right
-import avtale.application.api.dto.AvtaleInsertDto
-import henting.application.api.dto.HenteplanInsertDto
+import avtale.application.api.dto.AvtaleSaveDto
+import henting.application.api.dto.HenteplanSaveDto
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkClass
-import ombruk.backend.aktor.application.api.dto.PartnerInsertDto
-import ombruk.backend.aktor.application.api.dto.StasjonInsertDto
+import ombruk.backend.aktor.application.api.dto.PartnerSaveDto
+import ombruk.backend.aktor.application.api.dto.StasjonSaveDto
 import ombruk.backend.aktor.application.service.PartnerService
 import ombruk.backend.aktor.application.service.StasjonService
 import ombruk.backend.aktor.domain.entity.Partner
@@ -77,8 +77,8 @@ class AvtaleTest {
 
         every { keycloakGroupIntegration.createGroup(any<String>(), any<UUID>()) } returns expected.right()
 
-        val partnerInsert = partnerService.savePartner(PartnerInsertDto("TestPartner", PartnerStorrelse.STOR, true))
-        val stasjonInsert = stasjonService.save(StasjonInsertDto("TestStasjon", StasjonType.GJENBRUK))
+        val partnerInsert = partnerService.savePartner(PartnerSaveDto("TestPartner", PartnerStorrelse.STOR, true))
+        val stasjonInsert = stasjonService.save(StasjonSaveDto("TestStasjon", StasjonType.GJENBRUK))
 
         require(partnerInsert is Either.Right)
         require(stasjonInsert is Either.Right)
@@ -90,7 +90,7 @@ class AvtaleTest {
     @Test
     @Order(2)
     fun createANewAvtale() {
-        val avtaleCreateDto = AvtaleInsertDto(
+        val avtaleCreateDto = AvtaleSaveDto(
             UUID.randomUUID(), //TODO: This needs to verify that it is a legal Aktor
             AvtaleType.FAST,
             LocalDate.of(2021,1,1),
@@ -123,7 +123,7 @@ class AvtaleTest {
     @Test
     @Order(4)
     fun testAddHenteplaner() {
-        val henteplanPostDto1 = HenteplanInsertDto(
+        val henteplanPostDto1 = HenteplanSaveDto(
             avtale.id,
             stasjon.id,
             HenteplanFrekvens.UKENTLIG,
@@ -133,7 +133,7 @@ class AvtaleTest {
             null
         )
 
-        val henteplanPostDto2 = HenteplanInsertDto(
+        val henteplanPostDto2 = HenteplanSaveDto(
             avtale.id,
             stasjon.id,
             HenteplanFrekvens.ENKELT,

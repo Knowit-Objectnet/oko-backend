@@ -9,14 +9,14 @@ import org.valiktor.functions.isNotBlank
 import org.valiktor.validate
 
 @Serializable
-data class PartnerInsertDto(
+data class PartnerSaveDto(
     override val navn: String,
     override val storrelse: PartnerStorrelse,
     override val ideell: Boolean
-) : IForm<PartnerInsertDto>, PartnerCreateParams() {
+) : IForm<PartnerSaveDto>, PartnerCreateParams() {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
-            validate(PartnerInsertDto::navn).isNotBlank() //.isUniqueInRepository(PartnerRepository)
+            validate(PartnerSaveDto::navn).isNotBlank() //.isUniqueInRepository(PartnerRepository)
             //FIXME: Validate UUID?
         }
     }

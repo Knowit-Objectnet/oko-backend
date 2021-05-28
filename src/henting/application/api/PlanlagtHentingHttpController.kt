@@ -36,7 +36,7 @@ fun Routing.planlagteHentinger(planlagtHentingService: IPlanlagtHentingService) 
         authenticate {
             post {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
-                    .flatMap { receiveCatching { call.receive<PlanlagtHentingInsertDto>() } }
+                    .flatMap { receiveCatching { call.receive<PlanlagtHentingSaveDto>() } }
                     .flatMap { it.validOrError() }
                     .flatMap { planlagtHentingService.create(it) }
                     .run { generateResponse(this) }

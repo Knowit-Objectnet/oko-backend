@@ -9,7 +9,7 @@ import java.time.LocalDate
 
 //Is never passed over net, and therefore does not need to be serialized
 data class PlanlagtHentingBatchPostDto(
-    val insertDto: PlanlagtHentingInsertDto,
+    val saveDto: PlanlagtHentingSaveDto,
     val dateList: List<LocalDate>
 ) : IForm<PlanlagtHentingBatchPostDto> {
     override fun validOrError(): Either<ValidationError, PlanlagtHentingBatchPostDto> = runCatchingValidation {
