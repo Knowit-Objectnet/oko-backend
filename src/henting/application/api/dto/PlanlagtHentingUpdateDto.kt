@@ -13,9 +13,9 @@ import shared.model.serializer.UUIDSerializer
 import java.time.LocalDateTime
 import java.util.*
 
-@Serializable(with = UUIDSerializer::class)
+@Serializable
 data class PlanlagtHentingUpdateDto(
-    override val id: UUID,
+    @Serializable(with = UUIDSerializer::class) override val id: UUID,
     @Serializable(with = LocalDateTimeSerializer::class) override val startTidspunkt: LocalDateTime? = null,
     @Serializable(with = LocalDateTimeSerializer::class) override val sluttTidspunkt: LocalDateTime? = null,
     override val merknad: String? = null,

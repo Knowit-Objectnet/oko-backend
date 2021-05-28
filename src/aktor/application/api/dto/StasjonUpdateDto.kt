@@ -11,9 +11,9 @@ import org.valiktor.validate
 import shared.model.serializer.UUIDSerializer
 import java.util.*
 
-@Serializable(with = UUIDSerializer::class)
+@Serializable
 data class StasjonUpdateDto(
-    override val id: UUID,
+    @Serializable(with = UUIDSerializer::class) override val id: UUID,
     override val navn: String?,
     override val type: StasjonType?
 ) : IForm<StasjonUpdateDto>, StasjonUpdateParams() {

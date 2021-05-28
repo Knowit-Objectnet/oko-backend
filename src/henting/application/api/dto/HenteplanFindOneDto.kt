@@ -13,8 +13,8 @@ import java.util.*
 
 @KtorExperimentalLocationsAPI
 @Location("/{id}")
-@Serializable(with = UUIDSerializer::class)
-data class HenteplanFindOneDto(val id: UUID): IForm<HenteplanFindOneDto> {
+@Serializable
+data class HenteplanFindOneDto(@Serializable(with = UUIDSerializer::class) val id: UUID): IForm<HenteplanFindOneDto> {
     override fun validOrError(): Either<ValidationError, HenteplanFindOneDto>  = runCatchingValidation{
         validate(this) {
         }

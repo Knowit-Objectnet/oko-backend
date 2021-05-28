@@ -7,9 +7,9 @@ import shared.model.serializer.UUIDSerializer
 import java.time.LocalDate
 import java.util.*
 
-@Serializable(with = UUIDSerializer::class)
+@Serializable
 abstract class AvtaleUpdateParams: UpdateParams{
-    abstract override val id: UUID
+    @Serializable(with = UUIDSerializer::class) abstract override val id: UUID
     abstract val type: AvtaleType?
     abstract val startDato: LocalDate?
     abstract val sluttDato: LocalDate?

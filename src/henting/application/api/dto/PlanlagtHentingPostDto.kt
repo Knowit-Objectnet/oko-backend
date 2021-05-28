@@ -13,12 +13,12 @@ import shared.model.serializer.UUIDSerializer
 import java.time.LocalDateTime
 import java.util.*
 
-@Serializable(with = UUIDSerializer::class)
+@Serializable
 data class PlanlagtHentingPostDto(
     @Serializable(with = LocalDateTimeSerializer::class) override val startTidspunkt: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class) override val sluttTidspunkt: LocalDateTime,
     override val merknad: String?,
-    override val henteplanId: UUID
+    @Serializable(with = UUIDSerializer::class) override val henteplanId: UUID
 ) : IForm<PlanlagtHentingPostDto>, PlanlagtHentingCreateParams() {
     override fun validOrError(): Either<ValidationError, PlanlagtHentingPostDto> = runCatchingValidation {
         validate(this) {

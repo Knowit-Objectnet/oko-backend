@@ -16,9 +16,9 @@ import java.time.DayOfWeek
 import java.time.LocalDateTime
 import java.util.*
 
-@Serializable(with = UUIDSerializer::class)
+@Serializable
 data class HenteplanUpdateDto(
-    override val id: UUID,
+    @Serializable(with = UUIDSerializer::class) override val id: UUID,
     override val frekvens: HenteplanFrekvens? = null,
     @Serializable(with = LocalDateTimeSerializer::class) override val startTidspunkt: LocalDateTime? = null,
     @Serializable(with = LocalDateTimeSerializer::class) override val sluttTidspunkt: LocalDateTime? = null,

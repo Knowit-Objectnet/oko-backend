@@ -5,9 +5,9 @@ import ombruk.backend.aktor.domain.enum.PartnerStorrelse
 import shared.model.serializer.UUIDSerializer
 import java.util.*
 
-@Serializable(with = UUIDSerializer::class)
+@Serializable
 data class Partner (
-    override var id: UUID,
+    @Serializable(with = UUIDSerializer::class) override var id: UUID,
     override var navn: String,
     override var kontaktPersoner: List<Kontakt> = emptyList(),
     var storrelse: PartnerStorrelse,
