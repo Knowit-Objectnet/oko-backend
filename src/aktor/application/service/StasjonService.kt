@@ -2,7 +2,7 @@ package ombruk.backend.aktor.application.service
 
 import arrow.core.Either
 import arrow.core.flatMap
-import ombruk.backend.aktor.application.api.dto.StasjonCreateDto
+import ombruk.backend.aktor.application.api.dto.StasjonInsertDto
 import ombruk.backend.aktor.application.api.dto.StasjonFindDto
 import ombruk.backend.aktor.application.api.dto.StasjonUpdateDto
 import ombruk.backend.aktor.domain.entity.Stasjon
@@ -17,7 +17,7 @@ class StasjonService(
     val keycloakGroupIntegration: KeycloakGroupIntegration
 ) :
     IStasjonService {
-    override fun save(dto: StasjonCreateDto): Either<ServiceError, Stasjon> {
+    override fun save(dto: StasjonInsertDto): Either<ServiceError, Stasjon> {
         return transaction {
             stasjonRepository.insert(dto).flatMap { stasjon ->
                 keycloakGroupIntegration.createGroup(stasjon.navn, stasjon.id)

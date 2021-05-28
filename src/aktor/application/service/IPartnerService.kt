@@ -1,7 +1,7 @@
 package ombruk.backend.aktor.application.service
 
 import ombruk.backend.aktor.application.api.dto.PartnerGetDto
-import ombruk.backend.aktor.application.api.dto.PartnerPostDto
+import ombruk.backend.aktor.application.api.dto.PartnerInsertDto
 import ombruk.backend.aktor.domain.entity.Partner
 import ombruk.backend.shared.error.ServiceError
 
@@ -19,7 +19,7 @@ interface IPartnerService {
      * @param dto A custom object used to edit existing partnere. [dto] id must belong to an existing user.
      * @return An [Either] object consisting of [ServiceError] on failure or the ID of the saved partner on success.
      */
-    fun savePartner(dto: PartnerPostDto): Either<ServiceError, Partner>
+    fun savePartner(dto: PartnerInsertDto): Either<ServiceError, Partner>
 
     /**
      * Gets a partner by its ID.

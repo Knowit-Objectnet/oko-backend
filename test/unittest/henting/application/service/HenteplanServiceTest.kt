@@ -2,7 +2,7 @@ package henting.application.service
 
 import arrow.core.Either
 import arrow.core.right
-import henting.application.api.dto.HenteplanPostDto
+import henting.application.api.dto.HenteplanInsertDto
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -20,8 +20,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
-import org.testcontainers.junit.jupiter.Testcontainers
-import testutils.TestContainer
 import testutils.mockDatabase
 import testutils.unmockDatabase
 import java.time.DayOfWeek
@@ -35,7 +33,7 @@ internal class HenteplanServiceTest {
     private val henteplanRepository = mockkClass(HenteplanRepository::class)
     private val planlagtHentingService: PlanlagtHentingService = mockkClass(PlanlagtHentingService::class)
 
-    private lateinit var henteplanPostDto : HenteplanPostDto
+    private lateinit var henteplanPostDto : HenteplanInsertDto
     private lateinit var henteplan : Henteplan
 
     @BeforeEach
@@ -43,10 +41,10 @@ internal class HenteplanServiceTest {
         mockDatabase()
         henteplanService = HenteplanService(henteplanRepository, planlagtHentingService)
 
-        henteplanPostDto = HenteplanPostDto(
+        henteplanPostDto = HenteplanInsertDto(
             UUID.randomUUID(),
             UUID.randomUUID(),
-            HenteplanFrekvens.Ukentlig,
+            HenteplanFrekvens.UKENTLIG,
             LocalDateTime.of(2021,1,1,10,0),
             LocalDateTime.of(2021,2,1,14,0),
             DayOfWeek.FRIDAY,

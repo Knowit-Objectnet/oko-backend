@@ -1,7 +1,7 @@
 package ombruk.backend.henting.application.api
 
 import arrow.core.extensions.either.monad.flatMap
-import henting.application.api.dto.HenteplanPostDto
+import henting.application.api.dto.HenteplanInsertDto
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.locations.*
@@ -44,7 +44,7 @@ fun Routing.henteplaner(henteplanService: IHenteplanService) {
         authenticate {
             post {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
-                    .flatMap { receiveCatching { call.receive<HenteplanPostDto>() } }
+                    .flatMap { receiveCatching { call.receive<HenteplanInsertDto>() } }
                     .flatMap { it.validOrError() }
                     .flatMap { henteplanService.create(it) }
                     .run { generateResponse(this) }

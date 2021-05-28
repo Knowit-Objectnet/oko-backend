@@ -7,7 +7,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkClass
 import ombruk.backend.henting.application.api.dto.PlanlagtHentingBatchPostDto
-import ombruk.backend.henting.application.api.dto.PlanlagtHentingPostDto
+import ombruk.backend.henting.application.api.dto.PlanlagtHentingInsertDto
 import ombruk.backend.henting.application.service.PlanlagtHentingService
 import ombruk.backend.henting.domain.entity.PlanlagtHenting
 import ombruk.backend.henting.infrastructure.repository.PlanlagtHentingRepository
@@ -17,14 +17,12 @@ import org.junit.jupiter.api.Test
 
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
-import org.testcontainers.junit.jupiter.Testcontainers
 import testutils.TestContainer
 import testutils.mockDatabase
 import testutils.unmockDatabase
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
-import kotlin.test.assertEquals
 
 @ExtendWith(MockKExtension::class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -48,7 +46,7 @@ internal class PlanlagtHentingServiceTest {
     fun batchCreateForHenteplan(@MockK expected : PlanlagtHenting) {
 
         val dto = PlanlagtHentingBatchPostDto(
-            PlanlagtHentingPostDto(
+            PlanlagtHentingInsertDto(
                 LocalDateTime.of(2021,1,1,10,0),
                 LocalDateTime.of(2022,2,1,14,0),
                 null,
