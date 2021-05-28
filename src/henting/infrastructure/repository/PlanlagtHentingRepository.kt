@@ -84,10 +84,12 @@ class PlanlagtHentingRepository: RepositoryBase<PlanlagtHenting, PlanlagtHenting
             params.avlyst?.let { query.andWhere { if(it) table.avlyst.isNotNull() else table.avlyst.isNull()} }
             params.merknad?.let { query.andWhere { table.merknad.like("%${it}%")} }
             query.mapNotNull { toPlanlagtHentingWithParents(it, stasjonAlias) }
-        }.fold(
-            {it.right()},
-            { RepositoryError.SelectError(it.message).left() }
-        )
+        }
+            .onFailure { logger.error("Failed to find from database; ${it.message}")}
+            .fold(
+                {it.right()},
+                { RepositoryError.SelectError(it.message).left() }
+            )
     }
 
     fun toPlanlagtHentingWithParents(row: ResultRow, stasjonAlias: Alias<StasjonTable>): PlanlagtHentingWithParents {

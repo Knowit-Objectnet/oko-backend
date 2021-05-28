@@ -15,12 +15,13 @@ import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.*
 
 abstract class RepositoryBase<Entity : Any, EntityParams, EntityUpdateParams: UpdateParams, EntityFindParams : FindParams> {
 
-    private val logger = LoggerFactory.getLogger("ombruk.backend.core.infrastructure.RepositoryBase")
+    val logger: Logger = LoggerFactory.getLogger("ombruk.backend.core.infrastructure.RepositoryBase")
 
     abstract fun insertQuery(params: EntityParams): EntityID<UUID>
 
