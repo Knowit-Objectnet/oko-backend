@@ -84,7 +84,7 @@ internal class PlanlagtHentingRepositoryTest {
         val henteplanParams = object : HenteplanCreateParams() {
             override val avtaleId: UUID = avtale.id
             override val stasjonId: UUID = stasjon.id
-            override val frekvens: HenteplanFrekvens = HenteplanFrekvens.Ukentlig
+            override val frekvens: HenteplanFrekvens = HenteplanFrekvens.UKENTLIG
             override val startTidspunkt: LocalDateTime = LocalDateTime.now()
             override val sluttTidspunkt: LocalDateTime = LocalDateTime.now().plusYears(1).plusHours(2)
             override val ukedag: DayOfWeek = DayOfWeek.MONDAY

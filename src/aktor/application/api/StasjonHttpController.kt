@@ -15,7 +15,6 @@ import ombruk.backend.shared.api.Authorization
 import ombruk.backend.shared.api.Roles
 import ombruk.backend.shared.api.generateResponse
 import ombruk.backend.shared.api.receiveCatching
-import java.util.*
 
 @KtorExperimentalLocationsAPI
 fun Routing.stasjoner(stasjonService: IStasjonService) {
@@ -39,7 +38,7 @@ fun Routing.stasjoner(stasjonService: IStasjonService) {
         authenticate {
             post {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
-                    .flatMap { receiveCatching { call.receive<StasjonCreateDto>() } }
+                    .flatMap { receiveCatching { call.receive<StasjonSaveDto>() } }
                     .flatMap { it.validOrError() }
                     .flatMap { stasjonService.save(it) }
                     .run { generateResponse(this) }

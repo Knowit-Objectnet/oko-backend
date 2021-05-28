@@ -16,7 +16,7 @@ import java.time.LocalDateTime
 
 
 @KtorExperimentalLocationsAPI
-@Location("/")
+@Location("")
 data class EventGetForm(
     val eventId: Int? = null,
     val stationId: Int? = null,

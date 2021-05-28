@@ -8,7 +8,7 @@ import org.valiktor.functions.isNotBlank
 import org.valiktor.validate
 
 @KtorExperimentalLocationsAPI
-@Location("/")
+@Location("")
 data class PartnerGetForm(
     var name: String? = null
 ) : IForm<PartnerGetForm> {

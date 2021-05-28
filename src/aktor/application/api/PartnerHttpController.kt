@@ -51,7 +51,7 @@ fun Routing.partnere(partnerService: IPartnerService) {
         authenticate {
             post {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
-                    .flatMap { receiveCatching { call.receive<PartnerPostDto>() } }
+                    .flatMap { receiveCatching { call.receive<PartnerSaveDto>() } }
                     .flatMap { it.validOrError() }
                     .flatMap { partnerService.savePartner(it) }
                     .run { generateResponse(this) }

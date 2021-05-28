@@ -58,7 +58,7 @@ class PartnerTest {
         ideell = false
         every { keycloakGroupIntegration.createGroup(navn, any<UUID>()) } returns expected.right()
 
-        val partner = PartnerPostDto(navn, storrelse, ideell)
+        val partner = PartnerSaveDto(navn, storrelse, ideell)
         val save = partnerService.savePartner(partner)
         assert(save is Either.Right<Partner>)
     }

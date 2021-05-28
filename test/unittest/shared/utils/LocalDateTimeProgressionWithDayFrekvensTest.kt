@@ -15,7 +15,7 @@ internal class LocalDateTimeProgressionWithDayFrekvensTest {
             LocalDateTime.of(2021, 5,13,10,0),
             LocalDateTime.of(2021, 5,30,10,0),
             DayOfWeek.FRIDAY,
-            HenteplanFrekvens.Ukentlig
+            HenteplanFrekvens.UKENTLIG
         )
 
         val myList1 = myProgression1.map { it }
@@ -30,7 +30,7 @@ internal class LocalDateTimeProgressionWithDayFrekvensTest {
             LocalDateTime.of(2021, 5,13,10,0),
             LocalDateTime.of(2021, 5,30,10,0),
             DayOfWeek.MONDAY,
-            HenteplanFrekvens.Ukentlig
+            HenteplanFrekvens.UKENTLIG
         )
 
         val myList2 = myProgression2.map { it }
@@ -44,7 +44,7 @@ internal class LocalDateTimeProgressionWithDayFrekvensTest {
             LocalDateTime.of(2021, 1,1,10,0),
             LocalDateTime.of(2022, 1,1,10,0),
             DayOfWeek.FRIDAY,
-            HenteplanFrekvens.Ukentlig
+            HenteplanFrekvens.UKENTLIG
         )
 
         val myList3 = myProgression3.map { it }
@@ -57,7 +57,7 @@ internal class LocalDateTimeProgressionWithDayFrekvensTest {
             LocalDateTime.of(2021, 5,13,10,0),
             LocalDateTime.of(2021, 6,30,10,0),
             DayOfWeek.FRIDAY,
-            HenteplanFrekvens.Annenhver
+            HenteplanFrekvens.ANNENHVER
         )
 
         val myList4 = myProgression4.map { it }
@@ -73,7 +73,7 @@ internal class LocalDateTimeProgressionWithDayFrekvensTest {
             LocalDateTime.of(2021, 1,1,10,0),
             LocalDateTime.of(2022, 1,1,10,0),
             DayOfWeek.FRIDAY,
-            HenteplanFrekvens.Annenhver
+            HenteplanFrekvens.ANNENHVER
         )
 
         val myList5 = myProgression5.map { it }
@@ -86,7 +86,7 @@ internal class LocalDateTimeProgressionWithDayFrekvensTest {
             LocalDateTime.of(2021, 1,1,10,0),
             LocalDateTime.of(2022, 1,1,10,0),
             DayOfWeek.FRIDAY,
-            HenteplanFrekvens.Enkelt
+            HenteplanFrekvens.ENKELT
         )
 
         val myList6 = myProgression6.map { it }

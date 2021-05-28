@@ -1,7 +1,7 @@
 package ombruk.backend.henting.application.service
 
 import arrow.core.Either
-import henting.application.api.dto.HenteplanPostDto
+import henting.application.api.dto.HenteplanSaveDto
 import ombruk.backend.henting.application.api.dto.HenteplanDeleteDto
 import ombruk.backend.henting.application.api.dto.HenteplanFindDto
 import ombruk.backend.henting.application.api.dto.HenteplanUpdateDto
@@ -10,9 +10,9 @@ import ombruk.backend.shared.error.ServiceError
 import java.util.*
 
 interface IHenteplanService {
-    fun create(dto: HenteplanPostDto): Either<ServiceError, Henteplan>
+    fun create(dto: HenteplanSaveDto): Either<ServiceError, Henteplan>
 
-    fun batchCreate(dto: List<HenteplanPostDto>): Either<ServiceError, List<Henteplan>>
+    fun batchCreate(dto: List<HenteplanSaveDto>): Either<ServiceError, List<Henteplan>>
 
     fun findOne(id: UUID): Either<ServiceError, Henteplan>
 

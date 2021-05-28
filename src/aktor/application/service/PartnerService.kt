@@ -5,7 +5,7 @@ import arrow.core.extensions.either.monad.flatMap
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.util.KtorExperimentalAPI
 import ombruk.backend.aktor.application.api.dto.PartnerGetDto
-import ombruk.backend.aktor.application.api.dto.PartnerPostDto
+import ombruk.backend.aktor.application.api.dto.PartnerSaveDto
 import ombruk.backend.aktor.application.api.dto.PartnerUpdateDto
 import ombruk.backend.aktor.domain.entity.Partner
 import ombruk.backend.aktor.domain.port.IPartnerRepository
@@ -20,7 +20,7 @@ class PartnerService constructor(
 ) : IPartnerService {
 
     @KtorExperimentalAPI
-    override fun savePartner(dto: PartnerPostDto): Either<ServiceError, Partner> = transaction {
+    override fun savePartner(dto: PartnerSaveDto): Either<ServiceError, Partner> = transaction {
         partnerRepository.insert(dto).flatMap { partner ->
             keycloakGroupIntegration.createGroup(partner.navn, partner.id)
                 .bimap({ rollback(); it }, { partner })

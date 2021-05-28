@@ -10,7 +10,6 @@ import io.ktor.locations.*
 import ombruk.backend.henting.application.api.dto.*
 import ombruk.backend.henting.domain.entity.PlanlagtHenting
 import ombruk.backend.henting.domain.port.IPlanlagtHentingRepository
-import ombruk.backend.henting.infrastructure.repository.PlanlagtHentingRepository
 import ombruk.backend.shared.error.ServiceError
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.LocalDateTime
@@ -18,7 +17,7 @@ import java.util.*
 
 @KtorExperimentalLocationsAPI
 class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepository): IPlanlagtHentingService {
-    override fun create(dto: PlanlagtHentingPostDto): Either<ServiceError, PlanlagtHenting> {
+    override fun create(dto: PlanlagtHentingSaveDto): Either<ServiceError, PlanlagtHenting> {
         return transaction { planlagtHentingRepository.insert(dto) }
     }
 
@@ -42,11 +41,11 @@ class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepo
         return transaction {
             dto.dateList.map {
                 planlagtHentingRepository.insert(
-                    PlanlagtHentingPostDto(
-                        henteplanId = dto.postDto.henteplanId,
-                        merknad = dto.postDto.merknad,
-                        startTidspunkt = LocalDateTime.of(it, dto.postDto.startTidspunkt.toLocalTime()),
-                        sluttTidspunkt = LocalDateTime.of(it, dto.postDto.sluttTidspunkt.toLocalTime()),
+                    PlanlagtHentingSaveDto(
+                        henteplanId = dto.saveDto.henteplanId,
+                        merknad = dto.saveDto.merknad,
+                        startTidspunkt = LocalDateTime.of(it, dto.saveDto.startTidspunkt.toLocalTime()),
+                        sluttTidspunkt = LocalDateTime.of(it, dto.saveDto.sluttTidspunkt.toLocalTime()),
                     ))
             }
                 .sequence(Either.applicative())

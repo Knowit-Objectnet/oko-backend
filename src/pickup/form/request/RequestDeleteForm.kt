@@ -13,7 +13,7 @@ import org.valiktor.functions.isGreaterThan
 import org.valiktor.validate
 
 @KtorExperimentalLocationsAPI
-@Location("/")
+@Location("")
 data class RequestDeleteForm(
     val pickupId: Int,
     val partnerId: Int

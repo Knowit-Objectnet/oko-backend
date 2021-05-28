@@ -1,14 +1,13 @@
 import arrow.core.Either
-import arrow.core.contains
 import arrow.core.right
-import avtale.application.api.dto.AvtaleCreateDto
-import henting.application.api.dto.HenteplanPostDto
+import avtale.application.api.dto.AvtaleSaveDto
+import henting.application.api.dto.HenteplanSaveDto
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkClass
-import ombruk.backend.aktor.application.api.dto.PartnerPostDto
-import ombruk.backend.aktor.application.api.dto.StasjonCreateDto
+import ombruk.backend.aktor.application.api.dto.PartnerSaveDto
+import ombruk.backend.aktor.application.api.dto.StasjonSaveDto
 import ombruk.backend.aktor.application.service.PartnerService
 import ombruk.backend.aktor.application.service.StasjonService
 import ombruk.backend.aktor.domain.entity.Partner
@@ -17,20 +16,15 @@ import ombruk.backend.aktor.domain.enum.PartnerStorrelse
 import ombruk.backend.aktor.domain.enum.StasjonType
 import ombruk.backend.aktor.infrastructure.repository.PartnerRepository
 import ombruk.backend.aktor.infrastructure.repository.StasjonRepository
-import ombruk.backend.avtale.application.api.dto.AvtaleDeleteDto
 import ombruk.backend.avtale.application.api.dto.AvtaleFindDto
 import ombruk.backend.avtale.application.service.AvtaleService
 import ombruk.backend.avtale.domain.entity.Avtale
 import ombruk.backend.avtale.infrastructure.repository.AvtaleRepository
 import ombruk.backend.avtale.model.AvtaleType
-import ombruk.backend.henting.application.api.dto.HenteplanDeleteDto
-import ombruk.backend.henting.application.api.dto.PlanlagtHentingDeleteDto
 import ombruk.backend.henting.application.api.dto.PlanlagtHentingFindDto
 import ombruk.backend.henting.application.service.HenteplanService
 import ombruk.backend.henting.application.service.PlanlagtHentingService
 import ombruk.backend.henting.domain.entity.Henteplan
-import ombruk.backend.henting.domain.entity.Henting
-import ombruk.backend.henting.domain.entity.PlanlagtHenting
 import ombruk.backend.henting.domain.model.HenteplanFrekvens
 import ombruk.backend.henting.infrastructure.repository.HenteplanRepository
 import ombruk.backend.henting.infrastructure.repository.PlanlagtHentingRepository
@@ -83,8 +77,8 @@ class AvtaleTest {
 
         every { keycloakGroupIntegration.createGroup(any<String>(), any<UUID>()) } returns expected.right()
 
-        val partnerInsert = partnerService.savePartner(PartnerPostDto("TestPartner", PartnerStorrelse.STOR, true))
-        val stasjonInsert = stasjonService.save(StasjonCreateDto("TestStasjon", StasjonType.GJENBRUK))
+        val partnerInsert = partnerService.savePartner(PartnerSaveDto("TestPartner", PartnerStorrelse.STOR, true))
+        val stasjonInsert = stasjonService.save(StasjonSaveDto("TestStasjon", StasjonType.GJENBRUK))
 
         require(partnerInsert is Either.Right)
         require(stasjonInsert is Either.Right)
@@ -96,7 +90,7 @@ class AvtaleTest {
     @Test
     @Order(2)
     fun createANewAvtale() {
-        val avtaleCreateDto = AvtaleCreateDto(
+        val avtaleCreateDto = AvtaleSaveDto(
             UUID.randomUUID(), //TODO: This needs to verify that it is a legal Aktor
             AvtaleType.FAST,
             LocalDate.of(2021,1,1),
@@ -129,20 +123,20 @@ class AvtaleTest {
     @Test
     @Order(4)
     fun testAddHenteplaner() {
-        val henteplanPostDto1 = HenteplanPostDto(
+        val henteplanPostDto1 = HenteplanSaveDto(
             avtale.id,
             stasjon.id,
-            HenteplanFrekvens.Ukentlig,
+            HenteplanFrekvens.UKENTLIG,
             LocalDateTime.of(2021,1,1,10,0),
             LocalDateTime.of(2021,2,1,14,0),
             DayOfWeek.FRIDAY,
             null
         )
 
-        val henteplanPostDto2 = HenteplanPostDto(
+        val henteplanPostDto2 = HenteplanSaveDto(
             avtale.id,
             stasjon.id,
-            HenteplanFrekvens.Enkelt,
+            HenteplanFrekvens.ENKELT,
             LocalDateTime.of(2021,1,1,10,0),
             LocalDateTime.of(2021,1,1,14,0),
             DayOfWeek.FRIDAY,

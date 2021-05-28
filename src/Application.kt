@@ -42,6 +42,7 @@ import org.koin.ktor.ext.get
 import org.valiktor.ConstraintViolationException
 import org.valiktor.i18n.mapToMessage
 import java.net.URL
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -77,6 +78,21 @@ fun Application.module(testing: Boolean = false) {
                     null -> listOf()
                     is LocalDateTime -> listOf(value.format(DateTimeFormatter.ISO_DATE_TIME))
                     else -> throw DataConversionException("Cannot convert $value as LocalDateTime")
+                }
+            }
+        }
+
+        convert<LocalDate> {
+
+            decode { values, _ ->
+                values.singleOrNull()?.let { LocalDate.parse(it, DateTimeFormatter.ISO_DATE) }
+            }
+
+            encode { value ->
+                when (value) {
+                    null -> listOf()
+                    is LocalDateTime -> listOf(value.format(DateTimeFormatter.ISO_DATE))
+                    else -> throw DataConversionException("Cannot convert $value as LocalDate")
                 }
             }
         }

@@ -5,7 +5,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkClass
-import ombruk.backend.aktor.application.api.dto.StasjonCreateDto
+import ombruk.backend.aktor.application.api.dto.StasjonSaveDto
 import ombruk.backend.aktor.application.api.dto.StasjonFindDto
 import ombruk.backend.aktor.application.api.dto.StasjonUpdateDto
 import ombruk.backend.aktor.application.service.StasjonService
@@ -56,7 +56,7 @@ class StasjonTest {
         type = StasjonType.GJENBRUK
         every { keycloakGroupIntegration.createGroup(navn, any<UUID>()) } returns expected.right()
 
-        val stasjon = StasjonCreateDto(navn, type)
+        val stasjon = StasjonSaveDto(navn, type)
         val save = stasjonService.save(stasjon)
         assert(save is Either.Right<Stasjon>)
     }

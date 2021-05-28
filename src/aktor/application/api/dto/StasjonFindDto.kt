@@ -12,7 +12,7 @@ import org.valiktor.validate
 import java.util.*
 
 @KtorExperimentalLocationsAPI
-@Location("/")
+@Location("")
 data class StasjonFindDto(
     override val navn: String? = null,
     override val type: StasjonType? = null,
