@@ -9,12 +9,12 @@ import shared.model.serializer.UUIDSerializer
 import java.time.LocalDate
 import java.util.*
 
-@Serializable(with = LocalDateSerializer::class)
+@Serializable
 data class Avtale(
-    val id: UUID,
-    val aktorId: UUID,
+    @Serializable(with = UUIDSerializer::class) val id: UUID,
+    @Serializable(with = UUIDSerializer::class) val aktorId: UUID,
     val type: AvtaleType,
-    val startDato: LocalDate,
-    val sluttDato: LocalDate,
+    @Serializable(with = LocalDateSerializer::class) val startDato: LocalDate,
+    @Serializable(with = LocalDateSerializer::class) val sluttDato: LocalDate,
     val henteplaner: List<Henteplan> = emptyList()
 )
