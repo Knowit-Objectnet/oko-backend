@@ -20,7 +20,7 @@ import java.util.*
 
 @KtorExperimentalLocationsAPI
 @Serializable
-@Location("/")
+@Location("")
 data class HenteplanFindDto(
     @Serializable(with = UUIDSerializer::class) override val avtaleId: UUID? = null,
     @Serializable(with = UUIDSerializer::class) override val stasjonId: UUID? = null,

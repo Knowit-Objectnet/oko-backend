@@ -15,7 +15,7 @@ import shared.model.serializer.UUIDSerializer
 import java.time.LocalDate
 import java.util.*
 
-@Location("/")
+@Location("")
 @Serializable
 data class AvtaleFindDto(
     @Serializable(with = UUIDSerializer::class) override val aktorId: UUID? = null,

@@ -11,7 +11,7 @@ import org.valiktor.validate
 import java.util.*
 
 @KtorExperimentalLocationsAPI
-@Location("/")
+@Location("")
 data class PartnerGetDto(
     override val navn: String? = null,
     override val storrelse: PartnerStorrelse? = null,

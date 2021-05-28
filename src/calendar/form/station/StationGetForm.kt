@@ -8,7 +8,7 @@ import org.valiktor.functions.isNotBlank
 import org.valiktor.validate
 
 @KtorExperimentalLocationsAPI
-@Location("/")
+@Location("")
 data class StationGetForm(val name: String? = null) : IForm<StationGetForm> {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
