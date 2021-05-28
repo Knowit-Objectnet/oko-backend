@@ -16,10 +16,10 @@ object LocalDateSerializer : KSerializer<LocalDate> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("DateAsString", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, obj: LocalDate) =
-        encoder.encodeString(obj.format(DateTimeFormatter.ISO_DATE_TIME) + "Z")
+        encoder.encodeString(obj.format(DateTimeFormatter.ISO_DATE))
 
 
     override fun deserialize(decoder: Decoder): LocalDate {
-        return LocalDate.parse(decoder.decodeString(), DateTimeFormatter.ISO_DATE_TIME)
+        return LocalDate.parse(decoder.decodeString(), DateTimeFormatter.ISO_DATE)
     }
 }
