@@ -42,8 +42,9 @@ class KeycloakGroupIntegration {
     private val logger: Logger = LoggerFactory.getLogger("ombruk.partner.service.KeycloakGroupIntegration")
     private val client: HttpClient = HttpClient(Apache)
     private val keycloakBaseUrl = appConfig.property("ktor.keycloak.keycloakUrl").getString()
-    private val tokenUrl = keycloakBaseUrl + "realms/staging/protocol/openid-connect/token"
-    private val groupsUrl = keycloakBaseUrl + "admin/realms/staging/groups/"
+    private val keycloakRealm = appConfig.property("ktor.keycloak.keycloakRealm").getString()
+    private val tokenUrl = keycloakBaseUrl + "realms/$keycloakRealm/protocol/openid-connect/token"
+    private val groupsUrl = keycloakBaseUrl + "admin/realms/$keycloakRealm/groups/"
     private val grantType = "client_credentials"
     private val clientID = "partner-microservice"
     private val clientSecret = appConfig.property("ktor.keycloak.clientSecret").getString()
@@ -148,7 +149,10 @@ class KeycloakGroupIntegration {
             body = "grant_type=$grantType&client_id=$clientID&client_secret=$clientSecret"
         }
     }
-        .onFailure { logger.warn("Failed to perform auth request") }
+        .onFailure {
+            logger.warn("Failed to perform auth request")
+            print(it.message)
+        }
         .fold(
             { token = Json.decodeFromString<TokenResponse>(TokenResponse.serializer(), it); Unit.right() },
             {

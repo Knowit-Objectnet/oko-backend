@@ -23,7 +23,7 @@ import java.sql.ResultSet
 class TestContainer {
     companion object {
         @Container
-        private val container = PostgreSQLContainer<Nothing>("postgres:13.2")
+        private val container = PostgreSQLContainer<Nothing>("postgres:13.3")
         private val appConfig = HoconApplicationConfig(ConfigFactory.load())
         private lateinit var database : Database
 
