@@ -2,6 +2,7 @@ package ombruk.backend.aktor.application.service
 
 import arrow.core.Either
 import arrow.core.flatMap
+import arrow.core.right
 import ombruk.backend.aktor.application.api.dto.StasjonSaveDto
 import ombruk.backend.aktor.application.api.dto.StasjonFindDto
 import ombruk.backend.aktor.application.api.dto.StasjonUpdateDto
@@ -10,6 +11,7 @@ import ombruk.backend.aktor.domain.port.IStasjonRepository
 import ombruk.backend.shared.api.KeycloakGroupIntegration
 import ombruk.backend.shared.error.ServiceError
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.lang.reflect.TypeVariable
 import java.util.*
 
 class StasjonService(
@@ -20,7 +22,7 @@ class StasjonService(
     override fun save(dto: StasjonSaveDto): Either<ServiceError, Stasjon> {
         return transaction {
             stasjonRepository.insert(dto).flatMap { stasjon ->
-                keycloakGroupIntegration.createGroup(stasjon.navn, stasjon.id)
+                stasjon.right() //keycloakGroupIntegration.createGroup(stasjon.navn, stasjon.id)
                     .bimap({ rollback(); it }, { stasjon })
             }
         }
@@ -38,7 +40,7 @@ class StasjonService(
         return transaction {
             findOne(id).flatMap { stasjon ->
                 stasjonRepository.delete(id)
-                    .flatMap { keycloakGroupIntegration.deleteGroup(stasjon.navn) }
+                    //.flatMap { keycloakGroupIntegration.deleteGroup(stasjon.navn) }
                     .bimap({ rollback(); it }, { stasjon })
             }
         }
@@ -47,7 +49,7 @@ class StasjonService(
     override fun update(dto: StasjonUpdateDto): Either<ServiceError, Stasjon> = transaction {
         findOne(dto.id).flatMap { stasjon ->
             stasjonRepository.update(dto).flatMap { newStasjon ->
-                keycloakGroupIntegration.updateGroup(stasjon.navn, newStasjon.navn)
+                newStasjon.right() //keycloakGroupIntegration.updateGroup(stasjon.navn, newStasjon.navn)
                     .bimap({ rollback(); it }, { newStasjon })
             }
         }

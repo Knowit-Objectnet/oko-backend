@@ -2,6 +2,8 @@ package ombruk.backend.aktor.application.service
 
 import arrow.core.Either
 import arrow.core.extensions.either.monad.flatMap
+import arrow.core.right
+import arrow.core.rightIfNotNull
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.util.KtorExperimentalAPI
 import ombruk.backend.aktor.application.api.dto.PartnerGetDto
@@ -22,7 +24,7 @@ class PartnerService constructor(
     @KtorExperimentalAPI
     override fun savePartner(dto: PartnerSaveDto): Either<ServiceError, Partner> = transaction {
         partnerRepository.insert(dto).flatMap { partner ->
-            keycloakGroupIntegration.createGroup(partner.navn, partner.id)
+            partner.right() //keycloakGroupIntegration.createGroup(partner.navn, partner.id)
                 .bimap({ rollback(); it }, { partner })
         }
     }
@@ -37,7 +39,7 @@ class PartnerService constructor(
     override fun deletePartnerById(id: UUID): Either<ServiceError, Partner> = transaction {
         getPartnerById(id).flatMap { partner ->
             partnerRepository.delete(id)
-                .flatMap { keycloakGroupIntegration.deleteGroup(partner.navn) }
+                //.flatMap { keycloakGroupIntegration.deleteGroup(partner.navn) }
                 .bimap({ rollback(); it }, { partner })
         }
     }
@@ -47,7 +49,7 @@ class PartnerService constructor(
     override fun updatePartner(dto: PartnerUpdateDto): Either<ServiceError, Partner> = transaction {
         getPartnerById(dto.id).flatMap { partner ->
             partnerRepository.update(dto).flatMap { newPartner ->
-                keycloakGroupIntegration.updateGroup(partner.navn, newPartner.navn)
+                newPartner.right() //keycloakGroupIntegration.updateGroup(partner.navn, newPartner.navn)
                     .bimap({ rollback(); it }, { newPartner })
             }
         }
