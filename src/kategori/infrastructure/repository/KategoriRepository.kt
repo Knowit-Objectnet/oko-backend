@@ -17,14 +17,14 @@ class KategoriRepository : RepositoryBase<Kategori, KategoriCreateParams, Nothin
         }
     }
 
-    override fun prepareQuery(params: KategoriFindParams): Query {
+    override fun prepareQuery(params: KategoriFindParams): Pair<Query, List<Alias<Table>>?> {
         val query = table.selectAll()
         params.id?.let { query.andWhere { table.id eq it } }
         params.navn?.let { query.andWhere { table.navn eq it } }
-        return query
+        return Pair(query, null)
     }
 
-    override fun toEntity(row: ResultRow): Kategori {
+    override fun toEntity(row: ResultRow, aliases: List<Alias<Table>>?): Kategori {
         return Kategori(
             row[table.id].value,
             row[table.navn]
