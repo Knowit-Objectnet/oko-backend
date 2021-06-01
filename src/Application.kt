@@ -194,6 +194,7 @@ fun Application.module(testing: Boolean = false) {
     install(ContentNegotiation) {
         json(Json {
             prettyPrint = true
+            encodeDefaults = true
 //            contentType = ContentType.Application.Json
 
         }
