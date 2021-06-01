@@ -8,6 +8,7 @@ import io.ktor.locations.*
 import ombruk.backend.henting.application.api.dto.*
 import ombruk.backend.henting.domain.entity.Henteplan
 import ombruk.backend.henting.domain.entity.PlanlagtHenting
+import ombruk.backend.henting.domain.entity.PlanlagtHentingWithParents
 import ombruk.backend.henting.domain.port.IHenteplanRepository
 import ombruk.backend.shared.error.ServiceError
 import ombruk.backend.shared.utils.LocalDateTimeProgressionWithDayFrekvens
@@ -17,7 +18,7 @@ import java.util.*
 @KtorExperimentalLocationsAPI
 class HenteplanService(val henteplanRepository: IHenteplanRepository, val planlagtHentingService: IPlanlagtHentingService) : IHenteplanService {
 
-    fun createPlanlagtHentinger(dto: HenteplanSaveDto, henteplanId: UUID): Either<ServiceError, List<PlanlagtHenting>> {
+    fun createPlanlagtHentinger(dto: HenteplanSaveDto, henteplanId: UUID): Either<ServiceError, List<PlanlagtHentingWithParents>> {
         //Find all dates
         val dates = LocalDateTimeProgressionWithDayFrekvens(dto.startTidspunkt, dto.sluttTidspunkt, dto.ukedag, dto.frekvens)
             .map { it.toLocalDate() }
@@ -27,7 +28,7 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
 
     fun appendPlanlagtHentinger(dto: HenteplanSaveDto, id: UUID, henteplan: Henteplan) =
         run {
-            val hentinger: Either<ServiceError, List<PlanlagtHenting>> = createPlanlagtHentinger(dto, id)
+            val hentinger: Either<ServiceError, List<PlanlagtHentingWithParents>> = createPlanlagtHentinger(dto, id)
             when (hentinger) {
                 is Either.Left -> hentinger
                 is Either.Right -> henteplan.copy(planlagteHentinger = hentinger.b).right()

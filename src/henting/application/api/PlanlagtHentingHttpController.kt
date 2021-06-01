@@ -33,6 +33,8 @@ fun Routing.planlagteHentinger(planlagtHentingService: IPlanlagtHentingService) 
                 .also { (code, response) -> call.respond(code, response) }
         }
 
+        //TODO: Determine how to do PlanlagtHentingWithParents - use it as default?
+
         authenticate {
             post {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)

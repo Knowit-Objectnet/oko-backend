@@ -31,15 +31,15 @@ class PartnerRepository : RepositoryBase<Partner, PartnerCreateParams, PartnerUp
         }
     }
 
-    override fun prepareQuery(params: PartnerFindParams): Query {
+    override fun prepareQuery(params: PartnerFindParams): Pair<Query, List<Alias<Table>>?> {
         val query = (table).selectAll()
         params.navn?.let { query.andWhere { table.navn eq it } }
         params.ideell?.let { query.andWhere { table.ideell eq it } }
         params.storrelse?.let { query.andWhere { table.storrelse eq it.name } }
-        return query
+        return Pair(query, null)
     }
 
-    override fun toEntity(row: ResultRow): Partner {
+    override fun toEntity(row: ResultRow, aliases: List<Alias<Table>>?): Partner {
 //        if (!row.hasValue(PartnerTable.id) || row.getOrNull(
 //                PartnerTable.id
 //            ) == null

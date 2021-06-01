@@ -91,7 +91,7 @@ class AvtaleTest {
     @Order(2)
     fun createANewAvtale() {
         val avtaleCreateDto = AvtaleSaveDto(
-            UUID.randomUUID(), //TODO: This needs to verify that it is a legal Aktor
+            partner.id, //TODO: This needs to verify that it is a legal Aktor
             AvtaleType.FAST,
             LocalDate.of(2021,1,1),
             LocalDate.of(2022,1,1),

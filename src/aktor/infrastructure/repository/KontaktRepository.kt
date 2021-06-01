@@ -21,15 +21,15 @@ class KontaktRepository : RepositoryBase<Kontakt, KontaktCreateParams, KontaktUp
         }
     }
 
-    override fun prepareQuery(params: KontaktFindParams): Query {
+    override fun prepareQuery(params: KontaktFindParams): Pair<Query, List<Alias<Table>>?> {
         val query = table.selectAll()
         params.navn?.let { query.andWhere { table.navn eq it } }
         params.telefon?.let { query.andWhere { table.telefon eq it } }
         params.rolle?.let { query.andWhere { table.rolle eq it } }
-        return query
+        return Pair(query, null)
     }
 
-    override fun toEntity(row: ResultRow): Kontakt {
+    override fun toEntity(row: ResultRow, aliases: List<Alias<Table>>?): Kontakt {
         return Kontakt(
             row[KontaktTable.id].value,
             row[KontaktTable.navn],

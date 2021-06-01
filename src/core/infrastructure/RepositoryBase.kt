@@ -8,28 +8,24 @@ import ombruk.backend.core.domain.model.FindParams
 import ombruk.backend.core.domain.model.UpdateParams
 import ombruk.backend.shared.error.RepositoryError
 import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.dao.id.UUIDTable
-import org.jetbrains.exposed.sql.Query
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.*
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.*
 
 abstract class RepositoryBase<Entity : Any, EntityParams, EntityUpdateParams: UpdateParams, EntityFindParams : FindParams> {
 
-    private val logger = LoggerFactory.getLogger("ombruk.backend.core.infrastructure.RepositoryBase")
+    val logger: Logger = LoggerFactory.getLogger("ombruk.backend.core.infrastructure.RepositoryBase")
 
     abstract fun insertQuery(params: EntityParams): EntityID<UUID>
 
     //NOTE: Returns the number of updated entities
     abstract fun updateQuery(params: EntityUpdateParams): Int
 
-    abstract fun prepareQuery(params: EntityFindParams): Query
+    abstract fun prepareQuery(params: EntityFindParams): Pair<Query, List<Alias<Table>>?>
 
-    abstract fun toEntity(row: ResultRow): Entity
+    abstract fun toEntity(row: ResultRow, aliases: List<Alias<Table>>? = null): Entity
 
     abstract val table: UUIDTable
 
@@ -61,9 +57,13 @@ abstract class RepositoryBase<Entity : Any, EntityParams, EntityUpdateParams: Up
             .flatMap { it }
     }
 
+    open fun findOneMethod(id: UUID) : List<Entity> {
+        return table.select { table.id eq id }.mapNotNull { toEntity(it) }
+    }
+
     fun findOne(id: UUID): Either<RepositoryError, Entity> {
         return runCatching {
-            table.select { table.id eq id }.mapNotNull { toEntity(it) }
+            findOneMethod(id)
         }
             .onFailure { logger.error("Failed to findOne in database; ${it.message}") }
             .fold(
@@ -87,7 +87,8 @@ abstract class RepositoryBase<Entity : Any, EntityParams, EntityUpdateParams: Up
     }
 
     fun find(params: EntityFindParams): Either<RepositoryError, List<Entity>> = runCatching {
-        prepareQuery(params).mapNotNull { toEntity(it) }
+        val (query, aliases) = prepareQuery(params)
+        query.mapNotNull { toEntity(it, aliases) }
     }
         .onFailure { logger.error("Failed to find in database; ${it.message}") }
         .fold(

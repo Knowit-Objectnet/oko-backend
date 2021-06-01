@@ -13,6 +13,7 @@ import ombruk.backend.henting.application.api.dto.PlanlagtHentingFindDto
 import ombruk.backend.henting.application.api.dto.PlanlagtHentingUpdateDto
 import ombruk.backend.henting.domain.entity.Henteplan
 import ombruk.backend.henting.domain.entity.PlanlagtHenting
+import ombruk.backend.henting.domain.entity.PlanlagtHentingWithParents
 import ombruk.backend.henting.domain.model.HenteplanFrekvens
 import ombruk.backend.henting.domain.params.HenteplanCreateParams
 import ombruk.backend.henting.domain.params.PlanlagtHentingCreateParams
@@ -45,8 +46,8 @@ internal class PlanlagtHentingRepositoryTest {
     private lateinit var avtale: Avtale
     private lateinit var stasjon: Stasjon
     private lateinit var henteplan: Henteplan
-    private lateinit var planlagtHenting1: PlanlagtHenting
-    private lateinit var planlagtHenting2: PlanlagtHenting
+    private lateinit var planlagtHenting1: PlanlagtHentingWithParents
+    private lateinit var planlagtHenting2: PlanlagtHentingWithParents
 
     @BeforeEach
     fun setUp() {
@@ -55,20 +56,6 @@ internal class PlanlagtHentingRepositoryTest {
         henteplanRepository = HenteplanRepository()
         stasjonRepository = StasjonRepository()
         avtaleRepository = AvtaleRepository()
-
-        val avtaleParams = object: AvtaleCreateParams() {
-            override val aktorId: UUID = UUID.randomUUID()
-            override val type: AvtaleType = AvtaleType.FAST
-            override val startDato: LocalDate = LocalDate.now()
-            override val sluttDato: LocalDate = LocalDate.now().plusDays(1)
-            override val henteplaner: List<HenteplanCreateParams>? = emptyList()
-        }
-
-        transaction {
-            val insert = avtaleRepository.insert(avtaleParams)
-            require(insert is Either.Right)
-            avtale = insert.b
-        }
 
         val stasjonParams = object : StasjonCreateParams() {
             override val navn: String = "Grefsen"
@@ -79,6 +66,20 @@ internal class PlanlagtHentingRepositoryTest {
             val insert = stasjonRepository.insert(stasjonParams)
             require(insert is Either.Right)
             stasjon = insert.b
+        }
+
+        val avtaleParams = object: AvtaleCreateParams() {
+            override val aktorId: UUID = stasjon.id
+            override val type: AvtaleType = AvtaleType.FAST
+            override val startDato: LocalDate = LocalDate.now()
+            override val sluttDato: LocalDate = LocalDate.now().plusDays(1)
+            override val henteplaner: List<HenteplanCreateParams>? = emptyList()
+        }
+
+        transaction {
+            val insert = avtaleRepository.insert(avtaleParams)
+            require(insert is Either.Right)
+            avtale = insert.b
         }
 
         val henteplanParams = object : HenteplanCreateParams() {
