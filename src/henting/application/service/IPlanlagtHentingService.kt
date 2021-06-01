@@ -21,6 +21,4 @@ interface IPlanlagtHentingService {
 
     fun batchCreateForHenteplan(dto: PlanlagtHentingBatchPostDto): Either<ServiceError, List<PlanlagtHentingWithParents>>
 
-    fun findWithParents(dto: PlanlagtHentingFindDto): Either<ServiceError, List<PlanlagtHentingWithParents>>
-
 }

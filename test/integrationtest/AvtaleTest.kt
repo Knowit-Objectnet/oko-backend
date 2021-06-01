@@ -181,20 +181,6 @@ class AvtaleTest {
         assert(findAll.b.size == 4)
     }
 
-    @Test
-    @Order(7)
-    fun testGetHentingWithParents() {
-        val findallWithParents = planlagtHentingService.findWithParents(
-            PlanlagtHentingFindDto(
-                after = henteplan1.planlagteHentinger!![0].startTidspunkt.minusHours(1),
-                before = henteplan1.planlagteHentinger!![3].startTidspunkt.plusHours(1)
-        ))
-
-        println(findallWithParents)
-        require(findallWithParents is Either.Right)
-        assert(findallWithParents.b.size == 4)
-    }
-
     //TODO: Make update tests
 
     //Avtaler, Hentinger, etc should be cancelled, not deleted, so delete tests unneeded, though cancellation tests necessary

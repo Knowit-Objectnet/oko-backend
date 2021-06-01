@@ -56,8 +56,4 @@ class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepo
         }
     }
 
-    override fun findWithParents(dto: PlanlagtHentingFindDto): Either<ServiceError, List<PlanlagtHentingWithParents>> {
-        return transaction { planlagtHentingRepository.findWithParents(dto) }
-    }
-
 }
