@@ -10,6 +10,7 @@ import ombruk.backend.henting.application.api.dto.PlanlagtHentingBatchPostDto
 import ombruk.backend.henting.application.api.dto.PlanlagtHentingSaveDto
 import ombruk.backend.henting.application.service.PlanlagtHentingService
 import ombruk.backend.henting.domain.entity.PlanlagtHenting
+import ombruk.backend.henting.domain.entity.PlanlagtHentingWithParents
 import ombruk.backend.henting.infrastructure.repository.PlanlagtHentingRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -43,7 +44,7 @@ internal class PlanlagtHentingServiceTest {
     }
 
     @Test
-    fun batchCreateForHenteplan(@MockK expected : PlanlagtHenting) {
+    fun batchCreateForHenteplan(@MockK expected : PlanlagtHentingWithParents) {
 
         val dto = PlanlagtHentingBatchPostDto(
             PlanlagtHentingSaveDto(

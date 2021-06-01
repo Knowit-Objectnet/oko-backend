@@ -11,6 +11,7 @@ import ombruk.backend.henting.application.service.HenteplanService
 import ombruk.backend.henting.application.service.PlanlagtHentingService
 import ombruk.backend.henting.domain.entity.Henteplan
 import ombruk.backend.henting.domain.entity.PlanlagtHenting
+import ombruk.backend.henting.domain.entity.PlanlagtHentingWithParents
 import ombruk.backend.henting.domain.model.HenteplanFrekvens
 import ombruk.backend.henting.infrastructure.repository.HenteplanRepository
 import org.junit.jupiter.api.AfterEach
@@ -70,7 +71,7 @@ internal class HenteplanServiceTest {
     }
 
     @Test
-    fun createPlanlagtHentinger(@MockK expected : List<PlanlagtHenting>) {
+    fun createPlanlagtHentinger(@MockK expected : List<PlanlagtHentingWithParents>) {
 
         every { planlagtHentingService.batchCreateForHenteplan(any()) } returns expected.right()
         val actual = henteplanService.createPlanlagtHentinger(henteplanPostDto, henteplan.id)
@@ -79,7 +80,7 @@ internal class HenteplanServiceTest {
     }
 
     @Test
-    fun appendPlanlagtHentinger(@MockK expectedList : List<PlanlagtHenting>) {
+    fun appendPlanlagtHentinger(@MockK expectedList : List<PlanlagtHentingWithParents>) {
 
         every { planlagtHentingService.batchCreateForHenteplan(any()) } returns expectedList.right()
 
@@ -91,7 +92,7 @@ internal class HenteplanServiceTest {
     }
 
     @Test
-    fun create(@MockK expectedList : List<PlanlagtHenting>) {
+    fun create(@MockK expectedList : List<PlanlagtHentingWithParents>) {
         every { henteplanRepository.insert(any()) } returns henteplan.right()
         every { planlagtHentingService.batchCreateForHenteplan(any()) } returns expectedList.right()
 
@@ -104,7 +105,7 @@ internal class HenteplanServiceTest {
     }
 
     @Test
-    fun batchCreate(@MockK expectedList : List<PlanlagtHenting>) {
+    fun batchCreate(@MockK expectedList : List<PlanlagtHentingWithParents>) {
         every { henteplanRepository.insert(any()) } returns henteplan.right()
         every { planlagtHentingService.batchCreateForHenteplan(any()) } returns expectedList.right()
 

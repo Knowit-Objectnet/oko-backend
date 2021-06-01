@@ -9,17 +9,17 @@ import java.util.*
 
 interface IPlanlagtHentingService {
 
-    fun create(dto: PlanlagtHentingSaveDto): Either<ServiceError, PlanlagtHenting>
+    fun create(dto: PlanlagtHentingSaveDto): Either<ServiceError, PlanlagtHentingWithParents>
 
-    fun findOne(id: UUID): Either<ServiceError, PlanlagtHenting>
+    fun findOne(id: UUID): Either<ServiceError, PlanlagtHentingWithParents>
 
-    fun find(dto: PlanlagtHentingFindDto): Either<ServiceError, List<PlanlagtHenting>>
+    fun find(dto: PlanlagtHentingFindDto): Either<ServiceError, List<PlanlagtHentingWithParents>>
 
     fun delete(dto: PlanlagtHentingDeleteDto): Either<ServiceError, Unit>
 
-    fun update(dto: PlanlagtHentingUpdateDto): Either<ServiceError, PlanlagtHenting>
+    fun update(dto: PlanlagtHentingUpdateDto): Either<ServiceError, PlanlagtHentingWithParents>
 
-    fun batchCreateForHenteplan(dto: PlanlagtHentingBatchPostDto): Either<ServiceError, List<PlanlagtHenting>>
+    fun batchCreateForHenteplan(dto: PlanlagtHentingBatchPostDto): Either<ServiceError, List<PlanlagtHentingWithParents>>
 
     fun findWithParents(dto: PlanlagtHentingFindDto): Either<ServiceError, List<PlanlagtHentingWithParents>>
 

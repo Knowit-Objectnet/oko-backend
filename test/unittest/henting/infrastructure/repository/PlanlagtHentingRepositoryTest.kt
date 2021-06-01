@@ -13,6 +13,7 @@ import ombruk.backend.henting.application.api.dto.PlanlagtHentingFindDto
 import ombruk.backend.henting.application.api.dto.PlanlagtHentingUpdateDto
 import ombruk.backend.henting.domain.entity.Henteplan
 import ombruk.backend.henting.domain.entity.PlanlagtHenting
+import ombruk.backend.henting.domain.entity.PlanlagtHentingWithParents
 import ombruk.backend.henting.domain.model.HenteplanFrekvens
 import ombruk.backend.henting.domain.params.HenteplanCreateParams
 import ombruk.backend.henting.domain.params.PlanlagtHentingCreateParams
@@ -45,8 +46,8 @@ internal class PlanlagtHentingRepositoryTest {
     private lateinit var avtale: Avtale
     private lateinit var stasjon: Stasjon
     private lateinit var henteplan: Henteplan
-    private lateinit var planlagtHenting1: PlanlagtHenting
-    private lateinit var planlagtHenting2: PlanlagtHenting
+    private lateinit var planlagtHenting1: PlanlagtHentingWithParents
+    private lateinit var planlagtHenting2: PlanlagtHentingWithParents
 
     @BeforeEach
     fun setUp() {

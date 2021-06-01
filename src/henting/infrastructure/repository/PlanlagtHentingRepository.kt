@@ -18,12 +18,10 @@ import ombruk.backend.henting.infrastructure.table.PlanlagtHentingTable
 import ombruk.backend.shared.error.RepositoryError
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.*
-import org.slf4j.LoggerFactory
 import java.lang.Exception
 import java.util.*
-import java.util.logging.Logger
 
-class PlanlagtHentingRepository: RepositoryBase<PlanlagtHenting, PlanlagtHentingCreateParams, PlanlagtHentingUpdateParams, PlanlagtHentingFindParams>(),
+class PlanlagtHentingRepository: RepositoryBase<PlanlagtHentingWithParents, PlanlagtHentingCreateParams, PlanlagtHentingUpdateParams, PlanlagtHentingFindParams>(),
     IPlanlagtHentingRepository{
     override fun insertQuery(params: PlanlagtHentingCreateParams): EntityID<UUID> {
         return PlanlagtHentingTable.insertAndGetId {
@@ -45,25 +43,66 @@ class PlanlagtHentingRepository: RepositoryBase<PlanlagtHenting, PlanlagtHenting
     }
 
     override fun prepareQuery(params: PlanlagtHentingFindParams): Pair<Query, List<Alias<Table>>?> {
-        val query = table.selectAll()
+        val stasjonAlias = StasjonTable
+            .alias("stasjonAktorAlias")
+        val joinedTable = table.innerJoin(HenteplanTable, {table.henteplanId}, {HenteplanTable.id})
+            .innerJoin(AvtaleTable, {HenteplanTable.avtaleId}, {AvtaleTable.id})
+            .innerJoin(StasjonTable, {HenteplanTable.stasjonId}, {StasjonTable.id})
+            .leftJoin(PartnerTable, {AvtaleTable.aktorId}, {PartnerTable.id})
+            .leftJoin(stasjonAlias, {AvtaleTable.aktorId}, {stasjonAlias[StasjonTable.id]})
+        val query = joinedTable.selectAll()
         params.id?.let { query.andWhere { table.id eq it } }
         params.after?.let { query.andWhere { table.startTidspunkt.greaterEq(it) } }
         params.before?.let { query.andWhere { table.sluttTidspunkt.lessEq(it) } }
         params.henteplanId?.let { query.andWhere { table.henteplanId eq it } }
         params.avlyst?.let { query.andWhere { if(it) table.avlyst.isNotNull() else table.avlyst.isNull()} }
         params.merknad?.let { query.andWhere { table.merknad.like("%${it}%")} }
-        return Pair(query, null)
+        return Pair(query, listOf(stasjonAlias))
     }
 
-    override fun toEntity(row: ResultRow, aliases: List<Alias<Table>>?): PlanlagtHenting {
+    override fun findOneMethod(id: UUID): List<PlanlagtHentingWithParents> {
+        val stasjonAlias = StasjonTable
+            .alias("stasjonAktorAlias")
+        val joinedTable = table.innerJoin(HenteplanTable, {table.henteplanId}, {HenteplanTable.id})
+            .innerJoin(AvtaleTable, {HenteplanTable.avtaleId}, {AvtaleTable.id})
+            .innerJoin(StasjonTable, {HenteplanTable.stasjonId}, {StasjonTable.id})
+            .leftJoin(PartnerTable, {AvtaleTable.aktorId}, {PartnerTable.id})
+            .leftJoin(stasjonAlias, {AvtaleTable.aktorId}, {stasjonAlias[StasjonTable.id]})
+        return joinedTable.select { table.id eq id }.mapNotNull { toEntity(it, listOf(stasjonAlias)) }
+    }
 
-        return PlanlagtHenting(
+    override fun toEntity(row: ResultRow, aliases: List<Alias<Table>>?): PlanlagtHentingWithParents {
+
+        val stasjonAlias = aliases?.get(0)!!
+
+        val partnerAktorId = row.getOrNull(PartnerTable.id)
+        val stasjonAktorId = row.getOrNull(stasjonAlias[StasjonTable.id])
+        lateinit var aktorId: UUID
+        lateinit var aktorName: String
+
+        if (partnerAktorId != null) {
+            aktorId = partnerAktorId.value
+            aktorName = row[PartnerTable.navn]
+        } else {
+
+            if (stasjonAktorId == null) throw Exception("PlanlagtHenting has no aktor")
+
+            aktorId = row[stasjonAlias[StasjonTable.id]].value
+            aktorName = row[stasjonAlias[StasjonTable.navn]]
+        }
+
+        return PlanlagtHentingWithParents(
             row[table.id].value,
             row[table.startTidspunkt],
             row[table.sluttTidspunkt],
             row[table.merknad],
             row[table.henteplanId],
-            row[table.avlyst]
+            row[table.avlyst],
+            row[AvtaleTable.id].value,
+            aktorId,
+            aktorName,
+            row[StasjonTable.id].value,
+            row[StasjonTable.navn]
         )
     }
 
@@ -84,7 +123,7 @@ class PlanlagtHentingRepository: RepositoryBase<PlanlagtHenting, PlanlagtHenting
             params.henteplanId?.let { query.andWhere { table.henteplanId eq it } }
             params.avlyst?.let { query.andWhere { if(it) table.avlyst.isNotNull() else table.avlyst.isNull()} }
             params.merknad?.let { query.andWhere { table.merknad.like("%${it}%")} }
-            query.mapNotNull { toPlanlagtHentingWithParents(it, stasjonAlias) }
+            query.mapNotNull { toPlanlagtHentingWithParents(it, listOf(stasjonAlias)) }
         }
             .onFailure { logger.error("Failed to find from database; ${it.message}")}
             .fold(
@@ -93,7 +132,9 @@ class PlanlagtHentingRepository: RepositoryBase<PlanlagtHenting, PlanlagtHenting
             )
     }
 
-    fun toPlanlagtHentingWithParents(row: ResultRow, stasjonAlias: Alias<StasjonTable>): PlanlagtHentingWithParents {
+    fun toPlanlagtHentingWithParents(row: ResultRow, aliases: List<Alias<Table>>?): PlanlagtHentingWithParents {
+
+        val stasjonAlias = aliases?.get(0)!!
 
         val partnerAktorId = row.getOrNull(PartnerTable.id)
         val stasjonAktorId = row.getOrNull(stasjonAlias[StasjonTable.id])

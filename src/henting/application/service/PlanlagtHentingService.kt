@@ -18,15 +18,15 @@ import java.util.*
 
 @KtorExperimentalLocationsAPI
 class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepository): IPlanlagtHentingService {
-    override fun create(dto: PlanlagtHentingSaveDto): Either<ServiceError, PlanlagtHenting> {
+    override fun create(dto: PlanlagtHentingSaveDto): Either<ServiceError, PlanlagtHentingWithParents> {
         return transaction { planlagtHentingRepository.insert(dto) }
     }
 
-    override fun findOne(id: UUID): Either<ServiceError, PlanlagtHenting> {
+    override fun findOne(id: UUID): Either<ServiceError, PlanlagtHentingWithParents> {
         return transaction { planlagtHentingRepository.findOne(id) }
     }
 
-    override fun find(dto: PlanlagtHentingFindDto): Either<ServiceError, List<PlanlagtHenting>> {
+    override fun find(dto: PlanlagtHentingFindDto): Either<ServiceError, List<PlanlagtHentingWithParents>> {
         return transaction { planlagtHentingRepository.find(dto) }
     }
 
@@ -34,11 +34,11 @@ class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepo
         return transaction { planlagtHentingRepository.delete(dto.id) }
     }
 
-    override fun update(dto: PlanlagtHentingUpdateDto): Either<ServiceError, PlanlagtHenting> {
+    override fun update(dto: PlanlagtHentingUpdateDto): Either<ServiceError, PlanlagtHentingWithParents> {
         return transaction { planlagtHentingRepository.update(dto) }
     }
 
-    override fun batchCreateForHenteplan(dto: PlanlagtHentingBatchPostDto): Either<ServiceError, List<PlanlagtHenting>> {
+    override fun batchCreateForHenteplan(dto: PlanlagtHentingBatchPostDto): Either<ServiceError, List<PlanlagtHentingWithParents>> {
         return transaction {
             dto.dateList.map {
                 planlagtHentingRepository.insert(
