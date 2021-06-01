@@ -26,7 +26,7 @@ data class PlanlagtHentingWithParents(
     @Serializable(with = LocalDateTimeSerializer::class) val avlyst: LocalDateTime?,
     @Serializable(with = UUIDSerializer::class) val avtaleId: UUID,
     @Serializable(with = UUIDSerializer::class) val aktorId: UUID,
-    val aktorName: String,
+    val aktorNavn: String,
     @Serializable(with = UUIDSerializer::class) val stasjonId: UUID,
     val stasjonNavn: String
 ) : Henting()

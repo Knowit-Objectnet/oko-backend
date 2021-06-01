@@ -1,13 +1,9 @@
 package ombruk.backend.henting.infrastructure.repository
 
-import arrow.core.Either
-import arrow.core.left
-import arrow.core.right
 import ombruk.backend.aktor.infrastructure.table.PartnerTable
 import ombruk.backend.aktor.infrastructure.table.StasjonTable
 import ombruk.backend.avtale.infrastructure.table.AvtaleTable
 import ombruk.backend.core.infrastructure.RepositoryBase
-import ombruk.backend.henting.domain.entity.PlanlagtHenting
 import ombruk.backend.henting.domain.entity.PlanlagtHentingWithParents
 import ombruk.backend.henting.domain.params.PlanlagtHentingCreateParams
 import ombruk.backend.henting.domain.params.PlanlagtHentingFindParams
@@ -15,7 +11,6 @@ import ombruk.backend.henting.domain.params.PlanlagtHentingUpdateParams
 import ombruk.backend.henting.domain.port.IPlanlagtHentingRepository
 import ombruk.backend.henting.infrastructure.table.HenteplanTable
 import ombruk.backend.henting.infrastructure.table.PlanlagtHentingTable
-import ombruk.backend.shared.error.RepositoryError
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.*
 import java.lang.Exception
@@ -78,17 +73,17 @@ class PlanlagtHentingRepository: RepositoryBase<PlanlagtHentingWithParents, Plan
         val partnerAktorId = row.getOrNull(PartnerTable.id)
         val stasjonAktorId = row.getOrNull(stasjonAlias[StasjonTable.id])
         lateinit var aktorId: UUID
-        lateinit var aktorName: String
+        lateinit var aktorNavn: String
 
         if (partnerAktorId != null) {
             aktorId = partnerAktorId.value
-            aktorName = row[PartnerTable.navn]
+            aktorNavn = row[PartnerTable.navn]
         } else {
 
             if (stasjonAktorId == null) throw Exception("PlanlagtHenting has no aktor")
 
             aktorId = row[stasjonAlias[StasjonTable.id]].value
-            aktorName = row[stasjonAlias[StasjonTable.navn]]
+            aktorNavn = row[stasjonAlias[StasjonTable.navn]]
         }
 
         return PlanlagtHentingWithParents(
@@ -100,7 +95,7 @@ class PlanlagtHentingRepository: RepositoryBase<PlanlagtHentingWithParents, Plan
             row[table.avlyst],
             row[AvtaleTable.id].value,
             aktorId,
-            aktorName,
+            aktorNavn,
             row[StasjonTable.id].value,
             row[StasjonTable.navn]
         )
