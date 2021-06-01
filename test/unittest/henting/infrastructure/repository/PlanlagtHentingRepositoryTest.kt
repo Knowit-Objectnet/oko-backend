@@ -56,8 +56,19 @@ internal class PlanlagtHentingRepositoryTest {
         stasjonRepository = StasjonRepository()
         avtaleRepository = AvtaleRepository()
 
+        val stasjonParams = object : StasjonCreateParams() {
+            override val navn: String = "Grefsen"
+            override val type: StasjonType = StasjonType.GJENBRUK
+        }
+
+        transaction {
+            val insert = stasjonRepository.insert(stasjonParams)
+            require(insert is Either.Right)
+            stasjon = insert.b
+        }
+
         val avtaleParams = object: AvtaleCreateParams() {
-            override val aktorId: UUID = UUID.randomUUID()
+            override val aktorId: UUID = stasjon.id
             override val type: AvtaleType = AvtaleType.FAST
             override val startDato: LocalDate = LocalDate.now()
             override val sluttDato: LocalDate = LocalDate.now().plusDays(1)
@@ -68,17 +79,6 @@ internal class PlanlagtHentingRepositoryTest {
             val insert = avtaleRepository.insert(avtaleParams)
             require(insert is Either.Right)
             avtale = insert.b
-        }
-
-        val stasjonParams = object : StasjonCreateParams() {
-            override val navn: String = "Grefsen"
-            override val type: StasjonType = StasjonType.GJENBRUK
-        }
-
-        transaction {
-            val insert = stasjonRepository.insert(stasjonParams)
-            require(insert is Either.Right)
-            stasjon = insert.b
         }
 
         val henteplanParams = object : HenteplanCreateParams() {
@@ -328,7 +328,7 @@ internal class PlanlagtHentingRepositoryTest {
 
 
     //TODO: findWithParents will currently fail as the aktorId is a random UUID
-/*    @Test
+    @Test
     fun findWithParents() {
 
         transaction {
@@ -346,5 +346,5 @@ internal class PlanlagtHentingRepositoryTest {
             assertEquals(findOneWithParents.b[0].stasjonId, stasjon.id)
             assertEquals(findOneWithParents.b[0].stasjonNavn, stasjon.navn)
         }
-    }*/
+    }
 }
