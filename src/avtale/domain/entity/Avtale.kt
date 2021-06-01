@@ -16,5 +16,5 @@ data class Avtale(
     val type: AvtaleType,
     @Serializable(with = LocalDateSerializer::class) val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class) val sluttDato: LocalDate,
-    val henteplaner: List<Henteplan> = emptyList()
+    val henteplaner: List<Henteplan>
 )

@@ -37,14 +37,18 @@ internal class AvtaleServiceTest {
         UUID.randomUUID(),
         AvtaleType.FAST,
         LocalDate.of(2021,1,1),
-        LocalDate.of(2022,1,1))
+        LocalDate.of(2022,1,1),
+        emptyList()
+    )
 
     private val avtale2 = Avtale(
         UUID.randomUUID(),
         UUID.randomUUID(),
         AvtaleType.ANNEN,
         LocalDate.of(2021,2,1),
-        LocalDate.of(2022,2,1))
+        LocalDate.of(2022,2,1),
+        emptyList()
+    )
 
     @BeforeEach
     fun setUp() {

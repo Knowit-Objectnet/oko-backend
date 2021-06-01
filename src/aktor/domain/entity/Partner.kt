@@ -9,7 +9,7 @@ import java.util.*
 data class Partner (
     @Serializable(with = UUIDSerializer::class) override var id: UUID,
     override var navn: String,
-    override var kontaktPersoner: List<Kontakt> = emptyList(),
+    override var kontaktPersoner: List<Kontakt>,
     var storrelse: PartnerStorrelse,
     var ideell: Boolean
 ): Aktor
