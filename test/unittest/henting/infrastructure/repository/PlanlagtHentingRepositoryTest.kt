@@ -326,26 +326,4 @@ internal class PlanlagtHentingRepositoryTest {
             assert(findAllBefore.b.isEmpty())
         }
     }
-
-
-    //TODO: findWithParents will currently fail as the aktorId is a random UUID
-    @Test
-    fun findWithParents() {
-
-        transaction {
-            val findAllWithParents = planlagtHentingRepository.findWithParents(PlanlagtHentingFindDto())
-            println(findAllWithParents)
-            require(findAllWithParents is Either.Right)
-            assertEquals(2, findAllWithParents.b.size)
-        }
-
-        transaction {
-            val findOneWithParents = planlagtHentingRepository.findWithParents(PlanlagtHentingFindDto(id = planlagtHenting1.id))
-            require(findOneWithParents is Either.Right)
-            assertEquals(1, findOneWithParents.b.size)
-            assertEquals(findOneWithParents.b[0].id, planlagtHenting1.id)
-            assertEquals(findOneWithParents.b[0].stasjonId, stasjon.id)
-            assertEquals(findOneWithParents.b[0].stasjonNavn, stasjon.navn)
-        }
-    }
 }
