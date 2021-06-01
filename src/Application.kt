@@ -32,6 +32,8 @@ import ombruk.backend.calendar.service.StationService
 import ombruk.backend.henting.application.api.henteplaner
 import ombruk.backend.henting.application.api.planlagteHentinger
 import ombruk.backend.henting.hentingModule
+import ombruk.backend.kategori.application.api.kategorier
+import ombruk.backend.kategori.kategoriModule
 import ombruk.backend.reporting.api.report
 import ombruk.backend.reporting.service.ReportService
 import ombruk.backend.shared.api.Authorization
@@ -205,6 +207,7 @@ fun Application.module(testing: Boolean = false) {
         modules(aktorModule)
         modules(avtaleModule)
         modules(hentingModule)
+        modules(kategoriModule)
     }
 
 
@@ -215,6 +218,7 @@ fun Application.module(testing: Boolean = false) {
         avtaler(get())
         henteplaner(get())
         planlagteHentinger(get())
+        kategorier(get())
 //        events(EventService)
 //        partners(PartnerService)
 //        report(ReportService)

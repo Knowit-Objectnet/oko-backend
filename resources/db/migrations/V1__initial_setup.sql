@@ -73,3 +73,8 @@ create TABLE planlagt_henting (
     avlyst timestamp,
     FOREIGN KEY (henteplan_id) references henteplan
 );
+
+create TABLE kategori (
+    id uuid default uuid_generate_v4() primary key,
+    navn varchar(255) not null
+);
