@@ -21,14 +21,14 @@ class StasjonRepository : RepositoryBase<Stasjon, StasjonCreateParams, StasjonUp
         }
     }
 
-    override fun prepareQuery(params: StasjonFindParams): Query {
+    override fun prepareQuery(params: StasjonFindParams): Pair<Query, List<Alias<Table>>?> {
         val query = table.selectAll()
         params.navn?.let { query.andWhere { table.navn eq it } }
         params.type?.let { query.andWhere { table.type eq it.name } }
-        return query
+        return Pair(query, null)
     }
 
-    override fun toEntity(row: ResultRow): Stasjon {
+    override fun toEntity(row: ResultRow, aliases: List<Alias<Table>>?): Stasjon {
         return Stasjon(
             row[StasjonTable.id].value,
             row[StasjonTable.navn],

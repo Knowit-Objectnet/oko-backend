@@ -26,17 +26,17 @@ class AvtaleRepository : RepositoryBase<Avtale, AvtaleCreateParams, AvtaleUpdate
         TODO("Not yet implemented")
     }
 
-    override fun prepareQuery(params: AvtaleFindParams): Query {
+    override fun prepareQuery(params: AvtaleFindParams): Pair<Query, List<Alias<Table>>?> {
         val query = table.selectAll()
         params.id?.let { query.andWhere { table.id eq it } }
         params.aktorId?.let { query.andWhere { table.aktorId eq it } }
         params.type?.let { query.andWhere { table.type eq it.name } }
         params.startDato?.let {query.andWhere { table.startDato eq it }}
         params.sluttDato?.let {query.andWhere { table.sluttDato eq it }}
-        return query
+        return Pair(query, null)
     }
 
-    override fun toEntity(row: ResultRow): Avtale {
+    override fun toEntity(row: ResultRow, aliases: List<Alias<Table>>?): Avtale {
         return Avtale(
             row[table.id].value,
             row[table.aktorId],

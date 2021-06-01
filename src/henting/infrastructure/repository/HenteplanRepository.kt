@@ -39,7 +39,7 @@ class HenteplanRepository :
         }
     }
 
-    override fun prepareQuery(params: HenteplanFindParams): Query {
+    override fun prepareQuery(params: HenteplanFindParams): Pair<Query, List<Alias<Table>>?> {
         val query = (table innerJoin StasjonTable).selectAll()
         params.avtaleId?.let { query.andWhere { table.avtaleId eq it } }
         params.frekvens?.let { query.andWhere { table.frekvens eq it.name } }
@@ -47,10 +47,10 @@ class HenteplanRepository :
         params.ukedag?.let { query.andWhere { table.ukedag eq it.value } }
         params.after?.let { query.andWhere { table.startTidspunkt.greaterEq(it) } }
         params.before?.let { query.andWhere { table.sluttTidspunkt.lessEq(it) } }
-        return query
+        return Pair(query, null)
     }
 
-    override fun toEntity(row: ResultRow): Henteplan {
+    override fun toEntity(row: ResultRow, aliases: List<Alias<Table>>?): Henteplan {
         return Henteplan(
             row[table.id].value,
             row[table.avtaleId],

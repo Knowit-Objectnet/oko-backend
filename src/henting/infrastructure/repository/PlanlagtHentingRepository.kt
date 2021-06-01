@@ -44,7 +44,7 @@ class PlanlagtHentingRepository: RepositoryBase<PlanlagtHenting, PlanlagtHenting
         }
     }
 
-    override fun prepareQuery(params: PlanlagtHentingFindParams): Query {
+    override fun prepareQuery(params: PlanlagtHentingFindParams): Pair<Query, List<Alias<Table>>?> {
         val query = table.selectAll()
         params.id?.let { query.andWhere { table.id eq it } }
         params.after?.let { query.andWhere { table.startTidspunkt.greaterEq(it) } }
@@ -52,10 +52,11 @@ class PlanlagtHentingRepository: RepositoryBase<PlanlagtHenting, PlanlagtHenting
         params.henteplanId?.let { query.andWhere { table.henteplanId eq it } }
         params.avlyst?.let { query.andWhere { if(it) table.avlyst.isNotNull() else table.avlyst.isNull()} }
         params.merknad?.let { query.andWhere { table.merknad.like("%${it}%")} }
-        return query
+        return Pair(query, null)
     }
 
-    override fun toEntity(row: ResultRow): PlanlagtHenting {
+    override fun toEntity(row: ResultRow, aliases: List<Alias<Table>>?): PlanlagtHenting {
+
         return PlanlagtHenting(
             row[table.id].value,
             row[table.startTidspunkt],
