@@ -7,7 +7,6 @@ import ombruk.backend.henting.domain.params.EkstraHentingFindParams
 import ombruk.backend.henting.domain.params.EkstraHentingUpdateParams
 import ombruk.backend.henting.domain.port.IEkstraHentingRepository
 import ombruk.backend.henting.infrastructure.table.EkstraHentingTable
-import ombruk.backend.henting.infrastructure.table.HenteplanTable
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.*
 import java.util.*
@@ -16,7 +15,7 @@ class EkstraHentingRepository :
     RepositoryBase<EkstraHenting, EkstraHentingCreateParams, EkstraHentingUpdateParams, EkstraHentingFindParams>(),
     IEkstraHentingRepository {
     override fun insertQuery(params: EkstraHentingCreateParams): EntityID<UUID> {
-        return HenteplanTable.insertAndGetId {
+        return EkstraHentingTable.insertAndGetId {
             it[table.startTidspunkt] = params.startTidspunkt
             it[table.sluttTidspunkt] = params.sluttTidspunkt
             it[table.merknad] = params.merknad

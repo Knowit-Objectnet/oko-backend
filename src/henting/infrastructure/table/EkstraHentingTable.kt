@@ -8,5 +8,5 @@ object EkstraHentingTable: UUIDTable("ekstra_henting") {
     val startTidspunkt = datetime("start_tidspunkt")
     val sluttTidspunkt = datetime("slutt_tidspunkt")
     val merknad = text("merknad").nullable()
-    val stasjonId = uuid("henteplan_id").references(StasjonTable.id)
+    val stasjonId = uuid("stasjon_id").references(StasjonTable.id)
 }
