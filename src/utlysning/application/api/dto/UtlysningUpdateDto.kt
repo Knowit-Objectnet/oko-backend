@@ -20,8 +20,8 @@ data class UtlysningUpdateDto(
     @Serializable(with = UUIDSerializer::class) override val id: UUID,
     @Serializable(with = UUIDSerializer::class) override val partnerId: UUID? = null,
     @Serializable(with = UUIDSerializer::class) override val hentingId: UUID? = null,
-    override val partnerPameldt: Boolean? = null,
-    override val stasjonGodkjent: Boolean? = null,
+    @Serializable(with = LocalDateTimeSerializer::class) override val partnerPameldt: LocalDateTime? = null,
+    @Serializable(with = LocalDateTimeSerializer::class) override val stasjonGodkjent: LocalDateTime? = null,
     override val partnerSkjult: Boolean? = null,
     override val partnerVist: Boolean? = null,
 ) : IForm<UtlysningUpdateDto>, UtlysningUpdateParams() {
