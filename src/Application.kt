@@ -29,6 +29,7 @@ import ombruk.backend.avtale.application.api.dto.avtaler
 import ombruk.backend.avtale.avtaleModule
 import ombruk.backend.calendar.api.stations
 import ombruk.backend.calendar.service.StationService
+import ombruk.backend.henting.application.api.dto.ekstraHentinger
 import ombruk.backend.henting.application.api.henteplaner
 import ombruk.backend.henting.application.api.planlagteHentinger
 import ombruk.backend.henting.hentingModule
@@ -219,6 +220,7 @@ fun Application.module(testing: Boolean = false) {
         avtaler(get())
         henteplaner(get())
         planlagteHentinger(get())
+        ekstraHentinger(get())
         kategorier(get())
 //        events(EventService)
 //        partners(PartnerService)
