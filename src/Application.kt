@@ -40,8 +40,11 @@ import ombruk.backend.reporting.service.ReportService
 import ombruk.backend.shared.api.Authorization
 import ombruk.backend.shared.api.JwtMockConfig
 import ombruk.backend.shared.database.initDB
+import ombruk.backend.utlysning.application.api.utlysnigner
+import ombruk.backend.utlysning.utlysningModule
 import org.koin.ktor.ext.Koin
 import org.koin.ktor.ext.get
+import org.koin.ktor.ext.modules
 import org.valiktor.ConstraintViolationException
 import org.valiktor.i18n.mapToMessage
 import java.net.URL
@@ -210,6 +213,7 @@ fun Application.module(testing: Boolean = false) {
         modules(avtaleModule)
         modules(hentingModule)
         modules(kategoriModule)
+        modules(utlysningModule)
     }
 
 
@@ -222,6 +226,7 @@ fun Application.module(testing: Boolean = false) {
         planlagteHentinger(get())
         ekstraHentinger(get())
         kategorier(get())
+        utlysnigner(get())
 //        events(EventService)
 //        partners(PartnerService)
 //        report(ReportService)
