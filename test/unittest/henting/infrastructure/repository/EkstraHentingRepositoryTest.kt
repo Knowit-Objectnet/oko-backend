@@ -11,11 +11,8 @@ import ombruk.backend.aktor.infrastructure.repository.PartnerRepository
 import ombruk.backend.aktor.infrastructure.repository.StasjonRepository
 import ombruk.backend.henting.application.api.dto.EkstraHentingFindDto
 import ombruk.backend.henting.application.api.dto.EkstraHentingUpdateDto
-import ombruk.backend.henting.application.api.dto.PlanlagtHentingFindDto
-import ombruk.backend.henting.application.api.dto.PlanlagtHentingUpdateDto
 import ombruk.backend.henting.domain.entity.EkstraHenting
 import ombruk.backend.henting.domain.params.EkstraHentingCreateParams
-import ombruk.backend.henting.domain.params.PlanlagtHentingCreateParams
 import ombruk.backend.henting.infrastructure.repository.EkstraHentingRepository
 import ombruk.backend.shared.error.RepositoryError
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -184,25 +181,25 @@ internal class EkstraHentingRepositoryTest {
     @Test
     fun delete() {
         transaction {
-            val findPlanlagtHenting = ekstraHentingRepository.findOne(ekstraHenting1.id)
-            require(findPlanlagtHenting is Either.Right)
-            assert(findPlanlagtHenting.b == ekstraHenting1)
+            val findEkstraHenting = ekstraHentingRepository.findOne(ekstraHenting1.id)
+            require(findEkstraHenting is Either.Right)
+            assert(findEkstraHenting.b == ekstraHenting1)
         }
 
         transaction {
-            val deletePlanlagtHenting = ekstraHentingRepository.delete(ekstraHenting1.id)
-            assert(deletePlanlagtHenting is Either.Right)
+            val deleteEkstraHenting = ekstraHentingRepository.delete(ekstraHenting1.id)
+            assert(deleteEkstraHenting is Either.Right)
         }
 
         transaction {
-            val findPlanlagtHenting = ekstraHentingRepository.findOne(ekstraHenting1.id)
-            require(findPlanlagtHenting is Either.Left)
-            assert(findPlanlagtHenting.a is RepositoryError.NoRowsFound)
+            val findEkstraHenting = ekstraHentingRepository.findOne(ekstraHenting1.id)
+            require(findEkstraHenting is Either.Left)
+            assert(findEkstraHenting.a is RepositoryError.NoRowsFound)
         }
 
         transaction {
-            val deletePlanlagtHenting = ekstraHentingRepository.delete(ekstraHenting1.id)
-            assert(deletePlanlagtHenting is Either.Right)
+            val deleteEkstraHenting = ekstraHentingRepository.delete(ekstraHenting1.id)
+            assert(deleteEkstraHenting is Either.Right)
         }
     }
 

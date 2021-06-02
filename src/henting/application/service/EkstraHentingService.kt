@@ -14,25 +14,25 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
 @KtorExperimentalLocationsAPI
-class EkstraHentingService(val planlagtHentingRepository: IEkstraHentingRepository, val utlysningService: UtlysningService): IEkstraHentingService {
+class EkstraHentingService(val ekstraHentingRepository: IEkstraHentingRepository, val utlysningService: UtlysningService): IEkstraHentingService {
     override fun create(dto: EkstraHentingSaveDto): Either<ServiceError, EkstraHenting> {
-        return transaction { planlagtHentingRepository.insert(dto) }
+        return transaction { ekstraHentingRepository.insert(dto) }
     }
 
     override fun findOne(id: UUID): Either<ServiceError, EkstraHenting> {
-        return transaction { planlagtHentingRepository.findOne(id) }
+        return transaction { ekstraHentingRepository.findOne(id) }
     }
 
     override fun find(dto: EkstraHentingFindDto): Either<ServiceError, List<EkstraHenting>> {
-        return transaction { planlagtHentingRepository.find(dto) }
+        return transaction { ekstraHentingRepository.find(dto) }
     }
 
     override fun delete(dto: EkstraHentingDeleteDto): Either<ServiceError, Unit> {
-        return transaction { planlagtHentingRepository.delete(dto.id) }
+        return transaction { ekstraHentingRepository.delete(dto.id) }
     }
 
     override fun update(dto: EkstraHentingUpdateDto): Either<ServiceError, EkstraHenting> {
-        return transaction { planlagtHentingRepository.update(dto) }
+        return transaction { ekstraHentingRepository.update(dto) }
     }
 
 }
