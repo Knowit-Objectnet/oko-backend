@@ -49,7 +49,12 @@ class UtlysningRepository : RepositoryBase<Utlysning, UtlysningCreateParams, Utl
     }
 
     override fun updateQuery(params: UtlysningUpdateParams): Int {
-        TODO("Not yet implemented")
+        return table.update({table.id eq params.id}) { row ->
+            params.partnerPameldt?.let { row[partnerPameldt] = it }
+            params.stasjonGodkjent?.let { row[stasjonGodkjent] = it }
+            params.partnerSkjult?.let { row[partnerSkjult] = it }
+            params.partnerVist?.let { row[partnerVist] = it }
+        }
     }
 
     override val table = UtlysningTable
