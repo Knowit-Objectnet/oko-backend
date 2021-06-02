@@ -15,5 +15,5 @@ val hentingModule = module (createdAtStart = true){
     single<IPlanlagtHentingRepository> { PlanlagtHentingRepository() }
     single<IPlanlagtHentingService> {PlanlagtHentingService(get())}
     single<IEkstraHentingRepository> { EkstraHentingRepository() }
-    single<IEkstraHentingService> {EkstraHentingService(get())}
+    single<IEkstraHentingService> {EkstraHentingService(get(), get())}
 }

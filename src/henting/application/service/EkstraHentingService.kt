@@ -1,25 +1,20 @@
 package ombruk.backend.henting.application.service
 
 import arrow.core.Either
-import arrow.core.extensions.either.applicative.applicative
-import arrow.core.extensions.list.traverse.sequence
-import arrow.core.fix
-import arrow.core.left
-import arrow.core.right
 import io.ktor.locations.*
-import ombruk.backend.henting.application.api.dto.*
+import ombruk.backend.henting.application.api.dto.EkstraHentingDeleteDto
+import ombruk.backend.henting.application.api.dto.EkstraHentingFindDto
+import ombruk.backend.henting.application.api.dto.EkstraHentingSaveDto
+import ombruk.backend.henting.application.api.dto.EkstraHentingUpdateDto
 import ombruk.backend.henting.domain.entity.EkstraHenting
-import ombruk.backend.henting.domain.entity.PlanlagtHenting
-import ombruk.backend.henting.domain.entity.PlanlagtHentingWithParents
 import ombruk.backend.henting.domain.port.IEkstraHentingRepository
-import ombruk.backend.henting.domain.port.IPlanlagtHentingRepository
 import ombruk.backend.shared.error.ServiceError
+import ombruk.backend.utlysning.application.service.UtlysningService
 import org.jetbrains.exposed.sql.transactions.transaction
-import java.time.LocalDateTime
 import java.util.*
 
 @KtorExperimentalLocationsAPI
-class EkstraHentingService(val planlagtHentingRepository: IEkstraHentingRepository): IEkstraHentingService {
+class EkstraHentingService(val planlagtHentingRepository: IEkstraHentingRepository, val utlysningService: UtlysningService): IEkstraHentingService {
     override fun create(dto: EkstraHentingSaveDto): Either<ServiceError, EkstraHenting> {
         return transaction { planlagtHentingRepository.insert(dto) }
     }

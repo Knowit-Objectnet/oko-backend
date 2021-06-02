@@ -1,9 +1,13 @@
 package ombruk.backend.utlysning.application.service
 
 import arrow.core.Either
+import arrow.core.extensions.either.applicative.applicative
+import arrow.core.extensions.list.traverse.sequence
+import arrow.core.fix
 import arrow.core.left
 import arrow.core.right
 import ombruk.backend.shared.error.ServiceError
+import ombruk.backend.utlysning.application.api.dto.UtlysningBatchPostDto
 import ombruk.backend.utlysning.application.api.dto.UtlysningDeleteDto
 import ombruk.backend.utlysning.application.api.dto.UtlysningFindDto
 import ombruk.backend.utlysning.application.api.dto.UtlysningSaveDto
@@ -43,6 +47,27 @@ class UtlysningService(val utlysningRepository: IUtlysningRepository) : IUtlysni
         return transaction {
             utlysningRepository.delete(dto.id)
                 .fold({ rollback(); it.left() }, { it.right() })
+        }
+    }
+
+    override fun batchCreate(dto: UtlysningBatchPostDto): Either<ServiceError, List<Utlysning>> {
+        return transaction {
+            dto.partnerIds.map {
+                utlysningRepository.insert(
+                    UtlysningSaveDto(
+                        partnerId = it,
+                        hentingId = dto.hentingId,
+                        partnerPameldt = dto.partnerPameldt,
+                        stasjonGodkjent = dto.stasjonGodkjent,
+                        partnerSkjult = dto.partnerSkjult,
+                        partnerVist = dto.partnerVist
+                    )
+                )
+            }
+                .sequence(Either.applicative())
+                .fix()
+                .map { it.fix() }
+                .fold({rollback(); it.left()}, {it.right()})
         }
     }
 
