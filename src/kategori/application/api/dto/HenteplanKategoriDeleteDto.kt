@@ -1,8 +1,8 @@
 package ombruk.backend.kategori.application.api.dto
 
 import arrow.core.Either
+import io.ktor.locations.*
 import kotlinx.serialization.Serializable
-import ombruk.backend.kategori.domain.params.KategoriCreateParams
 import ombruk.backend.shared.error.ValidationError
 import ombruk.backend.shared.form.IForm
 import ombruk.backend.shared.utils.validation.runCatchingValidation
@@ -11,10 +11,10 @@ import shared.model.serializer.UUIDSerializer
 import java.util.*
 
 @Serializable
-data class KategoriSaveDto(
-    override val navn: String
-) : IForm<KategoriSaveDto>, KategoriCreateParams() {
-    override fun validOrError(): Either<ValidationError, KategoriSaveDto> = runCatchingValidation {
-        validate(this) {}
+@Location("/{id}")
+data class HenteplanKategoriDeleteDto(@Serializable(with = UUIDSerializer::class) val id: UUID) : IForm<HenteplanKategoriDeleteDto> {
+    override fun validOrError(): Either<ValidationError, HenteplanKategoriDeleteDto> = runCatchingValidation {
+        validate(this) {
+        }
     }
 }

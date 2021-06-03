@@ -78,3 +78,12 @@ create TABLE kategori (
     id uuid default uuid_generate_v4() primary key,
     navn varchar(255) not null
 );
+
+create TABLE henteplan_kategori (
+    id uuid default uuid_generate_v4() primary key,
+    henteplan_id uuid not null,
+    kategori_id uuid not null,
+    merknad varchar(255) not null
+);
+
+INSERT INTO henteplan_kategori (id, henteplan_id, kategori_id, merknad) VALUES ('a393406b-2e0a-42e9-9666-1c3df5ea8a1a', 'a393406b-2e0a-42e9-9666-1c3df5ea8a1b', 'a393406b-2e0a-42e9-9666-1c3df5ea8a1c', 'Kun i gul farge');

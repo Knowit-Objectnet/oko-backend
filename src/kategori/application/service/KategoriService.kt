@@ -27,15 +27,12 @@ class KategoriService(val kategoriRepository: IKategoriRepository) : IKategoriSe
     }
 
     override fun find(dto: KategoriFindDto): Either<ServiceError, List<Kategori>> {
-
         return transaction {
-
             val kategorier = kategoriRepository.find(dto)
             kategorier.fold(
                 { Either.Left(ServiceError(it.message)) },
                 { it.right() }
             )
-
         }
     }
 

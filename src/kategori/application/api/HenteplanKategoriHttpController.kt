@@ -9,26 +9,25 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import ombruk.backend.kategori.application.api.dto.*
 import ombruk.backend.kategori.application.service.IHenteplanKategoriService
-import ombruk.backend.kategori.application.service.IKategoriService
 import ombruk.backend.shared.api.Authorization
 import ombruk.backend.shared.api.Roles
 import ombruk.backend.shared.api.generateResponse
 import ombruk.backend.shared.api.receiveCatching
 
 @KtorExperimentalLocationsAPI
-fun Routing.kategorier(kategoriService: IKategoriService) {
+fun Routing.henteplanKategorier(henteplanKategoriService: IHenteplanKategoriService) {
 
-    route("/kategorier") {
-        get<KategoriFindOneDto> { form ->
+    route("/henteplankategorier") {
+        get<HenteplanKategoriFindOneDto> { form ->
             form.validOrError()
-                .flatMap { kategoriService.findOne(form.id) }
+                .flatMap { henteplanKategoriService.findOne(form.id) }
                 .run { generateResponse(this) }
                 .also { (code, response) -> call.respond(code, response) }
         }
 
-        get<KategoriFindDto> { form ->
+        get<HenteplanKategoriFindDto> { form ->
             form.validOrError()
-                .flatMap { kategoriService.find(form) }
+                .flatMap { henteplanKategoriService.find(form) }
                 .run { generateResponse(this) }
                 .also { (code, response) -> call.respond(code, response) }
         }
@@ -36,19 +35,19 @@ fun Routing.kategorier(kategoriService: IKategoriService) {
         authenticate {
             post {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
-                    .flatMap { receiveCatching { call.receive<KategoriSaveDto>() } }
+                    .flatMap { receiveCatching { call.receive<HenteplanKategoriSaveDto>() } }
                     .flatMap { it.validOrError() }
-                    .flatMap { kategoriService.save(it) }
+                    .flatMap { henteplanKategoriService.save(it) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }
         }
 
         authenticate {
-            delete<KategoriDeleteDto> { form ->
+            delete<HenteplanKategoriDeleteDto> { form ->
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
                     .flatMap { form.validOrError() }
-                    .flatMap { kategoriService.delete(form) }
+                    .flatMap { henteplanKategoriService.delete(form) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }

@@ -17,8 +17,9 @@ import java.util.*
 
 @KtorExperimentalLocationsAPI
 @Location("")
+@Serializable
 data class KategoriFindDto(
-    override val id: UUID? = null,
+    @Serializable(with = UUIDSerializer::class) override val id: UUID? = null,
     override val navn: String? = null
 ) : IForm<KategoriFindDto>,
     KategoriFindParams() {
