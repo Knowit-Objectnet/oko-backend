@@ -21,7 +21,7 @@ data class AvtaleSaveDto(
     override val type: AvtaleType,
     @Serializable( with = LocalDateSerializer::class) override val startDato: LocalDate,
     @Serializable( with = LocalDateSerializer::class) override val sluttDato: LocalDate,
-    override val henteplaner: List<HenteplanSaveDto>?
+    override val henteplaner: List<HenteplanSaveDto>? = null
     ) : IForm<AvtaleSaveDto>, AvtaleCreateParams() {
     override fun validOrError(): Either<ValidationError, AvtaleSaveDto> = runCatchingValidation {
         validate(this) {
