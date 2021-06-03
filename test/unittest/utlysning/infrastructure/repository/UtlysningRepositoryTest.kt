@@ -3,7 +3,6 @@ package utlysning.infrastructure.repository
 import arrow.core.Either
 import ombruk.backend.aktor.domain.entity.Partner
 import ombruk.backend.aktor.domain.entity.Stasjon
-import ombruk.backend.aktor.domain.enum.PartnerStorrelse
 import ombruk.backend.aktor.domain.enum.StasjonType
 import ombruk.backend.aktor.domain.model.PartnerCreateParams
 import ombruk.backend.aktor.domain.model.StasjonCreateParams
@@ -22,14 +21,10 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-
 import testutils.TestContainer
 import java.time.LocalDateTime
 import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
-import java.time.temporal.TemporalUnit
 import java.util.*
-import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 internal class UtlysningRepositoryTest {
@@ -62,13 +57,11 @@ internal class UtlysningRepositoryTest {
 
         val partnerParams1 = object : PartnerCreateParams() {
             override val navn: String = "Fretex"
-            override val storrelse: PartnerStorrelse = PartnerStorrelse.STOR
             override val ideell: Boolean = true
         }
 
         val partnerParams2 = object : PartnerCreateParams() {
             override val navn: String = "Jobben"
-            override val storrelse: PartnerStorrelse = PartnerStorrelse.MIDDELS
             override val ideell: Boolean = true
         }
 

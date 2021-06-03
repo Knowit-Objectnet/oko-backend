@@ -10,7 +10,6 @@ import ombruk.backend.aktor.application.service.PartnerService
 import ombruk.backend.aktor.application.service.StasjonService
 import ombruk.backend.aktor.domain.entity.Partner
 import ombruk.backend.aktor.domain.entity.Stasjon
-import ombruk.backend.aktor.domain.enum.PartnerStorrelse
 import ombruk.backend.aktor.domain.enum.StasjonType
 import ombruk.backend.aktor.infrastructure.repository.PartnerRepository
 import ombruk.backend.aktor.infrastructure.repository.StasjonRepository
@@ -68,8 +67,8 @@ class UtlysningTest {
 
         every { keycloakGroupIntegration.createGroup(any<String>(), any<UUID>()) } returns expected.right()
 
-        val partnerInsert1 = partnerService.savePartner(PartnerSaveDto("TestPartner1", PartnerStorrelse.STOR, true))
-        val partnerInsert2 = partnerService.savePartner(PartnerSaveDto("TestPartner2", PartnerStorrelse.MIDDELS, true))
+        val partnerInsert1 = partnerService.savePartner(PartnerSaveDto("TestPartner1", true))
+        val partnerInsert2 = partnerService.savePartner(PartnerSaveDto("TestPartner2", true))
         val stasjonInsert1 = stasjonService.save(StasjonSaveDto("TestStasjon1", StasjonType.GJENBRUK))
         val stasjonInsert2 = stasjonService.save(StasjonSaveDto("TestStasjon2", StasjonType.MINI))
 

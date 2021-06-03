@@ -10,6 +10,7 @@ import ombruk.backend.shared.form.IForm
 import ombruk.backend.shared.model.serializer.LocalDateSerializer
 import ombruk.backend.shared.utils.validation.runCatchingValidation
 import org.valiktor.functions.isLessThan
+import org.valiktor.functions.isLessThanOrEqualTo
 import org.valiktor.validate
 import shared.model.serializer.UUIDSerializer
 import java.time.LocalDate
@@ -21,11 +22,11 @@ data class AvtaleSaveDto(
     override val type: AvtaleType,
     @Serializable( with = LocalDateSerializer::class) override val startDato: LocalDate,
     @Serializable( with = LocalDateSerializer::class) override val sluttDato: LocalDate,
-    override val henteplaner: List<HenteplanSaveDto>?
+    override val henteplaner: List<HenteplanSaveDto>? = null
     ) : IForm<AvtaleSaveDto>, AvtaleCreateParams() {
     override fun validOrError(): Either<ValidationError, AvtaleSaveDto> = runCatchingValidation {
         validate(this) {
-            validate(AvtaleSaveDto::startDato).isLessThan(sluttDato)
+            validate(AvtaleSaveDto::startDato).isLessThanOrEqualTo(sluttDato)
         }
     }
 }
