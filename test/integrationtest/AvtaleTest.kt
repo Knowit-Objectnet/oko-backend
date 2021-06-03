@@ -12,7 +12,6 @@ import ombruk.backend.aktor.application.service.PartnerService
 import ombruk.backend.aktor.application.service.StasjonService
 import ombruk.backend.aktor.domain.entity.Partner
 import ombruk.backend.aktor.domain.entity.Stasjon
-import ombruk.backend.aktor.domain.enum.PartnerStorrelse
 import ombruk.backend.aktor.domain.enum.StasjonType
 import ombruk.backend.aktor.infrastructure.repository.PartnerRepository
 import ombruk.backend.aktor.infrastructure.repository.StasjonRepository
@@ -77,7 +76,7 @@ class AvtaleTest {
 
         every { keycloakGroupIntegration.createGroup(any<String>(), any<UUID>()) } returns expected.right()
 
-        val partnerInsert = partnerService.savePartner(PartnerSaveDto("TestPartner", PartnerStorrelse.STOR, true))
+        val partnerInsert = partnerService.savePartner(PartnerSaveDto("TestPartner", true))
         val stasjonInsert = stasjonService.save(StasjonSaveDto("TestStasjon", StasjonType.GJENBRUK))
 
         require(partnerInsert is Either.Right)

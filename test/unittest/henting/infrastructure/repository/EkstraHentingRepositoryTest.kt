@@ -3,7 +3,6 @@ package henting.infrastructure.repository
 import arrow.core.Either
 import ombruk.backend.aktor.domain.entity.Partner
 import ombruk.backend.aktor.domain.entity.Stasjon
-import ombruk.backend.aktor.domain.enum.PartnerStorrelse
 import ombruk.backend.aktor.domain.enum.StasjonType
 import ombruk.backend.aktor.domain.model.PartnerCreateParams
 import ombruk.backend.aktor.domain.model.StasjonCreateParams
@@ -50,7 +49,6 @@ internal class EkstraHentingRepositoryTest {
 
         val partnerParams = object : PartnerCreateParams() {
             override val navn: String = "Fretex"
-            override val storrelse: PartnerStorrelse = PartnerStorrelse.STOR
             override val ideell: Boolean = true
         }
 

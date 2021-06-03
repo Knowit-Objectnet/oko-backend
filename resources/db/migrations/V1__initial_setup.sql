@@ -3,7 +3,6 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 create TABLE partner (
     id uuid default uuid_generate_v4() primary key,
     navn varchar(255) not null unique,
-    partner_storrelse varchar not null,
     ideell boolean
 );
 
