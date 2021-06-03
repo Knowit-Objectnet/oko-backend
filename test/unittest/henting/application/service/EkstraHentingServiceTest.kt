@@ -27,7 +27,7 @@ internal class EkstraHentingServiceTest {
     @BeforeEach
     fun setUp() {
         mockDatabase()
-        ekstraHentingService = EkstraHentingService(ekstraHentingRepository, utlysningService)
+        ekstraHentingService = EkstraHentingService(ekstraHentingRepository)
     }
 
     @AfterEach

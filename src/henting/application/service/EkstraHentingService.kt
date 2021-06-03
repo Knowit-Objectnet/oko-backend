@@ -14,7 +14,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
 @KtorExperimentalLocationsAPI
-class EkstraHentingService(val ekstraHentingRepository: IEkstraHentingRepository, val utlysningService: UtlysningService): IEkstraHentingService {
+class EkstraHentingService(val ekstraHentingRepository: IEkstraHentingRepository): IEkstraHentingService {
     override fun create(dto: EkstraHentingSaveDto): Either<ServiceError, EkstraHenting> {
         return transaction { ekstraHentingRepository.insert(dto) }
     }
