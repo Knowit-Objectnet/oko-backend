@@ -46,7 +46,7 @@ fun Routing.henteplaner(henteplanService: IHenteplanService) {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
                     .flatMap { receiveCatching { call.receive<HenteplanSaveDto>() } }
                     .flatMap { it.validOrError() }
-                    .flatMap { henteplanService.create(it) }
+                    .flatMap { henteplanService.save(it) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }

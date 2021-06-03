@@ -7,7 +7,7 @@ import arrow.core.fix
 import arrow.core.left
 import arrow.core.right
 import ombruk.backend.shared.error.ServiceError
-import ombruk.backend.utlysning.application.api.dto.UtlysningBatchPostDto
+import ombruk.backend.utlysning.application.api.dto.UtlysningBatchSaveDto
 import ombruk.backend.utlysning.application.api.dto.UtlysningDeleteDto
 import ombruk.backend.utlysning.application.api.dto.UtlysningFindDto
 import ombruk.backend.utlysning.application.api.dto.UtlysningSaveDto
@@ -50,7 +50,7 @@ class UtlysningService(val utlysningRepository: IUtlysningRepository) : IUtlysni
         }
     }
 
-    override fun batchCreate(dto: UtlysningBatchPostDto): Either<ServiceError, List<Utlysning>> {
+    override fun batchSave(dto: UtlysningBatchSaveDto): Either<ServiceError, List<Utlysning>> {
         return transaction {
             dto.partnerIds.map {
                 utlysningRepository.insert(

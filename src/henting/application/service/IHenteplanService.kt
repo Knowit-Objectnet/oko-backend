@@ -10,9 +10,9 @@ import ombruk.backend.shared.error.ServiceError
 import java.util.*
 
 interface IHenteplanService {
-    fun create(dto: HenteplanSaveDto): Either<ServiceError, Henteplan>
+    fun save(dto: HenteplanSaveDto): Either<ServiceError, Henteplan>
 
-    fun batchCreate(dto: List<HenteplanSaveDto>): Either<ServiceError, List<Henteplan>>
+    fun batchSave(dto: List<HenteplanSaveDto>): Either<ServiceError, List<Henteplan>>
 
     fun findOne(id: UUID): Either<ServiceError, Henteplan>
 

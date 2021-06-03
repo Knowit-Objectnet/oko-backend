@@ -37,7 +37,7 @@ fun Routing.ekstraHentinger(ekstraHentingService: IEkstraHentingService) {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
                     .flatMap { receiveCatching { call.receive<EkstraHentingSaveDto>() } }
                     .flatMap { it.validOrError() }
-                    .flatMap { ekstraHentingService.create(it) }
+                    .flatMap { ekstraHentingService.save(it) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }

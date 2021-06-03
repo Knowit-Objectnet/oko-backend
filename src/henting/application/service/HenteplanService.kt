@@ -7,7 +7,6 @@ import henting.application.api.dto.HenteplanSaveDto
 import io.ktor.locations.*
 import ombruk.backend.henting.application.api.dto.*
 import ombruk.backend.henting.domain.entity.Henteplan
-import ombruk.backend.henting.domain.entity.PlanlagtHenting
 import ombruk.backend.henting.domain.entity.PlanlagtHentingWithParents
 import ombruk.backend.henting.domain.port.IHenteplanRepository
 import ombruk.backend.shared.error.ServiceError
@@ -23,7 +22,7 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
         val dates = LocalDateTimeProgressionWithDayFrekvens(dto.startTidspunkt, dto.sluttTidspunkt, dto.ukedag, dto.frekvens)
             .map { it.toLocalDate() }
         val postDto = PlanlagtHentingSaveDto(dto.startTidspunkt, dto.sluttTidspunkt, null, henteplanId)
-        return planlagtHentingService.batchCreateForHenteplan(PlanlagtHentingBatchPostDto(postDto, dates))
+        return planlagtHentingService.batchSaveForHenteplan(PlanlagtHentingBatchPostDto(postDto, dates))
     }
 
     fun appendPlanlagtHentinger(dto: HenteplanSaveDto, id: UUID, henteplan: Henteplan) =
@@ -35,7 +34,7 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
             }
         }
 
-    override fun create(dto: HenteplanSaveDto): Either<ServiceError, Henteplan> {
+    override fun save(dto: HenteplanSaveDto): Either<ServiceError, Henteplan> {
 
         val henteplan = transaction {
             henteplanRepository.insert(dto)
@@ -49,7 +48,7 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
 
     }
 
-    override fun batchCreate(dto: List<HenteplanSaveDto>): Either<ServiceError, List<Henteplan>> {
+    override fun batchSave(dto: List<HenteplanSaveDto>): Either<ServiceError, List<Henteplan>> {
         return transaction {
             dto.map {curDto -> henteplanRepository.insert(curDto)
                 .fold(

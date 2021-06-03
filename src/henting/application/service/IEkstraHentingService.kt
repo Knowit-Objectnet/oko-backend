@@ -10,7 +10,7 @@ import java.util.*
 
 interface IEkstraHentingService {
 
-    fun create(dto: EkstraHentingSaveDto): Either<ServiceError, EkstraHenting>
+    fun save(dto: EkstraHentingSaveDto): Either<ServiceError, EkstraHenting>
 
     fun findOne(id: UUID): Either<ServiceError, EkstraHenting>
 

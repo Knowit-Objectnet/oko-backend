@@ -14,15 +14,13 @@ import ombruk.backend.aktor.domain.enum.PartnerStorrelse
 import ombruk.backend.aktor.domain.enum.StasjonType
 import ombruk.backend.aktor.infrastructure.repository.PartnerRepository
 import ombruk.backend.aktor.infrastructure.repository.StasjonRepository
-import ombruk.backend.avtale.application.api.dto.AvtaleFindDto
-import ombruk.backend.avtale.domain.entity.Avtale
 import ombruk.backend.henting.application.api.dto.EkstraHentingFindDto
 import ombruk.backend.henting.application.api.dto.EkstraHentingSaveDto
 import ombruk.backend.henting.application.service.EkstraHentingService
 import ombruk.backend.henting.domain.entity.EkstraHenting
 import ombruk.backend.henting.infrastructure.repository.EkstraHentingRepository
 import ombruk.backend.shared.api.KeycloakGroupIntegration
-import ombruk.backend.utlysning.application.api.dto.UtlysningBatchPostDto
+import ombruk.backend.utlysning.application.api.dto.UtlysningBatchSaveDto
 import ombruk.backend.utlysning.application.service.UtlysningService
 import ombruk.backend.utlysning.domain.entity.Utlysning
 import ombruk.backend.utlysning.infrastructure.repository.UtlysningRepository
@@ -96,7 +94,7 @@ class UtlysningTest {
             stasjonId = stasjon1.id
         )
 
-        val ehSave = ekstraHentingService.create(ekstraHentingSaveDto)
+        val ehSave = ekstraHentingService.save(ekstraHentingSaveDto)
         require(ehSave is Either.Right)
 
         ekstraHenting = ehSave.b
@@ -119,12 +117,12 @@ class UtlysningTest {
     @Test
     @Order(4)
     fun testAddUtlysninger() {
-        val utlysningBatchPostDto = UtlysningBatchPostDto(
+        val utlysningBatchPostDto = UtlysningBatchSaveDto(
             hentingId = ekstraHenting.id,
             partnerIds = listOf(partner1.id, partner2.id)
         )
 
-        val batchPost = utlysningService.batchCreate(utlysningBatchPostDto)
+        val batchPost = utlysningService.batchSave(utlysningBatchPostDto)
         require(batchPost is Either.Right)
         utlysninger1 = batchPost.b
 

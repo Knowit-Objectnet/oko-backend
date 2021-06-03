@@ -15,7 +15,7 @@ import java.util.*
 
 @KtorExperimentalLocationsAPI
 class EkstraHentingService(val ekstraHentingRepository: IEkstraHentingRepository): IEkstraHentingService {
-    override fun create(dto: EkstraHentingSaveDto): Either<ServiceError, EkstraHenting> {
+    override fun save(dto: EkstraHentingSaveDto): Either<ServiceError, EkstraHenting> {
         return transaction { ekstraHentingRepository.insert(dto) }
     }
 
