@@ -19,7 +19,7 @@ class AvtaleService(val avtaleRepository: IAvtaleRepository, val hentePlanServic
             avtaleRepository.insert(dto)
                 .flatMap { avtale ->
                     if(dto.henteplaner != null) {
-                        return@flatMap hentePlanService.batchCreate(dto.henteplaner.map { it.copy(avtaleId = avtale.id) })
+                        return@flatMap hentePlanService.batchSave(dto.henteplaner.map { it.copy(avtaleId = avtale.id) })
                             .fold({ it.left() }, { avtale.copy(henteplaner = it).right() })
                     } else {
                         return@flatMap avtale.right()

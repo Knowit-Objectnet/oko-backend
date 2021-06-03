@@ -1,42 +1,33 @@
-package ombruk.backend.henting.application.api
+package ombruk.backend.henting.application.api.dto
 
 import arrow.core.extensions.either.monad.flatMap
-import henting.application.api.dto.HenteplanSaveDto
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.locations.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import ombruk.backend.henting.application.api.dto.*
-import ombruk.backend.henting.application.service.IHenteplanService
+import ombruk.backend.henting.application.service.IEkstraHentingService
 import ombruk.backend.shared.api.Authorization
 import ombruk.backend.shared.api.Roles
 import ombruk.backend.shared.api.generateResponse
 import ombruk.backend.shared.api.receiveCatching
 
 @KtorExperimentalLocationsAPI
-fun Routing.henteplaner(henteplanService: IHenteplanService) {
+fun Routing.ekstraHentinger(ekstraHentingService: IEkstraHentingService) {
 
-    route("/henteplaner") {
+    route("/ekstra-hentinger") {
 
-        get<HenteplanFindOneDto> { form ->
+        get<EkstraHentingFindOneDto> { form ->
             form.validOrError()
-                .flatMap { henteplanService.findOne(form.id) }
+                .flatMap { ekstraHentingService.findOne(form.id) }
                 .run { generateResponse(this) }
                 .also { (code, response) -> call.respond(code, response) }
         }
 
-        get<HenteplanFindByAvtaleIdDto> { form ->
+        get<EkstraHentingFindDto> { form ->
             form.validOrError()
-                .flatMap { henteplanService.findAllForAvtale(form.avtaleId) }
-                .run { generateResponse(this) }
-                .also { (code, response) -> call.respond(code, response) }
-        }
-
-        get<HenteplanFindDto> { form ->
-            form.validOrError()
-                .flatMap { henteplanService.find(form) }
+                .flatMap { ekstraHentingService.find(form) }
                 .run { generateResponse(this) }
                 .also { (code, response) -> call.respond(code, response) }
         }
@@ -44,29 +35,29 @@ fun Routing.henteplaner(henteplanService: IHenteplanService) {
         authenticate {
             post {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
-                    .flatMap { receiveCatching { call.receive<HenteplanSaveDto>() } }
+                    .flatMap { receiveCatching { call.receive<EkstraHentingSaveDto>() } }
                     .flatMap { it.validOrError() }
-                    .flatMap { henteplanService.save(it) }
+                    .flatMap { ekstraHentingService.save(it) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }
         }
 
         authenticate {
-            delete<HenteplanDeleteDto> { form ->
+            delete<EkstraHentingDeleteDto> { form ->
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
                     .flatMap { form.validOrError() }
-                    .flatMap { henteplanService.delete(form) }
+                    .flatMap { ekstraHentingService.delete(form) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }
         }
 
         authenticate {
-            patch<HenteplanUpdateDto> { form ->
+            patch<EkstraHentingUpdateDto> { form ->
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
                     .flatMap { form.validOrError() }
-                    .flatMap { henteplanService.update(form) }
+                    .flatMap { ekstraHentingService.update(form) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }

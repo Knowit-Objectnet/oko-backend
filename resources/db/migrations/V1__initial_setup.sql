@@ -74,7 +74,28 @@ create TABLE planlagt_henting (
     FOREIGN KEY (henteplan_id) references henteplan
 );
 
+create TABLE ekstra_henting (
+    id uuid default uuid_generate_v4() primary key,
+    start_tidspunkt timestamp not null,
+    slutt_tidspunkt timestamp not null,
+    merknad text,
+    stasjon_id uuid not null,
+    FOREIGN KEY (stasjon_id) references stasjon
+);
+
 create TABLE kategori (
     id uuid default uuid_generate_v4() primary key,
     navn varchar(255) not null
+);
+
+create TABLE utlysning (
+    id uuid default uuid_generate_v4() primary key,
+    partner_id uuid not null,
+    henting_id uuid not null,
+    partner_pameldt timestamp,
+    stasjon_godkjent timestamp,
+    partner_skjult boolean,
+    partner_vist boolean,
+    FOREIGN KEY (partner_id) references partner,
+    FOREIGN KEY (henting_id) references ekstra_henting
 );

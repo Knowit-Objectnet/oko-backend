@@ -9,7 +9,6 @@ import io.mockk.mockkClass
 import ombruk.backend.henting.application.api.dto.PlanlagtHentingBatchPostDto
 import ombruk.backend.henting.application.api.dto.PlanlagtHentingSaveDto
 import ombruk.backend.henting.application.service.PlanlagtHentingService
-import ombruk.backend.henting.domain.entity.PlanlagtHenting
 import ombruk.backend.henting.domain.entity.PlanlagtHentingWithParents
 import ombruk.backend.henting.infrastructure.repository.PlanlagtHentingRepository
 import org.junit.jupiter.api.AfterEach
@@ -64,7 +63,7 @@ internal class PlanlagtHentingServiceTest {
 
         every { planlagtHentingRepository.insert(any()) } returns expected.right()
 
-        val actualList = planlagtHentingService.batchCreateForHenteplan(dto)
+        val actualList = planlagtHentingService.batchSaveForHenteplan(dto)
         require(actualList is Either.Right)
 
         assert(actualList.b.size == 5)

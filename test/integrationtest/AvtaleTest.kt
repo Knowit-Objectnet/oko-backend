@@ -143,12 +143,12 @@ class AvtaleTest {
             null
         )
 
-        val henteplanCreate1 = henteplanService.create(henteplanPostDto1)
+        val henteplanCreate1 = henteplanService.save(henteplanPostDto1)
         require(henteplanCreate1 is Either.Right)
         henteplan1 = henteplanCreate1.b
         assert(!henteplan1.planlagteHentinger.isNullOrEmpty())
 
-        val henteplanCreate2 = henteplanService.create(henteplanPostDto2)
+        val henteplanCreate2 = henteplanService.save(henteplanPostDto2)
         require(henteplanCreate2 is Either.Right)
         henteplan2 = henteplanCreate2.b
         assert(!henteplan2.planlagteHentinger.isNullOrEmpty())

@@ -1,4 +1,4 @@
-package ombruk.backend.henting.application.api
+package ombruk.backend.utlysning.application.api
 
 import arrow.core.extensions.either.monad.flatMap
 import io.ktor.application.*
@@ -7,60 +7,50 @@ import io.ktor.locations.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import ombruk.backend.henting.application.api.dto.*
-import ombruk.backend.henting.application.service.IPlanlagtHentingService
 import ombruk.backend.shared.api.Authorization
 import ombruk.backend.shared.api.Roles
 import ombruk.backend.shared.api.generateResponse
 import ombruk.backend.shared.api.receiveCatching
+import ombruk.backend.utlysning.application.api.dto.UtlysningDeleteDto
+import ombruk.backend.utlysning.application.api.dto.UtlysningFindDto
+import ombruk.backend.utlysning.application.api.dto.UtlysningFindOneDto
+import ombruk.backend.utlysning.application.api.dto.UtlysningSaveDto
+import ombruk.backend.utlysning.application.service.IUtlysningService
 
 @KtorExperimentalLocationsAPI
-fun Routing.planlagteHentinger(planlagtHentingService: IPlanlagtHentingService) {
+fun Routing.utlysnigner(utlysningService: IUtlysningService) {
 
-    route("/planlagte-hentinger") {
-
-        get<PlanlagtHentingFindOneDto> { form ->
+    route("/utlysninger") {
+        get<UtlysningFindOneDto> { form ->
             form.validOrError()
-                .flatMap { planlagtHentingService.findOne(form.id) }
+                .flatMap { utlysningService.findOne(form.id) }
                 .run { generateResponse(this) }
                 .also { (code, response) -> call.respond(code, response) }
         }
 
-        get<PlanlagtHentingFindDto> { form ->
+        get<UtlysningFindDto> { form ->
             form.validOrError()
-                .flatMap { planlagtHentingService.find(form) }
+                .flatMap { utlysningService.find(form) }
                 .run { generateResponse(this) }
                 .also { (code, response) -> call.respond(code, response) }
         }
-
-        //TODO: Determine how to do PlanlagtHentingWithParents - use it as default?
 
         authenticate {
             post {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
-                    .flatMap { receiveCatching { call.receive<PlanlagtHentingSaveDto>() } }
+                    .flatMap { receiveCatching { call.receive<UtlysningSaveDto>() } }
                     .flatMap { it.validOrError() }
-                    .flatMap { planlagtHentingService.save(it) }
+                    .flatMap { utlysningService.save(it) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }
         }
 
         authenticate {
-            delete<PlanlagtHentingDeleteDto> { form ->
+            delete<UtlysningDeleteDto> { form ->
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
                     .flatMap { form.validOrError() }
-                    .flatMap { planlagtHentingService.delete(form) }
-                    .run { generateResponse(this) }
-                    .also { (code, response) -> call.respond(code, response) }
-            }
-        }
-
-        authenticate {
-            patch<PlanlagtHentingUpdateDto> { form ->
-                Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
-                    .flatMap { form.validOrError() }
-                    .flatMap { planlagtHentingService.update(form) }
+                    .flatMap { utlysningService.delete(form) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }

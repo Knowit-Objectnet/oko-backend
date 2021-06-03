@@ -10,7 +10,6 @@ import io.mockk.mockkClass
 import ombruk.backend.henting.application.service.HenteplanService
 import ombruk.backend.henting.application.service.PlanlagtHentingService
 import ombruk.backend.henting.domain.entity.Henteplan
-import ombruk.backend.henting.domain.entity.PlanlagtHenting
 import ombruk.backend.henting.domain.entity.PlanlagtHentingWithParents
 import ombruk.backend.henting.domain.model.HenteplanFrekvens
 import ombruk.backend.henting.infrastructure.repository.HenteplanRepository
@@ -73,7 +72,7 @@ internal class HenteplanServiceTest {
     @Test
     fun createPlanlagtHentinger(@MockK expected : List<PlanlagtHentingWithParents>) {
 
-        every { planlagtHentingService.batchCreateForHenteplan(any()) } returns expected.right()
+        every { planlagtHentingService.batchSaveForHenteplan(any()) } returns expected.right()
         val actual = henteplanService.createPlanlagtHentinger(henteplanPostDto, henteplan.id)
         assertEquals(expected.right(), actual)
 
@@ -82,7 +81,7 @@ internal class HenteplanServiceTest {
     @Test
     fun appendPlanlagtHentinger(@MockK expectedList : List<PlanlagtHentingWithParents>) {
 
-        every { planlagtHentingService.batchCreateForHenteplan(any()) } returns expectedList.right()
+        every { planlagtHentingService.batchSaveForHenteplan(any()) } returns expectedList.right()
 
         val actual = henteplanService.appendPlanlagtHentinger(henteplanPostDto, henteplan.id, henteplan)
 
@@ -94,9 +93,9 @@ internal class HenteplanServiceTest {
     @Test
     fun create(@MockK expectedList : List<PlanlagtHentingWithParents>) {
         every { henteplanRepository.insert(any()) } returns henteplan.right()
-        every { planlagtHentingService.batchCreateForHenteplan(any()) } returns expectedList.right()
+        every { planlagtHentingService.batchSaveForHenteplan(any()) } returns expectedList.right()
 
-        val actual = henteplanService.create(henteplanPostDto)
+        val actual = henteplanService.save(henteplanPostDto)
 
         require(actual is Either.Right)
         assertEquals(henteplan.id, actual.b.id)
@@ -107,9 +106,9 @@ internal class HenteplanServiceTest {
     @Test
     fun batchCreate(@MockK expectedList : List<PlanlagtHentingWithParents>) {
         every { henteplanRepository.insert(any()) } returns henteplan.right()
-        every { planlagtHentingService.batchCreateForHenteplan(any()) } returns expectedList.right()
+        every { planlagtHentingService.batchSaveForHenteplan(any()) } returns expectedList.right()
 
-        val actual = henteplanService.batchCreate(listOf(henteplanPostDto, henteplanPostDto))
+        val actual = henteplanService.batchSave(listOf(henteplanPostDto, henteplanPostDto))
 
         require(actual is Either.Right)
         assertTrue(actual.b.size == 2)

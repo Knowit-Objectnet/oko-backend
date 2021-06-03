@@ -18,7 +18,7 @@ import java.util.*
 
 @KtorExperimentalLocationsAPI
 class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepository): IPlanlagtHentingService {
-    override fun create(dto: PlanlagtHentingSaveDto): Either<ServiceError, PlanlagtHentingWithParents> {
+    override fun save(dto: PlanlagtHentingSaveDto): Either<ServiceError, PlanlagtHentingWithParents> {
         return transaction { planlagtHentingRepository.insert(dto) }
     }
 
@@ -38,7 +38,7 @@ class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepo
         return transaction { planlagtHentingRepository.update(dto) }
     }
 
-    override fun batchCreateForHenteplan(dto: PlanlagtHentingBatchPostDto): Either<ServiceError, List<PlanlagtHentingWithParents>> {
+    override fun batchSaveForHenteplan(dto: PlanlagtHentingBatchPostDto): Either<ServiceError, List<PlanlagtHentingWithParents>> {
         return transaction {
             dto.dateList.map {
                 planlagtHentingRepository.insert(

@@ -9,7 +9,7 @@ import java.util.*
 
 interface IPlanlagtHentingService {
 
-    fun create(dto: PlanlagtHentingSaveDto): Either<ServiceError, PlanlagtHentingWithParents>
+    fun save(dto: PlanlagtHentingSaveDto): Either<ServiceError, PlanlagtHentingWithParents>
 
     fun findOne(id: UUID): Either<ServiceError, PlanlagtHentingWithParents>
 
@@ -19,6 +19,6 @@ interface IPlanlagtHentingService {
 
     fun update(dto: PlanlagtHentingUpdateDto): Either<ServiceError, PlanlagtHentingWithParents>
 
-    fun batchCreateForHenteplan(dto: PlanlagtHentingBatchPostDto): Either<ServiceError, List<PlanlagtHentingWithParents>>
+    fun batchSaveForHenteplan(dto: PlanlagtHentingBatchPostDto): Either<ServiceError, List<PlanlagtHentingWithParents>>
 
 }
