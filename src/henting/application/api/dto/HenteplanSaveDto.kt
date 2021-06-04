@@ -9,6 +9,7 @@ import ombruk.backend.shared.form.IForm
 import ombruk.backend.shared.model.serializer.LocalDateTimeSerializer
 import ombruk.backend.shared.utils.validation.isGreaterThanStartDateTime
 import ombruk.backend.shared.utils.validation.runCatchingValidation
+import org.valiktor.functions.isNotNull
 import org.valiktor.validate
 import shared.model.serializer.UUIDSerializer
 import java.time.DayOfWeek
@@ -22,12 +23,15 @@ data class HenteplanSaveDto(
     override val frekvens: HenteplanFrekvens,
     @Serializable(with = LocalDateTimeSerializer::class) override val startTidspunkt: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class) override val sluttTidspunkt: LocalDateTime,
-    override val ukedag: DayOfWeek,
+    override val ukedag: DayOfWeek? = null,
     override val merknad: String? = null
 ) : IForm<HenteplanSaveDto>, HenteplanCreateParams() {
     override fun validOrError(): Either<ValidationError, HenteplanSaveDto> = runCatchingValidation {
         validate(this) {
             validate(HenteplanSaveDto::sluttTidspunkt).isGreaterThanStartDateTime(startTidspunkt)
+            if (frekvens != HenteplanFrekvens.ENKELT) {
+                validate(HenteplanSaveDto::ukedag).isNotNull()
+            }
         }
     }
 }

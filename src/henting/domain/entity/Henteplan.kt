@@ -21,7 +21,7 @@ data class Henteplan(
     val frekvens: HenteplanFrekvens,
     @Serializable(with = LocalDateTimeSerializer::class) val startTidspunkt: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class) val sluttTidspunkt: LocalDateTime,
-    @Serializable(with= DayOfWeekSerializer::class) val ukedag: DayOfWeek,
+    @Serializable(with= DayOfWeekSerializer::class) val ukedag: DayOfWeek?,
     var merknad: String?,
     val planlagteHentinger: List<PlanlagtHentingWithParents>?
     )
