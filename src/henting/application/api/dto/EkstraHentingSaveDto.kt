@@ -17,7 +17,7 @@ import java.util.*
 data class EkstraHentingSaveDto(
     @Serializable(with = LocalDateTimeSerializer::class) override val startTidspunkt: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class) override val sluttTidspunkt: LocalDateTime,
-    override val merknad: String?,
+    override val merknad: String? = null,
     @Serializable(with = UUIDSerializer::class) override val stasjonId: UUID
 ) : IForm<EkstraHentingSaveDto>, EkstraHentingCreateParams() {
     override fun validOrError(): Either<ValidationError, EkstraHentingSaveDto> = runCatchingValidation {

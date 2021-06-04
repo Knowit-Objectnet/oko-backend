@@ -23,7 +23,7 @@ data class HenteplanSaveDto(
     @Serializable(with = LocalDateTimeSerializer::class) override val startTidspunkt: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class) override val sluttTidspunkt: LocalDateTime,
     override val ukedag: DayOfWeek,
-    override val merknad: String?
+    override val merknad: String? = null
 ) : IForm<HenteplanSaveDto>, HenteplanCreateParams() {
     override fun validOrError(): Either<ValidationError, HenteplanSaveDto> = runCatchingValidation {
         validate(this) {
