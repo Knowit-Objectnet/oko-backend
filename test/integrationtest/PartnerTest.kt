@@ -1,298 +1,113 @@
 import arrow.core.Either
-import io.ktor.http.HttpStatusCode
-import io.ktor.serialization.DefaultJsonConfiguration
-import kotlinx.serialization.builtins.list
-import kotlinx.serialization.json.Json
-import ombruk.backend.calendar.database.EventRepository
-import ombruk.backend.partner.database.PartnerRepository
-import ombruk.backend.partner.form.PartnerPostForm
-import ombruk.backend.partner.model.Partner
-import ombruk.backend.partner.service.PartnerService
-import ombruk.backend.shared.database.initDB
+import arrow.core.right
+import io.ktor.util.*
+import io.mockk.every
+import io.mockk.impl.annotations.MockK
+import io.mockk.junit5.MockKExtension
+import io.mockk.mockkClass
+import ombruk.backend.aktor.application.api.dto.PartnerGetDto
+import ombruk.backend.aktor.application.api.dto.PartnerSaveDto
+import ombruk.backend.aktor.application.api.dto.PartnerUpdateDto
+import ombruk.backend.aktor.application.service.PartnerService
+import ombruk.backend.aktor.domain.entity.Partner
+import ombruk.backend.aktor.domain.enum.StasjonType
+import ombruk.backend.aktor.infrastructure.repository.PartnerRepository
+import ombruk.backend.shared.api.KeycloakGroupIntegration
 import org.junit.jupiter.api.*
-import testutils.testDelete
-import testutils.testGet
-import testutils.testPatch
-import testutils.testPost
+import org.junit.jupiter.api.extension.ExtendWith
+import org.testcontainers.junit.jupiter.Testcontainers
+import testutils.TestContainer
+import java.util.*
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
+@ExtendWith(MockKExtension::class)
+@Testcontainers
 class PartnerTest {
+    private val testContainer: TestContainer = TestContainer()
+    private lateinit var partnerService: PartnerService
+    private var partnerRepository = PartnerRepository()
+    private var keycloakGroupIntegration = mockkClass(KeycloakGroupIntegration::class)
 
-    val json = Json(DefaultJsonConfiguration.copy(prettyPrint = true))
-
-    lateinit var partners: List<Partner>
-
-    init {
-        initDB()
-    }
-
-    @BeforeEach
+    @OptIn(KtorExperimentalAPI::class)
+    @BeforeAll
     fun setup() {
-        partners = createTestPartners()
+        testContainer.start()
+        partnerService = PartnerService(keycloakGroupIntegration, partnerRepository)//PartnerService(partnerRepository, keycloakGroupIntegration)
     }
 
-    @AfterEach
-    fun teardown() {
-        PartnerRepository.deleteAllPartners()
+    private lateinit var navn: String
+    private var ideell: Boolean = false
+    private lateinit var uuid: UUID
+    private lateinit var updateNavn: String
+    private lateinit var updateType: StasjonType
+    private var updateIdeell: Boolean = true
+
+    @Test
+    @Order(1)
+    fun testInsert(@MockK expected: Any) {
+        navn = "Nesferg"
+        ideell = false
+        every { keycloakGroupIntegration.createGroup(navn, any<UUID>()) } returns expected.right()
+
+        val partner = PartnerSaveDto(navn, ideell)
+        val save = partnerService.savePartner(partner)
+        assert(save is Either.Right<Partner>)
     }
 
-    private fun createTestPartners() = (0..9).map {
-        val p = PartnerService.savePartner(
-            PartnerPostForm(
-                "PartnerTest Partner$it",
-                "Description",
-                "1234567$it",
-                "test$it@gmail.com"
-            )
-        )
-        require(p is Either.Right)
-        return@map p.b
+    @Test
+    @Order(2)
+    fun testFind() {
+        val partner = PartnerGetDto(navn)
+        val find = partnerService.getPartnere(partner)
+        require(find is Either.Right)
+        assertTrue(find.b.count() == 1)
+        assertEquals(navn, find.b[0].navn)
+        assertEquals(ideell, find.b[0].ideell)
+        // UUID for next test
+        uuid = find.b[0].id
     }
 
-    @Nested
-    inner class Get {
-        @Test
-        fun `get partner by id`() {
-            testGet("/partners/${partners[3].id}") {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Partner.serializer(), partners[3]), response.content)
-            }
-        }
-
-        @Test
-        fun `get all partners`() {
-            testGet("/partners") {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Partner.serializer().list, partners), response.content)
-            }
-        }
-
-        @Test
-        fun `get partner by name`() {
-            testGet("/partners?name=${partners[6].name}") {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Partner.serializer().list, listOf(partners[6])), response.content)
-            }
-        }
+    @Test
+    @Order(3)
+    fun testFindOne() {
+        val findOne = partnerService.getPartnerById(uuid)
+        require(findOne is Either.Right)
+        assertEquals(uuid, findOne.b.id)
+        assertEquals(navn, findOne.b.navn)
+        assertEquals(ideell, findOne.b.ideell)
     }
 
-    @Nested
-    inner class Post {
+    @OptIn(KtorExperimentalAPI::class)
+    @Test
+    @Order(4)
+    fun testUpdate(@MockK expected: Unit) {
+        updateNavn = "Nesferg Middels"
+        updateIdeell = true
+        every { keycloakGroupIntegration.updateGroup(navn, updateNavn) } returns expected.right()
 
-        @Test
-        fun `create partner with name`() {
-            val name = "MyPartner"
-
-            val body =
-                """{
-                    "name": "$name"
-                }"""
-
-            testPost("/partners", body) {
-                assertEquals(HttpStatusCode.OK, response.status())
-                val responsePartner = json.parse(Partner.serializer(), response.content!!)
-                val insertedPartner = PartnerRepository.getPartnerByID(responsePartner.id)
-                require(insertedPartner is Either.Right)
-                assertEquals(responsePartner, insertedPartner.b)
-                assertEquals(name, insertedPartner.b.name)
-            }
-        }
-
-        @Test
-        fun `create partner with description`() {
-            val name = "MyPartner"
-            val description = "This is a desc."
-            val body =
-                """{
-                    "name": "$name",
-                    "description": "$description"
-                }"""
-
-            testPost("/partners", body) {
-                assertEquals(HttpStatusCode.OK, response.status())
-                val responsePartner = json.parse(Partner.serializer(), response.content!!)
-                val insertedPartner = PartnerRepository.getPartnerByID(responsePartner.id)
-                require(insertedPartner is Either.Right)
-                assertEquals(responsePartner, insertedPartner.b)
-                assertEquals(name, insertedPartner.b.name)
-                assertEquals(description, insertedPartner.b.description)
-            }
-        }
-
-        @Test
-        fun `create partner with phone`() {
-            val name = "MyPartner"
-            val phone = "+4712345678"
-            val body =
-                """{
-                    "name": "$name",
-                    "phone": "$phone"
-                }"""
-
-            testPost("/partners", body) {
-                assertEquals(HttpStatusCode.OK, response.status())
-                val responsePartner = json.parse(Partner.serializer(), response.content!!)
-                val insertedPartner = PartnerRepository.getPartnerByID(responsePartner.id)
-                require(insertedPartner is Either.Right)
-                assertEquals(responsePartner, insertedPartner.b)
-                assertEquals(name, insertedPartner.b.name)
-                assertEquals(phone, insertedPartner.b.phone)
-            }
-        }
-
-        @Test
-        fun `create partner with email`() {
-            val name = "MyPartner"
-            val email = "test@gmail.com"
-            val body =
-                """{
-                    "name": "$name",
-                    "email": "$email"
-                }"""
-
-            testPost("/partners", body) {
-                assertEquals(HttpStatusCode.OK, response.status())
-                val responsePartner = json.parse(Partner.serializer(), response.content!!)
-                val insertedPartner = PartnerRepository.getPartnerByID(responsePartner.id)
-                require(insertedPartner is Either.Right)
-                assertEquals(responsePartner, insertedPartner.b)
-                assertEquals(name, insertedPartner.b.name)
-                assertEquals(email, insertedPartner.b.email)
-            }
-        }
-
-        @Test
-        fun `create partner with everything`() {
-            val name = "MyPartner"
-            val description = "This is a desc."
-            val phone = "12345678"
-            val email = "test@gmail.com"
-            val body =
-                """{
-                    "name": "$name",
-                    "description": "$description",
-                    "phone": "$phone",
-                    "email": "$email"
-                }"""
-
-            testPost("/partners", body) {
-                assertEquals(HttpStatusCode.OK, response.status())
-                val responsePartner = json.parse(Partner.serializer(), response.content!!)
-                val insertedPartner = PartnerRepository.getPartnerByID(responsePartner.id)
-                require(insertedPartner is Either.Right)
-                assertEquals(responsePartner, insertedPartner.b)
-                assertEquals(name, insertedPartner.b.name)
-                assertEquals(email, insertedPartner.b.email)
-                assertEquals(phone, insertedPartner.b.phone)
-                assertEquals(description, insertedPartner.b.description)
-            }
-        }
-
+        val partner = PartnerUpdateDto(uuid, updateNavn, updateIdeell)
+        val update = partnerService.updatePartner(partner)
+        require(update is Either.Right)
+        assertEquals(updateNavn, update.b.navn)
+        assertEquals(updateIdeell, update.b.ideell)
     }
 
-    @Nested
-    inner class Patch {
-        @Test
-        fun `update partner description`() {
-            val partnerToUpdate = partners[9]
-            val expectedResponse = partnerToUpdate.copy(description = "testing")
-            val body =
-                """{
-                    "id": "${partnerToUpdate.id}",
-                    "description": "testing"
-                }"""
+    @Test
+    @Order(5)
+    fun testDelete(@MockK expected: Any) {
+        every { keycloakGroupIntegration.deleteGroup(updateNavn) } returns expected.right()
 
-            testPatch("/partners", body) {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Partner.serializer(), expectedResponse), response.content)
-
-                val partnerInRepository = PartnerRepository.getPartnerByID(expectedResponse.id)
-                require(partnerInRepository is Either.Right)
-                assertEquals(expectedResponse, partnerInRepository.b)
-
-            }
-        }
-
-        @Test
-        fun `update partner email`() {
-            val partnerToUpdate = partners[1]
-            val expectedResponse = partnerToUpdate.copy(email = "test@gmail.com")
-            val body =
-                """{
-                    "id": "${partnerToUpdate.id}",
-                    "email": "test@gmail.com"
-                }"""
-
-            testPatch("/partners", body) {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Partner.serializer(), expectedResponse), response.content)
-
-                val partnerInRepository = PartnerRepository.getPartnerByID(expectedResponse.id)
-                require(partnerInRepository is Either.Right)
-                assertEquals(expectedResponse, partnerInRepository.b)
-
-            }
-        }
-
-        @Test
-        fun `update partner phone`() {
-            val partnerToUpdate = partners[1]
-            val expectedResponse = partnerToUpdate.copy(phone = "54612876")
-            val body =
-                """{
-                    "id": "${partnerToUpdate.id}",
-                    "phone": "54612876"
-                }"""
-
-            testPatch("/partners", body) {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Partner.serializer(), expectedResponse), response.content)
-
-                val partnerInRepository = PartnerRepository.getPartnerByID(expectedResponse.id)
-                require(partnerInRepository is Either.Right)
-                assertEquals(expectedResponse, partnerInRepository.b)
-
-            }
-        }
-
-        @Test
-        fun `update partner everything`() {
-            val partnerToUpdate = partners[1]
-            val expectedResponse =
-                partnerToUpdate.copy(email = "test@gmail.com", phone = "12345678", description = "testing")
-            val body =
-                """{
-                    "id": "${partnerToUpdate.id}",
-                    "email": "test@gmail.com",
-                    "phone": "12345678",
-                    "description": "testing"
-                }"""
-
-            testPatch("/partners", body) {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(json.stringify(Partner.serializer(), expectedResponse), response.content)
-
-                val partnerInRepository = PartnerRepository.getPartnerByID(expectedResponse.id)
-                require(partnerInRepository is Either.Right)
-                assertEquals(expectedResponse, partnerInRepository.b)
-
-            }
-        }
+        val update = partnerService.deletePartnerById(uuid)
+        assert(update is Either.Right)
     }
 
-    @Nested
-    inner class Delete {
-
-        @Test
-        fun `delete partner by id`() {
-            testDelete("/partners/${partners[3].id}") {
-                val respondedEvents = json.parse(Partner.serializer(), response.content!!)
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(partners[3], respondedEvents)
-                assertFalse(EventRepository.exists(partners[3].id))
-            }
-        }
+    @Test
+    @Order(6)
+    fun testFindOneFails() {
+        val findOne = partnerService.getPartnerById(uuid)
+        assert(findOne is Either.Left)
     }
 }

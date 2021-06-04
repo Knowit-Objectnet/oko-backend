@@ -12,7 +12,7 @@ import org.valiktor.validate
 import java.time.LocalDateTime
 
 @KtorExperimentalLocationsAPI
-@Location("/")
+@Location("")
 data class EventDeleteForm(
     var eventId: Int? = null,
     var recurrenceRuleId: Int? = null,

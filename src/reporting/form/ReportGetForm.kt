@@ -9,7 +9,7 @@ import org.valiktor.functions.isNull
 import org.valiktor.validate
 import java.time.LocalDateTime
 
-@Location("/")
+@Location("")
 data class ReportGetForm(
     var eventId: Int? = null,
     var stationId: Int? = null,

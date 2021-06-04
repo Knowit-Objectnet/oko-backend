@@ -10,7 +10,7 @@ import org.valiktor.functions.isGreaterThan
 import org.valiktor.validate
 
 @KtorExperimentalLocationsAPI
-@Location("/")
+@Location("")
 data class RequestGetForm(
     // if none are set, get all requests.
     val pickupId: Int? = null,  // if set, get all requests for a pickup.

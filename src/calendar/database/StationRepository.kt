@@ -7,7 +7,6 @@ import io.ktor.locations.KtorExperimentalLocationsAPI
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
 import ombruk.backend.calendar.form.station.StationGetForm
 import ombruk.backend.calendar.form.station.StationPostForm
 import ombruk.backend.calendar.form.station.StationUpdateForm
@@ -21,7 +20,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 
 private val logger = LoggerFactory.getLogger("ombruk.backend.database.StationRepository")
-val json = Json(JsonConfiguration.Stable)
+//val json = Json(JsonConfiguration.Stable)
 
 object Stations : IntIdTable("stations") {
     val name = varchar("name", 200)
@@ -59,8 +58,10 @@ object StationRepository : IStationRepository {
                 Stations.insertAndGetId {
                     it[name] = stationPostForm.name
                     it[hours] = stationPostForm.hours?.let { hours ->
-                        json.toJson(MapSerializer(DayOfWeekSerializer, ListSerializer(LocalTimeSerializer)), hours)
-                            .toString()
+                        Json.encodeToString(
+                            MapSerializer(DayOfWeekSerializer, ListSerializer(LocalTimeSerializer)),
+                            hours
+                        )
                     }
                 }.value
             }
@@ -78,8 +79,10 @@ object StationRepository : IStationRepository {
                 stationUpdateForm.name?.let { row[name] = stationUpdateForm.name }
                 stationUpdateForm.hours?.let {
                     row[hours] =
-                        json.toJson(MapSerializer(DayOfWeekSerializer, ListSerializer(LocalTimeSerializer)), it)
-                            .toString()
+                        Json.encodeToString(
+                            MapSerializer(DayOfWeekSerializer, ListSerializer(LocalTimeSerializer)),
+                            it
+                        )
                 }
             }
         }
@@ -118,7 +121,7 @@ fun toStation(row: ResultRow): Station {
         row[Stations.id].value,
         row[Stations.name],
         row[Stations.hours]?.let {
-            json.parse(MapSerializer(DayOfWeekSerializer, ListSerializer(LocalTimeSerializer)), it)
+            Json.decodeFromString(MapSerializer(DayOfWeekSerializer, ListSerializer(LocalTimeSerializer)), it)
         }
     )
 

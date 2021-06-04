@@ -10,7 +10,6 @@ import io.ktor.auth.jwt.JWTPrincipal
 import io.ktor.auth.jwt.jwt
 import io.ktor.config.HoconApplicationConfig
 import io.ktor.features.*
-import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
@@ -19,32 +18,41 @@ import io.ktor.locations.Locations
 import io.ktor.response.respond
 import io.ktor.routing.get
 import io.ktor.routing.routing
-import io.ktor.serialization.DefaultJsonConfiguration
 import io.ktor.serialization.json
 import io.ktor.util.DataConversionException
-import io.ktor.util.KtorExperimentalAPI
 import kotlinx.serialization.json.Json
-import ombruk.backend.calendar.api.events
+import ombruk.backend.aktor.aktorModule
+import ombruk.backend.aktor.application.api.aktor
+import ombruk.backend.aktor.application.api.partnere
+import ombruk.backend.aktor.application.api.stasjoner
+import ombruk.backend.avtale.application.api.dto.avtaler
+import ombruk.backend.avtale.avtaleModule
 import ombruk.backend.calendar.api.stations
-import ombruk.backend.calendar.service.EventService
 import ombruk.backend.calendar.service.StationService
-import ombruk.backend.partner.api.partners
-import ombruk.backend.partner.service.PartnerService
-import ombruk.backend.pickup.api.pickup
-import ombruk.backend.pickup.api.request
-import ombruk.backend.pickup.service.PickupService
-import ombruk.backend.pickup.service.RequestService
+import ombruk.backend.henting.application.api.dto.ekstraHentinger
+import ombruk.backend.henting.application.api.henteplaner
+import ombruk.backend.henting.application.api.planlagteHentinger
+import ombruk.backend.henting.hentingModule
+import ombruk.backend.kategori.application.api.kategorier
+import ombruk.backend.kategori.kategoriModule
 import ombruk.backend.reporting.api.report
 import ombruk.backend.reporting.service.ReportService
 import ombruk.backend.shared.api.Authorization
 import ombruk.backend.shared.api.JwtMockConfig
 import ombruk.backend.shared.database.initDB
+import ombruk.backend.utlysning.application.api.utlysnigner
+import ombruk.backend.utlysning.utlysningModule
+import org.koin.ktor.ext.Koin
+import org.koin.ktor.ext.get
+import org.koin.ktor.ext.modules
 import org.valiktor.ConstraintViolationException
 import org.valiktor.i18n.mapToMessage
 import java.net.URL
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
@@ -56,7 +64,6 @@ var keycloakUrl = appConfig.property("ktor.keycloak.keycloakUrl").getString()
 var keycloakRealm = appConfig.property("ktor.keycloak.keycloakRealm").getString()
 
 @KtorExperimentalLocationsAPI
-@KtorExperimentalAPI
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
 fun Application.module(testing: Boolean = false) {
@@ -81,6 +88,21 @@ fun Application.module(testing: Boolean = false) {
             }
         }
 
+        convert<LocalDate> {
+
+            decode { values, _ ->
+                values.singleOrNull()?.let { LocalDate.parse(it, DateTimeFormatter.ISO_DATE) }
+            }
+
+            encode { value ->
+                when (value) {
+                    null -> listOf()
+                    is LocalDateTime -> listOf(value.format(DateTimeFormatter.ISO_DATE))
+                    else -> throw DataConversionException("Cannot convert $value as LocalDate")
+                }
+            }
+        }
+
         convert<LocalTime> {
 
             decode { values, _ ->
@@ -93,6 +115,16 @@ fun Application.module(testing: Boolean = false) {
                     is LocalTime -> listOf(value.format(DateTimeFormatter.ISO_TIME))
                     else -> throw DataConversionException("Cannot convert $value as LocalTime")
                 }
+            }
+        }
+
+        convert<UUID> {
+            decode { values, _ ->
+                values.singleOrNull()?.let { UUID.fromString(it) }                    
+            }
+            
+            encode { value ->  
+                listOf(value.toString())
             }
         }
     }
@@ -151,7 +183,7 @@ fun Application.module(testing: Boolean = false) {
         host(
             host = "oko.knowit.no",
             schemes = listOf("http", "https"),
-            subDomains = listOf("staging")
+            subDomains = listOf("staging", "test")
         )
         host(
             host = "0.0.0.0:8080",
@@ -166,21 +198,43 @@ fun Application.module(testing: Boolean = false) {
     }
 
     install(ContentNegotiation) {
-        this.json(
-            json = Json(DefaultJsonConfiguration.copy(prettyPrint = true)),
-            contentType = ContentType.Application.Json
+        json(Json {
+            prettyPrint = true
+            encodeDefaults = true
+//            contentType = ContentType.Application.Json
+
+        }
         )
     }
 
+    install(Koin) {
+//        slf4jLogger()
+        modules(aktorModule)
+        modules(avtaleModule)
+        modules(hentingModule)
+        modules(kategoriModule)
+        modules(utlysningModule)
+    }
+
+
     routing {
-        events(EventService)
-        partners(PartnerService)
-        report(ReportService)
-        pickup(PickupService)
-        stations(StationService)
-        request(RequestService)
+        aktor(get())
+        stasjoner(get())
+        partnere(get())
+        avtaler(get())
+        henteplaner(get())
+        planlagteHentinger(get())
+        ekstraHentinger(get())
+        kategorier(get())
+        utlysnigner(get())
+//        events(EventService)
+//        partners(PartnerService)
+//        report(ReportService)
+//        pickup(PickupService)
+//        stations(StationService)
+//        request(RequestService)
         get("/health_check") {
-            call.respond(HttpStatusCode.OK)
+            call.respond(HttpStatusCode.OK, "HELLO7")
         }
 
         install(StatusPages) {

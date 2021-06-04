@@ -10,7 +10,7 @@ import org.valiktor.validate
 import java.time.LocalDateTime
 
 @KtorExperimentalLocationsAPI
-@Location("/")
+@Location("")
 data class PickupGetForm(
     var startDateTime: LocalDateTime? = null,   // get from this date.
     var endDateTime: LocalDateTime? = null,     // get until this date. Optionally, specify start and end for query in range.
