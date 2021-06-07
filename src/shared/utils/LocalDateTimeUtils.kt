@@ -46,14 +46,14 @@ class LocalDateTimeProgression(
 class LocalDateTimeProgressionWithDayFrekvens(
     override val start: LocalDateTime,
     override val endInclusive: LocalDateTime,
-    private val dayOfWeek: DayOfWeek,
+    private val dayOfWeek: DayOfWeek?, //Should be null only for ENKELT
     private val frekvens: HenteplanFrekvens
 ) :
     Iterable<LocalDateTime>, ClosedRange<LocalDateTime> {
 
     fun findFirstDateOfDay(): LocalDateTime{
         if (frekvens == HenteplanFrekvens.ENKELT) return start
-        val dayDifference = dayOfWeek.value - start.dayOfWeek.value
+        val dayDifference = dayOfWeek!!.value - start.dayOfWeek.value
         return start.plusDays(((dayDifference + 7)%7).toLong())
     }
 

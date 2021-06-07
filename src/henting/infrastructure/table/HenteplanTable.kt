@@ -13,6 +13,6 @@ object HenteplanTable: UUIDTable("henteplan") {
     val frekvens = varchar("frekvens", 255)
     val startTidspunkt = datetime("start_tidspunkt")
     val sluttTidspunkt = datetime("slutt_tidspunkt")
-    val ukedag = integer("ukedag")
+    val ukedag = integer("ukedag").nullable()
     val merknad = text("merknad").nullable()
 }
