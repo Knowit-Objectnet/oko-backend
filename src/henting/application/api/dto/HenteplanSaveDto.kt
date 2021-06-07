@@ -44,7 +44,7 @@ data class HenteplanSaveDto(
                 validate(HenteplanSaveDto::ukedag).isNotNull()
             }
 
-            if(frekvens == HenteplanFrekvens.ENKELT && ukedag == null) {
+            if(frekvens == HenteplanFrekvens.ENKELT) {
                 ukedag = startTidspunkt.dayOfWeek
             }
 
