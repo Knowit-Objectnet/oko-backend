@@ -34,7 +34,7 @@ data class HenteplanSaveDto(
     override val frekvens: HenteplanFrekvens,
     @Serializable(with = LocalDateTimeSerializer::class) override val startTidspunkt: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class) override val sluttTidspunkt: LocalDateTime,
-    override val ukedag: DayOfWeek? = null,
+    override var ukedag: DayOfWeek? = null,
     override val merknad: String? = null
 ) : IForm<HenteplanSaveDto>, HenteplanCreateParams(), KoinComponent {
     override fun validOrError(): Either<ValidationError, HenteplanSaveDto> = runCatchingValidation {
@@ -42,6 +42,10 @@ data class HenteplanSaveDto(
             validate(HenteplanSaveDto::sluttTidspunkt).isGreaterThanStartDateTime(startTidspunkt)
             if (frekvens != HenteplanFrekvens.ENKELT) {
                 validate(HenteplanSaveDto::ukedag).isNotNull()
+            }
+
+            if(frekvens == HenteplanFrekvens.ENKELT) {
+                ukedag = startTidspunkt.dayOfWeek
             }
 
             val avtaleRepository: IAvtaleRepository = get()
