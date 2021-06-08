@@ -3,6 +3,7 @@ package ombruk.backend.utlysning.infrastructure.repository
 import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.left
+import ombruk.backend.aktor.infrastructure.table.PartnerTable
 import ombruk.backend.core.infrastructure.RepositoryBase
 import ombruk.backend.shared.error.RepositoryError
 import ombruk.backend.utlysning.domain.entity.Utlysning
@@ -28,7 +29,7 @@ class UtlysningRepository : RepositoryBase<Utlysning, UtlysningCreateParams, Utl
     }
 
     override fun prepareQuery(params: UtlysningFindParams): Pair<Query, List<Alias<Table>>?> {
-        val query = table.selectAll()
+        val query = (table.innerJoin(PartnerTable)).selectAll()
         params.id?.let { query.andWhere { table.id eq it } }
         params.partnerId?.let { query.andWhere { table.partnerId eq it } }
         params.hentingId?.let { query.andWhere { table.hentingId eq it } }
@@ -39,6 +40,10 @@ class UtlysningRepository : RepositoryBase<Utlysning, UtlysningCreateParams, Utl
         return Pair(query, null)
     }
 
+    override fun findOneMethod(id: UUID): List<Utlysning> {
+        return (table.innerJoin(PartnerTable)).select{ table.id eq id }.mapNotNull { toEntity(it) }
+    }
+
     override fun toEntity(row: ResultRow, aliases: List<Alias<Table>>?): Utlysning {
         return Utlysning(
             row[table.id].value,
@@ -47,7 +52,8 @@ class UtlysningRepository : RepositoryBase<Utlysning, UtlysningCreateParams, Utl
             row[table.partnerPameldt],
             row[table.stasjonGodkjent],
             row[table.partnerSkjult],
-            row[table.partnerVist]
+            row[table.partnerVist],
+            row[PartnerTable.navn]
         )
     }
 
