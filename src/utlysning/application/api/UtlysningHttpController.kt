@@ -11,10 +11,7 @@ import ombruk.backend.shared.api.Authorization
 import ombruk.backend.shared.api.Roles
 import ombruk.backend.shared.api.generateResponse
 import ombruk.backend.shared.api.receiveCatching
-import ombruk.backend.utlysning.application.api.dto.UtlysningDeleteDto
-import ombruk.backend.utlysning.application.api.dto.UtlysningFindDto
-import ombruk.backend.utlysning.application.api.dto.UtlysningFindOneDto
-import ombruk.backend.utlysning.application.api.dto.UtlysningSaveDto
+import ombruk.backend.utlysning.application.api.dto.*
 import ombruk.backend.utlysning.application.service.IUtlysningService
 
 @KtorExperimentalLocationsAPI
@@ -51,6 +48,28 @@ fun Routing.utlysnigner(utlysningService: IUtlysningService) {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
                     .flatMap { form.validOrError() }
                     .flatMap { utlysningService.delete(form) }
+                    .run { generateResponse(this) }
+                    .also { (code, response) -> call.respond(code, response) }
+            }
+        }
+
+        //TODO: Validate that the Partner/Stasjon is the correct one
+
+        authenticate {
+            patch<UtlysningPartnerAcceptDto> { form ->
+                Authorization.authorizeRole(listOf(Roles.Partner), call)
+                    .flatMap { form.validOrError() }
+                    .flatMap { utlysningService.partnerAccept(form) }
+                    .run { generateResponse(this) }
+                    .also { (code, response) -> call.respond(code, response) }
+            }
+        }
+
+        authenticate {
+            patch<UtlysningStasjonAcceptDto> { form ->
+                Authorization.authorizeRole(listOf(Roles.ReuseStation), call)
+                    .flatMap { form.validOrError() }
+                    .flatMap { utlysningService.stasjonAccept(form) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }
