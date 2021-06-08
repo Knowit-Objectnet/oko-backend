@@ -32,8 +32,8 @@ class UtlysningRepository : RepositoryBase<Utlysning, UtlysningCreateParams, Utl
         params.id?.let { query.andWhere { table.id eq it } }
         params.partnerId?.let { query.andWhere { table.partnerId eq it } }
         params.hentingId?.let { query.andWhere { table.hentingId eq it } }
-        params.partnerPameldt?.let { query.andWhere { table.partnerPameldt eq it } }
-        params.stasjonGodkjent?.let { query.andWhere { table.stasjonGodkjent eq it } }
+        params.partnerPameldt?.let { query.andWhere { if(it) table.partnerPameldt.isNotNull() else table.partnerPameldt.isNull()} }
+        params.stasjonGodkjent?.let { query.andWhere { if(it) table.stasjonGodkjent.isNotNull() else table.stasjonGodkjent.isNull() } }
         params.partnerSkjult?.let { query.andWhere { table.partnerSkjult eq it } }
         params.partnerVist?.let { query.andWhere { table.partnerVist eq it } }
         return Pair(query, null)
