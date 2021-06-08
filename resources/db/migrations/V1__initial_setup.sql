@@ -57,7 +57,7 @@ create TABLE henteplan (
     frekvens varchar not null,
     start_tidspunkt timestamp not null,
     slutt_tidspunkt timestamp not null,
-    ukedag int not null,
+    ukedag int,
     merknad text,
     FOREIGN KEY (avtale_id) references avtale,
     FOREIGN KEY (stasjon_id) references stasjon

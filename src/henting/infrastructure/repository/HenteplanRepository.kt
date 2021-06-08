@@ -24,7 +24,7 @@ class HenteplanRepository :
             it[frekvens] = params.frekvens.name
             it[startTidspunkt] = params.startTidspunkt
             it[sluttTidspunkt] = params.sluttTidspunkt
-            it[ukedag] = params.ukedag.value
+            it[ukedag] = params.ukedag?.value
             it[merknad] = params.merknad
         }
     }
@@ -58,7 +58,7 @@ class HenteplanRepository :
             HenteplanFrekvens.valueOf(row[table.frekvens]),
             row[table.startTidspunkt],
             row[table.sluttTidspunkt],
-            DayOfWeek.of(row[table.ukedag]),
+            row[table.ukedag]?.let { DayOfWeek.of(it) },
             row[table.merknad],
             emptyList()
         )
