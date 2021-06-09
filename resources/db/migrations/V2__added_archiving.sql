@@ -1,32 +1,32 @@
 ALTER table partner
-    ADD arkivert boolean default false;
+    ADD arkivert timestamp;
 
 ALTER table stasjon
-    ADD arkivert boolean default false;
+    ADD arkivert timestamp;
 
 ALTER table kontakt
-    ADD arkivert boolean default false;
+    ADD arkivert timestamp;
 
 ALTER table stasjon_kontakt_person
-    ADD arkivert boolean default false;
+    ADD arkivert timestamp;
 
 ALTER table partner_kontakt_person
-    ADD arkivert boolean default false;
+    ADD arkivert timestamp;
 
 ALTER table avtale
-    ADD arkivert boolean default false;
+    ADD arkivert timestamp;
 
 ALTER table henteplan
-    ADD arkivert boolean default false;
+    ADD arkivert timestamp;
 
 ALTER table planlagt_henting
-    ADD arkivert boolean default false;
+    ADD arkivert timestamp;
 
 ALTER table ekstra_henting
-    ADD arkivert boolean default false;
+    ADD arkivert timestamp;
 
 ALTER table kategori
-    ADD arkivert boolean default false;
+    ADD arkivert timestamp;
 
 ALTER table utlysning
-    ADD arkivert boolean default false;
+    ADD arkivert timestamp;

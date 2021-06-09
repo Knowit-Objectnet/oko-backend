@@ -12,6 +12,7 @@ import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
 import java.util.*
 
 abstract class RepositoryBase<Entity : Any, EntityParams, EntityUpdateParams: UpdateParams, EntityFindParams : FindParams> {
@@ -104,7 +105,7 @@ abstract class RepositoryBase<Entity : Any, EntityParams, EntityUpdateParams: Up
             table.update (
                 archiveCondition(params)?.let { {it} }
             ) { row ->
-                row[arkivert] = true
+                row[arkivert] = LocalDateTime.now()
             }
         }
             .onFailure { logger.error("Failed to archive; ${it.message}") }
@@ -121,7 +122,7 @@ abstract class RepositoryBase<Entity : Any, EntityParams, EntityUpdateParams: Up
 
     fun find(params: EntityFindParams): Either<RepositoryError, List<Entity>> = runCatching {
         val (query, aliases) = prepareQuery(params)
-        if(!params.arkivert) query.andWhere { table.arkivert eq false }
+        if(!params.arkivert) query.andWhere { table.arkivert.isNull() }
         query.mapNotNull { toEntity(it, aliases) }
     }
         .onFailure { logger.error("Failed to find in database; ${it.message}") }
