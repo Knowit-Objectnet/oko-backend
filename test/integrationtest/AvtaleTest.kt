@@ -97,7 +97,7 @@ class AvtaleTest : KoinTest {
     @Order(2)
     fun createANewAvtale() {
         val avtaleCreateDto = AvtaleSaveDto(
-            partner.id, //TODO: This needs to verify that it is a legal Aktor
+            partner.id,
             AvtaleType.FAST,
             LocalDate.of(2021,1,1),
             LocalDate.of(2022,1,1),
