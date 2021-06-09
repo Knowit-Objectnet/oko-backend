@@ -46,4 +46,8 @@ class StasjonRepository : RepositoryBase<Stasjon, StasjonCreateParams, StasjonUp
         }
     }
 
+    override fun archiveCondition(params: StasjonFindParams): Op<Boolean>? {
+        TODO("Not yet implemented")
+    }
+
 }

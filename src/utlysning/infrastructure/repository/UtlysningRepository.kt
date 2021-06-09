@@ -114,4 +114,8 @@ class UtlysningRepository : RepositoryBase<Utlysning, UtlysningCreateParams, Utl
             )
             .flatMap { it }
     }
+
+    override fun archiveCondition(params: UtlysningFindParams): Op<Boolean>? {
+        TODO("Not yet implemented")
+    }
 }

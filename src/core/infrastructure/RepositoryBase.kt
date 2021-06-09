@@ -6,9 +6,9 @@ import arrow.core.left
 import arrow.core.right
 import ombruk.backend.core.domain.model.FindParams
 import ombruk.backend.core.domain.model.UpdateParams
+import ombruk.backend.shared.database.ArchivableUUIDTable
 import ombruk.backend.shared.error.RepositoryError
 import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -27,7 +27,7 @@ abstract class RepositoryBase<Entity : Any, EntityParams, EntityUpdateParams: Up
 
     abstract fun toEntity(row: ResultRow, aliases: List<Alias<Table>>? = null): Entity
 
-    abstract val table: UUIDTable
+    abstract val table: ArchivableUUIDTable
 
     fun insert(params: EntityParams): Either<RepositoryError, Entity> {
         return runCatching {
@@ -86,8 +86,35 @@ abstract class RepositoryBase<Entity : Any, EntityParams, EntityUpdateParams: Up
 
     }
 
+    inline fun Op<Boolean>.andIfNotNull(condition: Any?, op: SqlExpressionBuilder.() -> Op<Boolean>): Op<Boolean> {
+        if (condition != null) return this.and(op) else return this
+    }
+
+    abstract fun archiveCondition(params: EntityFindParams):Op<Boolean>?
+
+    fun archive(params: EntityFindParams): Either<RepositoryError, Unit> {
+        return runCatching {
+            table.update (
+                archiveCondition(params)?.let { {it} }
+            ) { row ->
+                row[arkivert] = true
+            }
+        }
+            .onFailure { logger.error("Failed to archive; ${it.message}") }
+            .fold(
+                //Return right if more than 1 partner has been updated. Else, return an Error
+                {
+                    Either.cond(it > 0,
+                        { logger.info("$it entities archived") },
+                        { RepositoryError.NoRowsFound("${params.id} not found") })
+                },
+                { RepositoryError.UpdateError(it.message).left() }
+            )
+    }
+
     fun find(params: EntityFindParams): Either<RepositoryError, List<Entity>> = runCatching {
         val (query, aliases) = prepareQuery(params)
+        if(!params.arkivert) query.andWhere { table.arkivert eq false }
         query.mapNotNull { toEntity(it, aliases) }
     }
         .onFailure { logger.error("Failed to find in database; ${it.message}") }
