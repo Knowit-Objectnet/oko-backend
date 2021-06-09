@@ -17,6 +17,7 @@ data class UtlysningStasjonAcceptDto(
     override val toAccept: Boolean
 ) : IForm<UtlysningStasjonAcceptDto>, UtlysningStasjonAcceptParams() {
     override fun validOrError() = runCatchingValidation {
+        //TODO: Should maybe validate if partner has already accepted
         validate(this) {
         }
     }
