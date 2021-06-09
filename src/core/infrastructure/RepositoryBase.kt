@@ -90,7 +90,14 @@ abstract class RepositoryBase<Entity : Any, EntityParams, EntityUpdateParams: Up
         if (condition != null) return this.and(op) else return this
     }
 
-    abstract fun archiveCondition(params: EntityFindParams):Op<Boolean>?
+    inline fun Op<Boolean>.orIfNotNull(condition: Any?, op: SqlExpressionBuilder.() -> Op<Boolean>): Op<Boolean> {
+        if (condition != null) return this.or(op) else return this
+    }
+
+    open fun archiveCondition(params: EntityFindParams):Op<Boolean>?{
+        return Op.FALSE
+            .orIfNotNull(params.id){table.id eq params.id}
+    }
 
     fun archive(params: EntityFindParams): Either<RepositoryError, Unit> {
         return runCatching {

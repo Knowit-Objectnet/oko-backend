@@ -51,7 +51,4 @@ class EkstraHentingRepository :
     }
 
     override val table = EkstraHentingTable
-    override fun archiveCondition(params: EkstraHentingFindParams): Op<Boolean>? {
-        TODO("Not yet implemented")
-    }
 }

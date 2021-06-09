@@ -56,8 +56,4 @@ class KontaktRepository : RepositoryBase<Kontakt, KontaktCreateParams, KontaktUp
             params.rolle?.let { row[rolle] = it }
         }
     }
-
-    override fun archiveCondition(params: KontaktFindParams): Op<Boolean>? {
-        TODO("Not yet implemented")
-    }
 }

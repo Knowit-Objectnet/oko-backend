@@ -52,8 +52,5 @@ class PartnerRepository : RepositoryBase<Partner, PartnerCreateParams, PartnerUp
     }
 
     override val table: PartnerTable = PartnerTable
-    override fun archiveCondition(params: PartnerFindParams): Op<Boolean>? {
-        TODO("Not yet implemented")
-    }
 
 }

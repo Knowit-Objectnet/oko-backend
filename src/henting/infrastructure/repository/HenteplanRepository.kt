@@ -11,9 +11,6 @@ import ombruk.backend.henting.domain.port.IHenteplanRepository
 import ombruk.backend.henting.infrastructure.table.HenteplanTable
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.greaterEq
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
 import java.time.DayOfWeek
 import java.util.*
 
@@ -69,16 +66,14 @@ class HenteplanRepository :
 
     override fun archiveCondition(params: HenteplanFindParams): Op<Boolean>? {
 
-        var myCond: Op<Boolean> = Op.TRUE
-            .andIfNotNull(params.id){table.id eq params.id}
-            .andIfNotNull(params.avtaleId){table.avtaleId eq params.avtaleId!!}
-            .andIfNotNull(params.frekvens){table.frekvens eq params.frekvens!!.name}
-            .andIfNotNull(params.stasjonId){table.stasjonId eq params.stasjonId!!}
-            .andIfNotNull(params.ukedag){table.ukedag eq params.ukedag!!.value}
-            .andIfNotNull(params.after){table.startTidspunkt.greaterEq(params.after!!)}
-            .andIfNotNull(params.before){table.sluttTidspunkt.lessEq(params.before!!)}
-
-        return myCond
+        return Op.TRUE
+            .andIfNotNull(params.id) { table.id eq params.id }
+            .andIfNotNull(params.avtaleId) { table.avtaleId eq params.avtaleId!! }
+            .andIfNotNull(params.frekvens) { table.frekvens eq params.frekvens!!.name }
+            .andIfNotNull(params.stasjonId) { table.stasjonId eq params.stasjonId!! }
+            .andIfNotNull(params.ukedag) { table.ukedag eq params.ukedag!!.value }
+            .andIfNotNull(params.after) { table.startTidspunkt.greaterEq(params.after!!) }
+            .andIfNotNull(params.before) { table.sluttTidspunkt.lessEq(params.before!!) }
 
         /*
         return when {

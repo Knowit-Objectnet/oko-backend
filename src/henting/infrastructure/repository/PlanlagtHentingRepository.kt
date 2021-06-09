@@ -102,7 +102,5 @@ class PlanlagtHentingRepository: RepositoryBase<PlanlagtHentingWithParents, Plan
     }
 
     override val table = PlanlagtHentingTable
-    override fun archiveCondition(params: PlanlagtHentingFindParams): Op<Boolean>? {
-        TODO("Not yet implemented")
-    }
+
 }

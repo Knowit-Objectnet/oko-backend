@@ -48,7 +48,4 @@ class AvtaleRepository : RepositoryBase<Avtale, AvtaleCreateParams, AvtaleUpdate
     }
 
     override val table = AvtaleTable
-    override fun archiveCondition(params: AvtaleFindParams): Op<Boolean>? {
-        TODO("Not yet implemented")
-    }
 }

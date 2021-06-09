@@ -36,7 +36,5 @@ class KategoriRepository : RepositoryBase<Kategori, KategoriCreateParams, Nothin
     }
 
     override val table = KategoriTable
-    override fun archiveCondition(params: KategoriFindParams): Op<Boolean>? {
-        TODO("Not yet implemented")
-    }
+
 }
