@@ -238,7 +238,7 @@ internal class HenteplanRepositoryTest {
             println(findAll)
             require(findAll is Either.Right)
             assert(findAll.b.size == 2)
-            assert(findAll.b[0] == henteplan)
+            assert(henteplan in findAll.b)
         }
 
         transaction {
@@ -251,7 +251,7 @@ internal class HenteplanRepositoryTest {
             val findCorrectAvtaleId = henteplanRepository.find(HenteplanFindDto(avtaleId = avtale.id))
             require(findCorrectAvtaleId is Either.Right)
             assert(findCorrectAvtaleId.b.size == 2)
-            assert(findCorrectAvtaleId.b[0] == henteplan)
+            assert(henteplan in findCorrectAvtaleId.b)
         }
     }
 
@@ -266,14 +266,14 @@ internal class HenteplanRepositoryTest {
             val find = henteplanRepository.find(HenteplanFindDto())
             require(find is Either.Right)
             assert(find.b.size == 1)
-            assert(find.b[0] == henteplan)
+            assert(henteplan in find.b)
         }
 
         transaction {
             val find = henteplanRepository.find(HenteplanFindDto(arkivert = true))
             require(find is Either.Right)
             assert(find.b.size == 2)
-            assert(find.b[0] == henteplan)
+            assert(henteplan in find.b)
         }
     }
 
@@ -294,7 +294,7 @@ internal class HenteplanRepositoryTest {
             val find = henteplanRepository.find(HenteplanFindDto(arkivert = true))
             require(find is Either.Right)
             assert(find.b.size == 2)
-            assert(find.b[0] == henteplan)
+            assert(henteplan in find.b)
         }
     }
 }
