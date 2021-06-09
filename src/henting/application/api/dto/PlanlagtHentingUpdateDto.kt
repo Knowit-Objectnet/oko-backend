@@ -1,6 +1,7 @@
 package ombruk.backend.henting.application.api.dto
 
 import arrow.core.Either
+import io.ktor.locations.*
 import kotlinx.serialization.Serializable
 import ombruk.backend.henting.domain.params.PlanlagtHentingUpdateParams
 import ombruk.backend.shared.error.ValidationError
@@ -14,6 +15,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
+@Location("")
 data class PlanlagtHentingUpdateDto(
     @Serializable(with = UUIDSerializer::class) override val id: UUID,
     @Serializable(with = LocalDateTimeSerializer::class) override val startTidspunkt: LocalDateTime? = null,

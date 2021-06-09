@@ -7,10 +7,7 @@ import arrow.core.fix
 import arrow.core.left
 import arrow.core.right
 import ombruk.backend.shared.error.ServiceError
-import ombruk.backend.utlysning.application.api.dto.UtlysningBatchSaveDto
-import ombruk.backend.utlysning.application.api.dto.UtlysningDeleteDto
-import ombruk.backend.utlysning.application.api.dto.UtlysningFindDto
-import ombruk.backend.utlysning.application.api.dto.UtlysningSaveDto
+import ombruk.backend.utlysning.application.api.dto.*
 import ombruk.backend.utlysning.domain.entity.Utlysning
 import ombruk.backend.utlysning.domain.port.IUtlysningRepository
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -34,11 +31,11 @@ class UtlysningService(val utlysningRepository: IUtlysningRepository) : IUtlysni
 
         return transaction {
 
-            val utlysnigner = utlysningRepository.find(dto)
-            utlysnigner.fold(
-                { Either.Left(ServiceError(it.message)) },
-                { it.right() }
-            )
+            utlysningRepository.find(dto)
+                .fold(
+                    { Either.Left(ServiceError(it.message)) },
+                    { it.right() }
+                )
 
         }
     }
@@ -68,6 +65,20 @@ class UtlysningService(val utlysningRepository: IUtlysningRepository) : IUtlysni
                 .fix()
                 .map { it.fix() }
                 .fold({rollback(); it.left()}, {it.right()})
+        }
+    }
+
+    override fun partnerAccept(dtoPartner: UtlysningPartnerAcceptDto): Either<ServiceError, Utlysning> {
+        return transaction {
+            utlysningRepository.acceptPartner(dtoPartner)
+                .fold({ rollback(); it.left() }, { it.right() })
+        }
+    }
+
+    override fun stasjonAccept(dtoPartner: UtlysningStasjonAcceptDto): Either<ServiceError, Utlysning> {
+        return transaction {
+            utlysningRepository.acceptStasjon(dtoPartner)
+                .fold({ rollback(); it.left() }, { it.right() })
         }
     }
 

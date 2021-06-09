@@ -2,10 +2,7 @@ package ombruk.backend.utlysning.application.service
 
 import arrow.core.Either
 import ombruk.backend.shared.error.ServiceError
-import ombruk.backend.utlysning.application.api.dto.UtlysningBatchSaveDto
-import ombruk.backend.utlysning.application.api.dto.UtlysningDeleteDto
-import ombruk.backend.utlysning.application.api.dto.UtlysningFindDto
-import ombruk.backend.utlysning.application.api.dto.UtlysningSaveDto
+import ombruk.backend.utlysning.application.api.dto.*
 import ombruk.backend.utlysning.domain.entity.Utlysning
 import java.util.*
 
@@ -19,4 +16,9 @@ interface IUtlysningService {
     fun delete(dto: UtlysningDeleteDto): Either<ServiceError, Unit>
 
     fun batchSave(dto: UtlysningBatchSaveDto): Either<ServiceError, List<Utlysning>>
+
+    fun partnerAccept(dtoPartner: UtlysningPartnerAcceptDto): Either<ServiceError, Utlysning>
+
+    fun stasjonAccept(dtoPartner: UtlysningStasjonAcceptDto): Either<ServiceError, Utlysning>
+
 }
