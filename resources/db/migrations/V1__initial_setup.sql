@@ -12,9 +12,6 @@ create TABLE stasjon (
     type varchar not null
 );
 
-INSERT INTO stasjon (id, navn, type) VALUES ('a393406b-2e0a-42e9-9666-1c3df5ea8a1c', 'test1', 'GJENBRUK');
-
-
 create TABLE kontakt (
     id uuid default uuid_generate_v4() primary key,
     navn varchar(255) not null,
@@ -86,6 +83,19 @@ create TABLE kategori (
     id uuid default uuid_generate_v4() primary key,
     navn varchar(255) not null
 );
+
+INSERT INTO kategori (id, navn) VALUES ('cc4912ef-e2ed-4460-9c50-39caffde79de', 'Barne-utstyr og leker');
+INSERT INTO kategori (id, navn) VALUES ('24a6786f-278d-4215-916a-dc467f6c828b', 'Byggevarer og materialer');
+INSERT INTO kategori (id, navn) VALUES ('33812d39-75e9-4ba9-875f-b0724aa68185', 'Bøker');
+INSERT INTO kategori (id, navn) VALUES ('35a95968-444c-45a8-93f2-e413295d4af1', 'Dekorasjon/interiør');
+INSERT INTO kategori (id, navn) VALUES ('0ae54ff9-3d30-46ad-a747-0cbcf7c2710e', 'Filmer, musikk og dataspill');
+INSERT INTO kategori (id, navn) VALUES ('b672bb2f-055c-4ad0-aea3-4edc190a28b5', 'Hage og uterom');
+INSERT INTO kategori (id, navn) VALUES ('ef6ce0d0-5efc-442d-b18a-1fa27f065b15', 'Kjøkkenutstyr, kjøkkenredskap og dekketøy');
+INSERT INTO kategori (id, navn) VALUES ('7febf1d5-35d7-4065-9d2c-4a307c154845', 'Små møbler');
+INSERT INTO kategori (id, navn) VALUES ('e19d6892-d3e7-4699-9d2d-05407dfaaf7d', 'Store møbler (sofaer, vitrineskap, spisebord)');
+INSERT INTO kategori (id, navn) VALUES ('b1c6de98-4a11-4526-8298-f16886e5b552', 'Sykler');
+INSERT INTO kategori (id, navn) VALUES ('0e3c0a22-e1ee-4a97-afc3-c0f8b2714e88', 'Verktøy');
+
 
 create TABLE utlysning (
     id uuid default uuid_generate_v4() primary key,
