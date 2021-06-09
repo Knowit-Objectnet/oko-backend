@@ -114,5 +114,4 @@ class UtlysningRepository : RepositoryBase<Utlysning, UtlysningCreateParams, Utl
             )
             .flatMap { it }
     }
-
 }

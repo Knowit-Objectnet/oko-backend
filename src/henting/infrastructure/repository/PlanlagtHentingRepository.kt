@@ -102,5 +102,4 @@ class PlanlagtHentingRepository: RepositoryBase<PlanlagtHentingWithParents, Plan
     }
 
     override val table = PlanlagtHentingTable
-
 }

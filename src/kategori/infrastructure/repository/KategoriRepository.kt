@@ -36,5 +36,4 @@ class KategoriRepository : RepositoryBase<Kategori, KategoriCreateParams, Nothin
     }
 
     override val table = KategoriTable
-
 }
