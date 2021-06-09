@@ -37,6 +37,7 @@ internal class HenteplanRepositoryTest {
     private lateinit var avtale: Avtale
     private lateinit var stasjon: Stasjon
     private lateinit var henteplan: Henteplan
+    private lateinit var henteplan2: Henteplan
 
     @BeforeEach
     fun setUp() {
@@ -86,6 +87,24 @@ internal class HenteplanRepositoryTest {
             require(insert is Either.Right)
             assert(insert.b.avtaleId == avtale.id && insert.b.stasjonId == stasjon.id)
             henteplan = insert.b
+        }
+
+        val createParams2 = object : HenteplanCreateParams() {
+            override val avtaleId: UUID = avtale.id
+            override val stasjonId: UUID = stasjon.id
+            override val frekvens: HenteplanFrekvens = HenteplanFrekvens.UKENTLIG
+            override val startTidspunkt: LocalDateTime = LocalDateTime.now()
+            override val sluttTidspunkt: LocalDateTime = LocalDateTime.now().plusYears(1).plusHours(2)
+            override val ukedag: DayOfWeek = DayOfWeek.FRIDAY
+            override val merknad: String? = "Default test Henteplan"
+        }
+
+        transaction {
+            val insert = henteplanRepository.insert(createParams)
+            println(insert)
+            require(insert is Either.Right)
+            assert(insert.b.avtaleId == avtale.id && insert.b.stasjonId == stasjon.id)
+            henteplan2 = insert.b
         }
 
     }
@@ -218,7 +237,7 @@ internal class HenteplanRepositoryTest {
             val findAll = henteplanRepository.find(HenteplanFindDto())
             println(findAll)
             require(findAll is Either.Right)
-            assert(findAll.b.size == 1)
+            assert(findAll.b.size == 2)
             assert(findAll.b[0] == henteplan)
         }
 
@@ -231,9 +250,51 @@ internal class HenteplanRepositoryTest {
         transaction {
             val findCorrectAvtaleId = henteplanRepository.find(HenteplanFindDto(avtaleId = avtale.id))
             require(findCorrectAvtaleId is Either.Right)
-            assert(findCorrectAvtaleId.b.size == 1)
+            assert(findCorrectAvtaleId.b.size == 2)
             assert(findCorrectAvtaleId.b[0] == henteplan)
         }
+    }
 
+    @Test
+    fun archiveOne() {
+        transaction {
+            val archive = henteplanRepository.archive(HenteplanFindDto(id = henteplan2.id))
+            require(archive is Either.Right)
+        }
+
+        transaction {
+            val find = henteplanRepository.find(HenteplanFindDto())
+            require(find is Either.Right)
+            assert(find.b.size == 1)
+            assert(find.b[0] == henteplan)
+        }
+
+        transaction {
+            val find = henteplanRepository.find(HenteplanFindDto(arkivert = true))
+            require(find is Either.Right)
+            assert(find.b.size == 2)
+            assert(find.b[0] == henteplan)
+        }
+    }
+
+    @Test
+    fun archiveAll() {
+        transaction {
+            val archive = henteplanRepository.archive(HenteplanFindDto())
+            require(archive is Either.Right)
+        }
+
+        transaction {
+            val find = henteplanRepository.find(HenteplanFindDto())
+            require(find is Either.Right)
+            assert(find.b.size == 0)
+        }
+
+        transaction {
+            val find = henteplanRepository.find(HenteplanFindDto(arkivert = true))
+            require(find is Either.Right)
+            assert(find.b.size == 2)
+            assert(find.b[0] == henteplan)
+        }
     }
 }
