@@ -6,30 +6,33 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkClass
+import ombruk.backend.aktor.aktorModule
 import ombruk.backend.aktor.application.api.dto.PartnerSaveDto
 import ombruk.backend.aktor.application.api.dto.StasjonSaveDto
-import ombruk.backend.aktor.application.service.PartnerService
-import ombruk.backend.aktor.application.service.StasjonService
+import ombruk.backend.aktor.application.service.IPartnerService
+import ombruk.backend.aktor.application.service.IStasjonService
 import ombruk.backend.aktor.domain.entity.Partner
 import ombruk.backend.aktor.domain.entity.Stasjon
 import ombruk.backend.aktor.domain.enum.StasjonType
-import ombruk.backend.aktor.infrastructure.repository.PartnerRepository
-import ombruk.backend.aktor.infrastructure.repository.StasjonRepository
 import ombruk.backend.avtale.application.api.dto.AvtaleFindDto
-import ombruk.backend.avtale.application.service.AvtaleService
+import ombruk.backend.avtale.application.service.IAvtaleService
+import ombruk.backend.avtale.avtaleModule
 import ombruk.backend.avtale.domain.entity.Avtale
-import ombruk.backend.avtale.infrastructure.repository.AvtaleRepository
 import ombruk.backend.avtale.model.AvtaleType
 import ombruk.backend.henting.application.api.dto.PlanlagtHentingFindDto
-import ombruk.backend.henting.application.service.HenteplanService
-import ombruk.backend.henting.application.service.PlanlagtHentingService
+import ombruk.backend.henting.application.service.IHenteplanService
+import ombruk.backend.henting.application.service.IPlanlagtHentingService
 import ombruk.backend.henting.domain.entity.Henteplan
 import ombruk.backend.henting.domain.model.HenteplanFrekvens
-import ombruk.backend.henting.infrastructure.repository.HenteplanRepository
-import ombruk.backend.henting.infrastructure.repository.PlanlagtHentingRepository
+import ombruk.backend.henting.hentingModule
 import ombruk.backend.shared.api.KeycloakGroupIntegration
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
+import org.koin.core.context.loadKoinModules
+import org.koin.core.context.startKoin
+import org.koin.core.context.stopKoin
+import org.koin.test.KoinTest
+import org.koin.test.get
 import org.testcontainers.junit.jupiter.Testcontainers
 import testutils.TestContainer
 import java.time.DayOfWeek
@@ -42,26 +45,30 @@ import kotlin.test.assertEquals
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 @ExtendWith(MockKExtension::class)
 @Testcontainers
-class AvtaleTest {
+class AvtaleTest : KoinTest {
     private val testContainer = TestContainer()
-    private lateinit var avtaleService: AvtaleService
-    private val henteplanRepository = HenteplanRepository()
-    private val planlagtHentingRepository = PlanlagtHentingRepository()
-    private val planlagtHentingService = PlanlagtHentingService(planlagtHentingRepository)
-    private val henteplanService = HenteplanService(henteplanRepository, planlagtHentingService)
-    private val avtaleRepository = AvtaleRepository()
-    private val partnerRepository = PartnerRepository()
-    private val stasjonRepository = StasjonRepository()
-    private lateinit var partnerService: PartnerService
-    private lateinit var stasjonService: StasjonService
+    private lateinit var avtaleService: IAvtaleService
+    private lateinit var planlagtHentingService: IPlanlagtHentingService
+    private lateinit var henteplanService: IHenteplanService
+    private lateinit var partnerService: IPartnerService
+    private lateinit var stasjonService: IStasjonService
     private var keycloakGroupIntegration = mockkClass(KeycloakGroupIntegration::class)
 
     @BeforeAll
     fun setup() {
         testContainer.start()
-        avtaleService = AvtaleService(avtaleRepository,henteplanService)
-        stasjonService = StasjonService(stasjonRepository, keycloakGroupIntegration)
-        partnerService = PartnerService(keycloakGroupIntegration, partnerRepository)
+        startKoin {}
+        loadKoinModules(listOf(avtaleModule, aktorModule, hentingModule))
+        avtaleService = get()
+        stasjonService = get()
+        partnerService = get()
+        planlagtHentingService = get()
+        henteplanService = get()
+    }
+
+    @AfterAll
+    fun tearDown() {
+        stopKoin()
     }
 
     private lateinit var avtale: Avtale
@@ -90,7 +97,7 @@ class AvtaleTest {
     @Order(2)
     fun createANewAvtale() {
         val avtaleCreateDto = AvtaleSaveDto(
-            partner.id, //TODO: This needs to verify that it is a legal Aktor
+            partner.id,
             AvtaleType.FAST,
             LocalDate.of(2021,1,1),
             LocalDate.of(2022,1,1),
@@ -103,6 +110,20 @@ class AvtaleTest {
         require(avtaleEither is Either.Right<Avtale>)
         avtale = avtaleEither.b
 
+    }
+
+    @Test()
+    @Order(2)
+    fun createANewAvtaleWithWrongPartnerId() {
+        val avtaleCreateDto = AvtaleSaveDto(
+            UUID.randomUUID(),
+            AvtaleType.FAST,
+            LocalDate.of(2021,1,1),
+            LocalDate.of(2022,1,1),
+            emptyList()
+        ).validOrError()
+
+        assert(avtaleCreateDto is Either.Left)
     }
 
     @Test
