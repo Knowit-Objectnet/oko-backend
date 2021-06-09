@@ -26,7 +26,7 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
         return planlagtHentingService.batchSaveForHenteplan(PlanlagtHentingBatchPostDto(postDto, dates))
     }
 
-    fun appendPlanlagtHentinger(dto: HenteplanSaveDto, id: UUID, henteplan: Henteplan) =
+    fun appendPlanlagtHentinger(dto: HenteplanSaveDto, id: UUID, henteplan: Henteplan): Either<ServiceError, Henteplan> =
         run {
             val hentinger: Either<ServiceError, List<PlanlagtHentingWithParents>> = createPlanlagtHentinger(dto, id)
             when (hentinger) {
@@ -86,11 +86,31 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
         return transaction { henteplanRepository.update(dto) }
     }
 
-    fun archiveOne(id: UUID) {
-        return transaction { henteplanRepository.archiveOne(id) }
+    override fun archiveOne(id: UUID): Either<ServiceError, Unit> {
+        return transaction {
+            henteplanRepository.archiveOne(id)
+                .fold(
+                    {Either.Left(ServiceError(it.message))},
+                    { planlagtHentingService.archive(PlanlagtHentingFindDto(henteplanId = it.id))}
+                )
+                .fold({rollback(); it.left()}, {it.right()})
+        }
     }
 
-    fun archive(params: HenteplanFindParams) {
-        return transaction { henteplanRepository.archive(params) }
+    override fun archive(params: HenteplanFindParams): Either<ServiceError, Unit> {
+        return transaction {
+            henteplanRepository.archive(params)
+                .fold(
+                    {Either.Left(ServiceError(it.message))},
+                    { henteplan ->
+                        henteplan.map { planlagtHentingService.archive(PlanlagtHentingFindDto(henteplanId = it.id)) }
+                            .sequence(Either.applicative())
+                            .fix()
+                            .map { it.fix() }
+                            .flatMap { Either.right(Unit) }
+                    }
+                )
+                .fold({rollback(); it.left()}, {it.right()})
+        }
     }
 }
