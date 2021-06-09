@@ -100,7 +100,25 @@ abstract class RepositoryBase<Entity : Any, EntityParams, EntityUpdateParams: Up
             .orIfNotNull(params.id){table.id eq params.id}
     }
 
-    fun archive(params: EntityFindParams): Either<RepositoryError, Unit> {
+    fun archiveOne(id: UUID): Either<RepositoryError, Entity> {
+        return runCatching {
+            table.update ({table.id eq id}) { row ->
+                row[arkivert] = LocalDateTime.now()
+            }
+        }
+            .onFailure { logger.error("Failed to archive; ${it.message}") }
+            .fold(
+                {
+                    Either.cond(it > 0,
+                        { findOne(id) },
+                        { RepositoryError.NoRowsFound("${id} not found") })
+                },
+                { RepositoryError.UpdateError(it.message).left() }
+            )
+            .flatMap { it }
+    }
+
+    fun archive(params: EntityFindParams): Either<RepositoryError, List<Entity>> {
         return runCatching {
             table.update (
                 archiveCondition(params)?.let { {it} }
@@ -113,16 +131,19 @@ abstract class RepositoryBase<Entity : Any, EntityParams, EntityUpdateParams: Up
                 //Return right if more than 1 partner has been updated. Else, return an Error
                 {
                     Either.cond(it > 0,
-                        { logger.info("$it entities archived") },
+                        { logger.info("$it entities archived"); find(params, true) },
                         { RepositoryError.NoRowsFound("${params.id} not found") })
                 },
                 { RepositoryError.UpdateError(it.message).left() }
             )
+            .flatMap { it }
     }
 
-    fun find(params: EntityFindParams): Either<RepositoryError, List<Entity>> = runCatching {
+    fun find(params: EntityFindParams) = find(params, false)
+
+    fun find(params: EntityFindParams, arkivertOverride: Boolean = false): Either<RepositoryError, List<Entity>> = runCatching {
         val (query, aliases) = prepareQuery(params)
-        if(!params.arkivert) query.andWhere { table.arkivert.isNull() }
+        if(!params.arkivert && !arkivertOverride) query.andWhere { table.arkivert.isNull() }
         query.mapNotNull { toEntity(it, aliases) }
     }
         .onFailure { logger.error("Failed to find in database; ${it.message}") }
