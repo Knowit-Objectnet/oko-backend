@@ -41,6 +41,7 @@ class HenteplanRepository :
 
     override fun prepareQuery(params: HenteplanFindParams): Pair<Query, List<Alias<Table>>?> {
         val query = (table innerJoin StasjonTable).selectAll()
+        params.id?.let { query.andWhere { table.id eq it } }
         params.avtaleId?.let { query.andWhere { table.avtaleId eq it } }
         params.frekvens?.let { query.andWhere { table.frekvens eq it.name } }
         params.stasjonId?.let { query.andWhere { table.stasjonId eq it } }

@@ -25,6 +25,7 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
+import kotlin.test.assertEquals
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Testcontainers
@@ -260,6 +261,8 @@ internal class HenteplanRepositoryTest {
         transaction {
             val archive = henteplanRepository.archive(HenteplanFindDto(id = henteplan2.id))
             require(archive is Either.Right)
+            assertEquals(1, archive.b.size)
+            assert(henteplan2 in archive.b)
         }
 
         transaction {
@@ -282,6 +285,8 @@ internal class HenteplanRepositoryTest {
         transaction {
             val archive = henteplanRepository.archive(HenteplanFindDto())
             require(archive is Either.Right)
+            assert(archive.b.size == 2)
+            assert(henteplan in archive.b)
         }
 
         transaction {

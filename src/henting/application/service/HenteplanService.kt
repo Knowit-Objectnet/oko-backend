@@ -8,6 +8,7 @@ import io.ktor.locations.*
 import ombruk.backend.henting.application.api.dto.*
 import ombruk.backend.henting.domain.entity.Henteplan
 import ombruk.backend.henting.domain.entity.PlanlagtHentingWithParents
+import ombruk.backend.henting.domain.params.HenteplanFindParams
 import ombruk.backend.henting.domain.port.IHenteplanRepository
 import ombruk.backend.shared.error.ServiceError
 import ombruk.backend.shared.utils.LocalDateTimeProgressionWithDayFrekvens
@@ -83,5 +84,13 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
     override fun update(dto: HenteplanUpdateDto): Either<ServiceError, Henteplan> {
         // TODO: Add planlagt henting update logic
         return transaction { henteplanRepository.update(dto) }
+    }
+
+    fun archiveOne(id: UUID) {
+        return transaction { henteplanRepository.archiveOne(id) }
+    }
+
+    fun archive(params: HenteplanFindParams) {
+        return transaction { henteplanRepository.archive(params) }
     }
 }
