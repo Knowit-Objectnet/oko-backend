@@ -12,6 +12,12 @@ create TABLE stasjon (
     type varchar not null
 );
 
+INSERT INTO stasjon (id, navn, type) VALUES ('83c9b534-7b2a-46d4-9e02-2bdab38601c2', 'Grønmo', 'GJENBRUK');
+INSERT INTO stasjon (id, navn, type) VALUES ('ddf55fd5-e711-43a4-9345-4270e5d125dc', 'Haraldrud', 'GJENBRUK');
+INSERT INTO stasjon (id, navn, type) VALUES ('f0d36631-cfc2-4bff-8af6-5ee9505e14ea', 'Smestad', 'GJENBRUK');
+INSERT INTO stasjon (id, navn, type) VALUES ('a2e8e766-e1a1-42bb-9cb8-044e55a90900', 'Ryen', 'GJENBRUK');
+INSERT INTO stasjon (id, navn, type) VALUES ('e294f824-6494-41e2-b0be-aca1943e5067', 'Grefsen', 'GJENBRUK');
+
 create TABLE kontakt (
     id uuid default uuid_generate_v4() primary key,
     navn varchar(255) not null,
