@@ -7,7 +7,9 @@ import java.util.*
 @Serializable
 data class Kontakt (
     @Serializable(with = UUIDSerializer::class) val id: UUID,
+    @Serializable(with = UUIDSerializer::class) val aktorId: UUID,
     val navn: String,
-    val telefon: String,
-    val rolle: String
+    val telefon: String? = null,
+    val epost: String? = null,
+    val rolle: String? = null
 )
