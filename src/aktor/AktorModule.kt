@@ -19,5 +19,5 @@ val aktorModule = module(createdAtStart = true) {
     single<IAktorService> {AktorService(get(), get()) }
     single<IStasjonService> {StasjonService(get(), get()) }
     single<IPartnerService> {PartnerService(get(), get()) }
-    single<IKontaktService> {KontaktService(get(), get()) }
+    single<IKontaktService> {KontaktService(get()) }
 }

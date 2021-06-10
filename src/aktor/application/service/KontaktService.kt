@@ -14,8 +14,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
 class KontaktService constructor(
-    private val kontaktRepository: IKontaktRepository,
-    private val keycloakGroupIntegration: KeycloakGroupIntegration
+    private val kontaktRepository: IKontaktRepository
 ) :
     IKontaktService {
 
@@ -23,7 +22,7 @@ class KontaktService constructor(
     override fun save(dto: KontaktSaveDto): Either<ServiceError, Kontakt> {
         return transaction {
             kontaktRepository.insert(dto).flatMap { kontakt ->
-                kontakt.right() //keycloakGroupIntegration.createGroup(kontakt.navn, kontakt.telefon, kontakt.id, kontakt.rolle?)
+                kontakt.right()
                     .bimap({ rollback(); it }, { kontakt })
             }
         }
@@ -43,7 +42,6 @@ class KontaktService constructor(
         return transaction {
             kontaktRepository.findOne(id).flatMap { kontakt ->
                 kontaktRepository.delete(id)
-                    //.flatMap { keycloakGroupIntegration.deleteGroup(kontakt.navn) }
                     .bimap({ rollback(); it }, { kontakt })
             }
         }
@@ -53,7 +51,7 @@ class KontaktService constructor(
     override fun update(dto: KontaktUpdateDto): Either<ServiceError, Kontakt> = transaction {
         getKontaktById(dto.id).flatMap { kontakt ->
             kontaktRepository.update(dto).flatMap { newKontakt ->
-                newKontakt.right() //keycloakGroupIntegration.updateGroup(kontakt.navn, newKontakt.navn)
+                newKontakt.right()
                     .bimap({ rollback(); it }, { newKontakt })
             }
         }
