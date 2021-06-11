@@ -19,12 +19,7 @@ class KontaktService constructor(
 
     @KtorExperimentalAPI
     override fun save(dto: KontaktSaveDto): Either<ServiceError, Kontakt> {
-        return transaction {
-            kontaktRepository.insert(dto).flatMap { kontakt ->
-                kontakt.right()
-                    .bimap({ rollback(); it }, { kontakt })
-            }
-        }
+        return transaction { kontaktRepository.insert(dto) }
     }
 
     override fun getKontaktById(id: UUID): Either<ServiceError, Kontakt> {
@@ -47,12 +42,7 @@ class KontaktService constructor(
     }
 
     @KtorExperimentalAPI
-    override fun update(dto: KontaktUpdateDto): Either<ServiceError, Kontakt> = transaction {
-        getKontaktById(dto.id).flatMap { kontakt ->
-            kontaktRepository.update(dto).flatMap { newKontakt ->
-                newKontakt.right()
-                    .bimap({ rollback(); it }, { newKontakt })
-            }
-        }
+    override fun update(dto: KontaktUpdateDto): Either<ServiceError, Kontakt>  {
+        return transaction { kontaktRepository.update(dto) }
     }
 }
