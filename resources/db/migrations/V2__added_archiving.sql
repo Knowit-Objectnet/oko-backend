@@ -7,12 +7,6 @@ ALTER table stasjon
 ALTER table kontakt
     ADD arkivert timestamp;
 
-ALTER table stasjon_kontakt_person
-    ADD arkivert timestamp;
-
-ALTER table partner_kontakt_person
-    ADD arkivert timestamp;
-
 ALTER table avtale
     ADD arkivert timestamp;
 
