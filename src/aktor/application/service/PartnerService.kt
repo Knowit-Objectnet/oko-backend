@@ -1,12 +1,12 @@
 package ombruk.backend.aktor.application.service
 
-import arrow.core.Either
+import arrow.core.*
+import arrow.core.extensions.either.applicative.applicative
 import arrow.core.extensions.either.monad.flatMap
-import arrow.core.left
-import arrow.core.right
-import arrow.core.rightIfNotNull
+import arrow.core.extensions.list.traverse.sequence
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.util.KtorExperimentalAPI
+import ombruk.backend.aktor.application.api.dto.KontaktGetDto
 import ombruk.backend.aktor.application.api.dto.PartnerGetDto
 import ombruk.backend.aktor.application.api.dto.PartnerSaveDto
 import ombruk.backend.aktor.application.api.dto.PartnerUpdateDto
@@ -19,7 +19,8 @@ import java.util.*
 
 class PartnerService constructor(
     private val keycloakGroupIntegration: KeycloakGroupIntegration,
-    private val partnerRepository: IPartnerRepository
+    private val partnerRepository: IPartnerRepository,
+    private val kontaktService: IKontaktService
 ) : IPartnerService {
 
     @KtorExperimentalAPI
@@ -59,7 +60,18 @@ class PartnerService constructor(
     //TODO: Handle Keycloak logic: Should probably be the same as delete.
     override fun archiveOne(id: UUID): Either<ServiceError, Unit> {
         return transaction { partnerRepository.archiveOne(id)
-            .fold({rollback(); it.left()}, { Either.right(Unit)})
+            .map{
+                    kontaktService.getKontakter(KontaktGetDto(aktorId = id))
+                        .map {
+                            it.map { kontakt ->
+                                kontaktService.deleteKontaktById(kontakt.id)
+                            }
+                                .sequence(Either.applicative())
+                                .flatMap { Either.Right(Unit) }
+                        }
+                }
+            .flatMap { it.flatMap { it } }
+            .fold({rollback(); it.left()}, { it.right()})
         }
     }
 }

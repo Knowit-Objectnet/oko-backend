@@ -8,6 +8,7 @@ import io.mockk.mockkClass
 import ombruk.backend.aktor.application.api.dto.PartnerGetDto
 import ombruk.backend.aktor.application.api.dto.PartnerSaveDto
 import ombruk.backend.aktor.application.api.dto.PartnerUpdateDto
+import ombruk.backend.aktor.application.service.KontaktService
 import ombruk.backend.aktor.application.service.PartnerService
 import ombruk.backend.aktor.domain.entity.Partner
 import ombruk.backend.aktor.domain.enum.StasjonType
@@ -30,12 +31,13 @@ class PartnerTest {
     private lateinit var partnerService: PartnerService
     private var partnerRepository = PartnerRepository()
     private var keycloakGroupIntegration = mockkClass(KeycloakGroupIntegration::class)
+    private var kontaktService = mockkClass(KontaktService::class)
 
     @OptIn(KtorExperimentalAPI::class)
     @BeforeAll
     fun setup() {
         testContainer.start()
-        partnerService = PartnerService(keycloakGroupIntegration, partnerRepository)//PartnerService(partnerRepository, keycloakGroupIntegration)
+        partnerService = PartnerService(keycloakGroupIntegration, partnerRepository, kontaktService)//PartnerService(partnerRepository, keycloakGroupIntegration)
     }
 
     private lateinit var navn: String

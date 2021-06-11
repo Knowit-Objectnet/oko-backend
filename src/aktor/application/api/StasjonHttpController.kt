@@ -62,7 +62,7 @@ fun Routing.stasjoner(stasjonService: IStasjonService) {
 
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
                     .flatMap { form.validOrError() }
-                    .flatMap { stasjonService.delete(it.id) }
+                    .flatMap { stasjonService.archiveOne(it.id) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }

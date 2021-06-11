@@ -8,6 +8,7 @@ import io.mockk.mockkClass
 import ombruk.backend.aktor.application.api.dto.StasjonSaveDto
 import ombruk.backend.aktor.application.api.dto.StasjonFindDto
 import ombruk.backend.aktor.application.api.dto.StasjonUpdateDto
+import ombruk.backend.aktor.application.service.KontaktService
 import ombruk.backend.aktor.application.service.StasjonService
 import ombruk.backend.aktor.domain.entity.Stasjon
 import ombruk.backend.aktor.domain.enum.StasjonType
@@ -35,12 +36,13 @@ class StasjonTest {
     private lateinit var stasjonService: StasjonService
     private var stasjonRepository = StasjonRepository()
     private var keycloakGroupIntegration = mockkClass(KeycloakGroupIntegration::class)
+    private var kontaktService = mockkClass(KontaktService::class)
 
     @OptIn(KtorExperimentalAPI::class)
     @BeforeAll
     fun setup() {
         testContainer.start()
-        stasjonService = StasjonService(stasjonRepository, keycloakGroupIntegration)
+        stasjonService = StasjonService(stasjonRepository, keycloakGroupIntegration, kontaktService)
     }
 
     private lateinit var navn: String
