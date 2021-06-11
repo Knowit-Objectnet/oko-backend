@@ -20,29 +20,11 @@ INSERT INTO stasjon (id, navn, type) VALUES ('e294f824-6494-41e2-b0be-aca1943e50
 
 create TABLE kontakt (
     id uuid default uuid_generate_v4() primary key,
+    aktor_id uuid not null,
     navn varchar(255) not null,
-    telefon varchar(20) not null,
-    rolle varchar(40)
-);
-
-create TABLE stasjon_kontakt_person (
-    id uuid default uuid_generate_v4() primary key,
-    stasjon_id uuid not null,
-    navn varchar(255) not null,
-    telefon varchar(20) not null,
-    rolle varchar(50),
-
-    FOREIGN KEY (stasjon_id) references stasjon on delete cascade
-);
-
-create TABLE partner_kontakt_person (
-    id uuid default uuid_generate_v4() primary key,
-    partner_id uuid not null,
-    navn varchar(255) not null,
-    telefon varchar(20) not null,
-    rolle varchar(50),
-
-    FOREIGN KEY (partner_id) references partner on delete cascade
+    telefon varchar(20),
+    epost varchar(255),
+    rolle varchar(50)
 );
 
 create TABLE avtale (
