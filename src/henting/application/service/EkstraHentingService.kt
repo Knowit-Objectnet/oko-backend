@@ -1,12 +1,15 @@
 package ombruk.backend.henting.application.service
 
 import arrow.core.Either
+import arrow.core.left
+import arrow.core.right
 import io.ktor.locations.*
 import ombruk.backend.henting.application.api.dto.EkstraHentingDeleteDto
 import ombruk.backend.henting.application.api.dto.EkstraHentingFindDto
 import ombruk.backend.henting.application.api.dto.EkstraHentingSaveDto
 import ombruk.backend.henting.application.api.dto.EkstraHentingUpdateDto
 import ombruk.backend.henting.domain.entity.EkstraHenting
+import ombruk.backend.henting.domain.params.EkstraHentingFindParams
 import ombruk.backend.henting.domain.port.IEkstraHentingRepository
 import ombruk.backend.shared.error.ServiceError
 import ombruk.backend.utlysning.application.service.UtlysningService
@@ -35,4 +38,25 @@ class EkstraHentingService(val ekstraHentingRepository: IEkstraHentingRepository
         return transaction { ekstraHentingRepository.update(dto) }
     }
 
+    override fun archive(params: EkstraHentingFindParams): Either<ServiceError, Unit> {
+        return transaction {
+            ekstraHentingRepository.archive(params)
+                .fold(
+                    {Either.Left(ServiceError(it.message))},
+                    {Either.Right(Unit)}
+                )
+                .fold({rollback(); it.left()}, {it.right()})
+        }
+    }
+
+    override fun archiveOne(id: UUID): Either<ServiceError, Unit> {
+        return transaction {
+            ekstraHentingRepository.archiveOne(id)
+                .fold(
+                    {Either.Left(ServiceError(it.message))},
+                    {Either.Right(Unit)}
+                )
+                .fold({rollback(); it.left()}, {it.right()})
+        }
+    }
 }
