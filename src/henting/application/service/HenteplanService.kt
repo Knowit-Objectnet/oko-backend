@@ -13,6 +13,7 @@ import ombruk.backend.henting.domain.port.IHenteplanRepository
 import ombruk.backend.shared.error.ServiceError
 import ombruk.backend.shared.utils.LocalDateTimeProgressionWithDayFrekvens
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.time.LocalDateTime
 import java.util.*
 
 @KtorExperimentalLocationsAPI
@@ -91,7 +92,7 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
             henteplanRepository.archiveOne(id)
                 .fold(
                     {Either.Left(ServiceError(it.message))},
-                    { planlagtHentingService.archive(PlanlagtHentingFindDto(henteplanId = it.id))}
+                    { planlagtHentingService.archive(PlanlagtHentingFindDto(henteplanId = it.id, after = LocalDateTime.now()))}
                 )
                 .fold({rollback(); it.left()}, {it.right()})
         }
@@ -103,7 +104,7 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
                 .fold(
                     {Either.Left(ServiceError(it.message))},
                     { henteplan ->
-                        henteplan.map { planlagtHentingService.archive(PlanlagtHentingFindDto(henteplanId = it.id)) }
+                        henteplan.map { planlagtHentingService.archive(PlanlagtHentingFindDto(henteplanId = it.id, after = LocalDateTime.now())) }
                             .sequence(Either.applicative())
                             .fix()
                             .map { it.fix() }
