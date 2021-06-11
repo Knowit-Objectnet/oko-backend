@@ -8,7 +8,6 @@ import io.ktor.util.*
 import ombruk.backend.aktor.application.api.dto.*
 import ombruk.backend.aktor.domain.entity.Kontakt
 import ombruk.backend.aktor.domain.port.IKontaktRepository
-import ombruk.backend.shared.api.KeycloakGroupIntegration
 import ombruk.backend.shared.error.ServiceError
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
