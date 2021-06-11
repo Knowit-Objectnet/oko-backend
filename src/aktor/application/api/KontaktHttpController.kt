@@ -38,9 +38,10 @@ fun Routing.kontakter(kontaktService: IKontaktService) {
                 .also { (code, response) -> call.respond(code, response) }
         }
 
+        //TODO: Correct station and partner are authorized for updating this kontakt
         authenticate {
             patch {
-                Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
+                Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.Partner, Roles.ReuseStation), call)
                     .flatMap { receiveCatching { call.receive<KontaktUpdateDto>() } }
                     .flatMap { it.validOrError() }
                     .flatMap { kontaktService.update(it) }
@@ -49,9 +50,10 @@ fun Routing.kontakter(kontaktService: IKontaktService) {
             }
         }
 
+        //TODO: Correct station and partner are authorized for saving this kontakt to a station or partner
         authenticate {
             post {
-                Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
+                Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.Partner, Roles.ReuseStation), call)
                     .flatMap { receiveCatching { call.receive<KontaktSaveDto>() } }
                     .flatMap { it.validOrError() }
                     .flatMap { kontaktService.save(it) }
@@ -60,15 +62,15 @@ fun Routing.kontakter(kontaktService: IKontaktService) {
             }
         }
 
+        //TODO: Correct station and partner are authorized for deleting this kontakt
         authenticate {
             delete<KontaktDeleteDto> { form ->
-                Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
+                Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.Partner, Roles.ReuseStation), call)
                     .flatMap { form.validOrError() }
                     .flatMap { kontaktService.deleteKontaktById(it.id) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }
         }
-
     }
 }

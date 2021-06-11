@@ -9,13 +9,12 @@ import org.valiktor.validate
 import java.util.*
 
 @KtorExperimentalLocationsAPI
-@Location("/{id}") // TODO: remove?
+@Location("/{id}")
 data class KontaktGetByIdDto(
 val id: UUID
 ) : IForm<KontaktGetByIdDto> {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
-            //FIXME: Validate UUID?
         }
     }
 }

@@ -12,12 +12,10 @@ import java.util.*
 
 @KtorExperimentalLocationsAPI
 @Location("/{id}")
-//FIXME Path for kontakter?
 data class KontaktDeleteDto(
     @Serializable(with = UUIDSerializer::class) val id: UUID) : IForm<KontaktDeleteDto> {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
-            //FIXME: Validate UUID?
         }
     }
 

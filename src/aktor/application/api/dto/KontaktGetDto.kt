@@ -4,6 +4,7 @@ import io.ktor.locations.*
 import ombruk.backend.aktor.domain.model.KontaktFindParams
 import ombruk.backend.aktor.domain.model.PartnerFindParams
 import ombruk.backend.shared.form.IForm
+import ombruk.backend.shared.utils.validation.isNorwegianPhoneNumber
 import ombruk.backend.shared.utils.validation.runCatchingValidation
 import org.valiktor.functions.isNotBlank
 import org.valiktor.validate
@@ -22,9 +23,6 @@ data class KontaktGetDto(
     override fun validOrError() = runCatchingValidation {
         validate(this) {
             navn?.let { validate(KontaktGetDto::navn).isNotBlank() }
-//            telefon?.let { validate(PartnerGetDto::telefon).isNorwegianPhoneNumber() }
-            //FIXME: Validate UUID?
         }
-
     }
 }

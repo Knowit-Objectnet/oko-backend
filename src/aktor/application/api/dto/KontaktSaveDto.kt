@@ -20,9 +20,7 @@ data class KontaktSaveDto(
 ) : IForm<KontaktSaveDto>, KontaktCreateParams() {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
-            validate(KontaktSaveDto::navn).isNotBlank() //.isUniqueInRepository(PartnerRepository)
-            //FIXME: Validate UUID?
-            //FIXME: Validate telefon?
+            validate(KontaktSaveDto::navn).isNotBlank()
         }
     }
 

@@ -14,11 +14,11 @@ import java.util.*
 interface IKontaktService {
 
     /**
-     * Saves a [Partner] to both the database and to Keycloak. If keycloak saving fails, the database transaction
+     * Saves a [Kontakt] to both the database and to Keycloak. If keycloak saving fails, the database transaction
      * rolls back.
      *
-     * @param dto A custom object used to edit existing partnere. [dto] id must belong to an existing user.
-     * @return An [Either] object consisting of [ServiceError] on failure or the ID of the saved partner on success.
+     * @param dto A custom object used to edit existing kontakter. [dto] id must belong to an existing user.
+     * @return An [Either] object consisting of [ServiceError] on failure or the ID of the saved kontakt on success.
      */
     fun save(dto: KontaktSaveDto): Either<ServiceError, Kontakt>
 
