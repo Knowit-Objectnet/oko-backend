@@ -56,7 +56,7 @@ fun Routing.henteplaner(henteplanService: IHenteplanService) {
             delete<HenteplanDeleteDto> { form ->
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
                     .flatMap { form.validOrError() }
-                    .flatMap { henteplanService.delete(form) }
+                    .flatMap { henteplanService.archiveOne(form.id) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }

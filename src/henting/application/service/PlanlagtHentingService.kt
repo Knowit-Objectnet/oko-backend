@@ -10,6 +10,7 @@ import io.ktor.locations.*
 import ombruk.backend.henting.application.api.dto.*
 import ombruk.backend.henting.domain.entity.PlanlagtHenting
 import ombruk.backend.henting.domain.entity.PlanlagtHentingWithParents
+import ombruk.backend.henting.domain.params.PlanlagtHentingFindParams
 import ombruk.backend.henting.domain.port.IPlanlagtHentingRepository
 import ombruk.backend.shared.error.ServiceError
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -53,6 +54,20 @@ class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepo
                 .fix()
                 .map { it.fix() }
                 .fold({rollback(); it.left()}, {it.right()})
+        }
+    }
+
+    override fun archiveOne(id: UUID): Either<ServiceError, Unit> {
+        return transaction {
+            planlagtHentingRepository.archiveOne(id)
+                .fold({rollback(); it.left()}, { Either.right(Unit)})
+        }
+    }
+
+    override fun archive(params: PlanlagtHentingFindParams): Either<ServiceError, Unit> {
+        return transaction {
+            planlagtHentingRepository.archive(params)
+                .fold({rollback(); it.left()}, { Either.right(Unit)})
         }
     }
 

@@ -8,10 +8,12 @@ import io.ktor.locations.*
 import ombruk.backend.henting.application.api.dto.*
 import ombruk.backend.henting.domain.entity.Henteplan
 import ombruk.backend.henting.domain.entity.PlanlagtHentingWithParents
+import ombruk.backend.henting.domain.params.HenteplanFindParams
 import ombruk.backend.henting.domain.port.IHenteplanRepository
 import ombruk.backend.shared.error.ServiceError
 import ombruk.backend.shared.utils.LocalDateTimeProgressionWithDayFrekvens
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.time.LocalDateTime
 import java.util.*
 
 @KtorExperimentalLocationsAPI
@@ -25,7 +27,7 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
         return planlagtHentingService.batchSaveForHenteplan(PlanlagtHentingBatchPostDto(postDto, dates))
     }
 
-    fun appendPlanlagtHentinger(dto: HenteplanSaveDto, id: UUID, henteplan: Henteplan) =
+    fun appendPlanlagtHentinger(dto: HenteplanSaveDto, id: UUID, henteplan: Henteplan): Either<ServiceError, Henteplan> =
         run {
             val hentinger: Either<ServiceError, List<PlanlagtHentingWithParents>> = createPlanlagtHentinger(dto, id)
             when (hentinger) {
@@ -83,5 +85,33 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
     override fun update(dto: HenteplanUpdateDto): Either<ServiceError, Henteplan> {
         // TODO: Add planlagt henting update logic
         return transaction { henteplanRepository.update(dto) }
+    }
+
+    override fun archiveOne(id: UUID): Either<ServiceError, Unit> {
+        return transaction {
+            henteplanRepository.archiveOne(id)
+                .fold(
+                    {Either.Left(ServiceError(it.message))},
+                    { planlagtHentingService.archive(PlanlagtHentingFindDto(henteplanId = it.id, after = LocalDateTime.now()))}
+                )
+                .fold({rollback(); it.left()}, {it.right()})
+        }
+    }
+
+    override fun archive(params: HenteplanFindParams): Either<ServiceError, Unit> {
+        return transaction {
+            henteplanRepository.archive(params)
+                .fold(
+                    {Either.Left(ServiceError(it.message))},
+                    { henteplan ->
+                        henteplan.map { planlagtHentingService.archive(PlanlagtHentingFindDto(henteplanId = it.id, after = LocalDateTime.now())) }
+                            .sequence(Either.applicative())
+                            .fix()
+                            .map { it.fix() }
+                            .flatMap { Either.right(Unit) }
+                    }
+                )
+                .fold({rollback(); it.left()}, {it.right()})
+        }
     }
 }

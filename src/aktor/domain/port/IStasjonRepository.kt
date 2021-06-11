@@ -14,4 +14,5 @@ interface IStasjonRepository {
     fun insert(params: StasjonCreateParams): Either<RepositoryError, Stasjon>
     fun delete(id: UUID): Either<RepositoryError, Unit>
     fun update(params: StasjonUpdateParams): Either<RepositoryError, Stasjon>
+    fun archiveOne(id: UUID): Either<RepositoryError, Stasjon>
 }

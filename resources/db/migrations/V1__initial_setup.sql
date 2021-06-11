@@ -2,12 +2,14 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 create TABLE partner (
     id uuid default uuid_generate_v4() primary key,
+    arkivert timestamp,
     navn varchar(255) not null unique,
     ideell boolean
 );
 
 create TABLE stasjon (
     id uuid default uuid_generate_v4() primary key,
+    arkivert timestamp,
     navn varchar(255) not null,
     type varchar not null
 );
@@ -20,6 +22,7 @@ INSERT INTO stasjon (id, navn, type) VALUES ('e294f824-6494-41e2-b0be-aca1943e50
 
 create TABLE kontakt (
     id uuid default uuid_generate_v4() primary key,
+    arkivert timestamp,
     aktor_id uuid not null,
     navn varchar(255) not null,
     telefon varchar(20),
@@ -29,6 +32,7 @@ create TABLE kontakt (
 
 create TABLE avtale (
     id uuid default uuid_generate_v4() primary key,
+    arkivert timestamp,
     aktor_id uuid not null,
     type varchar not null,
     start_dato date,
@@ -37,6 +41,7 @@ create TABLE avtale (
 
 create TABLE henteplan (
     id uuid default uuid_generate_v4() primary key,
+    arkivert timestamp,
     avtale_id uuid not null,
     stasjon_id uuid not null,
     frekvens varchar not null,
@@ -50,6 +55,7 @@ create TABLE henteplan (
 
 create TABLE planlagt_henting (
     id uuid default uuid_generate_v4() primary key,
+    arkivert timestamp,
     start_tidspunkt timestamp not null,
     slutt_tidspunkt timestamp not null,
     merknad text,
@@ -60,6 +66,7 @@ create TABLE planlagt_henting (
 
 create TABLE ekstra_henting (
     id uuid default uuid_generate_v4() primary key,
+    arkivert timestamp,
     start_tidspunkt timestamp not null,
     slutt_tidspunkt timestamp not null,
     merknad text,
@@ -69,6 +76,7 @@ create TABLE ekstra_henting (
 
 create TABLE kategori (
     id uuid default uuid_generate_v4() primary key,
+    arkivert timestamp,
     navn varchar(255) not null
 );
 
@@ -87,6 +95,7 @@ INSERT INTO kategori (id, navn) VALUES ('0e3c0a22-e1ee-4a97-afc3-c0f8b2714e88', 
 
 create TABLE utlysning (
     id uuid default uuid_generate_v4() primary key,
+    arkivert timestamp,
     partner_id uuid not null,
     henting_id uuid not null,
     partner_pameldt timestamp,

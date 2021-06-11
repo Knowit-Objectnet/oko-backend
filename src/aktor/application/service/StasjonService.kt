@@ -1,8 +1,13 @@
 package ombruk.backend.aktor.application.service
 
 import arrow.core.Either
+import arrow.core.extensions.either.applicative.applicative
+import arrow.core.extensions.either.monad.flatMap
+import arrow.core.extensions.list.traverse.sequence
 import arrow.core.flatMap
+import arrow.core.left
 import arrow.core.right
+import ombruk.backend.aktor.application.api.dto.KontaktGetDto
 import ombruk.backend.aktor.application.api.dto.StasjonSaveDto
 import ombruk.backend.aktor.application.api.dto.StasjonFindDto
 import ombruk.backend.aktor.application.api.dto.StasjonUpdateDto
@@ -16,7 +21,8 @@ import java.util.*
 
 class StasjonService(
     val stasjonRepository: IStasjonRepository,
-    val keycloakGroupIntegration: KeycloakGroupIntegration
+    val keycloakGroupIntegration: KeycloakGroupIntegration,
+    val kontaktService: IKontaktService
 ) :
     IStasjonService {
     override fun save(dto: StasjonSaveDto): Either<ServiceError, Stasjon> {
@@ -52,6 +58,24 @@ class StasjonService(
                 newStasjon.right() //keycloakGroupIntegration.updateGroup(stasjon.navn, newStasjon.navn)
                     .bimap({ rollback(); it }, { newStasjon })
             }
+        }
+    }
+
+    //TODO: Handle Keycloak logic: Should probably be the same as delete.
+    override fun archiveOne(id: UUID): Either<ServiceError, Unit> {
+        return transaction { stasjonRepository.archiveOne(id)
+            .map{
+                kontaktService.getKontakter(KontaktGetDto(aktorId = id))
+                    .map {
+                        it.map { kontakt ->
+                            kontaktService.deleteKontaktById(kontakt.id)
+                        }
+                            .sequence(Either.applicative())
+                            .flatMap { Either.Right(Unit) }
+                    }
+            }
+            .flatMap { it.flatMap { it } }
+            .fold({rollback(); it.left()}, { it.right()})
         }
     }
 }

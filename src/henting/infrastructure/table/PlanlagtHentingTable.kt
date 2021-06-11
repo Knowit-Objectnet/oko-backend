@@ -1,9 +1,9 @@
 package ombruk.backend.henting.infrastructure.table
 
-import org.jetbrains.exposed.dao.id.UUIDTable
+import ombruk.backend.shared.database.ArchivableUUIDTable
 import org.jetbrains.exposed.sql.`java-time`.datetime
 
-object PlanlagtHentingTable: UUIDTable("planlagt_henting") {
+object PlanlagtHentingTable: ArchivableUUIDTable("planlagt_henting") {
     val startTidspunkt = datetime("start_tidspunkt")
     val sluttTidspunkt = datetime("slutt_tidspunkt")
     val merknad = text("merknad").nullable()

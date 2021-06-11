@@ -2,12 +2,10 @@ package ombruk.backend.henting.infrastructure.table
 
 import ombruk.backend.aktor.infrastructure.table.StasjonTable
 import ombruk.backend.avtale.infrastructure.table.AvtaleTable
-import ombruk.backend.henting.domain.model.HenteplanFrekvens
-import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.dao.id.UUIDTable
+import ombruk.backend.shared.database.ArchivableUUIDTable
 import org.jetbrains.exposed.sql.`java-time`.datetime
 
-object HenteplanTable: UUIDTable("henteplan") {
+object HenteplanTable: ArchivableUUIDTable("henteplan") {
     val avtaleId = uuid("avtale_id").references(AvtaleTable.id)
     val stasjonId = uuid("stasjon_id").references(StasjonTable.id)
     val frekvens = varchar("frekvens", 255)

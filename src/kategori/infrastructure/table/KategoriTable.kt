@@ -1,7 +1,7 @@
 package ombruk.backend.kategori.infrastructure.table
 
-import org.jetbrains.exposed.dao.id.UUIDTable
+import ombruk.backend.shared.database.ArchivableUUIDTable
 
-object KategoriTable : UUIDTable("kategori"){
+object KategoriTable : ArchivableUUIDTable("kategori"){
     val navn = varchar("navn", 255)
 }

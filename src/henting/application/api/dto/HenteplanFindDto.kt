@@ -29,6 +29,7 @@ data class HenteplanFindDto(
     @Serializable(with = LocalDateTimeSerializer::class) override val after: LocalDateTime? = null,
     override val ukedag: DayOfWeek? = null,
     @Serializable(with = UUIDSerializer::class) override val id: UUID? = null,
+    override val arkivert: Boolean = false
 ) : IForm<HenteplanFindDto>, HenteplanFindParams() {
     override fun validOrError(): Either<ValidationError, HenteplanFindDto> = runCatchingValidation {
         validate(this) {

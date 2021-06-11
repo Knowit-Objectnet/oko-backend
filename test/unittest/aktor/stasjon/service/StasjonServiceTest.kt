@@ -6,6 +6,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkClass
+import ombruk.backend.aktor.application.service.KontaktService
 import ombruk.backend.aktor.application.service.StasjonService
 import ombruk.backend.aktor.domain.entity.Stasjon
 import ombruk.backend.aktor.domain.port.IStasjonRepository
@@ -27,10 +28,11 @@ internal class PartnerServiceTest {
     private lateinit var stasjonService: StasjonService
     private var stasjonRepository = mockkClass(IStasjonRepository::class)
     private var keycloakGroupIntegration = mockkClass(KeycloakGroupIntegration::class)
+    private var kontaktService = mockkClass(KontaktService::class)
 
     @BeforeEach
     fun setup() {
-        stasjonService = StasjonService(stasjonRepository, keycloakGroupIntegration)
+        stasjonService = StasjonService(stasjonRepository, keycloakGroupIntegration, kontaktService)
         mockDatabase()
     }
 
