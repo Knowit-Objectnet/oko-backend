@@ -13,7 +13,6 @@ import java.util.*
 @Serializable
 data class KontaktUpdateDto(
     @Serializable(with = UUIDSerializer::class) override val id: UUID,
-    @Serializable(with = UUIDSerializer::class) override val aktorId: UUID,
     override val navn: String? = null,
     override val telefon: String? = null,
     override val epost: String? = null,

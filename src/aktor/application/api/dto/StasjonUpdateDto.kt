@@ -14,14 +14,12 @@ import java.util.*
 @Serializable
 data class StasjonUpdateDto(
     @Serializable(with = UUIDSerializer::class) override val id: UUID,
-    override val navn: String?,
-    override val type: StasjonType?
+    override val navn: String? = null,
+    override val type: StasjonType? = null
 ) : IForm<StasjonUpdateDto>, StasjonUpdateParams() {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
             navn?.let{validate(StasjonUpdateDto::navn).isNotBlank()}
-//            validate(StationUpdateForm::name).isUniqueInRepository(StationRepository)
-            //FIXME: Validate UUID?
         }
     }
 }

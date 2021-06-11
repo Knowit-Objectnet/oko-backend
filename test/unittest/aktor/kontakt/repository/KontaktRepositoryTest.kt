@@ -134,7 +134,6 @@ class KontaktRepositoryTest {
         kontaktObj?.let {
             val updateParam = object: KontaktUpdateParams() {
                 override val id: UUID = kontaktObj!!.id
-                override val aktorId: UUID = kontaktObj!!.aktorId
                 override val navn: String = kontaktObj!!.navn
                 override val telefon: String? = kontaktObj!!.telefon
                 override val epost: String? = kontaktObj!!.epost
