@@ -2,6 +2,7 @@ package ombruk.backend.aktor.application.service
 
 import arrow.core.Either
 import arrow.core.extensions.either.monad.flatMap
+import arrow.core.left
 import arrow.core.right
 import arrow.core.rightIfNotNull
 import io.ktor.locations.KtorExperimentalLocationsAPI
@@ -52,6 +53,13 @@ class PartnerService constructor(
                 newPartner.right() //keycloakGroupIntegration.updateGroup(partner.navn, newPartner.navn)
                     .bimap({ rollback(); it }, { newPartner })
             }
+        }
+    }
+
+    //TODO: Handle Keycloak logic: Should probably be the same as delete.
+    override fun archiveOne(id: UUID): Either<ServiceError, Unit> {
+        return transaction { partnerRepository.archiveOne(id)
+            .fold({rollback(); it.left()}, { Either.right(Unit)})
         }
     }
 }

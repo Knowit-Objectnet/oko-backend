@@ -2,6 +2,7 @@ package ombruk.backend.aktor.application.service
 
 import arrow.core.Either
 import arrow.core.flatMap
+import arrow.core.left
 import arrow.core.right
 import ombruk.backend.aktor.application.api.dto.StasjonSaveDto
 import ombruk.backend.aktor.application.api.dto.StasjonFindDto
@@ -52,6 +53,13 @@ class StasjonService(
                 newStasjon.right() //keycloakGroupIntegration.updateGroup(stasjon.navn, newStasjon.navn)
                     .bimap({ rollback(); it }, { newStasjon })
             }
+        }
+    }
+
+    //TODO: Handle Keycloak logic: Should probably be the same as delete.
+    override fun archiveOne(id: UUID): Either<ServiceError, Unit> {
+        return transaction { stasjonRepository.archiveOne(id)
+            .fold({rollback(); it.left()}, { Either.right(Unit)})
         }
     }
 }
