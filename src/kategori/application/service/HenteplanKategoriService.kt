@@ -32,18 +32,19 @@ class HenteplanKategoriService(val henteplanKategoriRepository: IHenteplanKatego
 
     override fun find(dto: HenteplanKategoriFindDto): Either<ServiceError, List<HenteplanKategori>> {
         return transaction {
-            val henteplanKategorier = henteplanKategoriRepository.find(dto)
-            henteplanKategorier.fold(
-                { Either.Left(ServiceError(it.message)) },
-                {
-                    it.map { henteplanKategori ->
-                        kategoriService.findOne(henteplanKategori.kategoriId).fold(
-                            { henteplanKategori.right() },
-                            { henteplanKategori.copy(kategori = it).right() }
-                        )
-                    }.sequence(Either.applicative()).fix().map { it.fix() }
-                }
-            )
+            henteplanKategoriRepository.find(dto)
+                .fold(
+                    { Either.Left(ServiceError(it.message)) },
+                    {
+                        it.map { henteplanKategori ->
+                            kategoriService.findOne(henteplanKategori.kategoriId)
+                                .fold(
+                                    { henteplanKategori.right() },
+                                    { henteplanKategori.copy(kategori = it).right() }
+                                )
+                        }.sequence(Either.applicative()).fix().map { it.fix() }
+                    }
+                )
         }
     }
 
