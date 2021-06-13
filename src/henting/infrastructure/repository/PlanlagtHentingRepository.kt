@@ -97,7 +97,8 @@ class PlanlagtHentingRepository: RepositoryBase<PlanlagtHentingWithParents, Plan
             aktorId,
             aktorNavn,
             row[StasjonTable.id].value,
-            row[StasjonTable.navn]
+            row[StasjonTable.navn],
+            emptyList()
         )
     }
 
