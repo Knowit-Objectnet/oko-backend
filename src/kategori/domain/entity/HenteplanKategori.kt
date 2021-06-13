@@ -9,5 +9,6 @@ data class HenteplanKategori(
     @Serializable(with = UUIDSerializer::class) val id: UUID,
     @Serializable(with = UUIDSerializer::class) val hentplanId: UUID,
     @Serializable(with = UUIDSerializer::class) val kategoriId: UUID,
+    val kategori: Kategori?,
     val merknad: String?
 )
