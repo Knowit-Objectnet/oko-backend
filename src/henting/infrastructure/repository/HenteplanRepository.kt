@@ -60,7 +60,8 @@ class HenteplanRepository :
             row[table.sluttTidspunkt],
             row[table.ukedag]?.let { DayOfWeek.of(it) },
             row[table.merknad],
-            emptyList()
+            emptyList(),
+            null
         )
     }
 

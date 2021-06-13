@@ -9,13 +9,15 @@ import ombruk.backend.henting.application.api.dto.*
 import ombruk.backend.henting.domain.entity.Henteplan
 import ombruk.backend.henting.domain.entity.PlanlagtHentingWithParents
 import ombruk.backend.henting.domain.port.IHenteplanRepository
+import ombruk.backend.kategori.application.api.dto.HenteplanKategoriFindDto
+import ombruk.backend.kategori.application.service.IHenteplanKategoriService
 import ombruk.backend.shared.error.ServiceError
 import ombruk.backend.shared.utils.LocalDateTimeProgressionWithDayFrekvens
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
 @KtorExperimentalLocationsAPI
-class HenteplanService(val henteplanRepository: IHenteplanRepository, val planlagtHentingService: IPlanlagtHentingService) : IHenteplanService {
+class HenteplanService(val henteplanRepository: IHenteplanRepository, val planlagtHentingService: IPlanlagtHentingService, val henteplanKategoriService: IHenteplanKategoriService) : IHenteplanService {
 
     fun createPlanlagtHentinger(dto: HenteplanSaveDto, henteplanId: UUID): Either<ServiceError, List<PlanlagtHentingWithParents>> {
         //Find all dates
@@ -69,7 +71,21 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
     }
 
     override fun find(dto: HenteplanFindDto): Either<ServiceError, List<Henteplan>> {
-        return transaction { henteplanRepository.find(dto) }
+        return transaction {
+            henteplanRepository.find(dto)
+                .fold(
+                    { Either.Left(ServiceError(it.message)) },
+                    {
+                        it.map { henteplan ->
+                            henteplanKategoriService.find(HenteplanKategoriFindDto(henteplanId = henteplan.id))
+                                .fold(
+                                    { henteplan.right() },
+                                    { henteplan.copy(kategorier = it).right() }
+                                )
+                        }.sequence(Either.applicative()).fix().map { it.fix() }
+                    }
+                )
+        }
     }
 
     override fun findAllForAvtale(avtaleId: UUID): Either<ServiceError, List<Henteplan>> {

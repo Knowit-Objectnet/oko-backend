@@ -12,7 +12,7 @@ import org.koin.dsl.module
 
 val hentingModule = module (createdAtStart = true){
     single<IHenteplanRepository> { HenteplanRepository() }
-    single<IHenteplanService> { HenteplanService(get(), get()) }
+    single<IHenteplanService> { HenteplanService(get(), get(), get()) }
     single<IPlanlagtHentingRepository> { PlanlagtHentingRepository() }
     single<IPlanlagtHentingService> {PlanlagtHentingService(get())}
     single<IEkstraHentingRepository> { EkstraHentingRepository() }
