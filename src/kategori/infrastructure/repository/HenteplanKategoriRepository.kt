@@ -33,6 +33,7 @@ class HenteplanKategoriRepository : RepositoryBase<HenteplanKategori, HenteplanK
             row[table.id].value,
             row[table.henteplanId],
             row[table.kategoriId],
+            null,
             row[table.merknad]
         )
     }
