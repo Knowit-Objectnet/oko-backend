@@ -1,5 +1,7 @@
 package ombruk.backend.kategori.infrastructure.repository
 
+import arrow.core.left
+import arrow.core.rightIfNotNull
 import ombruk.backend.core.infrastructure.RepositoryBase
 import ombruk.backend.kategori.domain.entity.HenteplanKategori
 import ombruk.backend.kategori.domain.params.HenteplanKategoriCreateParams
@@ -18,6 +20,7 @@ class HenteplanKategoriRepository : RepositoryBase<HenteplanKategori, HenteplanK
         return table.insertAndGetId {
             it[henteplanId] = params.henteplanId
             it[kategoriId] = params.kategoriId
+            it[merknad] = params.merknad ?: ""
         }
     }
 
