@@ -92,6 +92,12 @@ INSERT INTO kategori (id, navn) VALUES ('e19d6892-d3e7-4699-9d2d-05407dfaaf7d', 
 INSERT INTO kategori (id, navn) VALUES ('b1c6de98-4a11-4526-8298-f16886e5b552', 'Sykler');
 INSERT INTO kategori (id, navn) VALUES ('0e3c0a22-e1ee-4a97-afc3-c0f8b2714e88', 'Verktøy');
 
+create TABLE henteplan_kategori (
+    id uuid default uuid_generate_v4() primary key,
+    henteplan_id uuid not null,
+    kategori_id uuid not null,
+    merknad varchar(255)
+);
 
 create TABLE utlysning (
     id uuid default uuid_generate_v4() primary key,
