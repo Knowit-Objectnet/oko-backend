@@ -101,6 +101,7 @@ INSERT INTO kategori (id, navn) VALUES ('7febf1d5-35d7-4065-9d2c-4a307c154845', 
 INSERT INTO kategori (id, navn) VALUES ('e19d6892-d3e7-4699-9d2d-05407dfaaf7d', 'Store møbler (sofaer, vitrineskap, spisebord)');
 INSERT INTO kategori (id, navn) VALUES ('b1c6de98-4a11-4526-8298-f16886e5b552', 'Sykler');
 INSERT INTO kategori (id, navn) VALUES ('0e3c0a22-e1ee-4a97-afc3-c0f8b2714e88', 'Verktøy');
+INSERT INTO kategori (id, navn) VALUES ('0abd1cf6-dc26-4dc0-9b51-8ce344f95a28', 'Diverse');
 
 create TABLE henteplan_kategori (
     id uuid default uuid_generate_v4() primary key,
