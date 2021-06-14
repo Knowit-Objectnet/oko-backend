@@ -10,13 +10,17 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import ombruk.backend.henting.application.api.dto.*
 import ombruk.backend.henting.application.service.IHenteplanService
+import ombruk.backend.kategori.application.api.dto.HenteplanKategoriFindDto
+import ombruk.backend.kategori.application.api.dto.HenteplanKategoriSaveDto
+import ombruk.backend.kategori.application.service.IHenteplanKategoriService
 import ombruk.backend.shared.api.Authorization
 import ombruk.backend.shared.api.Roles
 import ombruk.backend.shared.api.generateResponse
 import ombruk.backend.shared.api.receiveCatching
+import java.util.*
 
 @KtorExperimentalLocationsAPI
-fun Routing.henteplaner(henteplanService: IHenteplanService) {
+fun Routing.henteplaner(henteplanService: IHenteplanService, henteplanKategoriService: IHenteplanKategoriService) {
 
     route("/henteplaner") {
 
@@ -70,6 +74,26 @@ fun Routing.henteplaner(henteplanService: IHenteplanService) {
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }
+        }
+
+
+        authenticate {
+            post("/{henteplanId}/kategorier") {
+                Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
+                    .flatMap { receiveCatching { call.receive<HenteplanKategoriSaveDto>() } }
+                    .flatMap { it.validOrError() }
+                    .flatMap { henteplanKategoriService.save(it) }
+                    .run { generateResponse(this) }
+                    .also { (code, response) -> call.respond(code, response) }
+            }
+        }
+
+        get<HenteplanKategoriFindDto> { form ->
+            println("form: $form")
+            form.validOrError()
+                .flatMap { henteplanKategoriService.find(form) }
+                .run { generateResponse(this) }
+                .also { (code, response) -> call.respond(code, response) }
         }
     }
 }

@@ -1,6 +1,7 @@
 package ombruk.backend.henting.domain.entity
 
 import kotlinx.serialization.Serializable
+import ombruk.backend.kategori.domain.entity.HenteplanKategori
 import ombruk.backend.shared.model.serializer.LocalDateTimeSerializer
 import shared.model.serializer.UUIDSerializer
 import java.time.LocalDateTime
@@ -28,5 +29,6 @@ data class PlanlagtHentingWithParents(
     @Serializable(with = UUIDSerializer::class) val aktorId: UUID,
     val aktorNavn: String,
     @Serializable(with = UUIDSerializer::class) val stasjonId: UUID,
-    val stasjonNavn: String
+    val stasjonNavn: String,
+    val kategorier: List<HenteplanKategori>?
 ) : Henting()
