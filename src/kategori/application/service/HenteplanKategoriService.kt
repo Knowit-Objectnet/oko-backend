@@ -8,6 +8,7 @@ import arrow.core.left
 import arrow.core.right
 import ombruk.backend.kategori.application.api.dto.*
 import ombruk.backend.kategori.domain.entity.HenteplanKategori
+import ombruk.backend.kategori.domain.params.HenteplanKategoriFindParams
 import ombruk.backend.kategori.domain.port.IHenteplanKategoriRepository
 import ombruk.backend.kategori.domain.port.IKategoriRepository
 import ombruk.backend.shared.error.RepositoryError
@@ -55,4 +56,15 @@ class HenteplanKategoriService(val henteplanKategoriRepository: IHenteplanKatego
         }
     }
 
+    override fun archive(params: HenteplanKategoriFindParams): Either<ServiceError, Unit> {
+        return transaction {
+            henteplanKategoriRepository.archive(params).map {}
+        }
+    }
+
+    override fun archiveOne(id: UUID): Either<ServiceError, Unit> {
+        return transaction {
+            henteplanKategoriRepository.archiveOne(id).map {}
+        }
+    }
 }

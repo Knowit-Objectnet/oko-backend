@@ -12,4 +12,6 @@ interface IKategoriRepository {
     fun delete(id: UUID): Either<RepositoryError, Unit>
     fun findOne(id: UUID): Either<RepositoryError, Kategori>
     fun find(params: KategoriFindParams): Either<RepositoryError, List<Kategori>>
+    fun archive(params: KategoriFindParams): Either<RepositoryError, List<Kategori>>
+    fun archiveOne(id: UUID): Either<RepositoryError, Kategori>
 }
