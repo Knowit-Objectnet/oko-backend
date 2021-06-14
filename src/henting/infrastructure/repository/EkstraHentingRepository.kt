@@ -50,5 +50,14 @@ class EkstraHentingRepository :
         )
     }
 
+    override fun archiveCondition(params: EkstraHentingFindParams): Op<Boolean>? {
+        return Op.TRUE
+            .andIfNotNull(params.id){table.id eq params.id}
+            .andIfNotNull(params.stasjonId){table.stasjonId eq params.stasjonId!!}
+            .andIfNotNull(params.before){table.sluttTidspunkt.lessEq(params.before!!)}
+            .andIfNotNull(params.after){table.startTidspunkt.greaterEq(params.after!!)}
+            .andIfNotNull(params.merknad){Op.FALSE} //Not implemented
+    }
+
     override val table = EkstraHentingTable
 }

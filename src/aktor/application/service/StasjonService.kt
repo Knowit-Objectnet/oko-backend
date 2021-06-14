@@ -19,6 +19,7 @@ import ombruk.backend.henting.application.service.IHenteplanService
 import ombruk.backend.shared.api.KeycloakGroupIntegration
 import ombruk.backend.shared.error.ServiceError
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.time.LocalDateTime
 import java.util.*
 
 class StasjonService(
@@ -96,7 +97,11 @@ class StasjonService(
                     .flatMap { it }
                     .map { henteplanService.archive(HenteplanFindDto(stasjonId = stasjon.id)) }.flatMap { it }
                     .map { avtaleService.archive(AvtaleFindDto(aktorId = stasjon.id)) }.flatMap { it }
-                    .map { ekstraHentingService.archive(EkstraHentingFindDto(stasjonId = stasjon.id)) }.flatMap { it }
+                    .map {
+                        ekstraHentingService.archive(
+                            EkstraHentingFindDto(stasjonId = stasjon.id, after = LocalDateTime.now())
+                        )
+                    }.flatMap { it }
             }
             .flatMap { it }
             .fold({rollback(); it.left()}, { it.right()})
