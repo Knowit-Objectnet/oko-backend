@@ -78,7 +78,7 @@ fun Routing.henteplaner(henteplanService: IHenteplanService, henteplanKategoriSe
 
 
         authenticate {
-            post("/{id}/kategorier") {
+            post("/{henteplanId}/kategorier") {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
                     .flatMap { receiveCatching { call.receive<HenteplanKategoriSaveDto>() } }
                     .flatMap { it.validOrError() }
