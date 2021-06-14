@@ -130,13 +130,15 @@ abstract class RepositoryBase<Entity : Any, EntityParams, EntityUpdateParams: Up
             .fold(
                 //Return right if more than 1 partner has been updated. Else, return an Error
                 {
-                    Either.cond(it > 0,
-                        { logger.info("$it entities archived"); find(params, true) },
-                        { RepositoryError.NoRowsFound("${params.id} not found") })
+                    if (it > 0) {
+                        logger.info("$it entities archived");
+                        find(params, true)
+                    }
+                    else emptyList<Entity>().right()
+
                 },
                 { RepositoryError.UpdateError(it.message).left() }
             )
-            .flatMap { it }
     }
 
     fun find(params: EntityFindParams) = find(params, false)
