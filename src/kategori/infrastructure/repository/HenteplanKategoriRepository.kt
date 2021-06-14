@@ -27,7 +27,9 @@ class HenteplanKategoriRepository : RepositoryBase<HenteplanKategori, HenteplanK
     override fun prepareQuery(params: HenteplanKategoriFindParams): Pair<Query, List<Alias<Table>>?> {
         val query = table.selectAll()
         params.id?.let { query.andWhere { table.id eq it } }
-        //params.henteplanId?.let { query.andWhere { table.navn eq it } }
+        params.henteplanId?.let { query.andWhere { table.henteplanId eq it } }
+        params.kategoriId?.let { query.andWhere { table.kategoriId eq it } }
+        params.merknad?.let { query.andWhere { table.merknad eq it } }
         return Pair(query, null)
     }
 
