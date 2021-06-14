@@ -14,6 +14,7 @@ import ombruk.backend.henting.domain.entity.Henteplan
 import ombruk.backend.henting.domain.entity.PlanlagtHentingWithParents
 import ombruk.backend.henting.domain.model.HenteplanFrekvens
 import ombruk.backend.henting.infrastructure.repository.HenteplanRepository
+import ombruk.backend.kategori.application.service.HenteplanKategoriService
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -33,6 +34,7 @@ internal class HenteplanServiceTest {
     private lateinit var henteplanService: HenteplanService
     private val henteplanRepository = mockkClass(HenteplanRepository::class)
     private val planlagtHentingService: PlanlagtHentingService = mockkClass(PlanlagtHentingService::class)
+    private val henteplanKategoriService = mockkClass(HenteplanKategoriService::class)
 
     private lateinit var henteplanPostDto : HenteplanSaveDto
     private lateinit var henteplan : Henteplan
@@ -40,7 +42,7 @@ internal class HenteplanServiceTest {
     @BeforeEach
     fun setUp() {
         mockDatabase()
-        henteplanService = HenteplanService(henteplanRepository, planlagtHentingService)
+        henteplanService = HenteplanService(henteplanRepository, planlagtHentingService, henteplanKategoriService)
 
         henteplanPostDto = HenteplanSaveDto(
             UUID.randomUUID(),
@@ -61,6 +63,7 @@ internal class HenteplanServiceTest {
             henteplanPostDto.sluttTidspunkt,
             henteplanPostDto.ukedag,
             henteplanPostDto.merknad,
+            emptyList(),
             emptyList()
         )
     }
