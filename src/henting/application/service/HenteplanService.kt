@@ -81,7 +81,6 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
     }
 
     override fun update(dto: HenteplanUpdateDto): Either<ServiceError, Henteplan> {
-        // TODO: Add planlagt henting update logic
         return transaction { henteplanRepository.update(dto) }
     }
 }

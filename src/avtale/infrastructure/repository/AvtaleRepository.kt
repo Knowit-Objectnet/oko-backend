@@ -22,8 +22,13 @@ class AvtaleRepository : RepositoryBase<Avtale, AvtaleCreateParams, AvtaleUpdate
         }
     }
 
+    //TODO: Sjekk riktig dato, og evt. endringer i henteplan
     override fun updateQuery(params: AvtaleUpdateParams): Int {
-        TODO("Not yet implemented")
+        return table.update( { table.id eq params.id }) { row ->
+            params.type?.let { row[type] = it.name }
+            params.startDato?.let { row[startDato] = it }
+            params.sluttDato?.let { row[sluttDato] = it }
+        }
     }
 
     override fun prepareQuery(params: AvtaleFindParams): Pair<Query, List<Alias<Table>>?> {

@@ -4,6 +4,7 @@ import arrow.core.Either
 import avtale.application.api.dto.AvtaleSaveDto
 import ombruk.backend.avtale.application.api.dto.AvtaleDeleteDto
 import ombruk.backend.avtale.application.api.dto.AvtaleFindDto
+import ombruk.backend.avtale.application.api.dto.AvtaleUpdateDto
 import ombruk.backend.avtale.domain.entity.Avtale
 import ombruk.backend.shared.error.ServiceError
 import java.util.*
@@ -16,4 +17,6 @@ interface IAvtaleService {
     fun find(dto: AvtaleFindDto): Either<ServiceError, List<Avtale>>
 
     fun delete(dto: AvtaleDeleteDto): Either<ServiceError, Unit>
+
+    fun update(dto: AvtaleUpdateDto): Either<ServiceError, Avtale>
 }

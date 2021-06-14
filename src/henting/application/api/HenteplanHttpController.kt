@@ -63,10 +63,11 @@ fun Routing.henteplaner(henteplanService: IHenteplanService) {
         }
 
         authenticate {
-            patch<HenteplanUpdateDto> { form ->
+            patch {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
-                    .flatMap { form.validOrError() }
-                    .flatMap { henteplanService.update(form) }
+                    .flatMap { receiveCatching { call.receive<HenteplanUpdateDto>() } }
+                    .flatMap { it.validOrError() }
+                    .flatMap { henteplanService.update(it) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }

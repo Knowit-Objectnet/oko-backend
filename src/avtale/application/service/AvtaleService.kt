@@ -2,24 +2,29 @@ package ombruk.backend.avtale.application.service
 
 import arrow.core.*
 import arrow.core.extensions.either.applicative.applicative
+import arrow.core.extensions.either.foldable.fold
+import arrow.core.extensions.either.foldable.foldRight
+import arrow.core.extensions.either.foldable.get
 import arrow.core.extensions.list.traverse.sequence
 import avtale.application.api.dto.AvtaleSaveDto
 import ombruk.backend.avtale.application.api.dto.AvtaleDeleteDto
 import ombruk.backend.avtale.application.api.dto.AvtaleFindDto
+import ombruk.backend.avtale.application.api.dto.AvtaleUpdateDto
 import ombruk.backend.avtale.domain.entity.Avtale
 import ombruk.backend.avtale.domain.port.IAvtaleRepository
 import ombruk.backend.henting.application.service.IHenteplanService
+import ombruk.backend.henting.domain.entity.Henteplan
 import ombruk.backend.shared.error.ServiceError
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
-class AvtaleService(val avtaleRepository: IAvtaleRepository, val hentePlanService: IHenteplanService) : IAvtaleService {
+class AvtaleService(val avtaleRepository: IAvtaleRepository, val henteplanService: IHenteplanService) : IAvtaleService {
     override fun save(dto: AvtaleSaveDto): Either<ServiceError, Avtale> {
         return transaction {
             avtaleRepository.insert(dto)
                 .flatMap { avtale ->
                     if(dto.henteplaner != null) {
-                        return@flatMap hentePlanService.batchSave(dto.henteplaner.map { it.copy(avtaleId = avtale.id) })
+                        return@flatMap henteplanService.batchSave(dto.henteplaner.map { it.copy(avtaleId = avtale.id) })
                             .fold({ it.left() }, { avtale.copy(henteplaner = it).right() })
                     } else {
                         return@flatMap avtale.right()
@@ -33,27 +38,24 @@ class AvtaleService(val avtaleRepository: IAvtaleRepository, val hentePlanServic
         return transaction {
             avtaleRepository.findOne(id)
                 .flatMap { avtale ->
-                    hentePlanService.findAllForAvtale(avtale.id)
+                    henteplanService.findAllForAvtale(avtale.id)
                         .flatMap { planer -> avtale.copy(henteplaner = planer).right() }
                 }
         }
     }
 
     override fun find(dto: AvtaleFindDto): Either<ServiceError, List<Avtale>> {
-
         return transaction {
-
             val avtaler = avtaleRepository.find(dto)
             avtaler.fold(
                 {Either.Left(ServiceError(it.message))},
                 {
                     it.map { avtale ->
-                        hentePlanService.findAllForAvtale(avtale.id)
+                        henteplanService.findAllForAvtale(avtale.id)
                             .fold({ it.left() }, { avtale.copy(henteplaner = it).right() })
                     }.sequence(Either.applicative()).fix().map { it.fix() }
                 }
             )
-
         }
     }
 
@@ -61,6 +63,22 @@ class AvtaleService(val avtaleRepository: IAvtaleRepository, val hentePlanServic
         return transaction {
             avtaleRepository.delete(dto.id)
                 .fold({rollback(); it.left()}, {it.right()})
+        }
+    }
+
+    override fun update(dto: AvtaleUpdateDto): Either<ServiceError, Avtale> {
+
+       findOne(dto.id).map {
+           it.henteplaner.map {
+               if (it.startTidspunkt.isAfter(dto.startDato.atStartOfDay()) && it.sluttTidspunkt.isBefore(dto.sluttDato.plusDays(1).atStartOfDay())) {
+
+               }
+           }
+       }
+
+        return transaction {
+            avtaleRepository.update(dto)
+                .fold({ rollback(); it.left()}, {it.right()})
         }
     }
 
