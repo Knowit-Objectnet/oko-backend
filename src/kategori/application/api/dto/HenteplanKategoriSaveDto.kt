@@ -12,7 +12,6 @@ import java.util.*
 
 @Serializable
 data class HenteplanKategoriSaveDto(
-    //@Serializable(with = UUIDSerializer::class) override val id: UUID,
     @Serializable(with = UUIDSerializer::class) override val henteplanId: UUID,
     @Serializable(with = UUIDSerializer::class) override val kategoriId: UUID,
     override val merknad: String? = null
