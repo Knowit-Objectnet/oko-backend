@@ -31,11 +31,28 @@ class PartnerService constructor(
         }
     }
 
-    override fun getPartnerById(id: UUID): Either<ServiceError, Partner> = transaction{ partnerRepository.findOne(id) }
+    override fun getPartnerById(id: UUID): Either<ServiceError, Partner> {
+        return transaction {
+            partnerRepository.findOne(id)
+                .flatMap { partner ->
+                    kontaktService.getKontakter(KontaktGetDto(aktorId = partner.id))
+                        .flatMap { kontakter -> partner.copy(kontaktPersoner = kontakter).right() }
+                }
+        }
+    }
 
     @KtorExperimentalLocationsAPI
-    override fun getPartnere(dto: PartnerGetDto): Either<ServiceError, List<Partner>> =
-        transaction { partnerRepository.find(dto) }
+    override fun getPartnere(dto: PartnerGetDto): Either<ServiceError, List<Partner>> {
+        return transaction {
+            partnerRepository.find(dto)
+                .flatMap {
+                    it.map { partner ->
+                        kontaktService.getKontakter(KontaktGetDto(aktorId = partner.id))
+                            .flatMap { kontakter -> partner.copy(kontaktPersoner = kontakter).right() }
+                    }.sequence(Either.applicative()).fix().map { it.fix() }
+                }
+        }
+    }
 
     @KtorExperimentalAPI
     override fun deletePartnerById(id: UUID): Either<ServiceError, Partner> = transaction {
