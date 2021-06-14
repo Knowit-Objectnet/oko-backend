@@ -1,12 +1,10 @@
 package ombruk.backend.aktor.application.service
 
-import arrow.core.Either
+import arrow.core.*
 import arrow.core.extensions.either.applicative.applicative
 import arrow.core.extensions.either.monad.flatMap
 import arrow.core.extensions.list.traverse.sequence
 import arrow.core.flatMap
-import arrow.core.left
-import arrow.core.right
 import ombruk.backend.aktor.application.api.dto.KontaktGetDto
 import ombruk.backend.aktor.application.api.dto.StasjonSaveDto
 import ombruk.backend.aktor.application.api.dto.StasjonFindDto
@@ -35,11 +33,25 @@ class StasjonService(
     }
 
     override fun findOne(id: UUID): Either<ServiceError, Stasjon> {
-        return transaction { stasjonRepository.findOne(id) }
+        return transaction {
+            stasjonRepository.findOne(id)
+                .flatMap { stasjon ->
+                    kontaktService.getKontakter(KontaktGetDto(aktorId = stasjon.id))
+                        .flatMap { kontakter -> stasjon.copy(kontaktPersoner = kontakter).right() }
+                }
+        }
     }
 
     override fun find(dto: StasjonFindDto): Either<ServiceError, List<Stasjon>> {
-        return transaction { stasjonRepository.find((dto)) }
+        return transaction {
+            stasjonRepository.find((dto))
+                .flatMap {
+                    it.map { stasjon ->
+                        kontaktService.getKontakter(KontaktGetDto(aktorId = stasjon.id))
+                            .flatMap { kontakter -> stasjon.copy(kontaktPersoner = kontakter).right() }
+                    }.sequence(Either.applicative()).fix().map { it.fix() }
+                }
+        }
     }
 
     override fun delete(id: UUID): Either<ServiceError, Stasjon> {
