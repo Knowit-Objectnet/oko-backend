@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.extensions.either.applicative.applicative
 import arrow.core.extensions.either.monad.flatMap
 import arrow.core.extensions.list.traverse.sequence
+import arrow.core.fix
 import arrow.core.left
 import arrow.core.right
 import io.ktor.locations.*
