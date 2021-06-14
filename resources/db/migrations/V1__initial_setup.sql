@@ -87,7 +87,8 @@ create TABLE ekstra_henting (
 
 create TABLE kategori (
     id uuid default uuid_generate_v4() primary key,
-    navn varchar(255) not null
+    navn varchar(255) not null,
+    arkivert timestamp
 );
 
 INSERT INTO kategori (id, navn) VALUES ('cc4912ef-e2ed-4460-9c50-39caffde79de', 'Barne-utstyr og leker');
@@ -107,7 +108,8 @@ create TABLE henteplan_kategori (
     id uuid default uuid_generate_v4() primary key,
     henteplan_id uuid not null,
     kategori_id uuid not null,
-    merknad varchar(255)
+    merknad varchar(255),
+    arkivert timestamp
 );
 
 create TABLE utlysning (
