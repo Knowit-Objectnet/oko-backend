@@ -48,7 +48,7 @@ fun Routing.avtaler(avtaleService: IAvtaleService) {
             delete<AvtaleDeleteDto> { form ->
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
                     .flatMap { form.validOrError() }
-                    .flatMap { avtaleService.delete(form) }
+                    .flatMap { avtaleService.archiveOne(form.id) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }

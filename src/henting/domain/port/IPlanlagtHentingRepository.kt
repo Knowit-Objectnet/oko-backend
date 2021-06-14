@@ -13,4 +13,6 @@ interface IPlanlagtHentingRepository {
     fun delete(id: UUID): Either<RepositoryError, Unit>
     fun findOne(id: UUID): Either<RepositoryError, PlanlagtHentingWithParents>
     fun find(params: PlanlagtHentingFindParams): Either<RepositoryError, List<PlanlagtHentingWithParents>>
+    fun archive(params: PlanlagtHentingFindParams): Either<RepositoryError, List<PlanlagtHentingWithParents>>
+    fun archiveOne(id: UUID): Either<RepositoryError, PlanlagtHentingWithParents>
 }

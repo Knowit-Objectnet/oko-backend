@@ -14,4 +14,5 @@ interface IPartnerRepository {
     fun delete(id: UUID): Either<RepositoryError, Unit>
     fun findOne(id: UUID): Either<RepositoryError, Partner>
     fun find(params: PartnerFindParams): Either<RepositoryError, List<Partner>>
+    fun archiveOne(id: UUID): Either<RepositoryError, Partner>
 }

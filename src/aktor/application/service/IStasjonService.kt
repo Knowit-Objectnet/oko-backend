@@ -47,4 +47,6 @@ interface IStasjonService {
      * @return A [ServiceError] on failure and the updated [Stasjon] on success.
      */
     fun update(dto: StasjonUpdateDto): Either<ServiceError, Stasjon>
+
+    fun archiveOne(id: UUID): Either<ServiceError, Unit>
 }

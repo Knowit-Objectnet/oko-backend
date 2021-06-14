@@ -19,4 +19,6 @@ interface IAvtaleService {
     fun delete(dto: AvtaleDeleteDto): Either<ServiceError, Unit>
 
     fun update(dto: AvtaleUpdateDto): Either<ServiceError, Avtale>
+
+    fun archiveOne(id: UUID): Either<ServiceError, Unit>
 }

@@ -1,10 +1,8 @@
 package ombruk.backend.aktor.infrastructure.table
 
-import ombruk.backend.aktor.domain.enum.StasjonType
-import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.dao.id.UUIDTable
+import ombruk.backend.shared.database.ArchivableUUIDTable
 
-object StasjonTable : UUIDTable("stasjon") {
+object StasjonTable : ArchivableUUIDTable("stasjon") {
     val navn = varchar("navn", 255)
     val type = varchar("type", 255)
 }
