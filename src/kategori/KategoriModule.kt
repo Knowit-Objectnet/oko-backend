@@ -12,7 +12,7 @@ import org.koin.dsl.module
 
 val kategoriModule = module(createdAtStart = true) {
     single<IKategoriRepository> { KategoriRepository() }
-    single<IKategoriService> { KategoriService(get()) }
+    single<IKategoriService> { KategoriService(get(), get()) }
     single<IHenteplanKategoriRepository> { HenteplanKategoriRepository() }
     single<IHenteplanKategoriService> { HenteplanKategoriService(get(), get()) }
 }

@@ -16,4 +16,6 @@ interface IKategoriService {
     fun find(dto: KategoriFindDto): Either<ServiceError, List<Kategori>>
 
     fun delete(dto: KategoriDeleteDto): Either<ServiceError, Unit>
+
+    fun archiveOne(id: UUID): Either<ServiceError, Unit>
 }

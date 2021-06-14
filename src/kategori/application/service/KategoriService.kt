@@ -1,8 +1,10 @@
 package ombruk.backend.kategori.application.service
 
 import arrow.core.Either
+import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
+import ombruk.backend.kategori.application.api.dto.HenteplanKategoriFindDto
 import ombruk.backend.kategori.application.api.dto.KategoriDeleteDto
 import ombruk.backend.kategori.application.api.dto.KategoriFindDto
 import ombruk.backend.kategori.application.api.dto.KategoriSaveDto
@@ -12,7 +14,10 @@ import ombruk.backend.shared.error.ServiceError
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
-class KategoriService(val kategoriRepository: IKategoriRepository) : IKategoriService {
+class KategoriService(
+    val kategoriRepository: IKategoriRepository,
+    val henteplanKategoriService: IHenteplanKategoriService
+    ) : IKategoriService {
     override fun save(dto: KategoriSaveDto): Either<ServiceError, Kategori> {
         return transaction {
             kategoriRepository.insert(dto)
@@ -46,4 +51,13 @@ class KategoriService(val kategoriRepository: IKategoriRepository) : IKategoriSe
         }
     }
 
+    override fun archiveOne(id: UUID): Either<ServiceError, Unit> {
+        return transaction {
+            kategoriRepository.archiveOne(id)
+                .map { kategori ->
+                    henteplanKategoriService.archive(HenteplanKategoriFindDto(kategoriId = kategori.id))
+                }.flatMap { it }
+                .fold({rollback(); it.left()}, {it.right()})
+        }
+    }
 }
