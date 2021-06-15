@@ -14,9 +14,14 @@ import ombruk.backend.kategori.domain.port.IKategoriRepository
 import ombruk.backend.shared.error.RepositoryError
 import ombruk.backend.shared.error.ServiceError
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import java.util.*
 
-class HenteplanKategoriService(val henteplanKategoriRepository: IHenteplanKategoriRepository, val kategoriService: IKategoriService) : IHenteplanKategoriService {
+class HenteplanKategoriService(val henteplanKategoriRepository: IHenteplanKategoriRepository) : IHenteplanKategoriService, KoinComponent {
+    //Using inject rather than constructor to avoid circular dependency
+    private val kategoriService: IKategoriService by inject()
+
     override fun save(dto: HenteplanKategoriSaveDto): Either<ServiceError, HenteplanKategori> {
         return transaction {
             henteplanKategoriRepository.insert(dto)

@@ -14,5 +14,5 @@ val kategoriModule = module(createdAtStart = true) {
     single<IKategoriRepository> { KategoriRepository() }
     single<IKategoriService> { KategoriService(get(), get()) }
     single<IHenteplanKategoriRepository> { HenteplanKategoriRepository() }
-    single<IHenteplanKategoriService> { HenteplanKategoriService(get(), get()) }
+    single<IHenteplanKategoriService> { HenteplanKategoriService(get()) }
 }
