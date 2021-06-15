@@ -104,7 +104,6 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
         val mockToday = LocalDateTime.of(2021, 5, 18, 0, 0)
         var today = LocalDateTime.now()
         // Funksjonen sletter først og deretter legger til nye planlagte hentinger
-        if (dto.startTidspunkt != null && dto.sluttTidspunkt != null) {
             findOne(dto.id).fold({}, {
                 planlagtHentingService.find(PlanlagtHentingFindDto(henteplanId = dto.id)).map {
                     it.map {
@@ -113,23 +112,23 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
                         }
                     }
                 }
-                val starttime = mockToday.withHour(dto.startTidspunkt.hour).withMinute(dto.startTidspunkt.minute)
+
                 // Legger til "planlagte hentinger"
-                transaction {
-                    appendPlanlagtHentinger(
-                        HenteplanSaveDto(
-                            avtaleId = it.avtaleId,
-                            stasjonId = it.stasjonId,
-                            startTidspunkt = starttime,
-                            sluttTidspunkt = dto.sluttTidspunkt,
-                            ukedag = it.ukedag,
-                            merknad = it.merknad,
-                            frekvens = dto.frekvens ?: it.frekvens
-                        ), it.id, it
-                    ).fold({ rollback() }, {})
-                }
+                val starttime = LocalDateTime.of(mockToday.toLocalDate(), (dto.startTidspunkt ?: it.startTidspunkt).toLocalTime())
+                    transaction {
+                        appendPlanlagtHentinger(
+                            HenteplanSaveDto(
+                                avtaleId = it.avtaleId,
+                                stasjonId = it.stasjonId,
+                                startTidspunkt = starttime,
+                                sluttTidspunkt = dto.sluttTidspunkt ?: it.sluttTidspunkt,
+                                ukedag = it.ukedag,
+                                merknad = it.merknad,
+                                frekvens = dto.frekvens ?: it.frekvens
+                            ), it.id, it
+                        ).fold({ rollback() }, {})}
+
             })
-        }
         return transaction { henteplanRepository.update(dto) }
     }
 

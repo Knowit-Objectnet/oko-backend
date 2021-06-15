@@ -73,11 +73,11 @@ class AvtaleService(val avtaleRepository: IAvtaleRepository, val henteplanServic
     override fun update(dto: AvtaleUpdateDto): Either<ServiceError, Avtale> {
         findOne(dto.id).map {
             it.henteplaner.map {
-                val start: LocalDateTime = LocalDateTime.of(dto.startDato, it.startTidspunkt.toLocalTime())
-                val slutt: LocalDateTime = LocalDateTime.of(dto.sluttDato, it.sluttTidspunkt.toLocalTime())
-                if (!start.isEqual(it.startTidspunkt) || !slutt.isEqual(it.sluttTidspunkt)) {
-                    henteplanService.update(HenteplanUpdateDto(id = it.id, startTidspunkt = start, sluttTidspunkt = slutt))
-                }
+                var start: LocalDateTime? = LocalDateTime.of(dto.startDato, it.startTidspunkt.toLocalTime())
+                var slutt: LocalDateTime? = LocalDateTime.of(dto.sluttDato, it.sluttTidspunkt.toLocalTime())
+                if (!start!!.isAfter(it.startTidspunkt)) start = null
+                if (!slutt!!.isBefore(it.sluttTidspunkt)) slutt = null
+                if (start != null || slutt != null) henteplanService.update(HenteplanUpdateDto(id = it.id, startTidspunkt = start, sluttTidspunkt = slutt))
             }
         }
         return transaction {
