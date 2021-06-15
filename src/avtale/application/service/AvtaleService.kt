@@ -13,6 +13,7 @@ import ombruk.backend.avtale.application.api.dto.AvtaleUpdateDto
 import ombruk.backend.avtale.domain.entity.Avtale
 import ombruk.backend.avtale.domain.port.IAvtaleRepository
 import ombruk.backend.henting.application.api.dto.HenteplanFindDto
+import ombruk.backend.henting.application.api.dto.HenteplanUpdateDto
 import ombruk.backend.henting.application.api.dto.PlanlagtHentingFindDto
 import ombruk.backend.henting.application.service.IHenteplanService
 import ombruk.backend.henting.domain.entity.Henteplan
@@ -70,20 +71,15 @@ class AvtaleService(val avtaleRepository: IAvtaleRepository, val henteplanServic
     }
 
     override fun update(dto: AvtaleUpdateDto): Either<ServiceError, Avtale> {
-
         findOne(dto.id).map {
             it.henteplaner.map {
-                if (it.startTidspunkt.isAfter(dto.startDato.atStartOfDay()) && it.sluttTidspunkt.isBefore(
-                        dto.sluttDato.plusDays(
-                            1
-                        ).atStartOfDay()
-                    )
-                ) {
-
+                val start: LocalDateTime = LocalDateTime.of(dto.startDato, it.startTidspunkt.toLocalTime())
+                val slutt: LocalDateTime = LocalDateTime.of(dto.sluttDato, it.sluttTidspunkt.toLocalTime())
+                if (!start.isEqual(it.startTidspunkt) || !slutt.isEqual(it.sluttTidspunkt)) {
+                    henteplanService.update(HenteplanUpdateDto(id = it.id, startTidspunkt = start, sluttTidspunkt = slutt))
                 }
             }
         }
-
         return transaction {
             avtaleRepository.update(dto)
                 .fold({ rollback(); it.left() }, { it.right() })
