@@ -47,7 +47,7 @@ fun Routing.utlysnigner(utlysningService: IUtlysningService) {
             delete<UtlysningDeleteDto> { form ->
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
                     .flatMap { form.validOrError() }
-                    .flatMap { utlysningService.delete(form) }
+                    .flatMap { utlysningService.archiveOne(form.id) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }

@@ -4,6 +4,7 @@ import arrow.core.Either
 import ombruk.backend.shared.error.ServiceError
 import ombruk.backend.utlysning.application.api.dto.*
 import ombruk.backend.utlysning.domain.entity.Utlysning
+import ombruk.backend.utlysning.domain.params.UtlysningFindParams
 import java.util.*
 
 interface IUtlysningService {
@@ -21,4 +22,7 @@ interface IUtlysningService {
 
     fun stasjonAccept(dtoPartner: UtlysningStasjonAcceptDto): Either<ServiceError, Utlysning>
 
+    fun archive(params: UtlysningFindParams): Either<ServiceError, Unit>
+
+    fun archiveOne(id: UUID): Either<ServiceError, Unit>
 }

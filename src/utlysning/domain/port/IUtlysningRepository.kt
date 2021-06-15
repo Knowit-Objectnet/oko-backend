@@ -14,4 +14,6 @@ interface IUtlysningRepository {
     fun find(params: UtlysningFindParams): Either<RepositoryError, List<Utlysning>>
     fun acceptPartner(params: UtlysningPartnerAcceptParams): Either<RepositoryError, Utlysning>
     fun acceptStasjon(params: UtlysningStasjonAcceptParams): Either<RepositoryError, Utlysning>
+    fun archive(params: UtlysningFindParams): Either<RepositoryError, List<Utlysning>>
+    fun archiveOne(id: UUID): Either<RepositoryError,Utlysning>
 }

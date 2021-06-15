@@ -5,15 +5,21 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkClass
+import ombruk.backend.aktor.aktorModule
 import ombruk.backend.aktor.application.api.dto.StasjonSaveDto
 import ombruk.backend.aktor.application.api.dto.StasjonFindDto
 import ombruk.backend.aktor.application.api.dto.StasjonUpdateDto
+import ombruk.backend.aktor.application.service.IStasjonService
 import ombruk.backend.aktor.application.service.KontaktService
 import ombruk.backend.aktor.application.service.StasjonService
 import ombruk.backend.aktor.domain.entity.Stasjon
 import ombruk.backend.aktor.domain.enum.StasjonType
 import ombruk.backend.aktor.infrastructure.repository.StasjonRepository
+import ombruk.backend.avtale.avtaleModule
+import ombruk.backend.henting.hentingModule
+import ombruk.backend.kategori.kategoriModule
 import ombruk.backend.shared.api.KeycloakGroupIntegration
+import ombruk.backend.utlysning.utlysningModule
 import org.junit.jupiter.api.*
 import org.testcontainers.junit.jupiter.Testcontainers
 import testutils.TestContainer
@@ -24,6 +30,11 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith
+import org.koin.core.context.loadKoinModules
+import org.koin.core.context.startKoin
+import org.koin.core.context.stopKoin
+import org.koin.test.KoinTest
+import org.koin.test.get
 import java.util.*
 import kotlin.test.assertNotEquals
 
@@ -31,18 +42,23 @@ import kotlin.test.assertNotEquals
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 @ExtendWith(MockKExtension::class)
 @Testcontainers
-class StasjonTest {
+class StasjonTest : KoinTest{
     private val testContainer: TestContainer = TestContainer()
-    private lateinit var stasjonService: StasjonService
-    private var stasjonRepository = StasjonRepository()
+    private lateinit var stasjonService: IStasjonService
     private var keycloakGroupIntegration = mockkClass(KeycloakGroupIntegration::class)
-    private var kontaktService = mockkClass(KontaktService::class)
 
     @OptIn(KtorExperimentalAPI::class)
     @BeforeAll
     fun setup() {
         testContainer.start()
-        stasjonService = StasjonService(stasjonRepository, keycloakGroupIntegration, kontaktService)
+        startKoin {  }
+        loadKoinModules(listOf(aktorModule, avtaleModule, hentingModule, utlysningModule, kategoriModule))
+        stasjonService = get()
+    }
+
+    @AfterAll
+    fun tearDown() {
+        stopKoin()
     }
 
     private lateinit var navn: String
@@ -54,7 +70,7 @@ class StasjonTest {
     @Test
     @Order(1)
     fun testInsert(@MockK expected: Any) {
-        navn = "Grefsen"
+        navn = "TestStasjon"
         type = StasjonType.GJENBRUK
         every { keycloakGroupIntegration.createGroup(navn, any<UUID>()) } returns expected.right()
 
@@ -69,7 +85,7 @@ class StasjonTest {
         val stasjon = StasjonFindDto(navn)
         val find = stasjonService.find(stasjon)
         require(find is Either.Right)
-        assertTrue(find.b.count() == 1)
+        assertEquals(1, find.b.count())
         assertEquals(navn, find.b[0].navn)
         assertEquals(type, find.b[0].type)
         // UUID for next test

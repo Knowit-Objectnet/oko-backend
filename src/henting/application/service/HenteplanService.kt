@@ -130,10 +130,20 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
     override fun archiveOne(id: UUID): Either<ServiceError, Unit> {
         return transaction {
             henteplanRepository.archiveOne(id)
-                .fold(
-                    {Either.Left(ServiceError(it.message))},
-                    { planlagtHentingService.archive(PlanlagtHentingFindDto(henteplanId = it.id, after = LocalDateTime.now()))}
-                )
+                .map { henteplan ->
+                    planlagtHentingService.archive(
+                        PlanlagtHentingFindDto(
+                            henteplanId = henteplan.id,
+                            after = LocalDateTime.now()
+                        )
+                    )
+                    .map { henteplanKategoriService.archive(
+                        HenteplanKategoriFindDto(
+                            henteplanId = henteplan.id
+                        )
+                    ) }.flatMap { it }
+
+                }.flatMap { it }
                 .fold({rollback(); it.left()}, {it.right()})
         }
     }
@@ -143,12 +153,22 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
             henteplanRepository.archive(params)
                 .fold(
                     {Either.Left(ServiceError(it.message))},
-                    { henteplan ->
-                        henteplan.map { planlagtHentingService.archive(PlanlagtHentingFindDto(henteplanId = it.id, after = LocalDateTime.now())) }
+                    { henteplaner ->
+                        henteplaner.map { henteplan ->
+                            planlagtHentingService.archive(
+                                PlanlagtHentingFindDto(
+                                    henteplanId = henteplan.id,
+                                    after = LocalDateTime.now()
+                                )
+                            )
+                                .map { henteplanKategoriService.archive(
+                                    HenteplanKategoriFindDto(
+                                        henteplanId = henteplan.id
+                                    )
+                                ) }.flatMap { it }
+                        }
                             .sequence(Either.applicative())
-                            .fix()
-                            .map { it.fix() }
-                            .flatMap { Either.right(Unit) }
+                            .flatMap { Either.Right(Unit) }
                     }
                 )
                 .fold({rollback(); it.left()}, {it.right()})

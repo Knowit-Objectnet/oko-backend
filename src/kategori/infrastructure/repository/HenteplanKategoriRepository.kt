@@ -46,4 +46,11 @@ class HenteplanKategoriRepository : RepositoryBase<HenteplanKategori, HenteplanK
     override fun updateQuery(params: Nothing): Int {
         TODO("Not yet implemented")
     }
+
+    override fun archiveCondition(params: HenteplanKategoriFindParams): Op<Boolean>? {
+        return Op.TRUE
+            .andIfNotNull(params.id){table.id eq params.id}
+            .andIfNotNull(params.henteplanId){table.henteplanId eq params.henteplanId!!}
+            .andIfNotNull(params.kategoriId){table.kategoriId eq params.kategoriId!!}
+    }
 }

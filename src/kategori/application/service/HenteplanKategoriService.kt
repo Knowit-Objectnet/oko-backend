@@ -8,14 +8,20 @@ import arrow.core.left
 import arrow.core.right
 import ombruk.backend.kategori.application.api.dto.*
 import ombruk.backend.kategori.domain.entity.HenteplanKategori
+import ombruk.backend.kategori.domain.params.HenteplanKategoriFindParams
 import ombruk.backend.kategori.domain.port.IHenteplanKategoriRepository
 import ombruk.backend.kategori.domain.port.IKategoriRepository
 import ombruk.backend.shared.error.RepositoryError
 import ombruk.backend.shared.error.ServiceError
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import java.util.*
 
-class HenteplanKategoriService(val henteplanKategoriRepository: IHenteplanKategoriRepository, val kategoriService: IKategoriService) : IHenteplanKategoriService {
+class HenteplanKategoriService(val henteplanKategoriRepository: IHenteplanKategoriRepository) : IHenteplanKategoriService, KoinComponent {
+    //Using inject rather than constructor to avoid circular dependency
+    private val kategoriService: IKategoriService by inject()
+
     override fun save(dto: HenteplanKategoriSaveDto): Either<ServiceError, HenteplanKategori> {
         return transaction {
             henteplanKategoriRepository.insert(dto)
@@ -55,4 +61,17 @@ class HenteplanKategoriService(val henteplanKategoriRepository: IHenteplanKatego
         }
     }
 
+    override fun archive(params: HenteplanKategoriFindParams): Either<ServiceError, Unit> {
+        return transaction {
+            henteplanKategoriRepository.archive(params).map {}
+                .fold({ rollback(); it.left() }, { it.right() })
+        }
+    }
+
+    override fun archiveOne(id: UUID): Either<ServiceError, Unit> {
+        return transaction {
+            henteplanKategoriRepository.archiveOne(id).map {}
+                .fold({ rollback(); it.left() }, { it.right() })
+        }
+    }
 }

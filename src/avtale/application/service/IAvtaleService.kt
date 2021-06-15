@@ -6,6 +6,7 @@ import ombruk.backend.avtale.application.api.dto.AvtaleDeleteDto
 import ombruk.backend.avtale.application.api.dto.AvtaleFindDto
 import ombruk.backend.avtale.application.api.dto.AvtaleUpdateDto
 import ombruk.backend.avtale.domain.entity.Avtale
+import ombruk.backend.avtale.domain.params.AvtaleFindParams
 import ombruk.backend.shared.error.ServiceError
 import java.util.*
 
@@ -21,4 +22,6 @@ interface IAvtaleService {
     fun update(dto: AvtaleUpdateDto): Either<ServiceError, Avtale>
 
     fun archiveOne(id: UUID): Either<ServiceError, Unit>
+
+    fun archive(params: AvtaleFindParams): Either<ServiceError, Unit>
 }
