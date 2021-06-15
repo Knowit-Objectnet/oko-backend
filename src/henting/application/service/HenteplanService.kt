@@ -104,12 +104,8 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
         var today = LocalDateTime.now()
         // Funksjonen sletter først og deretter legger til nye planlagte hentinger
             findOne(dto.id).fold({}, {
-                planlagtHentingService.find(PlanlagtHentingFindDto(henteplanId = dto.id)).map {
-                    it.map {
-                        if (it.startTidspunkt.isAfter(today)) {
-                            planlagtHentingService.delete(PlanlagtHentingDeleteDto(id = it.id))
-                        }
-                    }
+                planlagtHentingService.find(PlanlagtHentingFindDto(henteplanId = dto.id, after = today)).map {
+                    it.map { planlagtHentingService.delete(PlanlagtHentingDeleteDto(id = it.id)) }
                 }
 
                 // Legger til "planlagte hentinger"
