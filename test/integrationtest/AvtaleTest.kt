@@ -70,6 +70,7 @@ class AvtaleTest : KoinTest {
 
     @AfterAll
     fun tearDown() {
+        testContainer.stop()
         stopKoin()
     }
 

@@ -1,3 +1,4 @@
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -14,6 +15,11 @@ class TestContainerTest {
     @BeforeAll
     fun setup() {
         testContainer.start()
+    }
+
+    @AfterAll
+    fun tearDown() {
+        testContainer.stop()
     }
 
     @Test

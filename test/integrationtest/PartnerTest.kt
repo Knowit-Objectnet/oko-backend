@@ -53,6 +53,7 @@ class PartnerTest : KoinTest {
 
     @AfterAll
     fun tearDown() {
+        testContainer.stop()
         stopKoin()
     }
 

@@ -65,6 +65,7 @@ class UtlysningTest : KoinTest {
 
     @AfterAll
     fun tearDown() {
+        testContainer.stop()
         stopKoin()
     }
 
