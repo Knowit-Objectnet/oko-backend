@@ -64,12 +64,14 @@ class HenteplanKategoriService(val henteplanKategoriRepository: IHenteplanKatego
     override fun archive(params: HenteplanKategoriFindParams): Either<ServiceError, Unit> {
         return transaction {
             henteplanKategoriRepository.archive(params).map {}
+                .fold({ rollback(); it.left() }, { it.right() })
         }
     }
 
     override fun archiveOne(id: UUID): Either<ServiceError, Unit> {
         return transaction {
             henteplanKategoriRepository.archiveOne(id).map {}
+                .fold({ rollback(); it.left() }, { it.right() })
         }
     }
 }
