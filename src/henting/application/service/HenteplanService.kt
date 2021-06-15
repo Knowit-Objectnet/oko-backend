@@ -3,11 +3,13 @@ package ombruk.backend.henting.application.service
 import arrow.core.*
 import arrow.core.extensions.either.applicative.applicative
 import arrow.core.extensions.list.traverse.sequence
+import arrow.core.extensions.sequence.apply.map
 import henting.application.api.dto.HenteplanSaveDto
 import io.ktor.locations.*
 import ombruk.backend.henting.application.api.dto.*
 import ombruk.backend.henting.domain.entity.Henteplan
 import ombruk.backend.henting.domain.entity.PlanlagtHentingWithParents
+import ombruk.backend.henting.domain.model.HenteplanFrekvens
 import ombruk.backend.henting.domain.params.HenteplanFindParams
 import ombruk.backend.henting.domain.port.IHenteplanRepository
 import ombruk.backend.kategori.application.api.dto.HenteplanKategoriFindDto
@@ -99,6 +101,35 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
     }
 
     override fun update(dto: HenteplanUpdateDto): Either<ServiceError, Henteplan> {
+        val mockToday = LocalDateTime.of(2021, 5, 18, 0, 0)
+        var today = LocalDateTime.now()
+        // Funksjonen sletter først og deretter legger til nye planlagte hentinger
+        if (dto.startTidspunkt != null && dto.sluttTidspunkt != null) {
+            findOne(dto.id).fold({}, {
+                planlagtHentingService.find(PlanlagtHentingFindDto(henteplanId = dto.id)).map {
+                    it.map {
+                        if (it.startTidspunkt.isAfter(mockToday)) {
+                            planlagtHentingService.delete(PlanlagtHentingDeleteDto(id = it.id))
+                        }
+                    }
+                }
+                val starttime = mockToday.withHour(dto.startTidspunkt.hour).withMinute(dto.startTidspunkt.minute)
+                // Legger til "planlagte hentinger"
+                transaction {
+                    appendPlanlagtHentinger(
+                        HenteplanSaveDto(
+                            avtaleId = it.avtaleId,
+                            stasjonId = it.stasjonId,
+                            startTidspunkt = starttime,
+                            sluttTidspunkt = dto.sluttTidspunkt,
+                            ukedag = it.ukedag,
+                            merknad = it.merknad,
+                            frekvens = dto.frekvens ?: it.frekvens
+                        ), it.id, it
+                    ).fold({ rollback() }, {})
+                }
+            })
+        }
         return transaction { henteplanRepository.update(dto) }
     }
 
@@ -129,4 +160,5 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
                 .fold({rollback(); it.left()}, {it.right()})
         }
     }
+
 }
