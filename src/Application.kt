@@ -186,14 +186,16 @@ fun Application.module(testing: Boolean = false) {
             schemes = listOf("http", "https"),
             subDomains = listOf("staging", "test")
         )
-        host(
-            host = "0.0.0.0:8080",
-            schemes = listOf("http", "https")
-        )
-        host(
-            host = "localhost:8080",
-            schemes = listOf("http", "https")
-        )
+        if (testing || debug) {
+            host(
+                host = "0.0.0.0:8080",
+                schemes = listOf("http", "https")
+            )
+            host(
+                host = "localhost:8080",
+                schemes = listOf("http", "https")
+            )
+        }
         allowCredentials = true
         allowNonSimpleContentTypes = true
     }
