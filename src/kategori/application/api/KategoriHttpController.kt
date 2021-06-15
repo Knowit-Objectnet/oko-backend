@@ -50,7 +50,7 @@ fun Routing.kategorier(kategoriService: IKategoriService) {
             delete<KategoriDeleteDto> { form ->
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
                     .flatMap { form.validOrError() }
-                    .flatMap { kategoriService.delete(form) }
+                    .flatMap { kategoriService.archiveOne(form.id) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }

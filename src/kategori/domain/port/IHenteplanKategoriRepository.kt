@@ -11,4 +11,6 @@ interface IHenteplanKategoriRepository {
     fun insert(params: HenteplanKategoriCreateParams): Either<RepositoryError, HenteplanKategori>
     fun delete(id: UUID): Either<RepositoryError, Unit>
     fun find(params: HenteplanKategoriFindParams): Either<RepositoryError, List<HenteplanKategori>>
+    fun archive(params: HenteplanKategoriFindParams): Either<RepositoryError, List<HenteplanKategori>>
+    fun archiveOne(id: UUID): Either<RepositoryError, HenteplanKategori>
 }

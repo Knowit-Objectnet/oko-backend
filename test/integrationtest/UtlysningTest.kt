@@ -18,6 +18,7 @@ import ombruk.backend.henting.application.api.dto.EkstraHentingSaveDto
 import ombruk.backend.henting.application.service.IEkstraHentingService
 import ombruk.backend.henting.domain.entity.EkstraHenting
 import ombruk.backend.henting.hentingModule
+import ombruk.backend.kategori.kategoriModule
 import ombruk.backend.shared.api.KeycloakGroupIntegration
 import ombruk.backend.utlysning.application.api.dto.UtlysningBatchSaveDto
 import ombruk.backend.utlysning.application.api.dto.UtlysningPartnerAcceptDto
@@ -55,7 +56,7 @@ class UtlysningTest : KoinTest {
     fun setup() {
         testContainer.start()
         startKoin {  }
-        loadKoinModules(listOf(hentingModule, aktorModule, utlysningModule, avtaleModule))
+        loadKoinModules(listOf(hentingModule, aktorModule, utlysningModule, avtaleModule, kategoriModule))
         stasjonService = get()
         partnerService = get()
         ekstraHentingService = get()
@@ -64,6 +65,7 @@ class UtlysningTest : KoinTest {
 
     @AfterAll
     fun tearDown() {
+        testContainer.stop()
         stopKoin()
     }
 
