@@ -47,7 +47,7 @@ fun Routing.ekstraHentinger(ekstraHentingService: IEkstraHentingService) {
             delete<EkstraHentingDeleteDto> { form ->
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
                     .flatMap { form.validOrError() }
-                    .flatMap { ekstraHentingService.delete(form) }
+                    .flatMap { ekstraHentingService.archiveOne(form.id) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }
