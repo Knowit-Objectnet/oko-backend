@@ -22,11 +22,18 @@ object JwtMockConfig {
         "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJhdWQiOiJhY2NvdW50Iiwic3ViIjoiQXV0aGVudGljYXRpb24iLCJyb2xlcyI6WyJyZWdfZW1wbG95ZWUiXSwiZXhwIjo5MjIzMzcyMDM2ODU0Nzc1LCJHcm91cElEIjoyfQ.vi42IxWDGPOvxgiThFwfpv6Rif9QRzIXy0MBSLOasT_1AQlUWD8NmUWexaJLQ-WpUmkbL1zzqaEF4xPdOkJ2_Q"
     const val reuseStationBearer =
         "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJhdWQiOiJhY2NvdW50Iiwic3ViIjoiQXV0aGVudGljYXRpb24iLCJyb2xlcyI6WyJyZXVzZV9zdGF0aW9uIl0sImV4cCI6OTIyMzM3MjAzNjg1NDc3NSwiR3JvdXBJRCI6Mn0.tIx5MsiMh2kftFpPnIKAcEiqIr_5RcLxx8QcIUPV7yKtXgtJykh6W1xo4MNtd1Wh97AOQ2tCSfMlAFno8RYyjw"
+    const val partnerBearerUUID1 =
+        "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJhdWQiOiJhY2NvdW50Iiwic3ViIjoiQXV0aGVudGljYXRpb24iLCJyb2xlcyI6WyJwYXJ0bmVyIl0sImV4cCI6OTIyMzM3MjAzNjg1NDc3NSwiR3JvdXBJRCI6IjJlZjEzYjg1LTRlZjgtNGRlYy04MWM5LWIyY2JjNjdkMWMxMSJ9.AXSHEBeEy3I8p9M-K2I7aic2j7tA8Bte6raStzJejAJMPkMCVQ07XRDw6Am29YQuNYx1fLvnCVcQKfeovwpOwQ"
+    const val partnerBearerUUID2 =
+        "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJhdWQiOiJhY2NvdW50Iiwic3ViIjoiQXV0aGVudGljYXRpb24iLCJyb2xlcyI6WyJwYXJ0bmVyIl0sImV4cCI6OTIyMzM3MjAzNjg1NDc3NSwiR3JvdXBJRCI6IjU3MWExZDdlLTZmMjctNDFiNy1iODAwLTI2MGY0Yzg0NmVmYiJ9.i0ZqneW2i5k4n-3dwvWBm2jpYJbFE0FiFOjJXe27Xncz01u4HIgiYg0cjLsdiuYF9nWQdqDe3pcdL8EDrJ59fw"
+
     private val mockTokens = listOf(
-        Pair("Partner with ID 1", partnerBearer1),
-        Pair("Partner with ID 2", partnerBearer2),
+//        Pair("Partner with ID 1", partnerBearer1),
+//        Pair("Partner with ID 2", partnerBearer2),
         Pair("reg_employee", regEmployeeBearer),
-        Pair("reuse_station", reuseStationBearer)
+        Pair("reuse_station", reuseStationBearer),
+        Pair("Partner UUID1: 2ef13b85-4ef8-4dec-81c9-b2cbc67d1c11", partnerBearerUUID1),
+        Pair("Partner UUID2: 571a1d7e-6f27-41b7-b800-260f4c846efb", partnerBearerUUID2)
     )
 
     /**
@@ -44,15 +51,15 @@ object JwtMockConfig {
 
     /**
      * Function used for generating mock tokens. Generated tokens expire in April of 2262. Will be deprecated in 2261.
-     * @param id The GroupID [Int] you want to mock. This must correspond with a keycloak GroupID.
+     * @param id The GroupID [UUID] you want to mock. This must correspond with a keycloak GroupID.
      * @param roles A [List] of [String] objects. Must correspond with the string values of the roles enum in [Authorization]
      * @return A [String] version of a [JWTPrincipal] that the application will accept as valid.
      */
-    fun makeMockToken(id: Int, roles: List<String>): String {
+    fun makeMockToken(id: UUID, roles: List<String>): String {
         return JWT.create()
             .withAudience("account")
             .withSubject("Authentication")
-            .withClaim("GroupID", id)
+            .withClaim("GroupID",id.toString())
             .withArrayClaim("roles", roles.toTypedArray())
             .withExpiresAt(Date(Long.MAX_VALUE))
             .sign(algorithm)
