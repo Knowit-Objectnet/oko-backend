@@ -9,6 +9,7 @@ import arrow.core.right
 import ombruk.backend.shared.error.ServiceError
 import ombruk.backend.utlysning.application.api.dto.*
 import ombruk.backend.utlysning.domain.entity.Utlysning
+import ombruk.backend.utlysning.domain.params.UtlysningFindParams
 import ombruk.backend.utlysning.domain.port.IUtlysningRepository
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
@@ -82,4 +83,25 @@ class UtlysningService(val utlysningRepository: IUtlysningRepository) : IUtlysni
         }
     }
 
+    override fun archive(params: UtlysningFindParams): Either<ServiceError, Unit> {
+        return transaction {
+            utlysningRepository.archive(params)
+                .fold(
+                    {Either.Left(ServiceError(it.message))},
+                    {Either.Right(Unit)}
+                )
+                .fold({rollback(); it.left()}, {it.right()})
+        }
+    }
+
+    override fun archiveOne(id: UUID): Either<ServiceError, Unit> {
+        return transaction {
+            utlysningRepository.archiveOne(id)
+                .fold(
+                    {Either.Left(ServiceError(it.message))},
+                    {Either.Right(Unit)}
+                )
+                .fold({rollback(); it.left()}, {it.right()})
+        }
+    }
 }

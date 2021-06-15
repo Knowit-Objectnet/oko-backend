@@ -14,4 +14,6 @@ interface IEkstraHentingRepository {
     fun delete(id: UUID): Either<RepositoryError, Unit>
     fun findOne(id: UUID): Either<RepositoryError, EkstraHenting>
     fun find(params: EkstraHentingFindParams): Either<RepositoryError, List<EkstraHenting>>
+    fun archiveOne(id: UUID): Either<RepositoryError, EkstraHenting>
+    fun archive(params: EkstraHentingFindParams): Either<RepositoryError, List<EkstraHenting>>
 }

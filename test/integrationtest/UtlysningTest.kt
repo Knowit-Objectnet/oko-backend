@@ -12,6 +12,7 @@ import ombruk.backend.aktor.application.service.IStasjonService
 import ombruk.backend.aktor.domain.entity.Partner
 import ombruk.backend.aktor.domain.entity.Stasjon
 import ombruk.backend.aktor.domain.enum.StasjonType
+import ombruk.backend.avtale.avtaleModule
 import ombruk.backend.henting.application.api.dto.EkstraHentingFindDto
 import ombruk.backend.henting.application.api.dto.EkstraHentingSaveDto
 import ombruk.backend.henting.application.service.IEkstraHentingService
@@ -28,6 +29,7 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.extension.ExtendWith
 import org.koin.core.context.loadKoinModules
 import org.koin.core.context.startKoin
+import org.koin.core.context.stopKoin
 import org.koin.test.KoinTest
 import org.koin.test.get
 import org.testcontainers.junit.jupiter.Testcontainers
@@ -53,11 +55,16 @@ class UtlysningTest : KoinTest {
     fun setup() {
         testContainer.start()
         startKoin {  }
-        loadKoinModules(listOf(hentingModule, aktorModule, utlysningModule))
+        loadKoinModules(listOf(hentingModule, aktorModule, utlysningModule, avtaleModule))
         stasjonService = get()
         partnerService = get()
         ekstraHentingService = get()
         utlysningService = get()
+    }
+
+    @AfterAll
+    fun tearDown() {
+        stopKoin()
     }
 
     private lateinit var stasjon1: Stasjon

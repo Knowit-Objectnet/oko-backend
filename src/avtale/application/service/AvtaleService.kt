@@ -7,6 +7,7 @@ import avtale.application.api.dto.AvtaleSaveDto
 import ombruk.backend.avtale.application.api.dto.AvtaleDeleteDto
 import ombruk.backend.avtale.application.api.dto.AvtaleFindDto
 import ombruk.backend.avtale.domain.entity.Avtale
+import ombruk.backend.avtale.domain.params.AvtaleFindParams
 import ombruk.backend.avtale.domain.port.IAvtaleRepository
 import ombruk.backend.henting.application.api.dto.HenteplanFindDto
 import ombruk.backend.henting.application.api.dto.PlanlagtHentingFindDto
@@ -78,4 +79,20 @@ class AvtaleService(val avtaleRepository: IAvtaleRepository, val hentePlanServic
         }
     }
 
+    override fun archive(params: AvtaleFindParams): Either<ServiceError, Unit> {
+        return transaction {
+            avtaleRepository.archive(params)
+                .fold(
+                    { Either.Left(ServiceError(it.message)) },
+                    { avtale ->
+                        avtale.map { hentePlanService.archive(HenteplanFindDto(avtaleId = it.id)) }
+                            .sequence(Either.applicative())
+                            .fix()
+                            .map { it.fix() }
+                            .flatMap { Either.Right(Unit) }
+                    }
+                )
+                .fold({rollback(); it.left()}, {it.right()})
+        }
+    }
 }

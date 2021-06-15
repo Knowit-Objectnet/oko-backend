@@ -26,6 +26,7 @@ import ombruk.backend.henting.domain.entity.Henteplan
 import ombruk.backend.henting.domain.model.HenteplanFrekvens
 import ombruk.backend.henting.hentingModule
 import ombruk.backend.shared.api.KeycloakGroupIntegration
+import ombruk.backend.utlysning.utlysningModule
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.koin.core.context.loadKoinModules
@@ -58,7 +59,7 @@ class AvtaleTest : KoinTest {
     fun setup() {
         testContainer.start()
         startKoin {}
-        loadKoinModules(listOf(avtaleModule, aktorModule, hentingModule))
+        loadKoinModules(listOf(avtaleModule, aktorModule, hentingModule, utlysningModule))
         avtaleService = get()
         stasjonService = get()
         partnerService = get()
