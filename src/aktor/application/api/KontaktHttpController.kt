@@ -61,10 +61,10 @@ fun Routing.kontakter(kontaktService: IKontaktService) {
         authenticate {
             patch {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.Partner, Roles.ReuseStation), call)
-                    .map { (role, groupId) ->
+                    .flatMap { (role, groupId) ->
                         receiveCatching { call.receive<KontaktUpdateDto>() }
                             .flatMap { it.validOrError() }
-                            .map { dto ->
+                            .flatMap { dto ->
                                 kontaktService.getKontaktById(dto.id)
                                 .ensure(
                                     { AuthorizationError.AccessViolationError("Denne kontakten tilhører ikke deg")},
@@ -74,8 +74,8 @@ fun Routing.kontakter(kontaktService: IKontaktService) {
                                     }
                                 )
                                 .flatMap { kontaktService.update(dto) }
-                            }.flatMap { it }
-                    }.flatMap { it }
+                            }
+                    }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }
@@ -84,7 +84,7 @@ fun Routing.kontakter(kontaktService: IKontaktService) {
         authenticate {
             post {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.Partner, Roles.ReuseStation), call)
-                    .map { (role, groupId) ->
+                    .flatMap { (role, groupId) ->
                         receiveCatching { call.receive<KontaktSaveDto>() }
                             .flatMap { it.validOrError() }
                             .ensure(
@@ -95,7 +95,7 @@ fun Routing.kontakter(kontaktService: IKontaktService) {
                                 }
                             )
                             .flatMap { kontaktService.save(it) }
-                    }.flatMap { it }
+                    }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }
@@ -104,9 +104,9 @@ fun Routing.kontakter(kontaktService: IKontaktService) {
         authenticate {
             delete<KontaktDeleteDto> { form ->
                 Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.Partner, Roles.ReuseStation), call)
-                    .map { (role, groupId) ->
+                    .flatMap { (role, groupId) ->
                         form.validOrError()
-                            .map { dto ->
+                            .flatMap { dto ->
                                 kontaktService.getKontaktById(dto.id)
                                     .ensure(
                                         { AuthorizationError.AccessViolationError("Denne kontakten tilhører ikke deg")},
@@ -116,8 +116,8 @@ fun Routing.kontakter(kontaktService: IKontaktService) {
                                         }
                                     )
                                     .flatMap { kontaktService.deleteKontaktById(it.id) }
-                            }.flatMap { it }
-                    }.flatMap { it }
+                            }
+                    }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }
