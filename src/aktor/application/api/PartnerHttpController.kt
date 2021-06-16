@@ -25,14 +25,14 @@ fun Routing.partnere(partnerService: IPartnerService) {
     route("/partnere") {
         get<PartnerGetByIdDto> { form ->
             form.validOrError()
-                .flatMap { partnerService.getPartnerById(it.id) }
+                .flatMap { partnerService.getPartnerById(it.id, false) }
                 .run { generateResponse(this) }
                 .also { (code, response) -> call.respond(code, response) }
         }
 
         get<PartnerGetDto> { form ->
             form.validOrError()
-                .flatMap { partnerService.getPartnere(it) }
+                .flatMap { partnerService.getPartnere(it, false) }
                 .run { generateResponse(this) }
                 .also { (code, response) -> call.respond(code, response) }
         }

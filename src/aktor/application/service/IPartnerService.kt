@@ -27,7 +27,7 @@ interface IPartnerService {
      * @param id The ID of the user to get.
      * @return An [Either] object consisting of a [ServiceError] on failure or the requested [Partner] on success.
      */
-    fun getPartnerById(id: UUID): Either<ServiceError, Partner>
+    fun getPartnerById(id: UUID, addKontakt: Boolean): Either<ServiceError, Partner>
 
     /**
      * Fetches partnere constrained by non-null values in the [PartnerGetDto].
@@ -35,7 +35,7 @@ interface IPartnerService {
      * @param dto A [PartnerGetDto], where each non-null property will constrain the search.
      * @return An [Either] object consisting of [ServiceError] on failure or a [List] of [Partner] objects on success.
      */
-    fun getPartnere(dto: PartnerGetDto = PartnerGetDto()): Either<ServiceError, List<Partner>>
+    fun getPartnere(dto: PartnerGetDto = PartnerGetDto(), addKontakt: Boolean): Either<ServiceError, List<Partner>>
 
     /**
      * Deletes the partner with the provided ID. If the ID does not exist, a [ServiceError] is returned.
