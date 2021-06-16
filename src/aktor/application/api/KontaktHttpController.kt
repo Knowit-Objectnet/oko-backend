@@ -40,11 +40,10 @@ fun Routing.kontakter(kontaktService: IKontaktService) {
                 .also { (code, response) -> call.respond(code, response) }
         }
 
-        //TODO: Correct station and partner are authorized for updating this kontakt
         authenticate {
             patch {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.Partner, Roles.ReuseStation), call)
-                    .map { (roles, id) ->
+                    .map { (role, groupId) ->
                         receiveCatching { call.receive<KontaktUpdateDto>() }
                             .flatMap { it.validOrError() }
                             .map { dto ->
@@ -52,8 +51,8 @@ fun Routing.kontakter(kontaktService: IKontaktService) {
                                 .ensure(
                                     { AuthorizationError.AccessViolationError("Denne kontakten tilhører ikke deg")},
                                     {
-                                        if (roles == Roles.RegEmployee) true
-                                        else it.aktorId == id
+                                        if (role == Roles.RegEmployee) true
+                                        else it.aktorId == groupId
                                     }
                                 )
                                 .flatMap { kontaktService.update(dto) }
@@ -64,13 +63,21 @@ fun Routing.kontakter(kontaktService: IKontaktService) {
             }
         }
 
-        //TODO: Correct station and partner are authorized for saving this kontakt to a station or partner
         authenticate {
             post {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.Partner, Roles.ReuseStation), call)
-                    .flatMap { receiveCatching { call.receive<KontaktSaveDto>() } }
-                    .flatMap { it.validOrError() }
-                    .flatMap { kontaktService.save(it) }
+                    .map { (role, groupId) ->
+                        receiveCatching { call.receive<KontaktSaveDto>() }
+                            .flatMap { it.validOrError() }
+                            .ensure(
+                                {AuthorizationError.AccessViolationError("Kontakt forsøkt opprettet for annen gruppe")},
+                                {
+                                    if (role == Roles.RegEmployee) true
+                                    else it.aktorId == groupId
+                                }
+                            )
+                            .flatMap { kontaktService.save(it) }
+                    }.flatMap { it }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }
