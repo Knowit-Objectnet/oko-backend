@@ -61,7 +61,7 @@ object Authorization {
 
         val groupIDString =
             principal.payload.claims["GroupID"]?.asString() //-1 serves as a placeholder value for stations and REG admin
-                ?: if (role != Roles.Partner) "00000000-0000-0000-0000-000000000000"
+                ?: if (role == Roles.RegEmployee) "00000000-0000-0000-0000-000000000000"
                 else return AuthorizationError.MissingGroupIDError().left()
 
         val groupID = UUID.fromString(groupIDString)
