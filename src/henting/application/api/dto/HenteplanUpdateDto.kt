@@ -11,6 +11,7 @@ import ombruk.backend.shared.error.ValidationError
 import ombruk.backend.shared.form.IForm
 import ombruk.backend.shared.model.serializer.LocalDateTimeSerializer
 import ombruk.backend.shared.utils.validation.isGreaterThanStartDateTime
+import ombruk.backend.shared.utils.validation.isLessThanEndDateTime
 import ombruk.backend.shared.utils.validation.runCatchingValidation
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.KoinComponent
@@ -36,6 +37,11 @@ data class HenteplanUpdateDto(
         validate(this) {
             if (startTidspunkt != null && sluttTidspunkt != null) {
                 validate(HenteplanUpdateDto::sluttTidspunkt).isGreaterThanStartDateTime(startTidspunkt)
+            } else if (startTidspunkt != null || sluttTidspunkt != null) {
+                transaction { get<IHenteplanRepository>().findOne(it.id) }.fold({}, {
+                    if (startTidspunkt != null) validate(HenteplanUpdateDto::startTidspunkt).isLessThanEndDateTime(it.sluttTidspunkt)
+                    if (sluttTidspunkt != null) validate(HenteplanUpdateDto::sluttTidspunkt).isGreaterThanStartDateTime(it.startTidspunkt)
+                })
             }
 
             if (frekvens != null) {
@@ -48,14 +54,14 @@ data class HenteplanUpdateDto(
             val avtaleRepository: IAvtaleRepository = get()
 
             // Date check if valid
-            transaction { henteplanRepository.findOne(it.id) }.fold({}, {
-                transaction { avtaleRepository.findOne(it.avtaleId).fold({}, {
-                    validate(HenteplanUpdateDto::startTidspunkt).isGreaterThanOrEqualTo(LocalDateTime.of(it.startDato, LocalTime.MIN))
-                    validate(HenteplanUpdateDto::sluttTidspunkt).isLessThanOrEqualTo(LocalDateTime.of(it.sluttDato, LocalTime.MAX))
-                }) }
-            })
-
-
+            transaction { henteplanRepository.findOne(it.id) }.map {
+               transaction {
+                   avtaleRepository.findOne(it.avtaleId).map {
+                       validate(HenteplanUpdateDto::startTidspunkt).isGreaterThanOrEqualTo(LocalDateTime.of(it.startDato, LocalTime.MIN))
+                       validate(HenteplanUpdateDto::sluttTidspunkt).isLessThanOrEqualTo(LocalDateTime.of(it.sluttDato, LocalTime.MAX))
+                   }
+               }
+            }
         }
     }
 }

@@ -101,35 +101,44 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
     }
 
     override fun update(dto: HenteplanUpdateDto): Either<ServiceError, Henteplan> {
-        var today = LocalDateTime.now()
-            findOne(dto.id).fold({}, {
-                planlagtHentingService.find(PlanlagtHentingFindDto(henteplanId = dto.id, after = today)).map {
-                    it.map { planlagtHentingService.delete(PlanlagtHentingDeleteDto(id = it.id)) }
-                }
+        return transaction {
+            val today = LocalDateTime.now()
+            henteplanRepository.findOne(dto.id)
+                .fold(
+                    { Either.left(ServiceError(it.message))},
+                    { henteplan ->
+                        planlagtHentingService.find(PlanlagtHentingFindDto(henteplanId = dto.id, after = today)).map {
+                            it.map { planlagtHentingService.delete(PlanlagtHentingDeleteDto(id = it.id)) }
+                        }
+                            .fold({it.left()},
+                            {
+                                var starttime = LocalDateTime.of(today.toLocalDate(), (dto.startTidspunkt ?: henteplan.startTidspunkt).toLocalTime())
 
-                var starttime = LocalDateTime.of(today.toLocalDate(), (dto.startTidspunkt ?: it.startTidspunkt).toLocalTime())
+                                if (dto.startTidspunkt != null && dto.startTidspunkt.isAfter(today)) {
+                                    starttime = dto.startTidspunkt
+                                } else if (dto.startTidspunkt == null && henteplan.startTidspunkt.isAfter(today)) {
+                                    starttime = henteplan.startTidspunkt
+                                }
 
-                if (dto.startTidspunkt != null && dto.startTidspunkt.isAfter(today)) {
-                    starttime = dto.startTidspunkt
-                } else if (dto.startTidspunkt == null && it.startTidspunkt.isAfter(today)) {
-                    starttime = it.startTidspunkt
-                }
-
-                    transaction {
-                        appendPlanlagtHentinger(
-                            HenteplanSaveDto(
-                                avtaleId = it.avtaleId,
-                                stasjonId = it.stasjonId,
-                                startTidspunkt = starttime,
-                                sluttTidspunkt = dto.sluttTidspunkt ?: it.sluttTidspunkt,
-                                ukedag = dto.ukeDag ?: it.ukedag,
-                                merknad = dto.merknad ?: it.merknad,
-                                frekvens = dto.frekvens ?: it.frekvens
-                            ), it.id, it
-                        ).fold({ rollback() }, {})}
-
-            })
-        return transaction { henteplanRepository.update(dto) }
+                                appendPlanlagtHentinger(
+                                    HenteplanSaveDto(
+                                        avtaleId = henteplan.avtaleId,
+                                        stasjonId = henteplan.stasjonId,
+                                        startTidspunkt = starttime,
+                                        sluttTidspunkt = dto.sluttTidspunkt ?: henteplan.sluttTidspunkt,
+                                        ukedag = dto.ukeDag ?: henteplan.ukedag,
+                                        merknad = dto.merknad ?: henteplan.merknad,
+                                        frekvens = dto.frekvens ?: henteplan.frekvens
+                                    ), henteplan.id, henteplan
+                                ).fold(
+                                    { Either.left(ServiceError(it.message)) },
+                                    { henteplanRepository.update(dto) }
+                                )
+                            })
+                    }
+                )
+                .fold({rollback(); it.left()}, {it.right()})
+        }
     }
 
     override fun archiveOne(id: UUID): Either<ServiceError, Unit> {

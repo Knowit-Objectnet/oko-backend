@@ -30,12 +30,15 @@ import java.util.*
 data class AvtaleUpdateDto(
     @Serializable(with = UUIDSerializer::class) override val id: UUID,
     override val type: AvtaleType? = null,
-    @Serializable( with = LocalDateSerializer::class) override val startDato: LocalDate,
-    @Serializable( with = LocalDateSerializer::class) override val sluttDato: LocalDate,
+    @Serializable( with = LocalDateSerializer::class) override val startDato: LocalDate? = null,
+    @Serializable( with = LocalDateSerializer::class) override val sluttDato: LocalDate? = null,
     ) : IForm<AvtaleUpdateDto>, AvtaleUpdateParams(), KoinComponent {
     override fun validOrError(): Either<ValidationError, AvtaleUpdateDto> = runCatchingValidation {
         validate(this) {
-            validate(AvtaleUpdateDto::startDato).isLessThanOrEqualTo(sluttDato)
+            //TODO: Lag en bedre sjekk, sjekk mot datoene til tidligere avtale om nødvendig.
+            if (startDato != null && sluttDato != null) {
+                validate(AvtaleUpdateDto::startDato).isLessThanOrEqualTo(sluttDato)
+            }
         }
     }
 }

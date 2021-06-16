@@ -72,17 +72,21 @@ class AvtaleService(val avtaleRepository: IAvtaleRepository, val henteplanServic
     }
 
     override fun update(dto: AvtaleUpdateDto): Either<ServiceError, Avtale> {
-        findOne(dto.id).map {
-            it.henteplaner.map {
-                var start: LocalDateTime? = LocalDateTime.of(dto.startDato, it.startTidspunkt.toLocalTime())
-                var slutt: LocalDateTime? = LocalDateTime.of(dto.sluttDato, it.sluttTidspunkt.toLocalTime())
-                if (!start!!.isAfter(it.startTidspunkt)) start = null
-                if (!slutt!!.isBefore(it.sluttTidspunkt)) slutt = null
-                if (start != null || slutt != null) henteplanService.update(HenteplanUpdateDto(id = it.id, startTidspunkt = start, sluttTidspunkt = slutt))
-            }
-        }
         return transaction {
-            avtaleRepository.update(dto)
+            findOne(dto.id).map {
+                it.henteplaner.map {
+                    var start: LocalDateTime? = LocalDateTime.of(dto.startDato ?: it.startTidspunkt.toLocalDate(), it.startTidspunkt.toLocalTime())
+                    var slutt: LocalDateTime? = LocalDateTime.of(dto.sluttDato ?: it.sluttTidspunkt.toLocalDate(), it.sluttTidspunkt.toLocalTime())
+                    if (!start!!.isAfter(it.startTidspunkt)) start = null
+                    if (!slutt!!.isBefore(it.sluttTidspunkt)) slutt = null
+                    if ((slutt != null && it.startTidspunkt.isAfter(slutt)) || (start != null && it.sluttTidspunkt.isBefore(start))) henteplanService.archiveOne(it.id)
+                    else if (start != null || slutt != null) henteplanService.update(HenteplanUpdateDto(id = it.id, startTidspunkt = start, sluttTidspunkt = slutt))
+                    else{}
+                }
+            }
+                .fold({it.left()}, {
+                avtaleRepository.update(dto)
+                })
                 .fold({ rollback(); it.left() }, { it.right() })
         }
     }

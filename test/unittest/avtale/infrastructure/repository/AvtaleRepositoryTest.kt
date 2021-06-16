@@ -78,22 +78,20 @@ class AvtaleRepositoryTest {
     @Test
     fun update() {
         //TODO: Implement
-        val f = transaction { avtaleRepository.findOne(avtale.id) }
-        require(f is Either.Right<Avtale>)
-        assert(f.b == avtale)
+        val find = transaction { avtaleRepository.findOne(avtale.id) }
+        require(find is Either.Right<Avtale>)
+        assert(find.b == avtale)
 
-        val uP = object: AvtaleUpdateParams() {
+        val updateParams = object: AvtaleUpdateParams() {
             override val id: UUID = avtale.id
             override val startDato: LocalDate = LocalDate.now().plusDays(2)
             override val sluttDato: LocalDate = LocalDate.now().plusDays(10)
             override val type: AvtaleType? = null
         }
-        val u = transaction { avtaleRepository.update(uP) }
-        require(u is Either.Right<Avtale>)
-        assert(u.b.id == f.b.id)
-        assert(u.b != f.b)
-
-
+        val update = transaction { avtaleRepository.update(updateParams) }
+        require(update is Either.Right<Avtale>)
+        assert(update.b.id == find.b.id)
+        assert(update.b != find.b)
     }
 
     @Test
