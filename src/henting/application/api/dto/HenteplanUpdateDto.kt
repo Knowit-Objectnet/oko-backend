@@ -38,10 +38,10 @@ data class HenteplanUpdateDto(
             if (startTidspunkt != null && sluttTidspunkt != null) {
                 validate(HenteplanUpdateDto::sluttTidspunkt).isGreaterThanStartDateTime(startTidspunkt)
             } else if (startTidspunkt != null || sluttTidspunkt != null) {
-                transaction { get<IHenteplanRepository>().findOne(it.id) }.fold({}, {
+                transaction { get<IHenteplanRepository>().findOne(it.id) }.map {
                     if (startTidspunkt != null) validate(HenteplanUpdateDto::startTidspunkt).isLessThanEndDateTime(it.sluttTidspunkt)
                     if (sluttTidspunkt != null) validate(HenteplanUpdateDto::sluttTidspunkt).isGreaterThanStartDateTime(it.startTidspunkt)
-                })
+                }
             }
 
             if (frekvens != null) {

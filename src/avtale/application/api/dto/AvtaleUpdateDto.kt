@@ -9,18 +9,22 @@ import ombruk.backend.avtale.application.service.IAvtaleService
 import ombruk.backend.avtale.domain.entity.Avtale
 import ombruk.backend.avtale.domain.params.AvtaleCreateParams
 import ombruk.backend.avtale.domain.params.AvtaleUpdateParams
+import ombruk.backend.avtale.domain.port.IAvtaleRepository
 import ombruk.backend.avtale.model.AvtaleType
+import ombruk.backend.henting.application.api.dto.HenteplanUpdateDto
+import ombruk.backend.henting.domain.port.IHenteplanRepository
 import ombruk.backend.shared.error.ServiceError
 import ombruk.backend.shared.error.ValidationError
 import ombruk.backend.shared.form.IForm
 import ombruk.backend.shared.model.serializer.LocalDateSerializer
+import ombruk.backend.shared.utils.validation.isGreaterThanStartDateTime
+import ombruk.backend.shared.utils.validation.isLessThanEndDateTime
 import ombruk.backend.shared.utils.validation.runCatchingValidation
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 import org.koin.core.component.inject
-import org.valiktor.functions.isLessThan
-import org.valiktor.functions.isLessThanOrEqualTo
-import org.valiktor.functions.isValid
-import org.valiktor.functions.validate
+import org.valiktor.functions.*
 import org.valiktor.validate
 import shared.model.serializer.UUIDSerializer
 import java.time.LocalDate
@@ -35,9 +39,13 @@ data class AvtaleUpdateDto(
     ) : IForm<AvtaleUpdateDto>, AvtaleUpdateParams(), KoinComponent {
     override fun validOrError(): Either<ValidationError, AvtaleUpdateDto> = runCatchingValidation {
         validate(this) {
-            //TODO: Lag en bedre sjekk, sjekk mot datoene til tidligere avtale om nødvendig.
             if (startDato != null && sluttDato != null) {
-                validate(AvtaleUpdateDto::startDato).isLessThanOrEqualTo(sluttDato)
+                validate(AvtaleUpdateDto::startDato).isGreaterThan(sluttDato)
+            } else if (startDato != null || sluttDato != null) {
+                transaction { get<IAvtaleRepository>().findOne(it.id) }.map {
+                    if (startDato != null) validate(AvtaleUpdateDto::startDato).isLessThanOrEqualTo(it.sluttDato)
+                    if (sluttDato != null) validate(AvtaleUpdateDto::sluttDato).isGreaterThanOrEqualTo(it.startDato)
+                }
             }
         }
     }
