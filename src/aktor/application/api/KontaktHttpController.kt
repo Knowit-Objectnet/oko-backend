@@ -1,6 +1,7 @@
 package ombruk.backend.aktor.application.api
 
 import arrow.core.extensions.either.monad.flatMap
+import arrow.core.extensions.either.monadError.ensure
 import io.ktor.application.call
 import io.ktor.auth.authenticate
 import io.ktor.locations.KtorExperimentalLocationsAPI
@@ -18,6 +19,7 @@ import ombruk.backend.shared.api.Authorization
 import ombruk.backend.shared.api.Roles
 import ombruk.backend.shared.api.generateResponse
 import ombruk.backend.shared.api.receiveCatching
+import ombruk.backend.shared.error.AuthorizationError
 
 @KtorExperimentalLocationsAPI
 fun Routing.kontakter(kontaktService: IKontaktService) {
@@ -42,9 +44,21 @@ fun Routing.kontakter(kontaktService: IKontaktService) {
         authenticate {
             patch {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.Partner, Roles.ReuseStation), call)
-                    .flatMap { receiveCatching { call.receive<KontaktUpdateDto>() } }
-                    .flatMap { it.validOrError() }
-                    .flatMap { kontaktService.update(it) }
+                    .map { (roles, id) ->
+                        receiveCatching { call.receive<KontaktUpdateDto>() }
+                            .flatMap { it.validOrError() }
+                            .map { dto ->
+                                kontaktService.getKontaktById(dto.id)
+                                .ensure(
+                                    { AuthorizationError.AccessViolationError("Denne kontakten tilhører ikke deg")},
+                                    {
+                                        if (roles == Roles.RegEmployee) true
+                                        else it.aktorId == id
+                                    }
+                                )
+                                .flatMap { kontaktService.update(dto) }
+                            }.flatMap { it }
+                    }.flatMap { it }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }
