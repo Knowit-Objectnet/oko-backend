@@ -111,8 +111,10 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
 
                 if (dto.startTidspunkt != null && dto.startTidspunkt.isAfter(today)) {
                     starttime = dto.startTidspunkt
+                } else if (dto.startTidspunkt == null && it.startTidspunkt.isAfter(today)) {
+                    starttime = it.startTidspunkt
                 }
-                
+
                     transaction {
                         appendPlanlagtHentinger(
                             HenteplanSaveDto(
