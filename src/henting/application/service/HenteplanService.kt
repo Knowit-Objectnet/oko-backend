@@ -107,7 +107,12 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
                     it.map { planlagtHentingService.delete(PlanlagtHentingDeleteDto(id = it.id)) }
                 }
 
-                val starttime = LocalDateTime.of(today.toLocalDate(), (dto.startTidspunkt ?: it.startTidspunkt).toLocalTime())
+                var starttime = LocalDateTime.of(today.toLocalDate(), (dto.startTidspunkt ?: it.startTidspunkt).toLocalTime())
+
+                if (dto.startTidspunkt != null && dto.startTidspunkt.isAfter(today)) {
+                    starttime = dto.startTidspunkt
+                }
+                
                     transaction {
                         appendPlanlagtHentinger(
                             HenteplanSaveDto(
