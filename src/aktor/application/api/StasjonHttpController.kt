@@ -21,18 +21,33 @@ fun Routing.stasjoner(stasjonService: IStasjonService) {
 
 
     route("/stasjoner") {
-        get<StasjonFindOneDto> { form ->
-            form.validOrError()
-                .flatMap { stasjonService.findOne(it.id, false) }
-                .run { generateResponse(this) }
-                .also { (code, response) -> call.respond(code, response) }
+
+        authenticate {
+            get<StasjonFindOneDto> { form ->
+                Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.Partner, Roles.ReuseStation), call)
+                    .flatMap { (role, groupId) ->
+                        form.validOrError()
+                            .flatMap { stasjonService.findOne(it.id,
+                                role == Roles.RegEmployee || it.id == groupId
+                                ) }
+                    }
+                    .run { generateResponse(this) }
+                    .also { (code, response) -> call.respond(code, response) }
+            }
         }
 
-        get<StasjonFindDto> { form ->
-            form.validOrError()
-                .flatMap { stasjonService.find(it, false) }
-                .run { generateResponse(this) }
-                .also { (code, response) -> call.respond(code, response) }
+        authenticate {
+            get<StasjonFindDto> { form ->
+                Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.Partner, Roles.ReuseStation), call)
+                    .flatMap { (role, groupId) ->
+                        form.validOrError()
+                            .flatMap { stasjonService.find(it,
+                                role == Roles.RegEmployee
+                                ) }
+                    }
+                    .run { generateResponse(this) }
+                    .also { (code, response) -> call.respond(code, response) }
+            }
         }
 
         authenticate {
