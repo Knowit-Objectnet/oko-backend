@@ -26,18 +26,36 @@ fun Routing.kontakter(kontaktService: IKontaktService) {
 
     route("/kontakter") {
 
-        get<KontaktGetByIdDto> { form ->
-            form.validOrError()
-                .flatMap { kontaktService.getKontaktById(it.id) }
-                .run { generateResponse(this) }
-                .also { (code, response) -> call.respond(code, response) }
+        authenticate {
+            get<KontaktGetByIdDto> { form ->
+                Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.Partner, Roles.ReuseStation), call)
+                    .flatMap { (role, groupId) ->
+                        form.validOrError()
+                            .flatMap { kontaktService.getKontaktById(it.id) }
+                            .ensure(
+                                { AuthorizationError.AccessViolationError("Denne kontakten tilhører ikke deg")},
+                                {
+                                    if (role == Roles.RegEmployee) true
+                                    else it.aktorId == groupId
+                                }
+                            )
+                    }
+                    .run { generateResponse(this) }
+                    .also { (code, response) -> call.respond(code, response) }
+            }
         }
 
-        get<KontaktGetDto> { form ->
-            form.validOrError()
-                .flatMap { kontaktService.getKontakter(it) }
-                .run { generateResponse(this) }
-                .also { (code, response) -> call.respond(code, response) }
+        authenticate {
+            get<KontaktGetDto> { form ->
+                Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.Partner, Roles.ReuseStation), call)
+                    .flatMap { (role, groupId) ->
+                        form.validOrError()
+                            .map { if (role == Roles.RegEmployee) it else it.copy(aktorId = groupId) }
+                            .flatMap { kontaktService.getKontakter(it) }
+                    }
+                    .run { generateResponse(this) }
+                    .also { (code, response) -> call.respond(code, response) }
+            }
         }
 
         authenticate {
