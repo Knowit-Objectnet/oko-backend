@@ -10,11 +10,8 @@ import ombruk.backend.aktor.application.api.dto.StasjonSaveDto
 import ombruk.backend.aktor.application.api.dto.StasjonFindDto
 import ombruk.backend.aktor.application.api.dto.StasjonUpdateDto
 import ombruk.backend.aktor.application.service.IStasjonService
-import ombruk.backend.aktor.application.service.KontaktService
-import ombruk.backend.aktor.application.service.StasjonService
 import ombruk.backend.aktor.domain.entity.Stasjon
 import ombruk.backend.aktor.domain.enum.StasjonType
-import ombruk.backend.aktor.infrastructure.repository.StasjonRepository
 import ombruk.backend.avtale.avtaleModule
 import ombruk.backend.henting.hentingModule
 import ombruk.backend.kategori.kategoriModule
@@ -24,7 +21,6 @@ import org.junit.jupiter.api.*
 import org.testcontainers.junit.jupiter.Testcontainers
 import testutils.TestContainer
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -83,7 +79,7 @@ class StasjonTest : KoinTest{
     @Order(2)
     fun testFind() {
         val stasjon = StasjonFindDto(navn)
-        val find = stasjonService.find(stasjon)
+        val find = stasjonService.find(stasjon, false)
         require(find is Either.Right)
         assertEquals(1, find.b.count())
         assertEquals(navn, find.b[0].navn)
@@ -95,7 +91,7 @@ class StasjonTest : KoinTest{
     @Test
     @Order(3)
     fun testFindOne() {
-        val findOne = stasjonService.findOne(uuid)
+        val findOne = stasjonService.findOne(uuid, false)
         require(findOne is Either.Right)
         assertEquals(uuid, findOne.b.id)
         assertEquals(navn, findOne.b.navn)
@@ -121,7 +117,7 @@ class StasjonTest : KoinTest{
     @Test
     @Order(5)
     fun testFindOneAfterUpdate() {
-        val findOne = stasjonService.findOne(uuid)
+        val findOne = stasjonService.findOne(uuid, false)
         require(findOne is Either.Right)
         assertEquals(uuid, findOne.b.id)
         assertEquals(updateNavn, findOne.b.navn)
@@ -140,7 +136,7 @@ class StasjonTest : KoinTest{
     @Test
     @Order(7)
     fun testFindOneFails() {
-        val findOne = stasjonService.findOne(uuid)
+        val findOne = stasjonService.findOne(uuid, false)
         assert(findOne is Either.Left)
     }
 }

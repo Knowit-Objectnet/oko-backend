@@ -22,7 +22,7 @@ interface IStasjonService {
      * @param id The ID of the user to get.
      * @return An [Either] object consisting of a [ServiceError] on failure or the requested [Stasjon] on success.
      */
-    fun findOne(id: UUID): Either<ServiceError, Stasjon>
+    fun findOne(id: UUID, addKontakt: Boolean): Either<ServiceError, Stasjon>
 
     /**
      * Fetches stasjoner constrained by non-null values in the [StasjonFindDto].
@@ -30,7 +30,7 @@ interface IStasjonService {
      * @param dto A [StasjonFindDto], where each non-null property will constrain the search.
      * @return An [Either] object consisting of [ServiceError] on failure or a [List] of [Stasjon] objects on success.
      */
-    fun find(dto: StasjonFindDto = StasjonFindDto()): Either<ServiceError, List<Stasjon>>
+    fun find(dto: StasjonFindDto = StasjonFindDto(), addKontakt: Boolean): Either<ServiceError, List<Stasjon>>
 
     /**
      * Deletes the stasjon with the provided ID. If the ID does not exist, a [ServiceError] is returned.

@@ -41,23 +41,25 @@ class StasjonService(
         }
     }
 
-    override fun findOne(id: UUID): Either<ServiceError, Stasjon> {
+    override fun findOne(id: UUID, addKontakt: Boolean): Either<ServiceError, Stasjon> {
         return transaction {
             stasjonRepository.findOne(id)
                 .flatMap { stasjon ->
-                    kontaktService.getKontakter(KontaktGetDto(aktorId = stasjon.id))
+                    if (addKontakt) kontaktService.getKontakter(KontaktGetDto(aktorId = stasjon.id))
                         .flatMap { kontakter -> stasjon.copy(kontaktPersoner = kontakter).right() }
+                    else stasjon.right()
                 }
         }
     }
 
-    override fun find(dto: StasjonFindDto): Either<ServiceError, List<Stasjon>> {
+    override fun find(dto: StasjonFindDto, addKontakt: Boolean): Either<ServiceError, List<Stasjon>> {
         return transaction {
             stasjonRepository.find((dto))
                 .flatMap {
                     it.map { stasjon ->
-                        kontaktService.getKontakter(KontaktGetDto(aktorId = stasjon.id))
+                        if (addKontakt) kontaktService.getKontakter(KontaktGetDto(aktorId = stasjon.id))
                             .flatMap { kontakter -> stasjon.copy(kontaktPersoner = kontakter).right() }
+                        else stasjon.right()
                     }.sequence(Either.applicative()).fix().map { it.fix() }
                 }
         }
@@ -65,7 +67,7 @@ class StasjonService(
 
     override fun delete(id: UUID): Either<ServiceError, Stasjon> {
         return transaction {
-            findOne(id).flatMap { stasjon ->
+            findOne(id, false).flatMap { stasjon ->
                 stasjonRepository.delete(id)
                     //.flatMap { keycloakGroupIntegration.deleteGroup(stasjon.navn) }
                     .bimap({ rollback(); it }, { stasjon })
@@ -74,7 +76,7 @@ class StasjonService(
     }
 
     override fun update(dto: StasjonUpdateDto): Either<ServiceError, Stasjon> = transaction {
-        findOne(dto.id).flatMap { stasjon ->
+        findOne(dto.id, false).flatMap { stasjon ->
             stasjonRepository.update(dto).flatMap { newStasjon ->
                 newStasjon.right() //keycloakGroupIntegration.updateGroup(stasjon.navn, newStasjon.navn)
                     .bimap({ rollback(); it }, { newStasjon })

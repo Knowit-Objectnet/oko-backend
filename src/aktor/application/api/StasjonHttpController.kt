@@ -23,14 +23,14 @@ fun Routing.stasjoner(stasjonService: IStasjonService) {
     route("/stasjoner") {
         get<StasjonFindOneDto> { form ->
             form.validOrError()
-                .flatMap { stasjonService.findOne(it.id) }
+                .flatMap { stasjonService.findOne(it.id, false) }
                 .run { generateResponse(this) }
                 .also { (code, response) -> call.respond(code, response) }
         }
 
         get<StasjonFindDto> { form ->
             form.validOrError()
-                .flatMap { stasjonService.find(it) }
+                .flatMap { stasjonService.find(it, false) }
                 .run { generateResponse(this) }
                 .also { (code, response) -> call.respond(code, response) }
         }
