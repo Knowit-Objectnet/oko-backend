@@ -2,6 +2,7 @@ package ombruk.backend.aktor.application.service
 
 import arrow.core.Either
 import ombruk.backend.aktor.application.api.dto.*
+import ombruk.backend.aktor.domain.entity.Partner
 import ombruk.backend.aktor.domain.entity.Stasjon
 import ombruk.backend.shared.error.ServiceError
 import java.util.*
@@ -20,6 +21,7 @@ interface IStasjonService {
      * Gets a stasjon by its ID.
      *
      * @param id The ID of the user to get.
+     * @param addKontakt A [Boolean], if true, the [Stasjon] will include its [Kontakt]s
      * @return An [Either] object consisting of a [ServiceError] on failure or the requested [Stasjon] on success.
      */
     fun findOne(id: UUID, addKontakt: Boolean): Either<ServiceError, Stasjon>
@@ -28,6 +30,7 @@ interface IStasjonService {
      * Fetches stasjoner constrained by non-null values in the [StasjonFindDto].
      *
      * @param dto A [StasjonFindDto], where each non-null property will constrain the search.
+     * @param addKontakt A [Boolean], if true, each [Stasjon] will include its [Kontakt]s
      * @return An [Either] object consisting of [ServiceError] on failure or a [List] of [Stasjon] objects on success.
      */
     fun find(dto: StasjonFindDto = StasjonFindDto(), addKontakt: Boolean): Either<ServiceError, List<Stasjon>>
