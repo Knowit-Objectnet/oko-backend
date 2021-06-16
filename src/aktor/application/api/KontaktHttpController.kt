@@ -83,12 +83,23 @@ fun Routing.kontakter(kontaktService: IKontaktService) {
             }
         }
 
-        //TODO: Correct station and partner are authorized for deleting this kontakt
         authenticate {
             delete<KontaktDeleteDto> { form ->
                 Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.Partner, Roles.ReuseStation), call)
-                    .flatMap { form.validOrError() }
-                    .flatMap { kontaktService.deleteKontaktById(it.id) }
+                    .map { (role, groupId) ->
+                        form.validOrError()
+                            .map { dto ->
+                                kontaktService.getKontaktById(dto.id)
+                                    .ensure(
+                                        { AuthorizationError.AccessViolationError("Denne kontakten tilhører ikke deg")},
+                                        {
+                                            if (role == Roles.RegEmployee) true
+                                            else it.aktorId == groupId
+                                        }
+                                    )
+                                    .flatMap { kontaktService.deleteKontaktById(it.id) }
+                            }.flatMap { it }
+                    }.flatMap { it }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }
