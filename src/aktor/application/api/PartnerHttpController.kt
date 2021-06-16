@@ -63,7 +63,7 @@ fun Routing.partnere(partnerService: IPartnerService) {
             delete<PartnerDeleteDto> { form ->
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
                     .flatMap { form.validOrError() }
-                    .flatMap { partnerService.deletePartnerById(it.id) }
+                    .flatMap { partnerService.archiveOne(it.id) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }

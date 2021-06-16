@@ -50,7 +50,7 @@ fun Routing.planlagteHentinger(planlagtHentingService: IPlanlagtHentingService) 
             delete<PlanlagtHentingDeleteDto> { form ->
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
                     .flatMap { form.validOrError() }
-                    .flatMap { planlagtHentingService.delete(form) }
+                    .flatMap { planlagtHentingService.archiveOne(form.id) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }

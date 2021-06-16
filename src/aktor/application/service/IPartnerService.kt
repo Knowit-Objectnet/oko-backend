@@ -52,4 +52,6 @@ interface IPartnerService {
      * @return A [ServiceError] on failure and the updated [Partner] on success.
      */
     fun updatePartner(dto: PartnerUpdateDto): Either<ServiceError, Partner>
+
+    fun archiveOne(id: UUID): Either<ServiceError, Unit>
 }

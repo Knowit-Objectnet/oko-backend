@@ -14,4 +14,6 @@ interface IHenteplanRepository {
     fun delete(id: UUID): Either<RepositoryError, Unit>
     fun findOne(id: UUID): Either<RepositoryError, Henteplan>
     fun find(params: HenteplanFindParams): Either<RepositoryError, List<Henteplan>>
+    fun archive(params: HenteplanFindParams): Either<RepositoryError, List<Henteplan>>
+    fun archiveOne(id: UUID): Either<RepositoryError, Henteplan>
 }

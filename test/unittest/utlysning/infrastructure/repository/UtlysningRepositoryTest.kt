@@ -13,6 +13,8 @@ import ombruk.backend.henting.domain.params.EkstraHentingCreateParams
 import ombruk.backend.henting.infrastructure.repository.EkstraHentingRepository
 import ombruk.backend.shared.error.RepositoryError
 import ombruk.backend.utlysning.application.api.dto.UtlysningFindDto
+import ombruk.backend.utlysning.application.api.dto.UtlysningPartnerAcceptDto
+import ombruk.backend.utlysning.application.api.dto.UtlysningStasjonAcceptDto
 import ombruk.backend.utlysning.application.api.dto.UtlysningUpdateDto
 import ombruk.backend.utlysning.domain.entity.Utlysning
 import ombruk.backend.utlysning.domain.params.UtlysningCreateParams
@@ -25,6 +27,7 @@ import testutils.TestContainer
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.util.*
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 internal class UtlysningRepositoryTest {
@@ -228,6 +231,59 @@ internal class UtlysningRepositoryTest {
             println(findOne)
             require(findOne is Either.Right)
             assert(findOne.b == utlysning1)
+        }
+    }
+
+    @Test
+    fun partnerAccept() {
+        transaction {
+            val wrongIdAccept = utlysningRepository.acceptPartner(UtlysningPartnerAcceptDto(UUID.randomUUID(), true))
+            require(wrongIdAccept is Either.Left)
+            println(wrongIdAccept.a)
+            assert(wrongIdAccept.a is RepositoryError.NoRowsFound)
+        }
+
+        val currentDateTime: LocalDateTime = LocalDateTime.now()
+
+        transaction {
+            val accept = utlysningRepository.acceptPartner(UtlysningPartnerAcceptDto(utlysning1.id, true))
+            require(accept is Either.Right)
+            assertTrue(
+                (currentDateTime.toEpochSecond(ZoneOffset.UTC)
+                        - accept.b.partnerPameldt!!.toEpochSecond(ZoneOffset.UTC)) < 1
+                , "Dates too far apart!")
+        }
+
+        transaction {
+            val unAccept = utlysningRepository.acceptPartner(UtlysningPartnerAcceptDto(utlysning1.id, false))
+            require(unAccept is Either.Right)
+            assertNull(unAccept.b.partnerPameldt)
+        }
+    }
+
+    @Test
+    fun stasjonAccept() {
+        transaction {
+            val wrongIdAccept = utlysningRepository.acceptStasjon(UtlysningStasjonAcceptDto(UUID.randomUUID(), true))
+            require(wrongIdAccept is Either.Left)
+            assert(wrongIdAccept.a is RepositoryError.NoRowsFound)
+        }
+
+        val currentDateTime: LocalDateTime = LocalDateTime.now()
+
+        transaction {
+            val accept = utlysningRepository.acceptStasjon(UtlysningStasjonAcceptDto(utlysning1.id, true))
+            require(accept is Either.Right)
+            assertTrue(
+                (currentDateTime.toEpochSecond(ZoneOffset.UTC)
+                        - accept.b.stasjonGodkjent!!.toEpochSecond(ZoneOffset.UTC)) < 1
+                , "Dates too far apart!")
+        }
+
+        transaction {
+            val unAccept = utlysningRepository.acceptStasjon(UtlysningStasjonAcceptDto(utlysning1.id, false))
+            require(unAccept is Either.Right)
+            assertNull(unAccept.b.stasjonGodkjent)
         }
     }
 

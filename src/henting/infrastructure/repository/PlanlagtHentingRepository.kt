@@ -97,9 +97,20 @@ class PlanlagtHentingRepository: RepositoryBase<PlanlagtHentingWithParents, Plan
             aktorId,
             aktorNavn,
             row[StasjonTable.id].value,
-            row[StasjonTable.navn]
+            row[StasjonTable.navn],
+            emptyList()
         )
     }
 
     override val table = PlanlagtHentingTable
+
+    override fun archiveCondition(params: PlanlagtHentingFindParams): Op<Boolean>? {
+        return Op.TRUE
+            .andIfNotNull(params.id){table.id eq params.id}
+            .andIfNotNull(params.henteplanId){table.henteplanId eq params.henteplanId!!}
+            .andIfNotNull(params.after){table.startTidspunkt.greaterEq(params.after!!)}
+            .andIfNotNull(params.before){table.sluttTidspunkt.lessEq(params.before!!)}
+            .andIfNotNull(params.avlyst){if(params.avlyst!!) {table.avlyst.isNotNull()} else {table.avlyst.isNull()} }
+            .andIfNotNull(params.merknad){Op.FALSE} //Not implemented: Adding this so any calls including just merknad will not archive everything.
+    }
 }

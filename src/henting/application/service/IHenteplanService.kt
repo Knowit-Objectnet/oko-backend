@@ -6,6 +6,7 @@ import ombruk.backend.henting.application.api.dto.HenteplanDeleteDto
 import ombruk.backend.henting.application.api.dto.HenteplanFindDto
 import ombruk.backend.henting.application.api.dto.HenteplanUpdateDto
 import ombruk.backend.henting.domain.entity.Henteplan
+import ombruk.backend.henting.domain.params.HenteplanFindParams
 import ombruk.backend.shared.error.ServiceError
 import java.util.*
 
@@ -23,4 +24,8 @@ interface IHenteplanService {
     fun delete(dto: HenteplanDeleteDto): Either<ServiceError, Unit>
 
     fun update(dto: HenteplanUpdateDto): Either<ServiceError, Henteplan>
+
+    fun archiveOne(id: UUID): Either<ServiceError, Unit>
+
+    fun archive(params: HenteplanFindParams): Either<ServiceError, Unit>
 }

@@ -11,6 +11,7 @@ import ombruk.backend.henting.application.api.dto.PlanlagtHentingSaveDto
 import ombruk.backend.henting.application.service.PlanlagtHentingService
 import ombruk.backend.henting.domain.entity.PlanlagtHentingWithParents
 import ombruk.backend.henting.infrastructure.repository.PlanlagtHentingRepository
+import ombruk.backend.kategori.application.service.HenteplanKategoriService
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -30,11 +31,12 @@ internal class PlanlagtHentingServiceTest {
     private lateinit var testContainer: TestContainer
     private lateinit var planlagtHentingService: PlanlagtHentingService
     private var planlagtHentingRepository = mockkClass(PlanlagtHentingRepository::class)
+    private val henteplanKategoriService = mockkClass(HenteplanKategoriService::class)
 
     @BeforeEach
     fun setUp() {
         mockDatabase()
-        planlagtHentingService = PlanlagtHentingService(planlagtHentingRepository)
+        planlagtHentingService = PlanlagtHentingService(planlagtHentingRepository, henteplanKategoriService)
     }
 
     @AfterEach

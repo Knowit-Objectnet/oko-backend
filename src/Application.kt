@@ -23,6 +23,7 @@ import io.ktor.util.DataConversionException
 import kotlinx.serialization.json.Json
 import ombruk.backend.aktor.aktorModule
 import ombruk.backend.aktor.application.api.aktor
+import ombruk.backend.aktor.application.api.kontakter
 import ombruk.backend.aktor.application.api.partnere
 import ombruk.backend.aktor.application.api.stasjoner
 import ombruk.backend.avtale.application.api.dto.avtaler
@@ -222,11 +223,12 @@ fun Application.module(testing: Boolean = false) {
         stasjoner(get())
         partnere(get())
         avtaler(get())
-        henteplaner(get())
+        henteplaner(get(), get())
         planlagteHentinger(get())
         ekstraHentinger(get())
         kategorier(get())
         utlysnigner(get())
+        kontakter(get())
 //        events(EventService)
 //        partners(PartnerService)
 //        report(ReportService)

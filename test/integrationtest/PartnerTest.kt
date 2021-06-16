@@ -5,16 +5,29 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkClass
+import ombruk.backend.aktor.aktorModule
 import ombruk.backend.aktor.application.api.dto.PartnerGetDto
 import ombruk.backend.aktor.application.api.dto.PartnerSaveDto
 import ombruk.backend.aktor.application.api.dto.PartnerUpdateDto
+import ombruk.backend.aktor.application.service.IKontaktService
+import ombruk.backend.aktor.application.service.IPartnerService
+import ombruk.backend.aktor.application.service.KontaktService
 import ombruk.backend.aktor.application.service.PartnerService
 import ombruk.backend.aktor.domain.entity.Partner
 import ombruk.backend.aktor.domain.enum.StasjonType
 import ombruk.backend.aktor.infrastructure.repository.PartnerRepository
+import ombruk.backend.avtale.avtaleModule
+import ombruk.backend.henting.hentingModule
+import ombruk.backend.kategori.kategoriModule
 import ombruk.backend.shared.api.KeycloakGroupIntegration
+import ombruk.backend.utlysning.utlysningModule
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
+import org.koin.core.context.loadKoinModules
+import org.koin.core.context.startKoin
+import org.koin.core.context.stopKoin
+import org.koin.test.KoinTest
+import org.koin.test.get
 import org.testcontainers.junit.jupiter.Testcontainers
 import testutils.TestContainer
 import java.util.*
@@ -25,17 +38,23 @@ import kotlin.test.assertTrue
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 @ExtendWith(MockKExtension::class)
 @Testcontainers
-class PartnerTest {
+class PartnerTest : KoinTest {
     private val testContainer: TestContainer = TestContainer()
-    private lateinit var partnerService: PartnerService
-    private var partnerRepository = PartnerRepository()
+    private lateinit var partnerService: IPartnerService
     private var keycloakGroupIntegration = mockkClass(KeycloakGroupIntegration::class)
 
-    @OptIn(KtorExperimentalAPI::class)
     @BeforeAll
     fun setup() {
         testContainer.start()
-        partnerService = PartnerService(keycloakGroupIntegration, partnerRepository)//PartnerService(partnerRepository, keycloakGroupIntegration)
+        startKoin {  }
+        loadKoinModules(listOf(aktorModule, avtaleModule, hentingModule, utlysningModule, kategoriModule))
+        partnerService = get()
+    }
+
+    @AfterAll
+    fun tearDown() {
+        testContainer.stop()
+        stopKoin()
     }
 
     private lateinit var navn: String

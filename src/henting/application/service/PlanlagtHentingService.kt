@@ -10,24 +10,55 @@ import io.ktor.locations.*
 import ombruk.backend.henting.application.api.dto.*
 import ombruk.backend.henting.domain.entity.PlanlagtHenting
 import ombruk.backend.henting.domain.entity.PlanlagtHentingWithParents
+import ombruk.backend.henting.domain.params.PlanlagtHentingFindParams
 import ombruk.backend.henting.domain.port.IPlanlagtHentingRepository
+import ombruk.backend.kategori.application.api.dto.HenteplanKategoriFindDto
+import ombruk.backend.kategori.application.service.IHenteplanKategoriService
 import ombruk.backend.shared.error.ServiceError
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.LocalDateTime
 import java.util.*
 
 @KtorExperimentalLocationsAPI
-class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepository): IPlanlagtHentingService {
+class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepository, val henteplanKategoriService: IHenteplanKategoriService): IPlanlagtHentingService {
     override fun save(dto: PlanlagtHentingSaveDto): Either<ServiceError, PlanlagtHentingWithParents> {
         return transaction { planlagtHentingRepository.insert(dto) }
     }
 
     override fun findOne(id: UUID): Either<ServiceError, PlanlagtHentingWithParents> {
-        return transaction { planlagtHentingRepository.findOne(id) }
+        return transaction {
+            planlagtHentingRepository.findOne(id)
+                .fold(
+                    { Either.Left(ServiceError(it.message)) },
+                    {
+                        it.let { planlagtHenting ->
+                            henteplanKategoriService.find(HenteplanKategoriFindDto(henteplanId = planlagtHenting.henteplanId))
+                                .fold(
+                                    { planlagtHenting.right() },
+                                    { planlagtHenting.copy(kategorier = it).right() }
+                                )
+                        }
+                    }
+                )
+        }
     }
 
     override fun find(dto: PlanlagtHentingFindDto): Either<ServiceError, List<PlanlagtHentingWithParents>> {
-        return transaction { planlagtHentingRepository.find(dto) }
+        return transaction {
+            planlagtHentingRepository.find(dto)
+                .fold(
+                    { Either.Left(ServiceError(it.message)) },
+                    {
+                        it.map { planlagtHenting ->
+                            henteplanKategoriService.find(HenteplanKategoriFindDto(henteplanId = planlagtHenting.henteplanId))
+                                .fold(
+                                    { planlagtHenting.right() },
+                                    { planlagtHenting.copy(kategorier = it).right() }
+                                )
+                        }.sequence(Either.applicative()).fix().map { it.fix() }
+                    }
+                )
+        }
     }
 
     override fun delete(dto: PlanlagtHentingDeleteDto): Either<ServiceError, Unit> {
@@ -53,6 +84,20 @@ class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepo
                 .fix()
                 .map { it.fix() }
                 .fold({rollback(); it.left()}, {it.right()})
+        }
+    }
+
+    override fun archiveOne(id: UUID): Either<ServiceError, Unit> {
+        return transaction {
+            planlagtHentingRepository.archiveOne(id)
+                .fold({rollback(); it.left()}, { Either.right(Unit)})
+        }
+    }
+
+    override fun archive(params: PlanlagtHentingFindParams): Either<ServiceError, Unit> {
+        return transaction {
+            planlagtHentingRepository.archive(params)
+                .fold({rollback(); it.left()}, { Either.right(Unit)})
         }
     }
 

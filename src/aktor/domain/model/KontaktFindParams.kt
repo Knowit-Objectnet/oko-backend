@@ -4,8 +4,10 @@ import ombruk.backend.core.domain.model.FindParams
 import java.util.*
 
 abstract class KontaktFindParams : FindParams {
-    abstract override val id: UUID
-    abstract val navn: String
+    abstract override val id: UUID?
+    abstract val aktorId: UUID?
+    abstract val navn: String?
     abstract val telefon: String?
+    abstract val epost: String?
     abstract val rolle: String?
 }

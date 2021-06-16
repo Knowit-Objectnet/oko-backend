@@ -14,4 +14,6 @@ interface IAvtaleRepository {
     fun delete(id: UUID): Either<RepositoryError, Unit>
     fun findOne(id: UUID): Either<RepositoryError, Avtale>
     fun find(params: AvtaleFindParams): Either<RepositoryError, List<Avtale>>
+    fun archiveOne(id: UUID): Either<RepositoryError, Avtale>
+    fun archive(params: AvtaleFindParams): Either<RepositoryError, List<Avtale>>
 }
