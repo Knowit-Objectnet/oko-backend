@@ -30,6 +30,7 @@ import java.util.*
 internal class PlanlagtHentingServiceTest {
     private lateinit var testContainer: TestContainer
     private lateinit var planlagtHentingService: PlanlagtHentingService
+    private var henteplanKategoriService = mockkClass(HenteplanKategoriService::class)
     private var planlagtHentingRepository = mockkClass(PlanlagtHentingRepository::class)
     private val henteplanKategoriService = mockkClass(HenteplanKategoriService::class)
 

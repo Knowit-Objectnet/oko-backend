@@ -3,11 +3,13 @@ package ombruk.backend.henting.application.service
 import arrow.core.*
 import arrow.core.extensions.either.applicative.applicative
 import arrow.core.extensions.list.traverse.sequence
+import arrow.core.extensions.sequence.apply.map
 import henting.application.api.dto.HenteplanSaveDto
 import io.ktor.locations.*
 import ombruk.backend.henting.application.api.dto.*
 import ombruk.backend.henting.domain.entity.Henteplan
 import ombruk.backend.henting.domain.entity.PlanlagtHentingWithParents
+import ombruk.backend.henting.domain.model.HenteplanFrekvens
 import ombruk.backend.henting.domain.params.HenteplanFindParams
 import ombruk.backend.henting.domain.port.IHenteplanRepository
 import ombruk.backend.kategori.application.api.dto.HenteplanKategoriFindDto
@@ -99,8 +101,44 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
     }
 
     override fun update(dto: HenteplanUpdateDto): Either<ServiceError, Henteplan> {
-        // TODO: Add planlagt henting update logic
-        return transaction { henteplanRepository.update(dto) }
+        return transaction {
+            val today = LocalDateTime.now()
+            henteplanRepository.findOne(dto.id)
+                .fold(
+                    { Either.left(ServiceError(it.message))},
+                    { henteplan ->
+                        planlagtHentingService.find(PlanlagtHentingFindDto(henteplanId = dto.id, after = today)).map {
+                            it.map { planlagtHentingService.delete(PlanlagtHentingDeleteDto(id = it.id)) }
+                        }
+                            .fold({it.left()},
+                            {
+                                var starttime = LocalDateTime.of(today.toLocalDate(), (dto.startTidspunkt ?: henteplan.startTidspunkt).toLocalTime())
+
+                                if (dto.startTidspunkt != null && dto.startTidspunkt.isAfter(today)) {
+                                    starttime = dto.startTidspunkt
+                                } else if (dto.startTidspunkt == null && henteplan.startTidspunkt.isAfter(today)) {
+                                    starttime = henteplan.startTidspunkt
+                                }
+
+                                appendPlanlagtHentinger(
+                                    HenteplanSaveDto(
+                                        avtaleId = henteplan.avtaleId,
+                                        stasjonId = henteplan.stasjonId,
+                                        startTidspunkt = starttime,
+                                        sluttTidspunkt = dto.sluttTidspunkt ?: henteplan.sluttTidspunkt,
+                                        ukedag = dto.ukeDag ?: henteplan.ukedag,
+                                        merknad = dto.merknad ?: henteplan.merknad,
+                                        frekvens = dto.frekvens ?: henteplan.frekvens
+                                    ), henteplan.id, henteplan
+                                ).fold(
+                                    { Either.left(ServiceError(it.message)) },
+                                    { henteplanRepository.update(dto) }
+                                )
+                            })
+                    }
+                )
+                .fold({rollback(); it.left()}, {it.right()})
+        }
     }
 
     override fun archiveOne(id: UUID): Either<ServiceError, Unit> {
@@ -150,4 +188,5 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
                 .fold({rollback(); it.left()}, {it.right()})
         }
     }
+
 }

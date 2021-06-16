@@ -32,6 +32,8 @@ import java.util.*
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class HenteplanServiceTest {
     private lateinit var henteplanService: HenteplanService
+    private var henteplanKategoriService: HenteplanKategoriService = mockkClass(HenteplanKategoriService::class)
+
     private val henteplanRepository = mockkClass(HenteplanRepository::class)
     private val planlagtHentingService: PlanlagtHentingService = mockkClass(PlanlagtHentingService::class)
     private val henteplanKategoriService = mockkClass(HenteplanKategoriService::class)

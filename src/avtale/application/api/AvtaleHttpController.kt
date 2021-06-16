@@ -8,6 +8,7 @@ import io.ktor.locations.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
+import ombruk.backend.aktor.application.api.dto.KontaktUpdateDto
 import ombruk.backend.avtale.application.service.IAvtaleService
 import ombruk.backend.shared.api.Authorization
 import ombruk.backend.shared.api.Roles
@@ -48,6 +49,17 @@ fun Routing.avtaler(avtaleService: IAvtaleService) {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
                     .flatMap { form.validOrError() }
                     .flatMap { avtaleService.archiveOne(form.id) }
+                    .run { generateResponse(this) }
+                    .also { (code, response) -> call.respond(code, response) }
+            }
+        }
+
+        authenticate {
+            patch {
+                Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
+                    .flatMap { receiveCatching { call.receive<AvtaleUpdateDto>() } }
+                    .flatMap { it.validOrError() }
+                    .flatMap { avtaleService.update(it) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }
