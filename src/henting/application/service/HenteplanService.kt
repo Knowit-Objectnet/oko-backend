@@ -102,13 +102,11 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
 
     override fun update(dto: HenteplanUpdateDto): Either<ServiceError, Henteplan> {
         var today = LocalDateTime.now()
-        // Funksjonen sletter først og deretter legger til nye planlagte hentinger
             findOne(dto.id).fold({}, {
                 planlagtHentingService.find(PlanlagtHentingFindDto(henteplanId = dto.id, after = today)).map {
                     it.map { planlagtHentingService.delete(PlanlagtHentingDeleteDto(id = it.id)) }
                 }
 
-                // Legger til "planlagte hentinger"
                 val starttime = LocalDateTime.of(today.toLocalDate(), (dto.startTidspunkt ?: it.startTidspunkt).toLocalTime())
                     transaction {
                         appendPlanlagtHentinger(
