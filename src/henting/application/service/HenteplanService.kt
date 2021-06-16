@@ -116,7 +116,7 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
                                 startTidspunkt = starttime,
                                 sluttTidspunkt = dto.sluttTidspunkt ?: it.sluttTidspunkt,
                                 ukedag = dto.ukeDag ?: it.ukedag,
-                                merknad = it.merknad,
+                                merknad = dto.merknad ?: it.merknad,
                                 frekvens = dto.frekvens ?: it.frekvens
                             ), it.id, it
                         ).fold({ rollback() }, {})}
