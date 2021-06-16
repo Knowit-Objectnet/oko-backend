@@ -40,7 +40,7 @@ data class AvtaleUpdateDto(
     override fun validOrError(): Either<ValidationError, AvtaleUpdateDto> = runCatchingValidation {
         validate(this) {
             if (startDato != null && sluttDato != null) {
-                validate(AvtaleUpdateDto::startDato).isGreaterThan(sluttDato)
+                validate(AvtaleUpdateDto::sluttDato).isGreaterThanOrEqualTo(startDato)
             } else if (startDato != null || sluttDato != null) {
                 transaction { get<IAvtaleRepository>().findOne(it.id) }.map {
                     if (startDato != null) validate(AvtaleUpdateDto::startDato).isLessThanOrEqualTo(it.sluttDato)
