@@ -35,7 +35,7 @@ class StasjonService(
     override fun save(dto: StasjonSaveDto): Either<ServiceError, Stasjon> {
         return transaction {
             stasjonRepository.insert(dto).flatMap { stasjon ->
-                stasjon.right() //keycloakGroupIntegration.createGroup(stasjon.navn, stasjon.id)
+                keycloakGroupIntegration.createGroup(stasjon.navn, stasjon.id)
                     .bimap({ rollback(); it }, { stasjon })
             }
         }
@@ -69,7 +69,7 @@ class StasjonService(
         return transaction {
             findOne(id, false).flatMap { stasjon ->
                 stasjonRepository.delete(id)
-                    //.flatMap { keycloakGroupIntegration.deleteGroup(stasjon.navn) }
+                    .flatMap { keycloakGroupIntegration.deleteGroup(stasjon.navn) }
                     .bimap({ rollback(); it }, { stasjon })
             }
         }
@@ -78,13 +78,12 @@ class StasjonService(
     override fun update(dto: StasjonUpdateDto): Either<ServiceError, Stasjon> = transaction {
         findOne(dto.id, false).flatMap { stasjon ->
             stasjonRepository.update(dto).flatMap { newStasjon ->
-                newStasjon.right() //keycloakGroupIntegration.updateGroup(stasjon.navn, newStasjon.navn)
+                keycloakGroupIntegration.updateGroup(stasjon.navn, newStasjon.navn)
                     .bimap({ rollback(); it }, { newStasjon })
             }
         }
     }
 
-    //TODO: Handle Keycloak logic: Should probably be the same as delete.
     override fun archiveOne(id: UUID): Either<ServiceError, Unit> {
         return transaction { stasjonRepository.archiveOne(id)
             .map{ stasjon ->
@@ -104,6 +103,7 @@ class StasjonService(
                             EkstraHentingFindDto(stasjonId = stasjon.id, after = LocalDateTime.now())
                         )
                     }.flatMap { it }
+                    .map { keycloakGroupIntegration.deleteGroup(stasjon.navn) }.map { Unit }
             }
             .flatMap { it }
             .fold({rollback(); it.left()}, { it.right()})
