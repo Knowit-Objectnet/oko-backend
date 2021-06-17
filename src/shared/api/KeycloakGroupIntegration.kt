@@ -239,7 +239,7 @@ class KeycloakGroupIntegration {
                 HttpMethod.Post,
                 url = groupsUrl,
                 contentType = ContentType.Application.Json,
-                body = "{\"name\": \"$name\", \"attributes\": {\"GroupID\": [$id]}}"
+                body = "{\"name\": \"$name\", \"attributes\": {\"GroupID\": [\"$id\"]}}"
             )
         }
 
