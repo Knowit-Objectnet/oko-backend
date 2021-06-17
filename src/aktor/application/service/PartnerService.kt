@@ -35,7 +35,7 @@ class PartnerService constructor(
     @KtorExperimentalAPI
     override fun savePartner(dto: PartnerSaveDto): Either<ServiceError, Partner> = transaction {
         partnerRepository.insert(dto).flatMap { partner ->
-            partner.right() //keycloakGroupIntegration.createGroup(partner.navn, partner.id)
+            keycloakGroupIntegration.createGroup(partner.navn, partner.id)
                 .bimap({ rollback(); it }, { partner })
         }
     }
@@ -69,7 +69,7 @@ class PartnerService constructor(
     override fun deletePartnerById(id: UUID): Either<ServiceError, Partner> = transaction {
         getPartnerById(id, false).flatMap { partner ->
             partnerRepository.delete(id)
-                //.flatMap { keycloakGroupIntegration.deleteGroup(partner.navn) }
+                .flatMap { keycloakGroupIntegration.deleteGroup(partner.navn) }
                 .bimap({ rollback(); it }, { partner })
         }
     }
@@ -79,13 +79,12 @@ class PartnerService constructor(
     override fun updatePartner(dto: PartnerUpdateDto): Either<ServiceError, Partner> = transaction {
         getPartnerById(dto.id, false).flatMap { partner ->
             partnerRepository.update(dto).flatMap { newPartner ->
-                newPartner.right() //keycloakGroupIntegration.updateGroup(partner.navn, newPartner.navn)
+                keycloakGroupIntegration.updateGroup(partner.navn, newPartner.navn)
                     .bimap({ rollback(); it }, { newPartner })
             }
         }
     }
 
-    //TODO: Handle Keycloak logic: Should probably be the same as delete.
     override fun archiveOne(id: UUID): Either<ServiceError, Unit> {
         return transaction { partnerRepository.archiveOne(id)
             .map{ partner ->
@@ -100,6 +99,7 @@ class PartnerService constructor(
                         .flatMap { it }
                         .map { avtaleService.archive(AvtaleFindDto(aktorId = partner.id)) }.flatMap { it }
                         .map { utlysningService.archive(UtlysningFindDto(partnerId = partner.id)) }.flatMap { it }
+                        .map { keycloakGroupIntegration.deleteGroup(partner.navn) }.map { Unit }
                 }
             .flatMap { it }
             .fold({rollback(); it.left()}, { it.right()})
