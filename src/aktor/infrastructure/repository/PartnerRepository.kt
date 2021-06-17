@@ -15,7 +15,7 @@ class PartnerRepository : RepositoryBase<Partner, PartnerCreateParams, PartnerUp
     IPartnerRepository {
     override fun insertQuery(params: PartnerCreateParams): EntityID<UUID> {
         return table.insertAndGetId {
-            params.id.let { paramId -> it[id] = paramId }
+            params.id?.let { paramId -> it[id] = paramId }
             it[navn] = params.navn
             it[ideell] = params.ideell
         }
