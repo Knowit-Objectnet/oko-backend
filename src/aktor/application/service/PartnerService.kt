@@ -40,11 +40,11 @@ class PartnerService constructor(
         }
     }
 
-    override fun getPartnerById(id: UUID, addKontakt: Boolean): Either<ServiceError, Partner> {
+    override fun getPartnerById(id: UUID, includeKontakt: Boolean): Either<ServiceError, Partner> {
         return transaction {
             partnerRepository.findOne(id)
                 .flatMap { partner ->
-                    if (addKontakt) kontaktService.getKontakter(KontaktGetDto(aktorId = partner.id))
+                    if (includeKontakt) kontaktService.getKontakter(KontaktGetDto(aktorId = partner.id))
                         .flatMap { kontakter -> partner.copy(kontaktPersoner = kontakter).right() }
                     else partner.right()
                 }
@@ -52,12 +52,12 @@ class PartnerService constructor(
     }
 
     @KtorExperimentalLocationsAPI
-    override fun getPartnere(dto: PartnerGetDto, addKontakt: Boolean): Either<ServiceError, List<Partner>> {
+    override fun getPartnere(dto: PartnerGetDto, includeKontakt: Boolean): Either<ServiceError, List<Partner>> {
         return transaction {
             partnerRepository.find(dto)
                 .flatMap {
                     it.map { partner ->
-                        if (addKontakt) kontaktService.getKontakter(KontaktGetDto(aktorId = partner.id))
+                        if (includeKontakt) kontaktService.getKontakter(KontaktGetDto(aktorId = partner.id))
                             .flatMap { kontakter -> partner.copy(kontaktPersoner = kontakter).right() }
                         else partner.right()
                     }.sequence(Either.applicative()).fix().map { it.fix() }

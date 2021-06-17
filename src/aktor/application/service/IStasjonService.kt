@@ -2,7 +2,6 @@ package ombruk.backend.aktor.application.service
 
 import arrow.core.Either
 import ombruk.backend.aktor.application.api.dto.*
-import ombruk.backend.aktor.domain.entity.Partner
 import ombruk.backend.aktor.domain.entity.Stasjon
 import ombruk.backend.shared.error.ServiceError
 import java.util.*
@@ -21,19 +20,19 @@ interface IStasjonService {
      * Gets a stasjon by its ID.
      *
      * @param id The ID of the user to get.
-     * @param addKontakt A [Boolean], if true, the [Stasjon] will include its [Kontakt]s
+     * @param includeKontakt A [Boolean], if true, the [Stasjon] will include its [Kontakt]s
      * @return An [Either] object consisting of a [ServiceError] on failure or the requested [Stasjon] on success.
      */
-    fun findOne(id: UUID, addKontakt: Boolean): Either<ServiceError, Stasjon>
+    fun findOne(id: UUID, includeKontakt: Boolean): Either<ServiceError, Stasjon>
 
     /**
      * Fetches stasjoner constrained by non-null values in the [StasjonFindDto].
      *
      * @param dto A [StasjonFindDto], where each non-null property will constrain the search.
-     * @param addKontakt A [Boolean], if true, each [Stasjon] will include its [Kontakt]s
+     * @param includeKontakt A [Boolean], if true, each [Stasjon] will include its [Kontakt]s
      * @return An [Either] object consisting of [ServiceError] on failure or a [List] of [Stasjon] objects on success.
      */
-    fun find(dto: StasjonFindDto = StasjonFindDto(), addKontakt: Boolean): Either<ServiceError, List<Stasjon>>
+    fun find(dto: StasjonFindDto = StasjonFindDto(), includeKontakt: Boolean): Either<ServiceError, List<Stasjon>>
 
     /**
      * Deletes the stasjon with the provided ID. If the ID does not exist, a [ServiceError] is returned.

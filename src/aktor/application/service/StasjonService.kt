@@ -41,23 +41,23 @@ class StasjonService(
         }
     }
 
-    override fun findOne(id: UUID, addKontakt: Boolean): Either<ServiceError, Stasjon> {
+    override fun findOne(id: UUID, includeKontakt: Boolean): Either<ServiceError, Stasjon> {
         return transaction {
             stasjonRepository.findOne(id)
                 .flatMap { stasjon ->
-                    if (addKontakt) kontaktService.getKontakter(KontaktGetDto(aktorId = stasjon.id))
+                    if (includeKontakt) kontaktService.getKontakter(KontaktGetDto(aktorId = stasjon.id))
                         .flatMap { kontakter -> stasjon.copy(kontaktPersoner = kontakter).right() }
                     else stasjon.right()
                 }
         }
     }
 
-    override fun find(dto: StasjonFindDto, addKontakt: Boolean): Either<ServiceError, List<Stasjon>> {
+    override fun find(dto: StasjonFindDto, includeKontakt: Boolean): Either<ServiceError, List<Stasjon>> {
         return transaction {
             stasjonRepository.find((dto))
                 .flatMap {
                     it.map { stasjon ->
-                        if (addKontakt) kontaktService.getKontakter(KontaktGetDto(aktorId = stasjon.id))
+                        if (includeKontakt) kontaktService.getKontakter(KontaktGetDto(aktorId = stasjon.id))
                             .flatMap { kontakter -> stasjon.copy(kontaktPersoner = kontakter).right() }
                         else stasjon.right()
                     }.sequence(Either.applicative()).fix().map { it.fix() }
