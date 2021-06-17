@@ -58,7 +58,7 @@ internal class PartnerServiceTest {
         every { expected.navn } returns "TestStasjon"
         every { expected.copy(any(), any(), any(), any()) } returns expected
 
-        val actual = stasjonService.findOne(id)
+        val actual = stasjonService.findOne(id, false)
         require(actual is Either.Right)
 
         assertEquals(expected, actual.b)

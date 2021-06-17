@@ -86,7 +86,7 @@ class AvtaleTest : KoinTest {
 
         every { keycloakGroupIntegration.createGroup(any<String>(), any<UUID>()) } returns expected.right()
 
-        val partnerInsert = partnerService.savePartner(PartnerSaveDto("TestPartner", true))
+        val partnerInsert = partnerService.savePartner(PartnerSaveDto(navn = "TestPartner", ideell = true))
         val stasjonInsert = stasjonService.save(StasjonSaveDto("TestStasjon", StasjonType.GJENBRUK))
 
         require(partnerInsert is Either.Right)

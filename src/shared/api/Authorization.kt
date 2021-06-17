@@ -14,6 +14,7 @@ import ombruk.backend.calendar.model.Event
 import ombruk.backend.reporting.model.Report
 import ombruk.backend.shared.error.AuthorizationError
 import ombruk.backend.shared.error.ServiceError
+import java.util.*
 
 /**
  * Roles that corresponds to the roles created in the keycloak realm. If roles are changed in keycloak,
@@ -43,7 +44,7 @@ object Authorization {
      * @param call A [ApplicationCall] that ensures that the function can receive a [JWTPrincipal] so that roles and GroupID can be extracted.
      * @return An [AuthorizationError] on failure and a [Pair] of a [Roles] and an [Int] on success.
      */
-    fun authorizeRole(allowedRoles: List<Roles>, call: ApplicationCall): Either<AuthorizationError, Pair<Roles, Int>> {
+    fun authorizeRole(allowedRoles: List<Roles>, call: ApplicationCall): Either<AuthorizationError, Pair<Roles, UUID>> {
         val principal = runCatching { call.principal<JWTPrincipal>()!! }.onFailure {
             return AuthorizationError.InvalidPrincipal().left()
         }.getOrElse { return AuthorizationError.InvalidPrincipal().left() }
@@ -58,9 +59,12 @@ object Authorization {
         val role = allowedRoles.firstOrNull { role -> println(role); claimRoles.any { it == role.value } }
             ?: return AuthorizationError.InsufficientRoleError().left()
 
-        val groupID =
-            principal.payload.claims["GroupID"]?.asInt() //-1 serves as a placeholder value for stations and REG admin
-                ?: if (role != Roles.Partner) -1 else return AuthorizationError.MissingGroupIDError().left()
+        val groupIDString =
+            if (role == Roles.RegEmployee) "00000000-0000-0000-0000-000000000000"
+                else principal.payload.claims["GroupID"]?.asString()
+                ?: return AuthorizationError.MissingGroupIDError().left()
+
+        val groupID = UUID.fromString(groupIDString)
 
         return Pair(role, groupID).right()
     }

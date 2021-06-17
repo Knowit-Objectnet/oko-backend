@@ -40,24 +40,26 @@ class PartnerService constructor(
         }
     }
 
-    override fun getPartnerById(id: UUID): Either<ServiceError, Partner> {
+    override fun getPartnerById(id: UUID, includeKontakt: Boolean): Either<ServiceError, Partner> {
         return transaction {
             partnerRepository.findOne(id)
                 .flatMap { partner ->
-                    kontaktService.getKontakter(KontaktGetDto(aktorId = partner.id))
+                    if (includeKontakt) kontaktService.getKontakter(KontaktGetDto(aktorId = partner.id))
                         .flatMap { kontakter -> partner.copy(kontaktPersoner = kontakter).right() }
+                    else partner.right()
                 }
         }
     }
 
     @KtorExperimentalLocationsAPI
-    override fun getPartnere(dto: PartnerGetDto): Either<ServiceError, List<Partner>> {
+    override fun getPartnere(dto: PartnerGetDto, includeKontakt: Boolean): Either<ServiceError, List<Partner>> {
         return transaction {
             partnerRepository.find(dto)
                 .flatMap {
                     it.map { partner ->
-                        kontaktService.getKontakter(KontaktGetDto(aktorId = partner.id))
+                        if (includeKontakt) kontaktService.getKontakter(KontaktGetDto(aktorId = partner.id))
                             .flatMap { kontakter -> partner.copy(kontaktPersoner = kontakter).right() }
+                        else partner.right()
                     }.sequence(Either.applicative()).fix().map { it.fix() }
                 }
         }
@@ -65,7 +67,7 @@ class PartnerService constructor(
 
     @KtorExperimentalAPI
     override fun deletePartnerById(id: UUID): Either<ServiceError, Partner> = transaction {
-        getPartnerById(id).flatMap { partner ->
+        getPartnerById(id, false).flatMap { partner ->
             partnerRepository.delete(id)
                 //.flatMap { keycloakGroupIntegration.deleteGroup(partner.navn) }
                 .bimap({ rollback(); it }, { partner })
@@ -75,7 +77,7 @@ class PartnerService constructor(
 
     @KtorExperimentalAPI
     override fun updatePartner(dto: PartnerUpdateDto): Either<ServiceError, Partner> = transaction {
-        getPartnerById(dto.id).flatMap { partner ->
+        getPartnerById(dto.id, false).flatMap { partner ->
             partnerRepository.update(dto).flatMap { newPartner ->
                 newPartner.right() //keycloakGroupIntegration.updateGroup(partner.navn, newPartner.navn)
                     .bimap({ rollback(); it }, { newPartner })

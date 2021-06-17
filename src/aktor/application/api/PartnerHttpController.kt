@@ -23,18 +23,33 @@ import ombruk.backend.shared.api.receiveCatching
 fun Routing.partnere(partnerService: IPartnerService) {
 
     route("/partnere") {
-        get<PartnerGetByIdDto> { form ->
-            form.validOrError()
-                .flatMap { partnerService.getPartnerById(it.id) }
-                .run { generateResponse(this) }
-                .also { (code, response) -> call.respond(code, response) }
+
+        authenticate {
+            get<PartnerGetByIdDto> { form ->
+                Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.Partner, Roles.ReuseStation), call)
+                    .flatMap { (role, groupId) ->
+                        form.validOrError()
+                            .flatMap { partnerService.getPartnerById(it.id,
+                                role == Roles.RegEmployee || it.id == groupId
+                                ) }
+                    }
+                    .run { generateResponse(this) }
+                    .also { (code, response) -> call.respond(code, response) }
+            }
         }
 
-        get<PartnerGetDto> { form ->
-            form.validOrError()
-                .flatMap { partnerService.getPartnere(it) }
-                .run { generateResponse(this) }
-                .also { (code, response) -> call.respond(code, response) }
+        authenticate {
+            get<PartnerGetDto> { form ->
+                Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.Partner, Roles.ReuseStation), call)
+                    .flatMap { (role, groupId) ->
+                        form.validOrError()
+                            .flatMap { partnerService.getPartnere(it,
+                                role == Roles.RegEmployee
+                                ) }
+                    }
+                    .run { generateResponse(this) }
+                    .also { (code, response) -> call.respond(code, response) }
+            }
         }
 
         authenticate {

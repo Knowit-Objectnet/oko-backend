@@ -1,6 +1,7 @@
 package ombruk.backend.aktor.application.api
 
 import arrow.core.extensions.either.monad.flatMap
+import arrow.core.extensions.either.monadError.ensure
 import io.ktor.application.call
 import io.ktor.auth.authenticate
 import io.ktor.locations.KtorExperimentalLocationsAPI
@@ -18,56 +19,105 @@ import ombruk.backend.shared.api.Authorization
 import ombruk.backend.shared.api.Roles
 import ombruk.backend.shared.api.generateResponse
 import ombruk.backend.shared.api.receiveCatching
+import ombruk.backend.shared.error.AuthorizationError
 
 @KtorExperimentalLocationsAPI
 fun Routing.kontakter(kontaktService: IKontaktService) {
 
     route("/kontakter") {
 
-        get<KontaktGetByIdDto> { form ->
-            form.validOrError()
-                .flatMap { kontaktService.getKontaktById(it.id) }
-                .run { generateResponse(this) }
-                .also { (code, response) -> call.respond(code, response) }
+        authenticate {
+            get<KontaktGetByIdDto> { form ->
+                Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.Partner, Roles.ReuseStation), call)
+                    .flatMap { (role, groupId) ->
+                        form.validOrError()
+                            .flatMap { kontaktService.getKontaktById(it.id) }
+                            .ensure(
+                                { AuthorizationError.AccessViolationError("Denne kontakten tilhører ikke deg")},
+                                {
+                                    if (role == Roles.RegEmployee) true
+                                    else it.aktorId == groupId
+                                }
+                            )
+                    }
+                    .run { generateResponse(this) }
+                    .also { (code, response) -> call.respond(code, response) }
+            }
         }
 
-        get<KontaktGetDto> { form ->
-            form.validOrError()
-                .flatMap { kontaktService.getKontakter(it) }
-                .run { generateResponse(this) }
-                .also { (code, response) -> call.respond(code, response) }
+        authenticate {
+            get<KontaktGetDto> { form ->
+                Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.Partner, Roles.ReuseStation), call)
+                    .flatMap { (role, groupId) ->
+                        form.validOrError()
+                            .map { if (role == Roles.RegEmployee) it else it.copy(aktorId = groupId) }
+                            .flatMap { kontaktService.getKontakter(it) }
+                    }
+                    .run { generateResponse(this) }
+                    .also { (code, response) -> call.respond(code, response) }
+            }
         }
 
-        //TODO: Correct station and partner are authorized for updating this kontakt
         authenticate {
             patch {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.Partner, Roles.ReuseStation), call)
-                    .flatMap { receiveCatching { call.receive<KontaktUpdateDto>() } }
-                    .flatMap { it.validOrError() }
-                    .flatMap { kontaktService.update(it) }
+                    .flatMap { (role, groupId) ->
+                        receiveCatching { call.receive<KontaktUpdateDto>() }
+                            .flatMap { it.validOrError() }
+                            .flatMap { dto ->
+                                kontaktService.getKontaktById(dto.id)
+                                .ensure(
+                                    { AuthorizationError.AccessViolationError("Denne kontakten tilhører ikke deg")},
+                                    {
+                                        if (role == Roles.RegEmployee) true
+                                        else it.aktorId == groupId
+                                    }
+                                )
+                                .flatMap { kontaktService.update(dto) }
+                            }
+                    }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }
         }
 
-        //TODO: Correct station and partner are authorized for saving this kontakt to a station or partner
         authenticate {
             post {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.Partner, Roles.ReuseStation), call)
-                    .flatMap { receiveCatching { call.receive<KontaktSaveDto>() } }
-                    .flatMap { it.validOrError() }
-                    .flatMap { kontaktService.save(it) }
+                    .flatMap { (role, groupId) ->
+                        receiveCatching { call.receive<KontaktSaveDto>() }
+                            .flatMap { it.validOrError() }
+                            .ensure(
+                                {AuthorizationError.AccessViolationError("Kontakt forsøkt opprettet for annen gruppe")},
+                                {
+                                    if (role == Roles.RegEmployee) true
+                                    else it.aktorId == groupId
+                                }
+                            )
+                            .flatMap { kontaktService.save(it) }
+                    }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }
         }
 
-        //TODO: Correct station and partner are authorized for deleting this kontakt
         authenticate {
             delete<KontaktDeleteDto> { form ->
                 Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.Partner, Roles.ReuseStation), call)
-                    .flatMap { form.validOrError() }
-                    .flatMap { kontaktService.deleteKontaktById(it.id) }
+                    .flatMap { (role, groupId) ->
+                        form.validOrError()
+                            .flatMap { dto ->
+                                kontaktService.getKontaktById(dto.id)
+                                    .ensure(
+                                        { AuthorizationError.AccessViolationError("Denne kontakten tilhører ikke deg")},
+                                        {
+                                            if (role == Roles.RegEmployee) true
+                                            else it.aktorId == groupId
+                                        }
+                                    )
+                                    .flatMap { kontaktService.deleteKontaktById(it.id) }
+                            }
+                    }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }

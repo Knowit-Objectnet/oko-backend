@@ -9,13 +9,9 @@ import ombruk.backend.aktor.aktorModule
 import ombruk.backend.aktor.application.api.dto.PartnerGetDto
 import ombruk.backend.aktor.application.api.dto.PartnerSaveDto
 import ombruk.backend.aktor.application.api.dto.PartnerUpdateDto
-import ombruk.backend.aktor.application.service.IKontaktService
 import ombruk.backend.aktor.application.service.IPartnerService
-import ombruk.backend.aktor.application.service.KontaktService
-import ombruk.backend.aktor.application.service.PartnerService
 import ombruk.backend.aktor.domain.entity.Partner
 import ombruk.backend.aktor.domain.enum.StasjonType
-import ombruk.backend.aktor.infrastructure.repository.PartnerRepository
 import ombruk.backend.avtale.avtaleModule
 import ombruk.backend.henting.hentingModule
 import ombruk.backend.kategori.kategoriModule
@@ -71,7 +67,7 @@ class PartnerTest : KoinTest {
         ideell = false
         every { keycloakGroupIntegration.createGroup(navn, any<UUID>()) } returns expected.right()
 
-        val partner = PartnerSaveDto(navn, ideell)
+        val partner = PartnerSaveDto(navn = navn, ideell = ideell)
         val save = partnerService.savePartner(partner)
         assert(save is Either.Right<Partner>)
     }
@@ -80,7 +76,7 @@ class PartnerTest : KoinTest {
     @Order(2)
     fun testFind() {
         val partner = PartnerGetDto(navn)
-        val find = partnerService.getPartnere(partner)
+        val find = partnerService.getPartnere(partner, false)
         require(find is Either.Right)
         assertTrue(find.b.count() == 1)
         assertEquals(navn, find.b[0].navn)
@@ -92,7 +88,7 @@ class PartnerTest : KoinTest {
     @Test
     @Order(3)
     fun testFindOne() {
-        val findOne = partnerService.getPartnerById(uuid)
+        val findOne = partnerService.getPartnerById(uuid, false)
         require(findOne is Either.Right)
         assertEquals(uuid, findOne.b.id)
         assertEquals(navn, findOne.b.navn)
@@ -126,7 +122,7 @@ class PartnerTest : KoinTest {
     @Test
     @Order(6)
     fun testFindOneFails() {
-        val findOne = partnerService.getPartnerById(uuid)
+        val findOne = partnerService.getPartnerById(uuid, false)
         assert(findOne is Either.Left)
     }
 }
