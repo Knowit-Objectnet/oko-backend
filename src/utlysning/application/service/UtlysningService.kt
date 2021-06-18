@@ -53,7 +53,7 @@ class UtlysningService(val utlysningRepository: IUtlysningRepository) : IUtlysni
             dto.partnerIds.map {
                 utlysningRepository.insert(
                     UtlysningSaveDto(
-                        partnerId = it,
+                        partnerId = UUID.fromString(it),
                         hentingId = dto.hentingId,
                         partnerPameldt = dto.partnerPameldt,
                         stasjonGodkjent = dto.stasjonGodkjent,
