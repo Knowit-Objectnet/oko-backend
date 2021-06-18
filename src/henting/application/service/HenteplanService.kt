@@ -46,7 +46,10 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
             henteplanRepository.insert(dto)
                 .fold(
                     { Either.Left(ServiceError(it.message)) },
-                    { appendPlanlagtHentinger(dto, it.id, it) }
+                    {
+                        appendPlanlagtHentinger(dto, it.id, it)
+
+                    }
                 )
                 .fold({rollback(); it.left()}, {it.right()})
         }

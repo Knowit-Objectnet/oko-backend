@@ -7,6 +7,8 @@ import ombruk.backend.avtale.domain.port.IAvtaleRepository
 import ombruk.backend.avtale.infrastructure.repository.AvtaleRepository
 import ombruk.backend.henting.domain.model.HenteplanFrekvens
 import ombruk.backend.henting.domain.params.HenteplanCreateParams
+import ombruk.backend.kategori.application.api.dto.HenteplanKategoriSaveDto
+import ombruk.backend.kategori.domain.entity.Kategori
 import ombruk.backend.shared.error.ValidationError
 import ombruk.backend.shared.form.IForm
 import ombruk.backend.shared.model.serializer.LocalDateTimeSerializer
@@ -35,7 +37,8 @@ data class HenteplanSaveDto(
     @Serializable(with = LocalDateTimeSerializer::class) override val startTidspunkt: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class) override val sluttTidspunkt: LocalDateTime,
     override var ukedag: DayOfWeek? = null,
-    override val merknad: String? = null
+    override val merknad: String? = null,
+    val kategorier: List<HenteplanKategoriBatchSaveDto>? = null
 ) : IForm<HenteplanSaveDto>, HenteplanCreateParams(), KoinComponent {
     override fun validOrError(): Either<ValidationError, HenteplanSaveDto> = runCatchingValidation {
         validate(this) {
@@ -59,6 +62,17 @@ data class HenteplanSaveDto(
                     validate(HenteplanSaveDto::sluttTidspunkt).isLessThanOrEqualTo(LocalDateTime.of(it.sluttDato, LocalTime.MAX))
                 }
             )
+        }
+    }
+}
+
+@Serializable
+data class HenteplanKategoriBatchSaveDto(
+    @Serializable(with = UUIDSerializer::class) val kategoriId: UUID,
+    val merknad: String? = null,
+) : IForm<HenteplanKategoriBatchSaveDto>, KoinComponent {
+    override fun validOrError(): Either<ValidationError, HenteplanKategoriBatchSaveDto> = runCatchingValidation {
+        validate(this) {
         }
     }
 }
