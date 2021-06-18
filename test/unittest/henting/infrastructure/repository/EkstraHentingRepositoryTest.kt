@@ -43,12 +43,13 @@ internal class EkstraHentingRepositoryTest {
         partnerRepository = PartnerRepository()
 
         val stasjonParams = object : StasjonCreateParams() {
-            override val navn: String = "Grefsen"
+            override val navn: String = "TestStasjon"
             override val type: StasjonType = StasjonType.GJENBRUK
         }
 
         val partnerParams = object : PartnerCreateParams() {
-            override val navn: String = "Fretex"
+            override val id: UUID? = null
+            override val navn: String = "TestPartner"
             override val ideell: Boolean = true
         }
 

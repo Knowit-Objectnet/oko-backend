@@ -36,7 +36,6 @@ internal class HenteplanServiceTest {
 
     private val henteplanRepository = mockkClass(HenteplanRepository::class)
     private val planlagtHentingService: PlanlagtHentingService = mockkClass(PlanlagtHentingService::class)
-    private val henteplanKategoriService = mockkClass(HenteplanKategoriService::class)
 
     private lateinit var henteplanPostDto : HenteplanSaveDto
     private lateinit var henteplan : Henteplan
