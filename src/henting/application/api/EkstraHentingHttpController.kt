@@ -69,7 +69,7 @@ fun Routing.ekstraHentinger(ekstraHentingService: IEkstraHentingService, ekstraH
         }
 
         authenticate {
-            post("/{ekstrahentingId}/kategorier") {
+            post("/{ekstraHentingId}/kategorier") {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
                     .flatMap { receiveCatching { call.receive<EkstraHentingKategoriSaveDto>() } }
                     .flatMap { it.validOrError() }
@@ -80,7 +80,6 @@ fun Routing.ekstraHentinger(ekstraHentingService: IEkstraHentingService, ekstraH
         }
 
         get<EkstraHentingKategoriFindDto> {form ->
-            println("form $form")
             form.validOrError()
                 .flatMap { ekstraHentingKategoriService.find(form) }
                 .run { generateResponse(this) }
