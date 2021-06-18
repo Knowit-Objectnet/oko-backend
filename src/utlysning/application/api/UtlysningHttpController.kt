@@ -21,7 +21,7 @@ import ombruk.backend.utlysning.application.service.IUtlysningService
 import java.util.*
 
 @KtorExperimentalLocationsAPI
-fun Routing.utlysnigner(utlysningService: IUtlysningService) {
+fun Routing.utlysninger(utlysningService: IUtlysningService) {
 
     route("/utlysninger") {
         get<UtlysningFindOneDto> { form ->
