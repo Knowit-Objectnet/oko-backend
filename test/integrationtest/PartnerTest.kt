@@ -1,11 +1,6 @@
 import arrow.core.Either
-import arrow.core.right
 import io.ktor.util.*
-import io.mockk.every
-import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.mockkClass
-import ombruk.backend.aktor.aktorModule
 import ombruk.backend.aktor.application.api.dto.PartnerGetDto
 import ombruk.backend.aktor.application.api.dto.PartnerSaveDto
 import ombruk.backend.aktor.application.api.dto.PartnerUpdateDto
@@ -15,7 +10,6 @@ import ombruk.backend.aktor.domain.enum.StasjonType
 import ombruk.backend.avtale.avtaleModule
 import ombruk.backend.henting.hentingModule
 import ombruk.backend.kategori.kategoriModule
-import ombruk.backend.shared.api.KeycloakGroupIntegration
 import ombruk.backend.utlysning.utlysningModule
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
@@ -25,6 +19,7 @@ import org.koin.core.context.stopKoin
 import org.koin.test.KoinTest
 import org.koin.test.get
 import org.testcontainers.junit.jupiter.Testcontainers
+import testutils.MockAktorModule
 import testutils.TestContainer
 import java.util.*
 import kotlin.test.assertEquals
@@ -37,13 +32,12 @@ import kotlin.test.assertTrue
 class PartnerTest : KoinTest {
     private val testContainer: TestContainer = TestContainer()
     private lateinit var partnerService: IPartnerService
-    private var keycloakGroupIntegration = mockkClass(KeycloakGroupIntegration::class)
 
     @BeforeAll
     fun setup() {
         testContainer.start()
         startKoin {  }
-        loadKoinModules(listOf(aktorModule, avtaleModule, hentingModule, utlysningModule, kategoriModule))
+        loadKoinModules(listOf(MockAktorModule.get(), avtaleModule, hentingModule, utlysningModule, kategoriModule))
         partnerService = get()
     }
 
@@ -62,10 +56,9 @@ class PartnerTest : KoinTest {
 
     @Test
     @Order(1)
-    fun testInsert(@MockK expected: Any) {
+    fun testInsert() {
         navn = "Nesferg"
         ideell = false
-        every { keycloakGroupIntegration.createGroup(navn, any<UUID>()) } returns expected.right()
 
         val partner = PartnerSaveDto(navn = navn, ideell = ideell)
         val save = partnerService.savePartner(partner)
@@ -98,10 +91,9 @@ class PartnerTest : KoinTest {
     @OptIn(KtorExperimentalAPI::class)
     @Test
     @Order(4)
-    fun testUpdate(@MockK expected: Unit) {
+    fun testUpdate() {
         updateNavn = "Nesferg Middels"
         updateIdeell = true
-        every { keycloakGroupIntegration.updateGroup(navn, updateNavn) } returns expected.right()
 
         val partner = PartnerUpdateDto(uuid, updateNavn, updateIdeell)
         val update = partnerService.updatePartner(partner)
@@ -112,9 +104,7 @@ class PartnerTest : KoinTest {
 
     @Test
     @Order(5)
-    fun testDelete(@MockK expected: Any) {
-        every { keycloakGroupIntegration.deleteGroup(updateNavn) } returns expected.right()
-
+    fun testDelete() {
         val update = partnerService.deletePartnerById(uuid)
         assert(update is Either.Right)
     }

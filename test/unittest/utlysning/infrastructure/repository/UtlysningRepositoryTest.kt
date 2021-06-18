@@ -54,17 +54,19 @@ internal class UtlysningRepositoryTest {
         utlysningRepository = UtlysningRepository()
 
         val stasjonParams = object : StasjonCreateParams() {
-            override val navn: String = "Grefsen"
+            override val navn: String = "TestStasjon"
             override val type: StasjonType = StasjonType.GJENBRUK
         }
 
         val partnerParams1 = object : PartnerCreateParams() {
-            override val navn: String = "Fretex"
+            override val id: UUID? = null
+            override val navn: String = "TestPartner1"
             override val ideell: Boolean = true
         }
 
         val partnerParams2 = object : PartnerCreateParams() {
-            override val navn: String = "Jobben"
+            override val id: UUID? = null
+            override val navn: String = "TestPartner2"
             override val ideell: Boolean = true
         }
 
