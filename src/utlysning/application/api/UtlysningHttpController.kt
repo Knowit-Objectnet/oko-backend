@@ -1,6 +1,7 @@
 package ombruk.backend.utlysning.application.api
 
 import arrow.core.extensions.either.monad.flatMap
+import arrow.core.extensions.either.monadError.ensure
 import arrow.core.left
 import arrow.core.right
 import io.ktor.application.*
@@ -13,6 +14,7 @@ import ombruk.backend.shared.api.Authorization
 import ombruk.backend.shared.api.Roles
 import ombruk.backend.shared.api.generateResponse
 import ombruk.backend.shared.api.receiveCatching
+import ombruk.backend.shared.error.AuthorizationError
 import ombruk.backend.shared.error.RepositoryError
 import ombruk.backend.utlysning.application.api.dto.*
 import ombruk.backend.utlysning.application.service.IUtlysningService
@@ -41,6 +43,17 @@ fun Routing.utlysnigner(utlysningService: IUtlysningService) {
                 .flatMap { it?.right() ?: RepositoryError.NoRowsFound("Ingen har akseptert").left() }
                 .run { generateResponse(this) }
                 .also { (code, response) -> call.respond(code, response) }
+        }
+
+        authenticate {
+            post("/batch") {
+                Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
+                    .flatMap { receiveCatching { call.receive<UtlysningBatchSaveDto>() } }
+                    .flatMap { it.validOrError() }
+                    .flatMap { utlysningService.batchSave(it) }
+                    .run { generateResponse(this) }
+                    .also { (code, response) -> call.respond(code, response) }
+            }
         }
 
         authenticate {
