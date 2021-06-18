@@ -1,10 +1,6 @@
 import arrow.core.Either
-import arrow.core.right
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.mockkClass
-import ombruk.backend.aktor.aktorModule
 import ombruk.backend.aktor.application.api.dto.PartnerSaveDto
 import ombruk.backend.aktor.application.api.dto.StasjonSaveDto
 import ombruk.backend.aktor.application.service.IPartnerService
@@ -19,7 +15,6 @@ import ombruk.backend.henting.application.service.IEkstraHentingService
 import ombruk.backend.henting.domain.entity.EkstraHenting
 import ombruk.backend.henting.hentingModule
 import ombruk.backend.kategori.kategoriModule
-import ombruk.backend.shared.api.KeycloakGroupIntegration
 import ombruk.backend.utlysning.application.api.dto.UtlysningBatchSaveDto
 import ombruk.backend.utlysning.application.api.dto.UtlysningPartnerAcceptDto
 import ombruk.backend.utlysning.application.service.IUtlysningService
@@ -34,9 +29,9 @@ import org.koin.core.context.stopKoin
 import org.koin.test.KoinTest
 import org.koin.test.get
 import org.testcontainers.junit.jupiter.Testcontainers
+import testutils.MockAktorModule
 import testutils.TestContainer
 import java.time.LocalDateTime
-import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
@@ -50,13 +45,12 @@ class UtlysningTest : KoinTest {
     private lateinit var utlysningService: IUtlysningService
     private lateinit var partnerService: IPartnerService
     private lateinit var stasjonService: IStasjonService
-    private var keycloakGroupIntegration = mockkClass(KeycloakGroupIntegration::class)
 
     @BeforeAll
     fun setup() {
         testContainer.start()
         startKoin {  }
-        loadKoinModules(listOf(hentingModule, aktorModule, utlysningModule, avtaleModule, kategoriModule))
+        loadKoinModules(listOf(hentingModule, MockAktorModule.get(), utlysningModule, avtaleModule, kategoriModule))
         stasjonService = get()
         partnerService = get()
         ekstraHentingService = get()
@@ -80,10 +74,8 @@ class UtlysningTest : KoinTest {
     @Order(1)
     fun setupPartnerAndStasjon(@MockK expected: Any) {
 
-        every { keycloakGroupIntegration.createGroup(any<String>(), any<UUID>()) } returns expected.right()
-
-        val partnerInsert1 = partnerService.savePartner(PartnerSaveDto("TestPartner1", true))
-        val partnerInsert2 = partnerService.savePartner(PartnerSaveDto("TestPartner2", true))
+        val partnerInsert1 = partnerService.savePartner(PartnerSaveDto(navn = "TestPartner1", ideell = true))
+        val partnerInsert2 = partnerService.savePartner(PartnerSaveDto(navn = "TestPartner2", ideell = true))
         val stasjonInsert1 = stasjonService.save(StasjonSaveDto("TestStasjon1", StasjonType.GJENBRUK))
         val stasjonInsert2 = stasjonService.save(StasjonSaveDto("TestStasjon2", StasjonType.MINI))
 

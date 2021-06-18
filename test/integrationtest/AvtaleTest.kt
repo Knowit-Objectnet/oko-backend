@@ -1,12 +1,8 @@
 import arrow.core.Either
-import arrow.core.right
 import avtale.application.api.dto.AvtaleSaveDto
 import henting.application.api.dto.HenteplanSaveDto
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.mockkClass
-import ombruk.backend.aktor.aktorModule
 import ombruk.backend.aktor.application.api.dto.PartnerSaveDto
 import ombruk.backend.aktor.application.api.dto.StasjonSaveDto
 import ombruk.backend.aktor.application.service.IPartnerService
@@ -26,7 +22,6 @@ import ombruk.backend.henting.domain.entity.Henteplan
 import ombruk.backend.henting.domain.model.HenteplanFrekvens
 import ombruk.backend.henting.hentingModule
 import ombruk.backend.kategori.kategoriModule
-import ombruk.backend.shared.api.KeycloakGroupIntegration
 import ombruk.backend.utlysning.utlysningModule
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
@@ -36,6 +31,7 @@ import org.koin.core.context.stopKoin
 import org.koin.test.KoinTest
 import org.koin.test.get
 import org.testcontainers.junit.jupiter.Testcontainers
+import testutils.MockAktorModule
 import testutils.TestContainer
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -54,13 +50,12 @@ class AvtaleTest : KoinTest {
     private lateinit var henteplanService: IHenteplanService
     private lateinit var partnerService: IPartnerService
     private lateinit var stasjonService: IStasjonService
-    private var keycloakGroupIntegration = mockkClass(KeycloakGroupIntegration::class)
 
     @BeforeAll
     fun setup() {
         testContainer.start()
         startKoin {}
-        loadKoinModules(listOf(avtaleModule, aktorModule, hentingModule, utlysningModule, kategoriModule))
+        loadKoinModules(listOf(avtaleModule, MockAktorModule.get(), hentingModule, utlysningModule, kategoriModule))
         avtaleService = get()
         stasjonService = get()
         partnerService = get()
@@ -83,8 +78,6 @@ class AvtaleTest : KoinTest {
     @Test
     @Order(1)
     fun setupPartnerAndStasjon(@MockK expected: Any) {
-
-        every { keycloakGroupIntegration.createGroup(any<String>(), any<UUID>()) } returns expected.right()
 
         val partnerInsert = partnerService.savePartner(PartnerSaveDto(navn = "TestPartner", ideell = true))
         val stasjonInsert = stasjonService.save(StasjonSaveDto("TestStasjon", StasjonType.GJENBRUK))
