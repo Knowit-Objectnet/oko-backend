@@ -16,10 +16,10 @@ import java.util.*
 data class UtlysningSaveDto(
     @Serializable(with = UUIDSerializer::class) override val partnerId: UUID,
     @Serializable(with = UUIDSerializer::class) override val hentingId: UUID,
-    @Serializable(with = LocalDateTimeSerializer::class) override val partnerPameldt: LocalDateTime?,
-    @Serializable(with = LocalDateTimeSerializer::class) override val stasjonGodkjent: LocalDateTime?,
-    override val partnerSkjult: Boolean,
-    override val partnerVist: Boolean,
+    @Serializable(with = LocalDateTimeSerializer::class) override val partnerPameldt: LocalDateTime? = null,
+    @Serializable(with = LocalDateTimeSerializer::class) override val stasjonGodkjent: LocalDateTime? = null,
+    override val partnerSkjult: Boolean = false,
+    override val partnerVist: Boolean = false,
 ) : IForm<UtlysningSaveDto>, UtlysningCreateParams() {
     override fun validOrError(): Either<ValidationError, UtlysningSaveDto> = runCatchingValidation {
         validate(this) {}
