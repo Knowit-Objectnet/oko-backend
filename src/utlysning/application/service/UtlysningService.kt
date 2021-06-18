@@ -83,6 +83,13 @@ class UtlysningService(val utlysningRepository: IUtlysningRepository) : IUtlysni
         }
     }
 
+    override fun findAccepted(ekstraHentingId: UUID): Either<ServiceError, Utlysning?> {
+        return transaction {
+            utlysningRepository.find(UtlysningFindDto(hentingId = ekstraHentingId, partnerPameldt = true))
+                .map { list -> if (list.isNotEmpty()) list.sortedBy { it.partnerPameldt }[0] else null }
+        }
+    }
+
     override fun archive(params: UtlysningFindParams): Either<ServiceError, Unit> {
         return transaction {
             utlysningRepository.archive(params)
