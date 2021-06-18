@@ -7,6 +7,10 @@ import ombruk.backend.henting.domain.port.IPlanlagtHentingRepository
 import ombruk.backend.henting.infrastructure.repository.EkstraHentingRepository
 import ombruk.backend.henting.infrastructure.repository.HenteplanRepository
 import ombruk.backend.henting.infrastructure.repository.PlanlagtHentingRepository
+import ombruk.backend.kategori.application.service.EkstraHentingKategoriService
+import ombruk.backend.kategori.application.service.IEkstraHentingKategoriService
+import ombruk.backend.kategori.domain.port.IEkstraHentingKategoriRepository
+import ombruk.backend.kategori.infrastructure.repository.EkstraHentingKategoriRepository
 import ombruk.backend.utlysning.application.service.UtlysningService
 import org.koin.dsl.module
 
@@ -16,5 +20,7 @@ val hentingModule = module (createdAtStart = true){
     single<IPlanlagtHentingRepository> { PlanlagtHentingRepository() }
     single<IPlanlagtHentingService> {PlanlagtHentingService(get(), get())}
     single<IEkstraHentingRepository> { EkstraHentingRepository() }
-    single<IEkstraHentingService> {EkstraHentingService(get(), get())}
+    single<IEkstraHentingKategoriRepository> { EkstraHentingKategoriRepository() }
+    single<IEkstraHentingKategoriService> { EkstraHentingKategoriService(get()) }
+    single<IEkstraHentingService> {EkstraHentingService(get(), get(), get())}
 }

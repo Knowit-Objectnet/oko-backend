@@ -7,8 +7,11 @@ import arrow.core.fix
 import arrow.core.left
 import arrow.core.right
 import ombruk.backend.kategori.application.api.dto.*
+import ombruk.backend.kategori.domain.entity.EkstraHentingKategori
 import ombruk.backend.kategori.domain.entity.HenteplanKategori
+import ombruk.backend.kategori.domain.params.EkstraHentingKategoriFindParams
 import ombruk.backend.kategori.domain.params.HenteplanKategoriFindParams
+import ombruk.backend.kategori.domain.port.IEkstraHentingKategoriRepository
 import ombruk.backend.kategori.domain.port.IHenteplanKategoriRepository
 import ombruk.backend.kategori.domain.port.IKategoriRepository
 import ombruk.backend.shared.error.RepositoryError
@@ -18,35 +21,35 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.util.*
 
-class EkstraHentingKategoriService(val henteplanKategoriRepository: IHenteplanKategoriRepository) : IHenteplanKategoriService, KoinComponent {
+class EkstraHentingKategoriService(val ekstraHentingKategoriRepository: IEkstraHentingKategoriRepository) : IEkstraHentingKategoriService, KoinComponent {
     //Using inject rather than constructor to avoid circular dependency
     private val kategoriService: IKategoriService by inject()
 
-    override fun save(dto: HenteplanKategoriSaveDto): Either<ServiceError, HenteplanKategori> {
+    override fun save(dto: EkstraHentingKategoriSaveDto): Either<ServiceError, EkstraHentingKategori> {
         return transaction {
-            henteplanKategoriRepository.insert(dto)
+            ekstraHentingKategoriRepository.insert(dto)
                 .fold({ rollback(); it.left() }, { it.right() })
         }
     }
 
-    override fun findOne(id: UUID): Either<ServiceError, HenteplanKategori> {
+    override fun findOne(id: UUID): Either<ServiceError, EkstraHentingKategori> {
         /*return transaction {
             kategoriRepository.findOne(id)
         }*/
         return Either.left(RepositoryError.SelectError("no need for findOne here..."))
     }
 
-    override fun find(dto: HenteplanKategoriFindDto): Either<ServiceError, List<HenteplanKategori>> {
+    override fun find(dto: EkstraHentingKategoriFindDto): Either<ServiceError, List<EkstraHentingKategori>> {
         return transaction {
-            henteplanKategoriRepository.find(dto)
+            ekstraHentingKategoriRepository.find(dto)
                 .fold(
                     { Either.Left(ServiceError(it.message)) },
                     {
-                        it.map { henteplanKategori ->
-                            kategoriService.findOne(henteplanKategori.kategoriId)
+                        it.map { ekstraHentingKategori ->
+                            kategoriService.findOne(ekstraHentingKategori.kategoriId)
                                 .fold(
-                                    { henteplanKategori.right() },
-                                    { henteplanKategori.copy(kategori = it).right() }
+                                    { ekstraHentingKategori.right() },
+                                    { ekstraHentingKategori.copy(kategori = it).right() }
                                 )
                         }.sequence(Either.applicative()).fix().map { it.fix() }
                     }
@@ -54,23 +57,23 @@ class EkstraHentingKategoriService(val henteplanKategoriRepository: IHenteplanKa
         }
     }
 
-    override fun delete(dto: HenteplanKategoriDeleteDto): Either<ServiceError, Unit> {
+    override fun delete(dto: EkstraHentingKategoriDeleteDto): Either<ServiceError, Unit> {
         return transaction {
-            henteplanKategoriRepository.delete(dto.id)
+            ekstraHentingKategoriRepository.delete(dto.id)
                 .fold({ rollback(); it.left() }, { it.right() })
         }
     }
 
-    override fun archive(params: HenteplanKategoriFindParams): Either<ServiceError, Unit> {
+    override fun archive(params: EkstraHentingKategoriFindParams): Either<ServiceError, Unit> {
         return transaction {
-            henteplanKategoriRepository.archive(params).map {}
+            ekstraHentingKategoriRepository.archive(params).map {}
                 .fold({ rollback(); it.left() }, { it.right() })
         }
     }
 
     override fun archiveOne(id: UUID): Either<ServiceError, Unit> {
         return transaction {
-            henteplanKategoriRepository.archiveOne(id).map {}
+            ekstraHentingKategoriRepository.archiveOne(id).map {}
                 .fold({ rollback(); it.left() }, { it.right() })
         }
     }

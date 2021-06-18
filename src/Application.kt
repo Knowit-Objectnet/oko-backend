@@ -225,7 +225,7 @@ fun Application.module(testing: Boolean = false) {
         avtaler(get())
         henteplaner(get(), get())
         planlagteHentinger(get())
-        ekstraHentinger(get())
+        ekstraHentinger(get(), get())
         kategorier(get())
         utlysnigner(get())
         kontakter(get())

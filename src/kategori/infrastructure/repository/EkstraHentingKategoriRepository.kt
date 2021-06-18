@@ -3,43 +3,43 @@ package ombruk.backend.kategori.infrastructure.repository
 import arrow.core.left
 import arrow.core.rightIfNotNull
 import ombruk.backend.core.infrastructure.RepositoryBase
-import ombruk.backend.kategori.domain.entity.HenteplanKategori
-import ombruk.backend.kategori.domain.params.HenteplanKategoriCreateParams
-import ombruk.backend.kategori.domain.params.HenteplanKategoriFindParams
-import ombruk.backend.kategori.domain.port.IHenteplanKategoriRepository
-import ombruk.backend.kategori.infrastructure.table.HenteplanKategoriTable
+import ombruk.backend.kategori.domain.entity.EkstraHentingKategori
+import ombruk.backend.kategori.domain.params.EkstraHentingKategoriCreateParams
+import ombruk.backend.kategori.domain.params.EkstraHentingKategoriFindParams
+import ombruk.backend.kategori.domain.port.IEkstraHentingKategoriRepository
+import ombruk.backend.kategori.infrastructure.table.EkstraHentingKategoriTable
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.*
 import java.util.*
 
-class EkstraHentingKategoriRepository : RepositoryBase<HenteplanKategori, HenteplanKategoriCreateParams, Nothing, HenteplanKategoriFindParams>(),
-    IHenteplanKategoriRepository {
-    override val table = HenteplanKategoriTable
+class EkstraHentingKategoriRepository : RepositoryBase<EkstraHentingKategori, EkstraHentingKategoriCreateParams, Nothing, EkstraHentingKategoriFindParams>(),
+    IEkstraHentingKategoriRepository {
+    override val table = EkstraHentingKategoriTable
 
-    override fun insertQuery(params: HenteplanKategoriCreateParams): EntityID<UUID> {
+    override fun insertQuery(params: EkstraHentingKategoriCreateParams): EntityID<UUID> {
         return table.insertAndGetId {
-            it[henteplanId] = params.henteplanId
+            it[ekstraHentingId] = params.ekstraHentingId
             it[kategoriId] = params.kategoriId
-            it[merknad] = params.merknad ?: ""
+            it[mengde] = params.mengde ?: 0.0f
         }
     }
 
-    override fun prepareQuery(params: HenteplanKategoriFindParams): Pair<Query, List<Alias<Table>>?> {
+    override fun prepareQuery(params: EkstraHentingKategoriFindParams): Pair<Query, List<Alias<Table>>?> {
         val query = table.selectAll()
         params.id?.let { query.andWhere { table.id eq it } }
-        params.henteplanId?.let { query.andWhere { table.henteplanId eq it } }
+        params.ekstraHentingId?.let { query.andWhere { table.ekstraHentingId eq it } }
         params.kategoriId?.let { query.andWhere { table.kategoriId eq it } }
-        params.merknad?.let { query.andWhere { table.merknad eq it } }
+        params.mengde?.let { query.andWhere { table.mengde eq it } }
         return Pair(query, null)
     }
 
-    override fun toEntity(row: ResultRow, aliases: List<Alias<Table>>?): HenteplanKategori {
-        return HenteplanKategori(
+    override fun toEntity(row: ResultRow, aliases: List<Alias<Table>>?): EkstraHentingKategori {
+        return EkstraHentingKategori(
             row[table.id].value,
-            row[table.henteplanId],
+            row[table.ekstraHentingId],
             row[table.kategoriId],
             null,
-            row[table.merknad]
+            row[table.mengde]
         )
     }
 
@@ -47,10 +47,10 @@ class EkstraHentingKategoriRepository : RepositoryBase<HenteplanKategori, Hentep
         TODO("Not yet implemented")
     }
 
-    override fun archiveCondition(params: HenteplanKategoriFindParams): Op<Boolean>? {
+    override fun archiveCondition(params: EkstraHentingKategoriFindParams): Op<Boolean>? {
         return Op.TRUE
             .andIfNotNull(params.id){table.id eq params.id}
-            .andIfNotNull(params.henteplanId){table.henteplanId eq params.henteplanId!!}
+            .andIfNotNull(params.ekstraHentingId){table.ekstraHentingId eq params.ekstraHentingId!!}
             .andIfNotNull(params.kategoriId){table.kategoriId eq params.kategoriId!!}
     }
 }

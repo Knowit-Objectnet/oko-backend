@@ -2,21 +2,21 @@ package ombruk.backend.kategori.application.service
 
 import arrow.core.Either
 import ombruk.backend.kategori.application.api.dto.*
-import ombruk.backend.kategori.domain.entity.HenteplanKategori
-import ombruk.backend.kategori.domain.params.HenteplanKategoriFindParams
+import ombruk.backend.kategori.domain.entity.EkstraHentingKategori
+import ombruk.backend.kategori.domain.params.EkstraHentingKategoriFindParams
 import ombruk.backend.shared.error.ServiceError
 import java.util.*
 
 interface IEkstraHentingKategoriService {
-    fun save(dto: HenteplanKategoriSaveDto): Either<ServiceError, HenteplanKategori>
+    fun save(dto: EkstraHentingKategoriSaveDto): Either<ServiceError, EkstraHentingKategori>
 
-    fun findOne(id: UUID): Either<ServiceError, HenteplanKategori>
+    fun findOne(id: UUID): Either<ServiceError, EkstraHentingKategori>
 
-    fun find(dto: HenteplanKategoriFindDto): Either<ServiceError, List<HenteplanKategori>>
+    fun find(dto: EkstraHentingKategoriFindDto): Either<ServiceError, List<EkstraHentingKategori>>
 
-    fun delete(dto: HenteplanKategoriDeleteDto): Either<ServiceError, Unit>
+    fun delete(dto: EkstraHentingKategoriDeleteDto): Either<ServiceError, Unit>
 
-    fun archive(params: HenteplanKategoriFindParams): Either<ServiceError, Unit>
+    fun archive(params: EkstraHentingKategoriFindParams): Either<ServiceError, Unit>
 
     fun archiveOne(id: UUID): Either<ServiceError, Unit>
 }

@@ -11,6 +11,8 @@ import ombruk.backend.henting.application.api.dto.EkstraHentingUpdateDto
 import ombruk.backend.henting.domain.entity.EkstraHenting
 import ombruk.backend.henting.domain.params.EkstraHentingFindParams
 import ombruk.backend.henting.domain.port.IEkstraHentingRepository
+import ombruk.backend.kategori.application.service.EkstraHentingKategoriService
+import ombruk.backend.kategori.application.service.IEkstraHentingKategoriService
 import ombruk.backend.shared.error.ServiceError
 import ombruk.backend.utlysning.application.api.dto.UtlysningFindDto
 import ombruk.backend.utlysning.application.service.IUtlysningService
@@ -20,7 +22,8 @@ import java.util.*
 @KtorExperimentalLocationsAPI
 class EkstraHentingService(
     val ekstraHentingRepository: IEkstraHentingRepository,
-    val utlysningService: IUtlysningService
+    val utlysningService: IUtlysningService,
+    val ekstraHentingKategoriService: IEkstraHentingKategoriService
     ): IEkstraHentingService {
     override fun save(dto: EkstraHentingSaveDto): Either<ServiceError, EkstraHenting> {
         return transaction { ekstraHentingRepository.insert(dto) }
