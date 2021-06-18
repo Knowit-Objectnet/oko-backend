@@ -223,7 +223,7 @@ fun Application.module(testing: Boolean = false) {
         stasjoner(get())
         partnere(get())
         avtaler(get())
-        henteplaner(get(), get())
+        henteplaner(get(), get(), get())
         planlagteHentinger(get())
         ekstraHentinger(get())
         kategorier(get())
