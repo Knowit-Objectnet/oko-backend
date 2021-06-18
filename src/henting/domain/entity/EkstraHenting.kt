@@ -2,6 +2,7 @@ package ombruk.backend.henting.domain.entity
 
 import kotlinx.serialization.Serializable
 import ombruk.backend.shared.model.serializer.LocalDateTimeSerializer
+import ombruk.backend.utlysning.domain.entity.Utlysning
 import shared.model.serializer.UUIDSerializer
 import java.time.LocalDateTime
 import java.util.*
@@ -13,4 +14,6 @@ data class EkstraHenting(
     @Serializable(with = LocalDateTimeSerializer::class) override val sluttTidspunkt: LocalDateTime,
     override val merknad: String?,
     @Serializable(with = UUIDSerializer::class) val stasjonId: UUID,
+    val stasjonNavn: String,
+    val godkjentUtlysning: Utlysning? = null
 ) : Henting()

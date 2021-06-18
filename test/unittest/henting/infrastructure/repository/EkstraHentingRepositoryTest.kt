@@ -209,7 +209,7 @@ internal class EkstraHentingRepositoryTest {
             println(findAll)
             require(findAll is Either.Right)
             assert(findAll.b.size == 2)
-            assert(findAll.b[0] == ekstraHenting1)
+            assert(findAll.b.contains(ekstraHenting1))
         }
 
         transaction {
@@ -261,7 +261,7 @@ internal class EkstraHentingRepositoryTest {
             println(findAllBetween)
             require(findAllBetween is Either.Right)
             assert(findAllBetween.b.size == 1)
-            assert(findAllBetween.b[0] == ekstraHenting1)
+            assert(findAllBetween.b.contains(ekstraHenting1))
         }
 
         transaction {
@@ -287,7 +287,7 @@ internal class EkstraHentingRepositoryTest {
             println(findAllBetween)
             require(findAllBetween is Either.Right)
             assert(findAllBetween.b.size == 1)
-            assert(findAllBetween.b[0] == ekstraHenting2)
+            assert(findAllBetween.b.contains(ekstraHenting2))
         }
 
         transaction {

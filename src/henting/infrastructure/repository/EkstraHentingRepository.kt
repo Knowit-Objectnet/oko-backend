@@ -1,5 +1,7 @@
 package ombruk.backend.henting.infrastructure.repository
 
+import ombruk.backend.aktor.infrastructure.table.PartnerTable
+import ombruk.backend.aktor.infrastructure.table.StasjonTable
 import ombruk.backend.core.infrastructure.RepositoryBase
 import ombruk.backend.henting.domain.entity.EkstraHenting
 import ombruk.backend.henting.domain.params.EkstraHentingCreateParams
@@ -7,6 +9,7 @@ import ombruk.backend.henting.domain.params.EkstraHentingFindParams
 import ombruk.backend.henting.domain.params.EkstraHentingUpdateParams
 import ombruk.backend.henting.domain.port.IEkstraHentingRepository
 import ombruk.backend.henting.infrastructure.table.EkstraHentingTable
+import ombruk.backend.utlysning.infrastructure.table.UtlysningTable
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.*
 import java.util.*
@@ -32,7 +35,8 @@ class EkstraHentingRepository :
     }
 
     override fun prepareQuery(params: EkstraHentingFindParams): Pair<Query, List<Alias<Table>>?> {
-        val query = table.selectAll()
+        val joinedTable = table.innerJoin(StasjonTable, {table.stasjonId}, {StasjonTable.id})
+        val query = joinedTable.selectAll()
         params.id?.let { query.andWhere { table.id eq it } }
         params.stasjonId?.let { query.andWhere { table.stasjonId eq it } }
         params.after?.let { query.andWhere { table.startTidspunkt.greaterEq(it) } }
@@ -46,8 +50,15 @@ class EkstraHentingRepository :
             row[table.startTidspunkt],
             row[table.sluttTidspunkt],
             row[table.merknad],
-            row[table.stasjonId]
+            row[table.stasjonId],
+            row[StasjonTable.navn],
+            null
         )
+    }
+
+    override fun findOneMethod(id: UUID): List<EkstraHenting> {
+        val joinedTable = table.innerJoin(StasjonTable, {table.stasjonId}, {StasjonTable.id})
+        return joinedTable.select{table.id eq id}.mapNotNull { toEntity(it) }
     }
 
     override fun archiveCondition(params: EkstraHentingFindParams): Op<Boolean>? {

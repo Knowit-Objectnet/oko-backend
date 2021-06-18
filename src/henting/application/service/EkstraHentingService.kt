@@ -27,11 +27,28 @@ class EkstraHentingService(
     }
 
     override fun findOne(id: UUID): Either<ServiceError, EkstraHenting> {
-        return transaction { ekstraHentingRepository.findOne(id) }
+        return transaction {
+            ekstraHentingRepository.findOne(id)
+                .flatMap { ekstraHenting ->
+                    utlysningService.findAccepted(ekstraHentingId = ekstraHenting.id)
+                        .map { utlysning -> ekstraHenting.copy(godkjentUtlysning = utlysning) }
+                }
+        }
     }
 
     override fun find(dto: EkstraHentingFindDto): Either<ServiceError, List<EkstraHenting>> {
-        return transaction { ekstraHentingRepository.find(dto) }
+        return transaction {
+            ekstraHentingRepository.find(dto)
+                .flatMap { list ->
+                    list.map { ekstraHenting ->
+                        utlysningService.findAccepted(ekstraHentingId = ekstraHenting.id)
+                            .map { utlysning -> ekstraHenting.copy(godkjentUtlysning = utlysning) }
+                    }
+                        .sequence(Either.applicative())
+                        .fix()
+                        .map { it.fix() }
+                }
+        }
     }
 
     override fun delete(dto: EkstraHentingDeleteDto): Either<ServiceError, Unit> {
