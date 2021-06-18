@@ -13,6 +13,7 @@ import ombruk.backend.shared.api.generateResponse
 import ombruk.backend.shared.api.receiveCatching
 import ombruk.backend.utlysning.application.api.dto.*
 import ombruk.backend.utlysning.application.service.IUtlysningService
+import java.util.*
 
 @KtorExperimentalLocationsAPI
 fun Routing.utlysnigner(utlysningService: IUtlysningService) {
@@ -28,6 +29,13 @@ fun Routing.utlysnigner(utlysningService: IUtlysningService) {
         get<UtlysningFindDto> { form ->
             form.validOrError()
                 .flatMap { utlysningService.find(form) }
+                .run { generateResponse(this) }
+                .also { (code, response) -> call.respond(code, response) }
+        }
+
+        get("/godkjent/{ekstraHentingId}") {
+            utlysningService.findAccepted(UUID.fromString(call.parameters["ekstraHentingId"]))
+                .flatMap { it?.right() ?: RepositoryError.NoRowsFound("Ingen har akseptert").left() }
                 .run { generateResponse(this) }
                 .also { (code, response) -> call.respond(code, response) }
         }
