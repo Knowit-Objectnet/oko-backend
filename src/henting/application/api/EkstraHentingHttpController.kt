@@ -43,7 +43,7 @@ fun Routing.ekstraHentinger(ekstraHentingService: IEkstraHentingService) {
                         receiveCatching { call.receive<EkstraHentingSaveDto>() }
                         .flatMap { it.validOrError() }
                             .ensure(
-                                { AuthorizationError.AccessViolationError("Du har ikke rettigheter til denne handlingen")},
+                                { AuthorizationError.AccessViolationError("Du har ikke tilgang til denne hentingen")},
                                 { role == Roles.RegEmployee || groupId == it.stasjonId }
                             )
                         .flatMap { ekstraHentingService.save(it) }
@@ -60,7 +60,7 @@ fun Routing.ekstraHentinger(ekstraHentingService: IEkstraHentingService) {
                         form.validOrError()
                             .flatMap { ekstraHentingService.findOne(it.id) }
                             .ensure(
-                                { AuthorizationError.AccessViolationError("Du har ikke rettigheter til denne handlingen")},
+                                { AuthorizationError.AccessViolationError("Du har ikke tilgang til denne hentingen")},
                                 {
                                     if (role == Roles.RegEmployee) true
                                     else it.stasjonId == groupId
@@ -80,7 +80,7 @@ fun Routing.ekstraHentinger(ekstraHentingService: IEkstraHentingService) {
                         form.validOrError()
                             .flatMap { ekstraHentingService.findOne(it.id) }
                             .ensure(
-                                { AuthorizationError.AccessViolationError("Du har ikke rettigheter til denne handlingen") },
+                                { AuthorizationError.AccessViolationError("Du har ikke tilgang til denne hentingen") },
                                 {
                                     if (role == Roles.RegEmployee) true
                                     else it.stasjonId == groupId

@@ -10,6 +10,7 @@ import io.ktor.locations.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
+import ombruk.backend.henting.application.service.IEkstraHentingService
 import ombruk.backend.shared.api.Authorization
 import ombruk.backend.shared.api.Roles
 import ombruk.backend.shared.api.generateResponse
@@ -21,7 +22,7 @@ import ombruk.backend.utlysning.application.service.IUtlysningService
 import java.util.*
 
 @KtorExperimentalLocationsAPI
-fun Routing.utlysninger(utlysningService: IUtlysningService) {
+fun Routing.utlysninger(utlysningService: IUtlysningService, ekstraHentingService: IEkstraHentingService) {
 
     route("/utlysninger") {
         get<UtlysningFindOneDto> { form ->
@@ -47,10 +48,22 @@ fun Routing.utlysninger(utlysningService: IUtlysningService) {
 
         authenticate {
             post("/batch") {
-                Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
-                    .flatMap { receiveCatching { call.receive<UtlysningBatchSaveDto>() } }
-                    .flatMap { it.validOrError() }
-                    .flatMap { utlysningService.batchSave(it) }
+                Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.ReuseStation), call)
+                    .flatMap { (role, groupId) ->
+                        receiveCatching { call.receive<UtlysningBatchSaveDto>() }
+                            .flatMap { it.validOrError() }
+                            .flatMap { dto ->
+                                ekstraHentingService.findOne(dto.hentingId)
+                                    .ensure(
+                                        { AuthorizationError.AccessViolationError("Du har ikke tilgang til denne hentingen") },
+                                        {
+                                            if (role == Roles.RegEmployee) true
+                                            else it.stasjonId == groupId
+                                        }
+                                    )
+                                    .flatMap { utlysningService.batchSave(dto) }
+                            }
+                    }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }
@@ -58,10 +71,22 @@ fun Routing.utlysninger(utlysningService: IUtlysningService) {
 
         authenticate {
             post {
-                Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
-                    .flatMap { receiveCatching { call.receive<UtlysningSaveDto>() } }
-                    .flatMap { it.validOrError() }
-                    .flatMap { utlysningService.save(it) }
+                Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.ReuseStation), call)
+                    .flatMap { (role, groupId) ->
+                        receiveCatching { call.receive<UtlysningSaveDto>() }
+                            .flatMap { it.validOrError() }
+                            .flatMap { dto ->
+                                ekstraHentingService.findOne(dto.hentingId)
+                                    .ensure(
+                                        { AuthorizationError.AccessViolationError("Du har ikke tilgang til denne hentingen") },
+                                        {
+                                            if (role == Roles.RegEmployee) true
+                                            else it.stasjonId == groupId
+                                        }
+                                    )
+                                    .flatMap { utlysningService.save(dto) }
+                            }
+                    }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }
@@ -69,9 +94,17 @@ fun Routing.utlysninger(utlysningService: IUtlysningService) {
 
         authenticate {
             delete<UtlysningDeleteDto> { form ->
-                Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
-                    .flatMap { form.validOrError() }
-                    .flatMap { utlysningService.archiveOne(form.id) }
+                Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.ReuseStation), call)
+                    .flatMap { (role, groupId) ->
+                        form.validOrError()
+                            .flatMap { utlysningService.findOne(form.id) }
+                            .flatMap { ekstraHentingService.findOne(it.hentingId) }
+                            .ensure(
+                                { AuthorizationError.AccessViolationError("Du har ikke tilgang til denne hentingen") },
+                                {role == Roles.RegEmployee || it.stasjonId == groupId}
+                            )
+                        .flatMap { utlysningService.archiveOne(form.id) }
+                    }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }
