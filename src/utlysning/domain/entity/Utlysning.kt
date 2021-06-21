@@ -15,5 +15,5 @@ data class Utlysning(
     @Serializable(with = LocalDateTimeSerializer::class) val stasjonGodkjent: LocalDateTime?,
     val partnerSkjult: Boolean,
     val partnerVist: Boolean,
-    val partnerName: String
+    val partnerNavn: String
 )
