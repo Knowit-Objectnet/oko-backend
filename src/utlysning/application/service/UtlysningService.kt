@@ -50,7 +50,13 @@ class UtlysningService(val utlysningRepository: IUtlysningRepository) : IUtlysni
 
     override fun batchSave(dto: UtlysningBatchSaveDto): Either<ServiceError, List<Utlysning>> {
         return transaction {
-            dto.partnerIds.map {
+            dto.partnerIds
+                .filter {
+                    val find = utlysningRepository
+                        .find(UtlysningFindDto(partnerId = UUID.fromString(it), hentingId = dto.hentingId))
+                    find is Either.Right && find.b.isEmpty()
+                }
+                .map {
                 utlysningRepository.insert(
                     UtlysningSaveDto(
                         partnerId = UUID.fromString(it),
