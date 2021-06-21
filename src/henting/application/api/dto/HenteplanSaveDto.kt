@@ -73,6 +73,7 @@ data class HenteplanKategoriBatchSaveDto(
 ) : IForm<HenteplanKategoriBatchSaveDto>, KoinComponent {
     override fun validOrError(): Either<ValidationError, HenteplanKategoriBatchSaveDto> = runCatchingValidation {
         validate(this) {
+            //TODO: Lag en sjekk om det er en gyldig kategoriId
         }
     }
 }

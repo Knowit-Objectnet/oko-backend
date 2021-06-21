@@ -3,16 +3,15 @@ package ombruk.backend.henting.application.service
 import arrow.core.*
 import arrow.core.extensions.either.applicative.applicative
 import arrow.core.extensions.list.traverse.sequence
-import arrow.core.extensions.sequence.apply.map
 import henting.application.api.dto.HenteplanSaveDto
 import io.ktor.locations.*
 import ombruk.backend.henting.application.api.dto.*
 import ombruk.backend.henting.domain.entity.Henteplan
 import ombruk.backend.henting.domain.entity.PlanlagtHentingWithParents
-import ombruk.backend.henting.domain.model.HenteplanFrekvens
 import ombruk.backend.henting.domain.params.HenteplanFindParams
 import ombruk.backend.henting.domain.port.IHenteplanRepository
 import ombruk.backend.kategori.application.api.dto.HenteplanKategoriFindDto
+import ombruk.backend.kategori.application.api.dto.HenteplanKategoriSaveDto
 import ombruk.backend.kategori.application.service.IHenteplanKategoriService
 import ombruk.backend.shared.error.ServiceError
 import ombruk.backend.shared.utils.LocalDateTimeProgressionWithDayFrekvens
@@ -40,20 +39,44 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
             }
         }
 
+    fun appendKategorier(dto: HenteplanSaveDto, id: UUID, henteplan: Henteplan): Either<ServiceError, Henteplan>
+        = run {
+            if (dto.kategorier == null) {return Either.Right(henteplan)}
+            val kategorier = dto.kategorier!!.map {
+                henteplanKategoriService.save(
+                    HenteplanKategoriSaveDto(
+                        henteplanId = id,
+                        kategoriId = it.kategoriId,
+                        merknad = it.merknad
+                    )
+                )
+            }
+                .sequence(Either.applicative())
+                .fix()
+                .map { it.fix() }
+                .fold({it.left()}, {it.right()})
+
+
+            when (kategorier) {
+                is Either.Left -> kategorier
+                is Either.Right -> henteplan.copy(kategorier = kategorier.b).right()
+            }
+        }
+
+
     override fun save(dto: HenteplanSaveDto): Either<ServiceError, Henteplan> {
 
-        val henteplan = transaction {
+        return transaction {
             henteplanRepository.insert(dto)
                 .fold(
                     { Either.Left(ServiceError(it.message)) },
                     {
                         appendPlanlagtHentinger(dto, it.id, it)
-
+                        appendKategorier(dto, it.id, it)
                     }
                 )
-                .fold({rollback(); it.left()}, {it.right()})
+                .fold({ rollback(); it.left() }, { it.right() })
         }
-        return henteplan
 
     }
 
