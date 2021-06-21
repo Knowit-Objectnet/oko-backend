@@ -77,17 +77,23 @@ fun Routing.utlysninger(utlysningService: IUtlysningService) {
             }
         }
 
-        //TODO: Validate that the Partner/Stasjon is the correct one
-
         authenticate {
             patch<UtlysningPartnerAcceptDto> { form ->
                 Authorization.authorizeRole(listOf(Roles.Partner), call)
-                    .flatMap { form.validOrError() }
-                    .flatMap { utlysningService.partnerAccept(form) }
+                    .flatMap { (_, id) ->
+                        form.validOrError()
+                            .flatMap { utlysningService.findOne(form.id) }
+                            .ensure(
+                                {AuthorizationError.AccessViolationError("Denne utlysningen tilhører ikke deg")},
+                                {it.partnerId == id})
+                            .flatMap { utlysningService.partnerAccept(form) }
+                    }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }
         }
+
+        //TODO: If this is functionality we want used, it needs authorization
 
         authenticate {
             patch<UtlysningStasjonAcceptDto> { form ->
