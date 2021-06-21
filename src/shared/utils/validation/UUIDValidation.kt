@@ -6,11 +6,15 @@ import java.util.*
 
 object UUIDString : Constraint
 
-fun <E> Validator<E>.Property<String?>.isLegalUUID() =
+/**
+ * Takes a [String] and checks if they are valid [UUID]s. If a function is passed, it will validate that
+ * it returns true for the id.
+ */
+fun <E> Validator<E>.Property<String?>.isLegalUUID(function: ((UUID) -> Boolean) = {true}) =
     this.validate(UUIDString) {
         try {
             UUID.fromString(it)
-            true
+                .let { function(it) }
         } catch (e: Exception) {
             false
         }
@@ -18,11 +22,17 @@ fun <E> Validator<E>.Property<String?>.isLegalUUID() =
 
 object UUIDStringList : Constraint
 
-fun <E> Validator<E>.Property<Iterable<String>?>.allUUIDLegal() =
-    this.validate(UUIDStringList) {
+/**
+ * Takes a list of [String]s and checks if they are valid [UUID]s. If a function is passed, it will validate that
+ * it returns true for each id.
+ */
+fun <E> Validator<E>.Property<Iterable<String>?>.allUUIDLegal(function: ((UUID) -> Boolean) = {true}) =
+    this.validate(UUIDStringList) { stringList ->
         try {
-            it?.map { UUID.fromString(it) }
-            true
+            val allValid = stringList?.map { UUID.fromString(it) }
+                ?.map { function(it)}
+                ?.all { it }
+            allValid ?: false
         } catch (e: Exception) {
             false
         }
