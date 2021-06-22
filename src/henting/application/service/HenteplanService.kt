@@ -10,6 +10,8 @@ import ombruk.backend.henting.domain.entity.Henteplan
 import ombruk.backend.henting.domain.entity.PlanlagtHentingWithParents
 import ombruk.backend.henting.domain.params.HenteplanFindParams
 import ombruk.backend.henting.domain.port.IHenteplanRepository
+import ombruk.backend.kategori.application.api.dto.HenteplanKategoriBatchSaveDto
+import ombruk.backend.kategori.application.api.dto.HenteplanKategoriDeleteDto
 import ombruk.backend.kategori.application.api.dto.HenteplanKategoriFindDto
 import ombruk.backend.kategori.application.api.dto.HenteplanKategoriSaveDto
 import ombruk.backend.kategori.application.service.IHenteplanKategoriService
@@ -137,30 +139,60 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
                             it.map { planlagtHentingService.delete(PlanlagtHentingDeleteDto(id = it.id)) }
                         }
                             .fold({it.left()},
-                            {
-                                var starttime = LocalDateTime.of(today.toLocalDate(), (dto.startTidspunkt ?: henteplan.startTidspunkt).toLocalTime())
+                                {
+                                    henteplanKategoriService.find(HenteplanKategoriFindDto(henteplanId = dto.id)).map {
+                                        it.map { henteplanKategoriService.delete(HenteplanKategoriDeleteDto(id = it.id)) }
+                                    }.fold({it.left()},
+                                            {
 
-                                if (dto.startTidspunkt != null && dto.startTidspunkt.isAfter(today)) {
-                                    starttime = dto.startTidspunkt
-                                } else if (dto.startTidspunkt == null && henteplan.startTidspunkt.isAfter(today)) {
-                                    starttime = henteplan.startTidspunkt
-                                }
+                                        var starttime = LocalDateTime.of(
+                                            today.toLocalDate(),
+                                            (dto.startTidspunkt ?: henteplan.startTidspunkt).toLocalTime()
+                                        )
 
-                                appendPlanlagtHentinger(
-                                    HenteplanSaveDto(
-                                        avtaleId = henteplan.avtaleId,
-                                        stasjonId = henteplan.stasjonId,
-                                        startTidspunkt = starttime,
-                                        sluttTidspunkt = dto.sluttTidspunkt ?: henteplan.sluttTidspunkt,
-                                        ukedag = dto.ukeDag ?: henteplan.ukedag,
-                                        merknad = dto.merknad ?: henteplan.merknad,
-                                        frekvens = dto.frekvens ?: henteplan.frekvens
-                                    ), henteplan.id, henteplan
-                                ).fold(
-                                    { Either.left(ServiceError(it.message)) },
-                                    { henteplanRepository.update(dto) }
-                                )
-                            })
+                                        if (dto.startTidspunkt != null && dto.startTidspunkt.isAfter(today)) {
+                                            starttime = dto.startTidspunkt
+                                        } else if (dto.startTidspunkt == null && henteplan.startTidspunkt.isAfter(today)) {
+                                            starttime = henteplan.startTidspunkt
+                                        }
+
+                                        appendPlanlagtHentinger(
+                                            HenteplanSaveDto(
+                                                avtaleId = henteplan.avtaleId,
+                                                stasjonId = henteplan.stasjonId,
+                                                startTidspunkt = starttime,
+                                                sluttTidspunkt = dto.sluttTidspunkt ?: henteplan.sluttTidspunkt,
+                                                ukedag = dto.ukeDag ?: henteplan.ukedag,
+                                                merknad = dto.merknad ?: henteplan.merknad,
+                                                frekvens = dto.frekvens ?: henteplan.frekvens
+                                            ), henteplan.id, henteplan
+                                        ).fold(
+                                            { Either.left(ServiceError(it.message)) },
+                                            {
+                                                appendKategorier(
+                                                    HenteplanSaveDto(
+                                                        avtaleId = henteplan.avtaleId,
+                                                        stasjonId = henteplan.stasjonId,
+                                                        startTidspunkt = starttime,
+                                                        sluttTidspunkt = dto.sluttTidspunkt ?: henteplan.sluttTidspunkt,
+                                                        ukedag = dto.ukeDag ?: henteplan.ukedag,
+                                                        merknad = dto.merknad ?: henteplan.merknad,
+                                                        frekvens = dto.frekvens ?: henteplan.frekvens,
+                                                        kategorier = dto.kategorier ?: henteplan.kategorier?.map {
+                                                            HenteplanKategoriBatchSaveDto(
+                                                                kategoriId = it.kategoriId,
+                                                                merknad = it.merknad
+                                                            )
+                                                        }
+                                                    ), henteplan.id, henteplan
+                                                ).fold(
+                                                    { Either.left(ServiceError(it.message)) },
+                                                    { henteplanRepository.update(dto) }
+                                                )
+                                            }
+                                        )
+                                    })
+                                })
                     }
                 )
                 .fold({rollback(); it.left()}, {it.right()})

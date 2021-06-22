@@ -1,6 +1,8 @@
 package ombruk.backend.shared.utils.validation
 
+import ombruk.backend.kategori.application.api.dto.EkstraHentingKategoriBatchSaveDto
 import ombruk.backend.kategori.application.api.dto.HenteplanKategoriBatchSaveDto
+import ombruk.backend.kategori.application.api.dto.IKategoriKoblingSaveDto
 import org.valiktor.Constraint
 import org.valiktor.Validator
 import java.util.*
@@ -39,7 +41,19 @@ fun <E> Validator<E>.Property<Iterable<String>?>.allUUIDLegal(function: ((UUID) 
         }
     }
 
-fun <E> Validator<E>.Property<Iterable<HenteplanKategoriBatchSaveDto>?>.allValidUUID(function: ((UUID) -> Boolean) = {true}) =
+// TODO: Make generic, for types implementing interface IKategoriKoblingSaveDto
+fun <E> Validator<E>.Property<Iterable<HenteplanKategoriBatchSaveDto>?>.allValidUUIDHenteplan(function: ((UUID) -> Boolean) = {true}) =
+    this.validate(UUIDStringList) { dtoList ->
+        try {
+            val allValid = dtoList?.map { it.kategoriId }
+                ?.map { function(it)}
+                ?.all { it }
+            allValid ?: false
+        } catch (e: Exception) {
+            false
+        }
+    }
+fun <E> Validator<E>.Property<Iterable<EkstraHentingKategoriBatchSaveDto>?>.allValidUUIDEkstraHenting(function: ((UUID) -> Boolean) = {true}) =
     this.validate(UUIDStringList) { dtoList ->
         try {
             val allValid = dtoList?.map { it.kategoriId }

@@ -14,12 +14,13 @@ import ombruk.backend.henting.domain.model.HenteplanFrekvens
 import ombruk.backend.henting.domain.params.HenteplanCreateParams
 import ombruk.backend.kategori.application.api.dto.HenteplanKategoriBatchSaveDto
 import ombruk.backend.kategori.application.api.dto.HenteplanKategoriSaveDto
+import ombruk.backend.kategori.application.api.dto.IKategoriKoblingSaveDto
 import ombruk.backend.kategori.domain.entity.Kategori
 import ombruk.backend.kategori.domain.port.IKategoriRepository
 import ombruk.backend.shared.error.ValidationError
 import ombruk.backend.shared.form.IForm
 import ombruk.backend.shared.model.serializer.LocalDateTimeSerializer
-import ombruk.backend.shared.utils.validation.allValidUUID
+import ombruk.backend.shared.utils.validation.allValidUUIDHenteplan
 import ombruk.backend.shared.utils.validation.isGreaterThanStartDateTime
 import ombruk.backend.shared.utils.validation.runCatchingValidation
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -54,7 +55,6 @@ data class HenteplanSaveDto(
             if (frekvens != HenteplanFrekvens.ENKELT) {
                 validate(HenteplanSaveDto::ukedag).isNotNull()
             }
-
             if(frekvens == HenteplanFrekvens.ENKELT) {
                 ukedag = startTidspunkt.dayOfWeek
             }
@@ -71,12 +71,11 @@ data class HenteplanSaveDto(
                 }
             )
 
-            if (kategorier != null){
+            if (kategorier != null) {
                 val kategoriRepository: IKategoriRepository by inject()
                 val exist: (UUID) -> Boolean = { transaction { kategoriRepository.findOne(it) } is Either.Right }
-                validate(HenteplanSaveDto::kategorier).allValidUUID(exist)
+                validate(HenteplanSaveDto::kategorier).allValidUUIDHenteplan(exist)
             }
-            if (kategorier?.isEmpty() == true) kategorier = null
         }
     }
 }

@@ -7,15 +7,19 @@ import ombruk.backend.avtale.domain.port.IAvtaleRepository
 import ombruk.backend.henting.domain.model.HenteplanFrekvens
 import ombruk.backend.henting.domain.params.HenteplanUpdateParams
 import ombruk.backend.henting.domain.port.IHenteplanRepository
+import ombruk.backend.kategori.application.api.dto.HenteplanKategoriBatchSaveDto
+import ombruk.backend.kategori.domain.port.IKategoriRepository
 import ombruk.backend.shared.error.ValidationError
 import ombruk.backend.shared.form.IForm
 import ombruk.backend.shared.model.serializer.LocalDateTimeSerializer
+import ombruk.backend.shared.utils.validation.allValidUUIDHenteplan
 import ombruk.backend.shared.utils.validation.isGreaterThanStartDateTime
 import ombruk.backend.shared.utils.validation.isLessThanEndDateTime
 import ombruk.backend.shared.utils.validation.runCatchingValidation
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
+import org.koin.core.component.inject
 import org.valiktor.functions.*
 import org.valiktor.validate
 import shared.model.serializer.UUIDSerializer
@@ -31,7 +35,8 @@ data class HenteplanUpdateDto(
     @Serializable(with = LocalDateTimeSerializer::class) override val startTidspunkt: LocalDateTime? = null,
     @Serializable(with = LocalDateTimeSerializer::class) override val sluttTidspunkt: LocalDateTime? = null,
     override val ukeDag: DayOfWeek? = null,
-    override val merknad: String? = null
+    override val merknad: String? = null,
+    var kategorier: List<HenteplanKategoriBatchSaveDto>? = null
 ) : IForm<HenteplanUpdateDto>, HenteplanUpdateParams(), KoinComponent {
     override fun validOrError(): Either<ValidationError, HenteplanUpdateDto> = runCatchingValidation {
         validate(this) {
@@ -61,6 +66,11 @@ data class HenteplanUpdateDto(
                        validate(HenteplanUpdateDto::sluttTidspunkt).isLessThanOrEqualTo(LocalDateTime.of(it.sluttDato, LocalTime.MAX))
                    }
                }
+            }
+            if (kategorier != null) {
+                val kategoriRepository: IKategoriRepository by inject()
+                val exist: (UUID) -> Boolean = { transaction { kategoriRepository.findOne(it) } is Either.Right }
+                validate(HenteplanUpdateDto::kategorier).allValidUUIDHenteplan(exist)
             }
         }
     }

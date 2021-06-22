@@ -21,11 +21,11 @@ import java.util.*
 
 
 @Serializable
-data class HenteplanKategoriBatchSaveDto(
+data class EkstraHentingKategoriBatchSaveDto(
     @Serializable(with = UUIDSerializer::class) override val kategoriId: UUID,
-    val merknad: String? = null,
-) : IForm<HenteplanKategoriBatchSaveDto>, IKategoriKoblingSaveDto, KoinComponent {
-    override fun validOrError(): Either<ValidationError, HenteplanKategoriBatchSaveDto> = runCatchingValidation {
+    val mengde: Float? = null,
+) : IForm<EkstraHentingKategoriBatchSaveDto>, IKategoriKoblingSaveDto, KoinComponent {
+    override fun validOrError(): Either<ValidationError, EkstraHentingKategoriBatchSaveDto> = runCatchingValidation {
         validate(this) {
         }
     }
