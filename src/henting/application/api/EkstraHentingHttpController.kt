@@ -1,6 +1,6 @@
 package ombruk.backend.henting.application.api.dto
 
-import arrow.core.Either
+
 import arrow.core.extensions.either.monad.flatMap
 import arrow.core.extensions.either.monadError.ensure
 import io.ktor.application.*
@@ -12,7 +12,6 @@ import io.ktor.routing.*
 import ombruk.backend.henting.application.service.IEkstraHentingService
 import ombruk.backend.kategori.application.api.dto.EkstraHentingKategoriFindDto
 import ombruk.backend.kategori.application.api.dto.EkstraHentingKategoriSaveDto
-import ombruk.backend.kategori.application.service.EkstraHentingKategoriService
 import ombruk.backend.kategori.application.service.IEkstraHentingKategoriService
 import ombruk.backend.shared.api.Authorization
 import ombruk.backend.shared.api.Roles
@@ -78,19 +77,22 @@ fun Routing.ekstraHentinger(ekstraHentingService: IEkstraHentingService, ekstraH
         }
 
         authenticate {
-            patch<EkstraHentingUpdateDto> { form ->
+            patch {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.ReuseStation), call)
                     .flatMap { (role, groupId) ->
-                        form.validOrError()
-                            .flatMap { ekstraHentingService.findOne(it.id) }
-                            .ensure(
-                                { AuthorizationError.AccessViolationError("Du har ikke tilgang til denne hentingen") },
-                                {
-                                    if (role == Roles.RegEmployee) true
-                                    else it.stasjonId == groupId
-                                }
-                            )
-                        .flatMap { ekstraHentingService.update(form) }
+                        receiveCatching { call.receive<EkstraHentingUpdateDto>() }
+                            .flatMap { it.validOrError() }
+                            .flatMap { dto ->
+                                ekstraHentingService.findOne(dto.id)
+                                .ensure(
+                                    { AuthorizationError.AccessViolationError("Du har ikke tilgang til denne hentingen") },
+                                    {
+                                        if (role == Roles.RegEmployee) true
+                                        else it.stasjonId == groupId
+                                    }
+                                )
+                                .flatMap { ekstraHentingService.update(dto) }
+                            }
                     }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
