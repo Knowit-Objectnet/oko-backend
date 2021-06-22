@@ -1,6 +1,7 @@
 package ombruk.backend.henting.domain.entity
 
 import kotlinx.serialization.Serializable
+import ombruk.backend.kategori.domain.entity.EkstraHentingKategori
 import ombruk.backend.shared.model.serializer.LocalDateTimeSerializer
 import ombruk.backend.utlysning.domain.entity.Utlysning
 import shared.model.serializer.UUIDSerializer
@@ -15,5 +16,6 @@ data class EkstraHenting(
     override val merknad: String?,
     @Serializable(with = UUIDSerializer::class) val stasjonId: UUID,
     val stasjonNavn: String,
-    val godkjentUtlysning: Utlysning? = null
+    val godkjentUtlysning: Utlysning? = null,
+    val kategorier: List<EkstraHentingKategori>?
 ) : Henting()

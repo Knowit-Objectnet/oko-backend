@@ -36,7 +36,6 @@ data class EkstraHentingSaveDto(
                 val exist: (UUID) -> Boolean = { transaction { kategoriRepository.findOne(it) } is Either.Right }
                 validate(EkstraHentingSaveDto::kategorier).allValidUUIDEkstraHenting(exist)
             }
-            if (kategorier?.isEmpty() == true) kategorier = null
         }
     }
 }
