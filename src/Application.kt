@@ -222,7 +222,7 @@ fun Application.module(testing: Boolean = false) {
         planlagteHentinger(get())
         ekstraHentinger(get())
         kategorier(get())
-        utlysninger(get())
+        utlysninger(get(), get())
         kontakter(get())
 //        events(EventService)
 //        partners(PartnerService)
