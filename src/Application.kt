@@ -220,7 +220,7 @@ fun Application.module(testing: Boolean = false) {
         avtaler(get())
         henteplaner(get(), get(), get())
         planlagteHentinger(get())
-        ekstraHentinger(get())
+        ekstraHentinger(get(), get())
         kategorier(get())
         utlysninger(get(), get())
         kontakter(get())

@@ -1,6 +1,6 @@
 package ombruk.backend.henting.application.api.dto
 
-import arrow.core.Either
+
 import arrow.core.extensions.either.monad.flatMap
 import arrow.core.extensions.either.monadError.ensure
 import io.ktor.application.*
@@ -10,15 +10,18 @@ import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import ombruk.backend.henting.application.service.IEkstraHentingService
+import ombruk.backend.kategori.application.api.dto.EkstraHentingKategoriFindDto
+import ombruk.backend.kategori.application.api.dto.EkstraHentingKategoriSaveDto
+import ombruk.backend.kategori.application.service.IEkstraHentingKategoriService
 import ombruk.backend.shared.api.Authorization
 import ombruk.backend.shared.api.Roles
 import ombruk.backend.shared.api.generateResponse
 import ombruk.backend.shared.api.receiveCatching
 import ombruk.backend.shared.error.AuthorizationError
-import org.h2.engine.Right
+
 
 @KtorExperimentalLocationsAPI
-fun Routing.ekstraHentinger(ekstraHentingService: IEkstraHentingService) {
+fun Routing.ekstraHentinger(ekstraHentingService: IEkstraHentingService, ekstraHentingKategoriService: IEkstraHentingKategoriService) {
 
     route("/ekstra-hentinger") {
 
@@ -91,6 +94,24 @@ fun Routing.ekstraHentinger(ekstraHentingService: IEkstraHentingService) {
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }
+        }
+
+        authenticate {
+            post("/{ekstraHentingId}/kategorier") {
+                Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
+                    .flatMap { receiveCatching { call.receive<EkstraHentingKategoriSaveDto>() } }
+                    .flatMap { it.validOrError() }
+                    .flatMap { ekstraHentingKategoriService.save(it) }
+                    .run { generateResponse(this) }
+                    .also { (code, response) -> call.respond(code, response) }
+            }
+        }
+
+        get<EkstraHentingKategoriFindDto> {form ->
+            form.validOrError()
+                .flatMap { ekstraHentingKategoriService.find(form) }
+                .run { generateResponse(this) }
+                .also { (code, response) -> call.respond(code, response) }
         }
     }
 }
