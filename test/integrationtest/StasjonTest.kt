@@ -21,6 +21,8 @@ import org.koin.test.get
 import org.testcontainers.junit.jupiter.Testcontainers
 import testutils.MockAktorModule
 import testutils.TestContainer
+import testutils.validateAndRequireLeft
+import testutils.validateAndRequireRight
 import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
@@ -59,7 +61,7 @@ class StasjonTest : KoinTest{
         navn = "TestStasjon"
         type = StasjonType.GJENBRUK
 
-        val stasjon = StasjonSaveDto(navn, type)
+        val stasjon = StasjonSaveDto(navn, type).validateAndRequireRight()
         val save = stasjonService.save(stasjon)
         assert(save is Either.Right<Stasjon>)
     }
@@ -67,7 +69,7 @@ class StasjonTest : KoinTest{
     @Test
     @Order(2)
     fun testFind() {
-        val stasjon = StasjonFindDto(navn)
+        val stasjon = StasjonFindDto(navn).validateAndRequireRight()
         val find = stasjonService.find(stasjon, false)
         require(find is Either.Right)
         assertEquals(1, find.b.count())
@@ -94,7 +96,7 @@ class StasjonTest : KoinTest{
         updateNavn = "Grefsen Mini"
         updateType = StasjonType.MINI
 
-        val stasjon = StasjonUpdateDto(uuid, updateNavn, updateType)
+        val stasjon = StasjonUpdateDto(uuid, updateNavn, updateType).validateAndRequireRight()
         val update = stasjonService.update(stasjon)
         require(update is Either.Right)
         assertNotEquals(navn, update.b.navn)

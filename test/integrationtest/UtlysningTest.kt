@@ -80,11 +80,11 @@ class UtlysningTest : KoinTest {
     @Order(1)
     fun setupPartnerAndStasjon() {
 
-        val partnerInsert1 = partnerService.savePartner(PartnerSaveDto(navn = "TestPartner1", ideell = true))
-        val partnerInsert2 = partnerService.savePartner(PartnerSaveDto(navn = "TestPartner2", ideell = true))
-        val partnerInsert3 = partnerService.savePartner(PartnerSaveDto(navn = "TestPartner3", ideell = true))
-        val stasjonInsert1 = stasjonService.save(StasjonSaveDto("TestStasjon1", StasjonType.GJENBRUK))
-        val stasjonInsert2 = stasjonService.save(StasjonSaveDto("TestStasjon2", StasjonType.MINI))
+        val partnerInsert1 = partnerService.savePartner(PartnerSaveDto(navn = "TestPartner1", ideell = true).validateAndRequireRight())
+        val partnerInsert2 = partnerService.savePartner(PartnerSaveDto(navn = "TestPartner2", ideell = true).validateAndRequireRight())
+        val partnerInsert3 = partnerService.savePartner(PartnerSaveDto(navn = "TestPartner3", ideell = true).validateAndRequireRight())
+        val stasjonInsert1 = stasjonService.save(StasjonSaveDto("TestStasjon1", StasjonType.GJENBRUK).validateAndRequireRight())
+        val stasjonInsert2 = stasjonService.save(StasjonSaveDto("TestStasjon2", StasjonType.MINI).validateAndRequireRight())
 
         require(partnerInsert1 is Either.Right)
         require(partnerInsert2 is Either.Right)
@@ -107,10 +107,9 @@ class UtlysningTest : KoinTest {
             sluttTidspunkt = LocalDateTime.of(2021,6,3,12,30),
             merknad = null,
             stasjonId = stasjon1.id
-        ).validOrError()
-        require(ekstraHentingSaveDto is Either.Right)
+        ).validateAndRequireRight()
 
-        val ehSave = ekstraHentingService.save(ekstraHentingSaveDto.b)
+        val ehSave = ekstraHentingService.save(ekstraHentingSaveDto)
         require(ehSave is Either.Right)
 
         ekstraHenting = ehSave.b
@@ -122,7 +121,7 @@ class UtlysningTest : KoinTest {
         val findOne = ekstraHentingService.findOne(ekstraHenting.id)
         require(findOne is Either.Right<EkstraHenting>)
 
-        val find = ekstraHentingService.find(EkstraHentingFindDto())
+        val find = ekstraHentingService.find(EkstraHentingFindDto().validateAndRequireRight())
         require(find is Either.Right<List<EkstraHenting>>)
 
         assertEquals(ekstraHenting, findOne.b)

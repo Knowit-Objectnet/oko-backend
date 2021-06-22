@@ -33,6 +33,8 @@ import org.koin.test.get
 import org.testcontainers.junit.jupiter.Testcontainers
 import testutils.MockAktorModule
 import testutils.TestContainer
+import testutils.validateAndRequireLeft
+import testutils.validateAndRequireRight
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -79,8 +81,8 @@ class AvtaleTest : KoinTest {
     @Order(1)
     fun setupPartnerAndStasjon(@MockK expected: Any) {
 
-        val partnerInsert = partnerService.savePartner(PartnerSaveDto(navn = "TestPartner", ideell = true))
-        val stasjonInsert = stasjonService.save(StasjonSaveDto("TestStasjon", StasjonType.GJENBRUK))
+        val partnerInsert = partnerService.savePartner(PartnerSaveDto(navn = "TestPartner", ideell = true).validateAndRequireRight())
+        val stasjonInsert = stasjonService.save(StasjonSaveDto("TestStasjon", StasjonType.GJENBRUK).validateAndRequireRight())
 
         require(partnerInsert is Either.Right)
         require(stasjonInsert is Either.Right)
@@ -98,7 +100,7 @@ class AvtaleTest : KoinTest {
             LocalDate.of(2021,1,1),
             LocalDate.of(2022,1,1),
             emptyList()
-        )
+        ).validateAndRequireRight()
 
         val avtaleEither = avtaleService.save(avtaleCreateDto)
 
@@ -128,7 +130,7 @@ class AvtaleTest : KoinTest {
         val findOne = avtaleService.findOne(avtale.id)
         require(findOne is Either.Right<Avtale>)
 
-        val find = avtaleService.find(AvtaleFindDto())
+        val find = avtaleService.find(AvtaleFindDto().validateAndRequireRight())
         require(find is Either.Right<List<Avtale>>)
 
         assertEquals(avtale, findOne.b)
@@ -147,7 +149,7 @@ class AvtaleTest : KoinTest {
             LocalDateTime.of(2021,2,1,14,0),
             DayOfWeek.FRIDAY,
             null
-        )
+        ).validateAndRequireRight()
 
         val henteplanPostDto2 = HenteplanSaveDto(
             avtale.id,
@@ -157,7 +159,7 @@ class AvtaleTest : KoinTest {
             LocalDateTime.of(2021,1,1,14,0),
             DayOfWeek.FRIDAY,
             null
-        )
+        ).validateAndRequireRight()
 
         val henteplanCreate1 = henteplanService.save(henteplanPostDto1)
         require(henteplanCreate1 is Either.Right)
@@ -188,7 +190,7 @@ class AvtaleTest : KoinTest {
         val findAll = planlagtHentingService.find(PlanlagtHentingFindDto(
             after = henteplan1.planlagteHentinger!![0].startTidspunkt.minusHours(1),
             before = henteplan1.planlagteHentinger!![3].startTidspunkt.plusHours(1)
-        ))
+        ).validateAndRequireRight())
 
         require(findAll is Either.Right)
 
