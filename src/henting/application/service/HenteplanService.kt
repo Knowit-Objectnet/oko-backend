@@ -68,7 +68,9 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
                     { Either.Left(ServiceError(it.message)) },
                     {
                         appendPlanlagtHentinger(dto, it.id, it)
-                        appendKategorier(dto, it.id, it)
+                            .flatMap {
+                                appendKategorier(dto, it.id, it)
+                            }
                     }
                 )
                 .fold({ rollback(); it.left() }, { it.right() })
