@@ -42,7 +42,7 @@ internal class UtlysningServiceTest {
     fun batchCreate(@MockK expected: Utlysning) {
         val dto = UtlysningBatchSaveDto(
             hentingId = UUID.randomUUID(),
-            partnerIds = listOf(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID())
+            partnerIds = listOf(UUID.randomUUID().toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString())
         )
 
         every { utlysningRepository.insert(any()) } returns expected.right()

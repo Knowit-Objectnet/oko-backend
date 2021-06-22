@@ -196,25 +196,19 @@ internal class UtlysningRepositoryTest {
             val updateUtlysning = utlysningRepository.update(
                 UtlysningUpdateDto(
                     id = utlysning1.id,
-                    partnerPameldt = currentDateTime
+                    partnerSkjult = true
                 )
             )
 
             println(updateUtlysning)
             require(updateUtlysning is Either.Right)
-            assertTrue(
-                (currentDateTime.toEpochSecond(ZoneOffset.UTC)
-                        - updateUtlysning.b.partnerPameldt!!.toEpochSecond(ZoneOffset.UTC)) < 1
-                , "Dates too far apart!")
+            assertTrue(updateUtlysning.b.partnerSkjult, "Update not registered")
         }
 
         transaction {
             val findUtlysning = utlysningRepository.findOne(utlysning1.id)
             require(findUtlysning is Either.Right)
-            assertTrue(
-                (currentDateTime.toEpochSecond(ZoneOffset.UTC)
-                        - findUtlysning.b.partnerPameldt!!.toEpochSecond(ZoneOffset.UTC)) < 1
-                , "Dates too far apart!")
+            assertTrue(findUtlysning.b.partnerSkjult)
         }
 
     }

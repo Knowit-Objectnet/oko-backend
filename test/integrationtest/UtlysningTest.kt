@@ -125,7 +125,7 @@ class UtlysningTest : KoinTest {
     fun testAddUtlysninger() {
         val utlysningBatchPostDto = UtlysningBatchSaveDto(
             hentingId = ekstraHenting.id,
-            partnerIds = listOf(partner1.id, partner2.id)
+            partnerIds = listOf(partner1.id.toString(), partner2.id.toString())
         )
 
         val batchPost = utlysningService.batchSave(utlysningBatchPostDto)
