@@ -59,10 +59,11 @@ fun Routing.ekstraHentinger(ekstraHentingService: IEkstraHentingService, ekstraH
         }
 
         authenticate {
-            patch<EkstraHentingUpdateDto> { form ->
+            patch {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
-                    .flatMap { form.validOrError() }
-                    .flatMap { ekstraHentingService.update(form) }
+                    .flatMap { receiveCatching { call.receive<EkstraHentingUpdateDto>() } }
+                    .flatMap { it.validOrError() }
+                    .flatMap { ekstraHentingService.update(it) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }

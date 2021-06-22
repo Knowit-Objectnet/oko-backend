@@ -13,9 +13,7 @@ import ombruk.backend.henting.domain.entity.EkstraHenting
 import ombruk.backend.henting.domain.entity.Henteplan
 import ombruk.backend.henting.domain.params.EkstraHentingFindParams
 import ombruk.backend.henting.domain.port.IEkstraHentingRepository
-import ombruk.backend.kategori.application.api.dto.EkstraHentingKategoriFindDto
-import ombruk.backend.kategori.application.api.dto.EkstraHentingKategoriSaveDto
-import ombruk.backend.kategori.application.api.dto.HenteplanKategoriSaveDto
+import ombruk.backend.kategori.application.api.dto.*
 import ombruk.backend.kategori.application.service.EkstraHentingKategoriService
 import ombruk.backend.kategori.application.service.IEkstraHentingKategoriService
 import ombruk.backend.shared.error.ServiceError
@@ -75,6 +73,12 @@ class EkstraHentingService(
                     utlysningService.findAccepted(ekstraHentingId = ekstraHenting.id)
                         .map { utlysning -> ekstraHenting.copy(godkjentUtlysning = utlysning) }
                 }
+                .flatMap { ekstraHenting ->
+                    ekstraHentingKategoriService.find(EkstraHentingKategoriFindDto(ekstraHentingId = id))
+                        .fold({ ekstraHenting.right() },
+                            { ekstraHenting.copy(kategorier = it).right() }
+                        )
+                }
         }
     }
 
@@ -107,7 +111,39 @@ class EkstraHentingService(
     }
 
     override fun update(dto: EkstraHentingUpdateDto): Either<ServiceError, EkstraHenting> {
-        return transaction { ekstraHentingRepository.update(dto) }
+        return transaction {
+            findOne(dto.id)
+                .fold(
+                    {Either.left(ServiceError(it.message))},
+                    {ekstraHenting ->
+                        ekstraHentingKategoriService.find(EkstraHentingKategoriFindDto(ekstraHentingId = dto.id)).map {
+                            it.map { ekstraHentingKategoriService.delete(EkstraHentingKategoriDeleteDto(id = it.id)) }
+                        }
+                            .fold({it.left()},
+                                {
+                                    appendKategorier(
+                                        EkstraHentingSaveDto(
+                                            startTidspunkt = dto.startTidspunkt ?: ekstraHenting.startTidspunkt,
+                                            sluttTidspunkt = dto.sluttTidspunkt ?: ekstraHenting.sluttTidspunkt,
+                                            merknad = dto.merknad ?: ekstraHenting.merknad,
+                                            stasjonId = ekstraHenting.stasjonId,
+                                            kategorier = dto.kategorier ?: ekstraHenting.kategorier?.map {
+                                                EkstraHentingKategoriBatchSaveDto(
+                                                    kategoriId = it.kategoriId,
+                                                    mengde = it.mengde
+                                                )
+                                            }
+                                        ), ekstraHenting.id, ekstraHenting
+                                    ).fold(
+                                        { Either.left(ServiceError(it.message)) },
+                                        { ekstraHentingRepository.update(dto) }
+                                    )
+                                }
+                            )
+                    }
+                )
+                .fold({rollback(); it.left()}, {it.right()})
+        }
     }
 
     override fun archive(params: EkstraHentingFindParams): Either<ServiceError, Unit> {

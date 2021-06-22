@@ -99,7 +99,19 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
     //TODO: Create find calls including planlagteHentinger
 
     override fun findOne(id: UUID): Either<ServiceError, Henteplan> {
-        return transaction { henteplanRepository.findOne(id) }
+        return transaction {
+            henteplanRepository.findOne(id)
+                .fold(
+                    { Either.Left(ServiceError(it.message)) },
+                    { henteplan ->
+                    henteplanKategoriService.find(HenteplanKategoriFindDto(henteplanId = id))
+                        .fold(
+                            { henteplan.right() },
+                            { henteplan.copy(kategorier = it).right() }
+                        )
+                    }
+                )
+        }
     }
 
     override fun find(dto: HenteplanFindDto): Either<ServiceError, List<Henteplan>> {
@@ -131,7 +143,7 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
     override fun update(dto: HenteplanUpdateDto): Either<ServiceError, Henteplan> {
         return transaction {
             val today = LocalDateTime.now()
-            henteplanRepository.findOne(dto.id)
+            findOne(dto.id)
                 .fold(
                     { Either.left(ServiceError(it.message))},
                     { henteplan ->
