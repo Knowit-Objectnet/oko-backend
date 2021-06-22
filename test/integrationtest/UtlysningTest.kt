@@ -29,6 +29,8 @@ import org.koin.core.context.stopKoin
 import org.koin.test.KoinTest
 import org.koin.test.get
 import org.testcontainers.junit.jupiter.Testcontainers
+import testutils.validateAndRequireLeft
+import testutils.validateAndRequireRight
 import testutils.MockAktorModule
 import testutils.TestContainer
 import java.time.LocalDateTime
@@ -134,22 +136,19 @@ class UtlysningTest : KoinTest {
         val utlysningBatchPostDto = UtlysningBatchSaveDto(
             hentingId = ekstraHenting.id,
             partnerIds = listOf(partner1.id.toString(), partner2.id.toString())
-        ).validOrError()
-        require(utlysningBatchPostDto is Either.Right)
+        ).validateAndRequireRight()
 
         val utlysningBatchPostDtoWrong1 = UtlysningBatchSaveDto(
             hentingId = ekstraHenting.id,
             partnerIds = listOf(partner1.id.toString(), "This is not a legal UUID")
-        ).validOrError()
-        assert(utlysningBatchPostDtoWrong1 is Either.Left)
+        ).validateAndRequireLeft()
 
         val utlysningBatchPostDtoWrong2 = UtlysningBatchSaveDto(
             hentingId = ekstraHenting.id,
             partnerIds = listOf(partner1.id.toString(), UUID.randomUUID().toString())
-        ).validOrError()
-        assert(utlysningBatchPostDtoWrong2 is Either.Left)
+        ).validateAndRequireLeft()
 
-        val batchPost = utlysningService.batchSave(utlysningBatchPostDto.b)
+        val batchPost = utlysningService.batchSave(utlysningBatchPostDto)
         require(batchPost is Either.Right)
         utlysninger1 = batchPost.b
 
@@ -166,30 +165,27 @@ class UtlysningTest : KoinTest {
         val utlysningBatchSaveDto1 = UtlysningBatchSaveDto(
             hentingId = ekstraHenting.id,
             partnerIds = listOf(partner1.id.toString(), partner2.id.toString())
-        ).validOrError()
-        require(utlysningBatchSaveDto1 is Either.Right)
+        ).validateAndRequireRight()
 
-        val batchPostSame = utlysningService.batchSave(utlysningBatchSaveDto1.b)
+        val batchPostSame = utlysningService.batchSave(utlysningBatchSaveDto1)
         require(batchPostSame is Either.Right)
         assertEquals(0, batchPostSame.b.size)
 
         val utlysningBatchSaveDto2 = UtlysningBatchSaveDto(
             hentingId = ekstraHenting.id,
             partnerIds = listOf(partner1.id.toString(), partner2.id.toString(), partner3.id.toString())
-        ).validOrError()
-        require(utlysningBatchSaveDto2 is Either.Right)
+        ).validateAndRequireRight()
 
         val batchPostSameAndNew = utlysningService.batchSave(
-            utlysningBatchSaveDto2.b
+            utlysningBatchSaveDto2
         )
         require(batchPostSameAndNew is Either.Right)
         assertEquals(1, batchPostSameAndNew.b.size)
 
 
-        val utlysningFindDto = UtlysningFindDto(hentingId = ekstraHenting.id).validOrError()
-        require(utlysningFindDto is Either.Right)
+        val utlysningFindDto = UtlysningFindDto(hentingId = ekstraHenting.id).validateAndRequireRight()
 
-        val findUtlysninger = utlysningService.find(utlysningFindDto.b)
+        val findUtlysninger = utlysningService.find(utlysningFindDto)
         require(findUtlysninger is Either.Right)
         utlysninger1 = findUtlysninger.b
 
@@ -221,28 +217,24 @@ class UtlysningTest : KoinTest {
         //Tests the partner accept functionality (stasjonAccept currently not in use because of first-pass-the-post).
         //End result should be that utlysninger1[1] is accepted.
 
-        val partnerAcceptDto1 = UtlysningPartnerAcceptDto(utlysninger1[0].id, true).validOrError()
-        require(partnerAcceptDto1 is Either.Right)
+        val partnerAcceptDto1 = UtlysningPartnerAcceptDto(utlysninger1[0].id, true).validateAndRequireRight()
 
-        val accepted1 = utlysningService.partnerAccept(partnerAcceptDto1.b)
+        val accepted1 = utlysningService.partnerAccept(partnerAcceptDto1)
         println(accepted1)
         require(accepted1 is Either.Right)
         assertNotNull(accepted1.b.partnerPameldt)
 
-        val partnerAcceptDto2 = UtlysningPartnerAcceptDto(utlysninger1[1].id, true).validOrError()
-        require(partnerAcceptDto2 is Either.Left)
+        val partnerAcceptDto2 = UtlysningPartnerAcceptDto(utlysninger1[1].id, true).validateAndRequireLeft()
 
-        val partnerAcceptDto3 = UtlysningPartnerAcceptDto(utlysninger1[0].id, false).validOrError()
-        require(partnerAcceptDto3 is Either.Right)
+        val partnerAcceptDto3 = UtlysningPartnerAcceptDto(utlysninger1[0].id, false).validateAndRequireRight()
 
-        val unAccept = utlysningService.partnerAccept(partnerAcceptDto3.b)
+        val unAccept = utlysningService.partnerAccept(partnerAcceptDto3)
         require(unAccept is Either.Right)
         assertNull(unAccept.b.partnerPameldt)
 
-        val partnerAcceptDto4 = UtlysningPartnerAcceptDto(utlysninger1[1].id, true).validOrError()
-        require(partnerAcceptDto4 is Either.Right)
+        val partnerAcceptDto4 = UtlysningPartnerAcceptDto(utlysninger1[1].id, true).validateAndRequireRight()
 
-        val accepted2 = utlysningService.partnerAccept(partnerAcceptDto4.b)
+        val accepted2 = utlysningService.partnerAccept(partnerAcceptDto4)
         require(accepted2 is Either.Right)
         assertNotNull(accepted2.b.partnerPameldt)
         acceptedUtlysning = accepted2.b
