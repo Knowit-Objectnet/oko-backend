@@ -83,11 +83,13 @@ class KontaktTest : KoinTest {
         //Telefon not a number
         KontaktSaveDto(aktorId = partner1.id, navn = "Kontakt1", telefon = "NotANumber").validateAndRequireLeft()
         //Telefon number too short
-        KontaktSaveDto(aktorId = partner1.id, navn = "Kontakt1", telefon = "123456").validateAndRequireLeft()
+        KontaktSaveDto(aktorId = partner1.id, navn = "Kontakt1", telefon = "+47876543").validateAndRequireLeft()
         //Telefon number too long
-        KontaktSaveDto(aktorId = partner1.id, navn = "Kontakt1", telefon = "123456789").validateAndRequireLeft()
+        KontaktSaveDto(aktorId = partner1.id, navn = "Kontakt1", telefon = "+47987654321").validateAndRequireLeft()
         //Telefon number wrong nation code
-        KontaktSaveDto(aktorId = partner1.id, navn = "Kontakt1", telefon = "+9912345678").validateAndRequireLeft()
+        KontaktSaveDto(aktorId = partner1.id, navn = "Kontakt1", telefon = "+1198765432").validateAndRequireLeft()
+        //Telefon number < 40000000
+        KontaktSaveDto(aktorId = partner1.id, navn = "Kontakt1", telefon = "+4712345678").validateAndRequireLeft()
         //Epost invalid, no @
         KontaktSaveDto(aktorId = partner1.id, navn = "Kontakt1", epost = "not.an.email.com").validateAndRequireLeft()
         //Epost invalid, no domain
@@ -100,18 +102,16 @@ class KontaktTest : KoinTest {
     @Order(3)
     fun validateCorrectInput() {
         KontaktSaveDto(aktorId = partner1.id, navn = "Kontakt1").validateAndRequireRight()
-        KontaktSaveDto(aktorId = partner1.id, navn = "Kontakt1", telefon = "12345678").validateAndRequireRight()
-        KontaktSaveDto(aktorId = partner1.id, navn = "Kontakt1", telefon = "004712345678").validateAndRequireRight()
-        KontaktSaveDto(aktorId = partner1.id, navn = "Kontakt1", telefon = "+4712345678").validateAndRequireRight()
+        KontaktSaveDto(aktorId = partner1.id, navn = "Kontakt1", telefon = "+4787654321").validateAndRequireRight()
         KontaktSaveDto(aktorId = partner1.id, navn = "Kontakt1", epost = "example.email@mail.com").validateAndRequireRight()
     }
 
     @Test
     @Order(4)
     fun createKontakt() {
-        val saveDto1 = KontaktSaveDto(aktorId = partner1.id, navn = "Partner Kontakt1", telefon = "12345678").validateAndRequireRight()
+        val saveDto1 = KontaktSaveDto(aktorId = partner1.id, navn = "Partner Kontakt1", telefon = "+4798765432").validateAndRequireRight()
         val saveDto2 = KontaktSaveDto(aktorId = partner1.id, navn = "Partner Kontakt2", epost = "example.email@mail.com").validateAndRequireRight()
-        val saveDto3 = KontaktSaveDto(aktorId = stasjon1.id, navn = "Stasjon Kontakt", telefon = "12345678").validateAndRequireRight()
+        val saveDto3 = KontaktSaveDto(aktorId = stasjon1.id, navn = "Stasjon Kontakt", telefon = "+4798765432").validateAndRequireRight()
 
         val save1 = kontaktService.save(saveDto1)
         require(save1 is Either.Right)
@@ -139,10 +139,10 @@ class KontaktTest : KoinTest {
     @Test
     @Order(5)
     fun updateKontakt() {
-        val updateDto = KontaktUpdateDto(partnerKontakt1.id, telefon = "87654321", epost = "example@example.com").validateAndRequireRight()
+        val updateDto = KontaktUpdateDto(partnerKontakt1.id, telefon = "+4787654321", epost = "example@example.com").validateAndRequireRight()
         val update = kontaktService.update(updateDto)
         require(update is Either.Right)
-        assertEquals("87654321", update.b.telefon)
+        assertEquals("+4787654321", update.b.telefon)
         partnerKontakt1 = update.b
     }
 
