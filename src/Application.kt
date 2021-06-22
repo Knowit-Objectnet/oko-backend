@@ -28,24 +28,19 @@ import ombruk.backend.aktor.application.api.partnere
 import ombruk.backend.aktor.application.api.stasjoner
 import ombruk.backend.avtale.application.api.dto.avtaler
 import ombruk.backend.avtale.avtaleModule
-import ombruk.backend.calendar.api.stations
-import ombruk.backend.calendar.service.StationService
 import ombruk.backend.henting.application.api.dto.ekstraHentinger
 import ombruk.backend.henting.application.api.henteplaner
 import ombruk.backend.henting.application.api.planlagteHentinger
 import ombruk.backend.henting.hentingModule
 import ombruk.backend.kategori.application.api.kategorier
 import ombruk.backend.kategori.kategoriModule
-import ombruk.backend.reporting.api.report
-import ombruk.backend.reporting.service.ReportService
 import ombruk.backend.shared.api.Authorization
 import ombruk.backend.shared.api.JwtMockConfig
 import ombruk.backend.shared.database.initDB
-import ombruk.backend.utlysning.application.api.utlysnigner
+import ombruk.backend.utlysning.application.api.utlysninger
 import ombruk.backend.utlysning.utlysningModule
 import org.koin.ktor.ext.Koin
 import org.koin.ktor.ext.get
-import org.koin.ktor.ext.modules
 import org.valiktor.ConstraintViolationException
 import org.valiktor.i18n.mapToMessage
 import java.net.URL
@@ -227,7 +222,7 @@ fun Application.module(testing: Boolean = false) {
         planlagteHentinger(get())
         ekstraHentinger(get(), get())
         kategorier(get())
-        utlysnigner(get())
+        utlysninger(get(), get())
         kontakter(get())
 //        events(EventService)
 //        partners(PartnerService)

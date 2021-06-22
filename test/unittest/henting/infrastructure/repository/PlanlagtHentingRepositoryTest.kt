@@ -244,7 +244,7 @@ internal class PlanlagtHentingRepositoryTest {
             println(findAll)
             require(findAll is Either.Right)
             assert(findAll.b.size == 2)
-            assert(findAll.b[0] == planlagtHenting1)
+            assert(findAll.b.contains(planlagtHenting1))
         }
 
         transaction {
@@ -258,7 +258,7 @@ internal class PlanlagtHentingRepositoryTest {
             println(findCorrectHentepanId)
             require(findCorrectHentepanId is Either.Right)
             assert(findCorrectHentepanId.b.size == 2)
-            assert(findCorrectHentepanId.b[0] == planlagtHenting1)
+            assert(findCorrectHentepanId.b.contains(planlagtHenting1))
         }
 
         transaction {
@@ -292,7 +292,7 @@ internal class PlanlagtHentingRepositoryTest {
             println(findAllBetween)
             require(findAllBetween is Either.Right)
             assert(findAllBetween.b.size == 1)
-            assert(findAllBetween.b[0] == planlagtHenting1)
+            assert(findAllBetween.b.contains(planlagtHenting1))
         }
 
         transaction {
@@ -314,7 +314,7 @@ internal class PlanlagtHentingRepositoryTest {
             println(findAllBetween)
             require(findAllBetween is Either.Right)
             assert(findAllBetween.b.size == 1)
-            assert(findAllBetween.b[0] == planlagtHenting2)
+            assert(findAllBetween.b.contains(planlagtHenting2))
         }
 
         transaction {

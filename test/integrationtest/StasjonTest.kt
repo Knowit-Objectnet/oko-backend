@@ -1,13 +1,8 @@
 import arrow.core.Either
-import arrow.core.right
 import io.ktor.util.*
-import io.mockk.every
-import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.mockkClass
-import ombruk.backend.aktor.aktorModule
-import ombruk.backend.aktor.application.api.dto.StasjonSaveDto
 import ombruk.backend.aktor.application.api.dto.StasjonFindDto
+import ombruk.backend.aktor.application.api.dto.StasjonSaveDto
 import ombruk.backend.aktor.application.api.dto.StasjonUpdateDto
 import ombruk.backend.aktor.application.service.IStasjonService
 import ombruk.backend.aktor.domain.entity.Stasjon
@@ -15,23 +10,21 @@ import ombruk.backend.aktor.domain.enum.StasjonType
 import ombruk.backend.avtale.avtaleModule
 import ombruk.backend.henting.hentingModule
 import ombruk.backend.kategori.kategoriModule
-import ombruk.backend.shared.api.KeycloakGroupIntegration
 import ombruk.backend.utlysning.utlysningModule
 import org.junit.jupiter.api.*
-import org.testcontainers.junit.jupiter.Testcontainers
-import testutils.TestContainer
-import kotlin.test.assertEquals
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith
 import org.koin.core.context.loadKoinModules
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.test.KoinTest
 import org.koin.test.get
+import org.testcontainers.junit.jupiter.Testcontainers
+import testutils.MockAktorModule
+import testutils.TestContainer
+import testutils.validateAndRequireLeft
+import testutils.validateAndRequireRight
 import java.util.*
+import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -41,14 +34,13 @@ import kotlin.test.assertNotEquals
 class StasjonTest : KoinTest{
     private val testContainer: TestContainer = TestContainer()
     private lateinit var stasjonService: IStasjonService
-    private var keycloakGroupIntegration = mockkClass(KeycloakGroupIntegration::class)
 
     @OptIn(KtorExperimentalAPI::class)
     @BeforeAll
     fun setup() {
         testContainer.start()
         startKoin {  }
-        loadKoinModules(listOf(aktorModule, avtaleModule, hentingModule, utlysningModule, kategoriModule))
+        loadKoinModules(listOf(MockAktorModule.get(), avtaleModule, hentingModule, utlysningModule, kategoriModule))
         stasjonService = get()
     }
 
@@ -65,12 +57,11 @@ class StasjonTest : KoinTest{
 
     @Test
     @Order(1)
-    fun testInsert(@MockK expected: Any) {
+    fun testInsert() {
         navn = "TestStasjon"
         type = StasjonType.GJENBRUK
-        every { keycloakGroupIntegration.createGroup(navn, any<UUID>()) } returns expected.right()
 
-        val stasjon = StasjonSaveDto(navn, type)
+        val stasjon = StasjonSaveDto(navn, type).validateAndRequireRight()
         val save = stasjonService.save(stasjon)
         assert(save is Either.Right<Stasjon>)
     }
@@ -78,7 +69,7 @@ class StasjonTest : KoinTest{
     @Test
     @Order(2)
     fun testFind() {
-        val stasjon = StasjonFindDto(navn)
+        val stasjon = StasjonFindDto(navn).validateAndRequireRight()
         val find = stasjonService.find(stasjon, false)
         require(find is Either.Right)
         assertEquals(1, find.b.count())
@@ -101,12 +92,11 @@ class StasjonTest : KoinTest{
     @OptIn(KtorExperimentalAPI::class)
     @Test
     @Order(4)
-    fun testUpdate(@MockK expected: Unit) {
+    fun testUpdate() {
         updateNavn = "Grefsen Mini"
         updateType = StasjonType.MINI
-        every { keycloakGroupIntegration.updateGroup(navn, updateNavn) } returns expected.right()
 
-        val stasjon = StasjonUpdateDto(uuid, updateNavn, updateType)
+        val stasjon = StasjonUpdateDto(uuid, updateNavn, updateType).validateAndRequireRight()
         val update = stasjonService.update(stasjon)
         require(update is Either.Right)
         assertNotEquals(navn, update.b.navn)
@@ -126,9 +116,7 @@ class StasjonTest : KoinTest{
 
     @Test
     @Order(6)
-    fun testDelete(@MockK expected: Any) {
-        every { keycloakGroupIntegration.deleteGroup(updateNavn) } returns expected.right()
-
+    fun testDelete() {
         val update = stasjonService.delete(uuid)
         assert(update is Either.Right)
     }
