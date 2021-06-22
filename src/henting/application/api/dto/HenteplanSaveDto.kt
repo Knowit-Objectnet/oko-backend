@@ -1,6 +1,11 @@
 package henting.application.api.dto
 
 import arrow.core.Either
+import arrow.core.extensions.either.applicative.applicative
+import arrow.core.extensions.list.traverse.sequence
+import arrow.core.fix
+import arrow.core.left
+import arrow.core.right
 import kotlinx.serialization.Serializable
 import ombruk.backend.avtale.domain.entity.Avtale
 import ombruk.backend.avtale.domain.port.IAvtaleRepository
@@ -14,6 +19,7 @@ import ombruk.backend.kategori.domain.port.IKategoriRepository
 import ombruk.backend.shared.error.ValidationError
 import ombruk.backend.shared.form.IForm
 import ombruk.backend.shared.model.serializer.LocalDateTimeSerializer
+import ombruk.backend.shared.utils.validation.allValidUUID
 import ombruk.backend.shared.utils.validation.isGreaterThanStartDateTime
 import ombruk.backend.shared.utils.validation.runCatchingValidation
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -65,7 +71,11 @@ data class HenteplanSaveDto(
                 }
             )
 
-            if (kategorier != null) kategorier!!.map { it.validOrError() }
+            if (kategorier != null){
+                val kategoriRepository: IKategoriRepository by inject()
+                val exist: (UUID) -> Boolean = { transaction { kategoriRepository.findOne(it) } is Either.Right }
+                validate(HenteplanSaveDto::kategorier).allValidUUID(exist)
+            }
             if (kategorier?.isEmpty() == true) kategorier = null
         }
     }

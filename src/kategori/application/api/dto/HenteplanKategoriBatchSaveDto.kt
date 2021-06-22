@@ -14,6 +14,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.valiktor.functions.isEqualTo
+import org.valiktor.functions.isValid
 import org.valiktor.validate
 import shared.model.serializer.UUIDSerializer
 import java.util.*
@@ -26,10 +27,6 @@ data class HenteplanKategoriBatchSaveDto(
 ) : IForm<HenteplanKategoriBatchSaveDto>, KoinComponent {
     override fun validOrError(): Either<ValidationError, HenteplanKategoriBatchSaveDto> = runCatchingValidation {
         validate(this) {
-            //TODO: Lag en sjekk om det er en gyldig kategoriId
-            val kategoriRepository: IKategoriRepository by inject()
-            val exist: Boolean = transaction { kategoriRepository.findOne(kategoriId) is Either.Right }
-            validate(HenteplanKategoriBatchSaveDto::kategoriId)
         }
     }
 }

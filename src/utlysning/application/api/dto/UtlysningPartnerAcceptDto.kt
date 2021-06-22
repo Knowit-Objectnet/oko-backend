@@ -29,7 +29,15 @@ data class UtlysningPartnerAcceptDto(
 
             if (toAccept) {
                 val utlysningRepository: IUtlysningRepository by inject()
-                val allAccepted = transaction { utlysningRepository.find(UtlysningFindDto(partnerPameldt = true))}
+
+                val myUtlysning = transaction { utlysningRepository.findOne(this@UtlysningPartnerAcceptDto.id) }
+                require(myUtlysning is Either.Right)
+
+                val allAccepted = transaction {
+                    utlysningRepository.find(
+                        UtlysningFindDto(partnerPameldt = true, hentingId = myUtlysning.b.hentingId)
+                    )
+                }
                 require(allAccepted is Either.Right)
 
                 validate(UtlysningPartnerAcceptDto::toAccept).isValid { allAccepted.b.isEmpty() }

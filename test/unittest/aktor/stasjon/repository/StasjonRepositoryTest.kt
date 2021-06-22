@@ -48,8 +48,7 @@ class StasjonRepositoryTest {
 
         val find = transaction { stasjonRepository.find(findParams) }
         println(find)
-        require(find is Either.Right)
-        assert(find.b.isEmpty())
+        assert(find is Either.Right)
     }
 
     @Test

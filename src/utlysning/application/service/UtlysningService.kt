@@ -50,10 +50,16 @@ class UtlysningService(val utlysningRepository: IUtlysningRepository) : IUtlysni
 
     override fun batchSave(dto: UtlysningBatchSaveDto): Either<ServiceError, List<Utlysning>> {
         return transaction {
-            dto.partnerIds.map {
+            dto.partnerIds
+                .filter {
+                    val find = utlysningRepository
+                        .find(UtlysningFindDto(partnerId = UUID.fromString(it), hentingId = dto.hentingId))
+                    find is Either.Right && find.b.isEmpty()
+                }
+                .map {
                 utlysningRepository.insert(
                     UtlysningSaveDto(
-                        partnerId = it,
+                        partnerId = UUID.fromString(it),
                         hentingId = dto.hentingId,
                         partnerPameldt = dto.partnerPameldt,
                         stasjonGodkjent = dto.stasjonGodkjent,
@@ -80,6 +86,13 @@ class UtlysningService(val utlysningRepository: IUtlysningRepository) : IUtlysni
         return transaction {
             utlysningRepository.acceptStasjon(dtoPartner)
                 .fold({ rollback(); it.left() }, { it.right() })
+        }
+    }
+
+    override fun findAccepted(ekstraHentingId: UUID): Either<ServiceError, Utlysning?> {
+        return transaction {
+            utlysningRepository.find(UtlysningFindDto(hentingId = ekstraHentingId, partnerPameldt = true))
+                .map { list -> if (list.isNotEmpty()) list.sortedBy { it.partnerPameldt }[0] else null }
         }
     }
 

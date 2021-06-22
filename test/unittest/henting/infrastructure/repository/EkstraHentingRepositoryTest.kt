@@ -43,12 +43,13 @@ internal class EkstraHentingRepositoryTest {
         partnerRepository = PartnerRepository()
 
         val stasjonParams = object : StasjonCreateParams() {
-            override val navn: String = "Grefsen"
+            override val navn: String = "TestStasjon"
             override val type: StasjonType = StasjonType.GJENBRUK
         }
 
         val partnerParams = object : PartnerCreateParams() {
-            override val navn: String = "Fretex"
+            override val id: UUID? = null
+            override val navn: String = "TestPartner"
             override val ideell: Boolean = true
         }
 
@@ -208,7 +209,7 @@ internal class EkstraHentingRepositoryTest {
             println(findAll)
             require(findAll is Either.Right)
             assert(findAll.b.size == 2)
-            assert(findAll.b[0] == ekstraHenting1)
+            assert(findAll.b.contains(ekstraHenting1))
         }
 
         transaction {
@@ -260,7 +261,7 @@ internal class EkstraHentingRepositoryTest {
             println(findAllBetween)
             require(findAllBetween is Either.Right)
             assert(findAllBetween.b.size == 1)
-            assert(findAllBetween.b[0] == ekstraHenting1)
+            assert(findAllBetween.b.contains(ekstraHenting1))
         }
 
         transaction {
@@ -286,7 +287,7 @@ internal class EkstraHentingRepositoryTest {
             println(findAllBetween)
             require(findAllBetween is Either.Right)
             assert(findAllBetween.b.size == 1)
-            assert(findAllBetween.b[0] == ekstraHenting2)
+            assert(findAllBetween.b.contains(ekstraHenting2))
         }
 
         transaction {
