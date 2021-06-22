@@ -111,15 +111,18 @@ fun Routing.utlysninger(utlysningService: IUtlysningService, ekstraHentingServic
         }
 
         authenticate {
-            patch<UtlysningPartnerAcceptDto> { form ->
+            patch {
                 Authorization.authorizeRole(listOf(Roles.Partner), call)
                     .flatMap { (_, id) ->
-                        form.validOrError()
-                            .flatMap { utlysningService.findOne(form.id) }
-                            .ensure(
-                                {AuthorizationError.AccessViolationError("Denne utlysningen tilhører ikke deg")},
-                                {it.partnerId == id})
-                            .flatMap { utlysningService.partnerAccept(form) }
+                        receiveCatching { call.receive<UtlysningPartnerAcceptDto>() }
+                            .flatMap { it.validOrError() }
+                            .flatMap { dto ->
+                                utlysningService.findOne(dto.id)
+                                .ensure(
+                                    {AuthorizationError.AccessViolationError("Denne utlysningen tilhører ikke deg")},
+                                    {it.partnerId == id})
+                                .flatMap { utlysningService.partnerAccept(dto) }
+                            }
                     }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
@@ -129,10 +132,11 @@ fun Routing.utlysninger(utlysningService: IUtlysningService, ekstraHentingServic
         //TODO: If this is functionality we want used, it needs authorization
 
         authenticate {
-            patch<UtlysningStasjonAcceptDto> { form ->
+            patch{
                 Authorization.authorizeRole(listOf(Roles.ReuseStation), call)
-                    .flatMap { form.validOrError() }
-                    .flatMap { utlysningService.stasjonAccept(form) }
+                    .flatMap { receiveCatching { call.receive<UtlysningStasjonAcceptDto>() } }
+                    .flatMap { it.validOrError() }
+                    .flatMap { utlysningService.stasjonAccept(it) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }
