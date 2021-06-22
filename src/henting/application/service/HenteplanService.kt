@@ -44,7 +44,7 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
     fun appendKategorier(dto: HenteplanSaveDto, id: UUID, henteplan: Henteplan): Either<ServiceError, Henteplan>
         = run {
             if (dto.kategorier == null) {return Either.Right(henteplan)}
-            val kategorier = dto.kategorier!!.map {
+            dto.kategorier!!.map {
                 henteplanKategoriService.save(
                     HenteplanKategoriSaveDto(
                         henteplanId = id,
@@ -56,13 +56,7 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
                 .sequence(Either.applicative())
                 .fix()
                 .map { it.fix() }
-                .fold({it.left()}, {it.right()})
-
-
-            when (kategorier) {
-                is Either.Left -> kategorier
-                is Either.Right -> henteplan.copy(kategorier = kategorier.b).right()
-            }
+                .fold({it.left()}, {henteplan.copy(kategorier = it).right()})
         }
 
 

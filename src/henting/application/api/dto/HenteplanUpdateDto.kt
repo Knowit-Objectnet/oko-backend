@@ -12,10 +12,7 @@ import ombruk.backend.kategori.domain.port.IKategoriRepository
 import ombruk.backend.shared.error.ValidationError
 import ombruk.backend.shared.form.IForm
 import ombruk.backend.shared.model.serializer.LocalDateTimeSerializer
-import ombruk.backend.shared.utils.validation.allValidUUIDHenteplan
-import ombruk.backend.shared.utils.validation.isGreaterThanStartDateTime
-import ombruk.backend.shared.utils.validation.isLessThanEndDateTime
-import ombruk.backend.shared.utils.validation.runCatchingValidation
+import ombruk.backend.shared.utils.validation.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
@@ -70,7 +67,7 @@ data class HenteplanUpdateDto(
             if (kategorier != null) {
                 val kategoriRepository: IKategoriRepository by inject()
                 val exist: (UUID) -> Boolean = { transaction { kategoriRepository.findOne(it) } is Either.Right }
-                validate(HenteplanUpdateDto::kategorier).allValidUUIDHenteplan(exist)
+                validate(HenteplanUpdateDto::kategorier).isValidKategori { it.all { exist(it.kategoriId) } }
             }
         }
     }

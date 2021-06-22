@@ -5,6 +5,8 @@ import ombruk.backend.kategori.application.api.dto.HenteplanKategoriBatchSaveDto
 import ombruk.backend.kategori.application.api.dto.IKategoriKoblingSaveDto
 import org.valiktor.Constraint
 import org.valiktor.Validator
+import org.valiktor.constraints.Valid
+import org.valiktor.functions.isValid
 import java.util.*
 
 object UUIDString : Constraint
@@ -41,26 +43,8 @@ fun <E> Validator<E>.Property<Iterable<String>?>.allUUIDLegal(function: ((UUID) 
         }
     }
 
-// TODO: Make generic, for types implementing interface IKategoriKoblingSaveDto
-fun <E> Validator<E>.Property<Iterable<HenteplanKategoriBatchSaveDto>?>.allValidUUIDHenteplan(function: ((UUID) -> Boolean) = {true}) =
-    this.validate(UUIDStringList) { dtoList ->
-        try {
-            val allValid = dtoList?.map { it.kategoriId }
-                ?.map { function(it)}
-                ?.all { it }
-            allValid ?: false
-        } catch (e: Exception) {
-            false
-        }
-    }
-fun <E> Validator<E>.Property<Iterable<EkstraHentingKategoriBatchSaveDto>?>.allValidUUIDEkstraHenting(function: ((UUID) -> Boolean) = {true}) =
-    this.validate(UUIDStringList) { dtoList ->
-        try {
-            val allValid = dtoList?.map { it.kategoriId }
-                ?.map { function(it)}
-                ?.all { it }
-            allValid ?: false
-        } catch (e: Exception) {
-            false
-        }
-    }
+
+object UUIDKategori : Constraint
+
+fun <E, UUID> Validator<E>.Property<UUID?>.isValidKategori(validator: ((UUID) -> Boolean)): Validator<E>.Property<UUID?> =
+    this.validate(UUIDKategori) { it == null || validator(it) }

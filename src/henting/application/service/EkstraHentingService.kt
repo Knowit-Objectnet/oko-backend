@@ -32,25 +32,19 @@ class EkstraHentingService(
     fun appendKategorier(dto: EkstraHentingSaveDto, id: UUID, ekstraHenting: EkstraHenting): Either<ServiceError, EkstraHenting>
             = run {
         if (dto.kategorier == null) {return Either.Right(ekstraHenting)}
-        val kategorier = dto.kategorier!!.map {
+
+        dto.kategorier!!.map {
             ekstraHentingKategoriService.save(
                 EkstraHentingKategoriSaveDto(
-                    ekstraHentingId = id,
+                ekstraHentingId = id,
                     kategoriId = it.kategoriId,
                     mengde = it.mengde
-                )
-            )
+            ))
         }
             .sequence(Either.applicative())
             .fix()
             .map { it.fix() }
-            .fold({it.left()}, {it.right()})
-
-
-        when (kategorier) {
-            is Either.Left -> kategorier
-            is Either.Right -> ekstraHenting.copy(kategorier = kategorier.b).right()
-        }
+            .fold({it.left()},{ekstraHenting.copy(kategorier = it).right()})
     }
 
     override fun save(dto: EkstraHentingSaveDto): Either<ServiceError, EkstraHenting> {
