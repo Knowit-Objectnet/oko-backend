@@ -42,12 +42,14 @@ internal class UtlysningServiceTest {
     fun batchCreate(@MockK expected: Utlysning) {
         val dto = UtlysningBatchSaveDto(
             hentingId = UUID.randomUUID(),
-            partnerIds = listOf(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID())
+            partnerIds = listOf(UUID.randomUUID().toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString())
         )
 
         every { utlysningRepository.insert(any()) } returns expected.right()
+        every { utlysningRepository.find(any()) } returns emptyList<Utlysning>().right()
 
         val actualList = utlysningService.batchSave(dto)
+        println(actualList)
         require(actualList is Either.Right)
         assert(actualList.b.size == 3)
         assert(actualList.b.all { it == expected })

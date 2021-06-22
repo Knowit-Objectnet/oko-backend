@@ -21,6 +21,8 @@ import org.koin.test.get
 import org.testcontainers.junit.jupiter.Testcontainers
 import testutils.MockAktorModule
 import testutils.TestContainer
+import testutils.validateAndRequireLeft
+import testutils.validateAndRequireRight
 import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -60,7 +62,7 @@ class PartnerTest : KoinTest {
         navn = "Nesferg"
         ideell = false
 
-        val partner = PartnerSaveDto(navn = navn, ideell = ideell)
+        val partner = PartnerSaveDto(navn = navn, ideell = ideell).validateAndRequireRight()
         val save = partnerService.savePartner(partner)
         assert(save is Either.Right<Partner>)
     }
@@ -68,7 +70,7 @@ class PartnerTest : KoinTest {
     @Test
     @Order(2)
     fun testFind() {
-        val partner = PartnerGetDto(navn)
+        val partner = PartnerGetDto(navn).validateAndRequireRight()
         val find = partnerService.getPartnere(partner, false)
         require(find is Either.Right)
         assertTrue(find.b.count() == 1)
@@ -95,7 +97,7 @@ class PartnerTest : KoinTest {
         updateNavn = "Nesferg Middels"
         updateIdeell = true
 
-        val partner = PartnerUpdateDto(uuid, updateNavn, updateIdeell)
+        val partner = PartnerUpdateDto(uuid, updateNavn, updateIdeell).validateAndRequireRight()
         val update = partnerService.updatePartner(partner)
         require(update is Either.Right)
         assertEquals(updateNavn, update.b.navn)
