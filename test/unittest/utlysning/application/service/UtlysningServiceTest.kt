@@ -46,8 +46,10 @@ internal class UtlysningServiceTest {
         )
 
         every { utlysningRepository.insert(any()) } returns expected.right()
+        every { utlysningRepository.find(any()) } returns emptyList<Utlysning>().right()
 
         val actualList = utlysningService.batchSave(dto)
+        println(actualList)
         require(actualList is Either.Right)
         assert(actualList.b.size == 3)
         assert(actualList.b.all { it == expected })
