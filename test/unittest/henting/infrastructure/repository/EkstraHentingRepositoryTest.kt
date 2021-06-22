@@ -13,6 +13,7 @@ import ombruk.backend.henting.application.api.dto.EkstraHentingUpdateDto
 import ombruk.backend.henting.domain.entity.EkstraHenting
 import ombruk.backend.henting.domain.params.EkstraHentingCreateParams
 import ombruk.backend.henting.infrastructure.repository.EkstraHentingRepository
+import ombruk.backend.kategori.application.api.dto.EkstraHentingKategoriBatchSaveDto
 import ombruk.backend.shared.error.RepositoryError
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.AfterEach
@@ -147,7 +148,8 @@ internal class EkstraHentingRepositoryTest {
         }
 
         transaction {
-            val update = ekstraHentingRepository.update(EkstraHentingUpdateDto(id=ekstraHenting1.id, merknad = updatedText))
+            val kategorier = listOf<EkstraHentingKategoriBatchSaveDto>(EkstraHentingKategoriBatchSaveDto(kategoriId = UUID.fromString("cc4912ef-e2ed-4460-9c50-39caffde79de"), mengde = 120f))
+            val update = ekstraHentingRepository.update(EkstraHentingUpdateDto(id=ekstraHenting1.id, merknad = updatedText, kategorier = kategorier))
             require(update is Either.Right)
             assertEquals(updatedText, update.b.merknad)
         }
