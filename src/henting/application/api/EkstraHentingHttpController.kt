@@ -99,6 +99,7 @@ fun Routing.ekstraHentinger(ekstraHentingService: IEkstraHentingService, ekstraH
             }
         }
 
+        /*
         authenticate {
             post("/{ekstraHentingId}/kategorier") {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
@@ -115,6 +116,6 @@ fun Routing.ekstraHentinger(ekstraHentingService: IEkstraHentingService, ekstraH
                 .flatMap { ekstraHentingKategoriService.find(form) }
                 .run { generateResponse(this) }
                 .also { (code, response) -> call.respond(code, response) }
-        }
+        }*/
     }
 }
