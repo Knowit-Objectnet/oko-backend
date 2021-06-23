@@ -49,11 +49,11 @@ object UUIDHenteplan: Constraint
 object UUIDGenerelt: Constraint
 
 fun <E, UUID> Validator<E>.Property<UUID?>.isExistingUUID(validator: ((UUID) -> Boolean), type: Constraint): Validator<E>.Property<UUID?> {
-    when (type) {
-        is UUIDKategori -> return this.validate(UUIDKategori) { it == null || validator(it) }
-        is UUIDHenteplan -> return this.validate(UUIDHenteplan) { it == null || validator(it) }
+    return when (type) {
+        is UUIDKategori -> this.validate(UUIDKategori) { it == null || validator(it) }
+        is UUIDHenteplan -> this.validate(UUIDHenteplan) { it == null || validator(it) }
         else -> { // Note the block
-            return this.validate(UUIDGenerelt) { it == null || validator(it) }
+            this.validate(UUIDGenerelt) { it == null || validator(it) }
         }
     }
 }
