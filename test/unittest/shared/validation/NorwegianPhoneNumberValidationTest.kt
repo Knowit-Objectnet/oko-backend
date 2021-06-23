@@ -77,8 +77,8 @@ class NorwegianPhoneNumberValidationTest {
     +47d{8} should be valid
      */
     @Test
-    fun `+47d{8} is valid`() {
-        val test = PhoneTest("+4712345678")
+    fun `+47(4|9)d{7} is valid`() {
+        val test = PhoneTest("+4798765432")
         validate(test) {
             validate(PhoneTest::number).isNorwegianPhoneNumber()
         }
@@ -90,7 +90,7 @@ class NorwegianPhoneNumberValidationTest {
      */
     @Test
     fun `+47d{9} is invalid`() {
-        val test = PhoneTest("+47123456789")
+        val test = PhoneTest("+47987654321")
         assertFailsWith(ConstraintViolationException::class) {
             validate(test) {
                 validate(PhoneTest::number).isNorwegianPhoneNumber()
@@ -103,7 +103,7 @@ class NorwegianPhoneNumberValidationTest {
      */
     @Test
     fun `+47d{7} is invalid`() {
-        val test = PhoneTest("+471234567")
+        val test = PhoneTest("+479876543")
         assertFailsWith(ConstraintViolationException::class) {
             validate(test) {
                 validate(PhoneTest::number).isNorwegianPhoneNumber()
@@ -112,13 +112,15 @@ class NorwegianPhoneNumberValidationTest {
     }
 
     /*
-    0047 d{8} should be valid
+    0047 d{8} should not be valid
      */
     @Test
-    fun `0047d{8} is valid`() {
+    fun `0047d{8} is invalid`() {
         val test = PhoneTest("004712345678")
-        validate(test) {
-            validate(PhoneTest::number).isNorwegianPhoneNumber()
+        assertFailsWith(ConstraintViolationException::class) {
+            validate(test) {
+                validate(PhoneTest::number).isNorwegianPhoneNumber()
+            }
         }
     }
 
@@ -149,13 +151,15 @@ class NorwegianPhoneNumberValidationTest {
     }
 
     /*
-    d{8} should be valid
+    d{8} should not be valid
      */
     @Test
     fun `d{8} is valid`() {
-        val test = PhoneTest("12345678")
-        validate(test) {
-            validate(PhoneTest::number).isNorwegianPhoneNumber()
+        val test = PhoneTest("98765432")
+        assertFailsWith(ConstraintViolationException::class) {
+            validate(test) {
+                validate(PhoneTest::number).isNorwegianPhoneNumber()
+            }
         }
     }
 
@@ -164,7 +168,7 @@ class NorwegianPhoneNumberValidationTest {
      */
     @Test
     fun `d{9} is invalid`() {
-        val test = PhoneTest("123456789")
+        val test = PhoneTest("987654321")
         assertFailsWith(ConstraintViolationException::class) {
             validate(test) {
                 validate(PhoneTest::number).isNorwegianPhoneNumber()
@@ -177,7 +181,7 @@ class NorwegianPhoneNumberValidationTest {
      */
     @Test
     fun `d{7} is invalid`() {
-        val test = PhoneTest("1234567")
+        val test = PhoneTest("9876543")
         assertFailsWith(ConstraintViolationException::class) {
             validate(test) {
                 validate(PhoneTest::number).isNorwegianPhoneNumber()
@@ -186,13 +190,15 @@ class NorwegianPhoneNumberValidationTest {
     }
 
     /*
-    47d{8} should be valid???
+    47d{8} should be invalid
      */
     @Test
     fun `47d{8} is valid`() {
-        val test = PhoneTest("4712345678")
-        validate(test) {
-            validate(PhoneTest::number).isNorwegianPhoneNumber()
+        val test = PhoneTest("4798765432")
+        assertFailsWith(ConstraintViolationException::class) {
+            validate(test) {
+                validate(PhoneTest::number).isNorwegianPhoneNumber()
+            }
         }
     }
 }

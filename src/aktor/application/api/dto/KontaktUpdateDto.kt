@@ -4,7 +4,9 @@ import kotlinx.serialization.Serializable
 import ombruk.backend.aktor.domain.model.KontaktUpdateParams
 import ombruk.backend.aktor.domain.model.PartnerUpdateParams
 import ombruk.backend.shared.form.IForm
+import ombruk.backend.shared.utils.validation.isNorwegianPhoneNumber
 import ombruk.backend.shared.utils.validation.runCatchingValidation
+import org.valiktor.functions.isEmail
 import org.valiktor.functions.isNotBlank
 import org.valiktor.validate
 import shared.model.serializer.UUIDSerializer
@@ -21,7 +23,8 @@ data class KontaktUpdateDto(
     override fun validOrError() = runCatchingValidation {
         validate(this) {
             validate(KontaktUpdateDto::navn).isNotBlank()
-            //FIXME: Validate UUID?
+            validate(KontaktUpdateDto::telefon).isNorwegianPhoneNumber()
+            validate(KontaktUpdateDto::epost).isEmail()
         }
     }
 
