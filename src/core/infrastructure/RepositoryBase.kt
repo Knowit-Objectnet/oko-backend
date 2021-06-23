@@ -47,15 +47,11 @@ abstract class RepositoryBase<Entity : Any, EntityParams, EntityUpdateParams: Up
         }
             .onFailure { logger.error("Failed to update database; ${it.message}") }
             .fold(
-                //Return right if more than 1 partner has been updated. Else, return an Error
                 {
-                    Either.cond(it > 0,
-                        { findOne(params.id) },
-                        { RepositoryError.NoRowsFound("${params.id} not found") })
+                    findOne(params.id)
                 },
                 { RepositoryError.UpdateError(it.message).left() }
             )
-            .flatMap { it }
     }
 
     open fun findOneMethod(id: UUID) : List<Entity> {

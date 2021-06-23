@@ -3,16 +3,17 @@ package ombruk.backend.henting.application.service
 import arrow.core.*
 import arrow.core.extensions.either.applicative.applicative
 import arrow.core.extensions.list.traverse.sequence
-import arrow.core.extensions.sequence.apply.map
 import henting.application.api.dto.HenteplanSaveDto
 import io.ktor.locations.*
 import ombruk.backend.henting.application.api.dto.*
 import ombruk.backend.henting.domain.entity.Henteplan
 import ombruk.backend.henting.domain.entity.PlanlagtHentingWithParents
-import ombruk.backend.henting.domain.model.HenteplanFrekvens
 import ombruk.backend.henting.domain.params.HenteplanFindParams
 import ombruk.backend.henting.domain.port.IHenteplanRepository
+import ombruk.backend.kategori.application.api.dto.HenteplanKategoriBatchSaveDto
+import ombruk.backend.kategori.application.api.dto.HenteplanKategoriDeleteDto
 import ombruk.backend.kategori.application.api.dto.HenteplanKategoriFindDto
+import ombruk.backend.kategori.application.api.dto.HenteplanKategoriSaveDto
 import ombruk.backend.kategori.application.service.IHenteplanKategoriService
 import ombruk.backend.shared.error.ServiceError
 import ombruk.backend.shared.utils.LocalDateTimeProgressionWithDayFrekvens
@@ -40,17 +41,40 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
             }
         }
 
+    fun appendKategorier(dto: HenteplanSaveDto, id: UUID, henteplan: Henteplan): Either<ServiceError, Henteplan>
+        = run {
+            if (dto.kategorier == null) {return Either.Right(henteplan)}
+            dto.kategorier!!.map {
+                henteplanKategoriService.save(
+                    HenteplanKategoriSaveDto(
+                        henteplanId = id,
+                        kategoriId = it.kategoriId,
+                        merknad = it.merknad
+                    )
+                )
+            }
+                .sequence(Either.applicative())
+                .fix()
+                .map { it.fix() }
+                .fold({it.left()}, {henteplan.copy(kategorier = it).right()})
+        }
+
+
     override fun save(dto: HenteplanSaveDto): Either<ServiceError, Henteplan> {
 
-        val henteplan = transaction {
+        return transaction {
             henteplanRepository.insert(dto)
                 .fold(
                     { Either.Left(ServiceError(it.message)) },
-                    { appendPlanlagtHentinger(dto, it.id, it) }
+                    {
+                        appendPlanlagtHentinger(dto, it.id, it)
+                            .flatMap {
+                                appendKategorier(dto, it.id, it)
+                            }
+                    }
                 )
-                .fold({rollback(); it.left()}, {it.right()})
+                .fold({ rollback(); it.left() }, { it.right() })
         }
-        return henteplan
 
     }
 
@@ -71,7 +95,19 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
     //TODO: Create find calls including planlagteHentinger
 
     override fun findOne(id: UUID): Either<ServiceError, Henteplan> {
-        return transaction { henteplanRepository.findOne(id) }
+        return transaction {
+            henteplanRepository.findOne(id)
+                .fold(
+                    { Either.Left(ServiceError(it.message)) },
+                    { henteplan ->
+                    henteplanKategoriService.find(HenteplanKategoriFindDto(henteplanId = id))
+                        .fold(
+                            { henteplan.right() },
+                            { henteplan.copy(kategorier = it).right() }
+                        )
+                    }
+                )
+        }
     }
 
     override fun find(dto: HenteplanFindDto): Either<ServiceError, List<Henteplan>> {
@@ -103,7 +139,7 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
     override fun update(dto: HenteplanUpdateDto): Either<ServiceError, Henteplan> {
         return transaction {
             val today = LocalDateTime.now()
-            henteplanRepository.findOne(dto.id)
+            findOne(dto.id)
                 .fold(
                     { Either.left(ServiceError(it.message))},
                     { henteplan ->
@@ -111,30 +147,60 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
                             it.map { planlagtHentingService.delete(PlanlagtHentingDeleteDto(id = it.id)) }
                         }
                             .fold({it.left()},
-                            {
-                                var starttime = LocalDateTime.of(today.toLocalDate(), (dto.startTidspunkt ?: henteplan.startTidspunkt).toLocalTime())
+                                {
+                                    henteplanKategoriService.find(HenteplanKategoriFindDto(henteplanId = dto.id)).map {
+                                        it.map { henteplanKategoriService.delete(HenteplanKategoriDeleteDto(id = it.id)) }
+                                    }.fold({it.left()},
+                                            {
 
-                                if (dto.startTidspunkt != null && dto.startTidspunkt.isAfter(today)) {
-                                    starttime = dto.startTidspunkt
-                                } else if (dto.startTidspunkt == null && henteplan.startTidspunkt.isAfter(today)) {
-                                    starttime = henteplan.startTidspunkt
-                                }
+                                        var starttime = LocalDateTime.of(
+                                            today.toLocalDate(),
+                                            (dto.startTidspunkt ?: henteplan.startTidspunkt).toLocalTime()
+                                        )
 
-                                appendPlanlagtHentinger(
-                                    HenteplanSaveDto(
-                                        avtaleId = henteplan.avtaleId,
-                                        stasjonId = henteplan.stasjonId,
-                                        startTidspunkt = starttime,
-                                        sluttTidspunkt = dto.sluttTidspunkt ?: henteplan.sluttTidspunkt,
-                                        ukedag = dto.ukeDag ?: henteplan.ukedag,
-                                        merknad = dto.merknad ?: henteplan.merknad,
-                                        frekvens = dto.frekvens ?: henteplan.frekvens
-                                    ), henteplan.id, henteplan
-                                ).fold(
-                                    { Either.left(ServiceError(it.message)) },
-                                    { henteplanRepository.update(dto) }
-                                )
-                            })
+                                        if (dto.startTidspunkt != null && dto.startTidspunkt.isAfter(today)) {
+                                            starttime = dto.startTidspunkt
+                                        } else if (dto.startTidspunkt == null && henteplan.startTidspunkt.isAfter(today)) {
+                                            starttime = henteplan.startTidspunkt
+                                        }
+
+                                        appendPlanlagtHentinger(
+                                            HenteplanSaveDto(
+                                                avtaleId = henteplan.avtaleId,
+                                                stasjonId = henteplan.stasjonId,
+                                                startTidspunkt = starttime,
+                                                sluttTidspunkt = dto.sluttTidspunkt ?: henteplan.sluttTidspunkt,
+                                                ukedag = dto.ukeDag ?: henteplan.ukedag,
+                                                merknad = dto.merknad ?: henteplan.merknad,
+                                                frekvens = dto.frekvens ?: henteplan.frekvens
+                                            ), henteplan.id, henteplan
+                                        ).fold(
+                                            { Either.left(ServiceError(it.message)) },
+                                            {
+                                                appendKategorier(
+                                                    HenteplanSaveDto(
+                                                        avtaleId = henteplan.avtaleId,
+                                                        stasjonId = henteplan.stasjonId,
+                                                        startTidspunkt = starttime,
+                                                        sluttTidspunkt = dto.sluttTidspunkt ?: henteplan.sluttTidspunkt,
+                                                        ukedag = dto.ukeDag ?: henteplan.ukedag,
+                                                        merknad = dto.merknad ?: henteplan.merknad,
+                                                        frekvens = dto.frekvens ?: henteplan.frekvens,
+                                                        kategorier = dto.kategorier ?: henteplan.kategorier?.map {
+                                                            HenteplanKategoriBatchSaveDto(
+                                                                kategoriId = it.kategoriId,
+                                                                merknad = it.merknad
+                                                            )
+                                                        }
+                                                    ), henteplan.id, henteplan
+                                                ).fold(
+                                                    { Either.left(ServiceError(it.message)) },
+                                                    { henteplanRepository.update(dto) }
+                                                )
+                                            }
+                                        )
+                                    })
+                                })
                     }
                 )
                 .fold({rollback(); it.left()}, {it.right()})

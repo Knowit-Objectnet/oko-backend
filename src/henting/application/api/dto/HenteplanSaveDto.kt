@@ -1,16 +1,27 @@
 package henting.application.api.dto
 
 import arrow.core.Either
+import arrow.core.extensions.either.applicative.applicative
+import arrow.core.extensions.list.traverse.sequence
+import arrow.core.fix
+import arrow.core.left
+import arrow.core.right
 import kotlinx.serialization.Serializable
 import ombruk.backend.avtale.domain.entity.Avtale
 import ombruk.backend.avtale.domain.port.IAvtaleRepository
 import ombruk.backend.avtale.infrastructure.repository.AvtaleRepository
 import ombruk.backend.henting.domain.model.HenteplanFrekvens
 import ombruk.backend.henting.domain.params.HenteplanCreateParams
+import ombruk.backend.kategori.application.api.dto.HenteplanKategoriBatchSaveDto
+import ombruk.backend.kategori.application.api.dto.HenteplanKategoriSaveDto
+import ombruk.backend.kategori.application.api.dto.IKategoriKoblingSaveDto
+import ombruk.backend.kategori.domain.entity.Kategori
+import ombruk.backend.kategori.domain.port.IKategoriRepository
 import ombruk.backend.shared.error.ValidationError
 import ombruk.backend.shared.form.IForm
 import ombruk.backend.shared.model.serializer.LocalDateTimeSerializer
 import ombruk.backend.shared.utils.validation.isGreaterThanStartDateTime
+import ombruk.backend.shared.utils.validation.isValidKategori
 import ombruk.backend.shared.utils.validation.runCatchingValidation
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.KoinComponent
@@ -35,7 +46,8 @@ data class HenteplanSaveDto(
     @Serializable(with = LocalDateTimeSerializer::class) override val startTidspunkt: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class) override val sluttTidspunkt: LocalDateTime,
     override var ukedag: DayOfWeek? = null,
-    override val merknad: String? = null
+    override val merknad: String? = null,
+    var kategorier: List<HenteplanKategoriBatchSaveDto>? = null
 ) : IForm<HenteplanSaveDto>, HenteplanCreateParams(), KoinComponent {
     override fun validOrError(): Either<ValidationError, HenteplanSaveDto> = runCatchingValidation {
         validate(this) {
@@ -43,7 +55,6 @@ data class HenteplanSaveDto(
             if (frekvens != HenteplanFrekvens.ENKELT) {
                 validate(HenteplanSaveDto::ukedag).isNotNull()
             }
-
             if(frekvens == HenteplanFrekvens.ENKELT) {
                 ukedag = startTidspunkt.dayOfWeek
             }
@@ -59,6 +70,12 @@ data class HenteplanSaveDto(
                     validate(HenteplanSaveDto::sluttTidspunkt).isLessThanOrEqualTo(LocalDateTime.of(it.sluttDato, LocalTime.MAX))
                 }
             )
+
+            if (kategorier != null) {
+                val kategoriRepository: IKategoriRepository by inject()
+                val exist: (UUID) -> Boolean = { transaction { kategoriRepository.findOne(it) } is Either.Right }
+                validate(HenteplanSaveDto::kategorier).isValidKategori { it.all { exist(it.kategoriId) } }
+            }
         }
     }
 }

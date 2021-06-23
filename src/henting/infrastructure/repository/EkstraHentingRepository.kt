@@ -52,6 +52,7 @@ class EkstraHentingRepository :
             row[table.merknad],
             row[table.stasjonId],
             row[StasjonTable.navn],
+            null,
             null
         )
     }
