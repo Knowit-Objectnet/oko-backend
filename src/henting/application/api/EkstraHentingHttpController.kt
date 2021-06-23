@@ -21,7 +21,7 @@ import ombruk.backend.shared.error.AuthorizationError
 
 
 @KtorExperimentalLocationsAPI
-fun Routing.ekstraHentinger(ekstraHentingService: IEkstraHentingService, ekstraHentingKategoriService: IEkstraHentingKategoriService) {
+fun Routing.ekstraHentinger(ekstraHentingService: IEkstraHentingService) {
 
     route("/ekstra-hentinger") {
 
@@ -97,24 +97,6 @@ fun Routing.ekstraHentinger(ekstraHentingService: IEkstraHentingService, ekstraH
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }
-        }
-
-        authenticate {
-            post("/{ekstraHentingId}/kategorier") {
-                Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
-                    .flatMap { receiveCatching { call.receive<EkstraHentingKategoriSaveDto>() } }
-                    .flatMap { it.validOrError() }
-                    .flatMap { ekstraHentingKategoriService.save(it) }
-                    .run { generateResponse(this) }
-                    .also { (code, response) -> call.respond(code, response) }
-            }
-        }
-
-        get<EkstraHentingKategoriFindDto> {form ->
-            form.validOrError()
-                .flatMap { ekstraHentingKategoriService.find(form) }
-                .run { generateResponse(this) }
-                .also { (code, response) -> call.respond(code, response) }
         }
     }
 }

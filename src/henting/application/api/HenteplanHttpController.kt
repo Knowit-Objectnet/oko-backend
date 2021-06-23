@@ -30,7 +30,7 @@ import ombruk.backend.shared.error.ServiceError
 import java.util.*
 
 @KtorExperimentalLocationsAPI
-fun Routing.henteplaner(henteplanService: IHenteplanService, henteplanKategoriService: IHenteplanKategoriService, avtaleService: IAvtaleService) {
+fun Routing.henteplaner(henteplanService: IHenteplanService, avtaleService: IAvtaleService) {
 
     route("/henteplaner") {
 
@@ -140,26 +140,6 @@ fun Routing.henteplaner(henteplanService: IHenteplanService, henteplanKategoriSe
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }
-        }
-
-
-        authenticate {
-            post("/{henteplanId}/kategorier") {
-                Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
-                    .flatMap { receiveCatching { call.receive<HenteplanKategoriSaveDto>() } }
-                    .flatMap { it.validOrError() }
-                    .flatMap { henteplanKategoriService.save(it) }
-                    .run { generateResponse(this) }
-                    .also { (code, response) -> call.respond(code, response) }
-            }
-        }
-
-        get<HenteplanKategoriFindDto> { form ->
-            println("form: $form")
-            form.validOrError()
-                .flatMap { henteplanKategoriService.find(form) }
-                .run { generateResponse(this) }
-                .also { (code, response) -> call.respond(code, response) }
         }
     }
 }
