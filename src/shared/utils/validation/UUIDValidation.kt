@@ -46,10 +46,16 @@ fun <E> Validator<E>.Property<Iterable<String>?>.allUUIDLegal(function: ((UUID) 
 
 object UUIDKategori : Constraint
 object UUIDHenteplan: Constraint
+object UUIDGenerelt: Constraint
 
 fun <E, UUID> Validator<E>.Property<UUID?>.isExistingUUID(validator: ((UUID) -> Boolean), type: Constraint): Validator<E>.Property<UUID?> {
-    if (type is UUIDKategori) return this.validate(UUIDKategori) { it == null || validator(it) }
-    else return this.validate(UUIDHenteplan) { it == null || validator(it) }
+    when (type) {
+        is UUIDKategori -> return this.validate(UUIDKategori) { it == null || validator(it) }
+        is UUIDHenteplan -> return this.validate(UUIDHenteplan) { it == null || validator(it) }
+        else -> { // Note the block
+            return this.validate(UUIDGenerelt) { it == null || validator(it) }
+        }
+    }
 }
 
 
