@@ -142,7 +142,7 @@ fun Routing.henteplaner(henteplanService: IHenteplanService, henteplanKategoriSe
             }
         }
 
-
+        /*
         authenticate {
             post("/{henteplanId}/kategorier") {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
@@ -160,6 +160,6 @@ fun Routing.henteplaner(henteplanService: IHenteplanService, henteplanKategoriSe
                 .flatMap { henteplanKategoriService.find(form) }
                 .run { generateResponse(this) }
                 .also { (code, response) -> call.respond(code, response) }
-        }
+        }*/
     }
 }
