@@ -7,9 +7,7 @@ import ombruk.backend.kategori.domain.params.HenteplanKategoriCreateParams
 import ombruk.backend.kategori.domain.port.IKategoriRepository
 import ombruk.backend.shared.error.ValidationError
 import ombruk.backend.shared.form.IForm
-import ombruk.backend.shared.utils.validation.isValidHenteplan
-import ombruk.backend.shared.utils.validation.isValidKategori
-import ombruk.backend.shared.utils.validation.runCatchingValidation
+import ombruk.backend.shared.utils.validation.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -27,11 +25,11 @@ data class HenteplanKategoriSaveDto(
         validate(this) {
             val kategoriRepository: IKategoriRepository by inject()
             val kategoriExist: (UUID) -> Boolean = { transaction { kategoriRepository.findOne(it) } is Either.Right }
-            validate(HenteplanKategoriSaveDto::kategoriId).isValidKategori { kategoriExist(it) }
+            validate(HenteplanKategoriSaveDto::kategoriId).isExistingUUID({ kategoriExist(it) } , UUIDKategori)
 
             val henteplanRepository: IHenteplanRepository by inject()
             val henteplanExist: (UUID) -> Boolean = { transaction { henteplanRepository.findOne(it) } is Either.Right }
-            validate(HenteplanKategoriSaveDto::henteplanId).isValidHenteplan{ henteplanExist(it) }
+            validate(HenteplanKategoriSaveDto::henteplanId).isExistingUUID({ henteplanExist(it) }, UUIDHenteplan)
         }
     }
 }

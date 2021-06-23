@@ -67,7 +67,7 @@ data class HenteplanUpdateDto(
             if (kategorier != null) {
                 val kategoriRepository: IKategoriRepository by inject()
                 val exist: (UUID) -> Boolean = { transaction { kategoriRepository.findOne(it) } is Either.Right }
-                validate(HenteplanUpdateDto::kategorier).isValidKategori { it.all { exist(it.kategoriId) } }
+                validate(HenteplanUpdateDto::kategorier).isExistingUUID({ it.all { exist(it.kategoriId) } }, UUIDKategori)
             }
         }
     }

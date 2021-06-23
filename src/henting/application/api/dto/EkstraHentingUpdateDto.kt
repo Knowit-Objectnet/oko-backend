@@ -46,7 +46,7 @@ data class EkstraHentingUpdateDto(
             if (kategorier != null) {
                 val kategoriRepository: IKategoriRepository by inject()
                 val exist: (UUID) -> Boolean = { transaction { kategoriRepository.findOne(it) } is Either.Right }
-                validate(EkstraHentingUpdateDto::kategorier).isValidKategori { it.all { exist(it.kategoriId) } }
+                validate(EkstraHentingUpdateDto::kategorier).isExistingUUID({ it.all { exist(it.kategoriId) } }, UUIDKategori)
             }
         }
     }

@@ -8,9 +8,7 @@ import ombruk.backend.kategori.domain.port.IKategoriRepository
 import ombruk.backend.shared.error.ValidationError
 import ombruk.backend.shared.form.IForm
 import ombruk.backend.shared.model.serializer.LocalDateTimeSerializer
-import ombruk.backend.shared.utils.validation.isGreaterThanStartDateTime
-import ombruk.backend.shared.utils.validation.isValidKategori
-import ombruk.backend.shared.utils.validation.runCatchingValidation
+import ombruk.backend.shared.utils.validation.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -35,7 +33,7 @@ data class EkstraHentingSaveDto(
             if (kategorier != null) {
                 val kategoriRepository: IKategoriRepository by inject()
                 val exist: (UUID) -> Boolean = { transaction { kategoriRepository.findOne(it) } is Either.Right }
-                validate(EkstraHentingSaveDto::kategorier).isValidKategori { it.all { exist(it.kategoriId) } }
+                validate(EkstraHentingSaveDto::kategorier).isExistingUUID({ it.all { exist(it.kategoriId) } }, UUIDKategori)
             }
         }
     }
