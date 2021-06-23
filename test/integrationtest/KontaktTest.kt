@@ -88,7 +88,7 @@ class KontaktTest : KoinTest {
         KontaktSaveDto(aktorId = partner1.id, navn = "Kontakt1", telefon = "+47987654321").validateAndRequireLeft()
         //Telefon number wrong nation code
         KontaktSaveDto(aktorId = partner1.id, navn = "Kontakt1", telefon = "+1198765432").validateAndRequireLeft()
-        //Telefon number < 40000000
+        //Telefon number does not start with 4 or 9
         KontaktSaveDto(aktorId = partner1.id, navn = "Kontakt1", telefon = "+4712345678").validateAndRequireLeft()
         //Epost invalid, no @
         KontaktSaveDto(aktorId = partner1.id, navn = "Kontakt1", epost = "not.an.email.com").validateAndRequireLeft()
@@ -102,7 +102,7 @@ class KontaktTest : KoinTest {
     @Order(3)
     fun validateCorrectInput() {
         KontaktSaveDto(aktorId = partner1.id, navn = "Kontakt1").validateAndRequireRight()
-        KontaktSaveDto(aktorId = partner1.id, navn = "Kontakt1", telefon = "+4787654321").validateAndRequireRight()
+        KontaktSaveDto(aktorId = partner1.id, navn = "Kontakt1", telefon = "+4797654321").validateAndRequireRight()
         KontaktSaveDto(aktorId = partner1.id, navn = "Kontakt1", epost = "example.email@mail.com").validateAndRequireRight()
     }
 
@@ -139,10 +139,10 @@ class KontaktTest : KoinTest {
     @Test
     @Order(5)
     fun updateKontakt() {
-        val updateDto = KontaktUpdateDto(partnerKontakt1.id, telefon = "+4787654321", epost = "example@example.com").validateAndRequireRight()
+        val updateDto = KontaktUpdateDto(partnerKontakt1.id, telefon = "+4797654321", epost = "example@example.com").validateAndRequireRight()
         val update = kontaktService.update(updateDto)
         require(update is Either.Right)
-        assertEquals("+4787654321", update.b.telefon)
+        assertEquals("+4797654321", update.b.telefon)
         partnerKontakt1 = update.b
     }
 
