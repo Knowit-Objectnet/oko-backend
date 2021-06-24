@@ -3,7 +3,7 @@ package ombruk.backend.partner.form
 import kotlinx.serialization.Serializable
 import ombruk.backend.partner.database.PartnerRepository
 import ombruk.backend.shared.form.IForm
-import ombruk.backend.shared.utils.validation.isNorwegianPhoneNumber
+import ombruk.backend.shared.utils.validation.isNorwegianPhoneNumberOrBlank
 import ombruk.backend.shared.utils.validation.isUniqueInRepository
 import ombruk.backend.shared.utils.validation.runCatchingValidation
 import org.valiktor.functions.isEmail
@@ -24,7 +24,7 @@ data class PartnerUpdateForm(
             validate(PartnerUpdateForm::id).isGreaterThan(0)
             validate(PartnerUpdateForm::name).isNotBlank()
             validate(PartnerUpdateForm::description).isNotBlank()
-            validate(PartnerUpdateForm::phone).isNotBlank().isNorwegianPhoneNumber()
+            validate(PartnerUpdateForm::phone).isNotBlank().isNorwegianPhoneNumberOrBlank()
             validate(PartnerUpdateForm::email).isNotBlank().isEmail()
 
             PartnerRepository.getPartnerByID(id).map {

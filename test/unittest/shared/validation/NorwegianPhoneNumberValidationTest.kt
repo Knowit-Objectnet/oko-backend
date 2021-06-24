@@ -1,6 +1,6 @@
 package shared.validation
 
-import ombruk.backend.shared.utils.validation.isNorwegianPhoneNumber
+import ombruk.backend.shared.utils.validation.isNorwegianPhoneNumberOrBlank
 import org.junit.jupiter.api.Test
 import org.valiktor.ConstraintViolationException
 import org.valiktor.validate
@@ -17,7 +17,7 @@ class NorwegianPhoneNumberValidationTest {
     fun `null is valid`() {
         val test = PhoneTest(null)
         validate(test) {
-            validate(PhoneTest::number).isNorwegianPhoneNumber()
+            validate(PhoneTest::number).isNorwegianPhoneNumberOrBlank()
         }
     }
 
@@ -29,7 +29,7 @@ class NorwegianPhoneNumberValidationTest {
         val test = PhoneTest("eplekake")
         assertFailsWith(ConstraintViolationException::class) {
             validate(test) {
-                validate(PhoneTest::number).isNorwegianPhoneNumber()
+                validate(PhoneTest::number).isNorwegianPhoneNumberOrBlank()
             }
         }
     }
@@ -42,7 +42,7 @@ class NorwegianPhoneNumberValidationTest {
         val test = PhoneTest("+47eplekake")
         assertFailsWith(ConstraintViolationException::class) {
             validate(test) {
-                validate(PhoneTest::number).isNorwegianPhoneNumber()
+                validate(PhoneTest::number).isNorwegianPhoneNumberOrBlank()
             }
         }
     }
@@ -55,7 +55,7 @@ class NorwegianPhoneNumberValidationTest {
         val test = PhoneTest("0047eplekake")
         assertFailsWith(ConstraintViolationException::class) {
             validate(test) {
-                validate(PhoneTest::number).isNorwegianPhoneNumber()
+                validate(PhoneTest::number).isNorwegianPhoneNumberOrBlank()
             }
         }
     }
@@ -68,7 +68,7 @@ class NorwegianPhoneNumberValidationTest {
         val test = PhoneTest("e1l2k3k4")
         assertFailsWith(ConstraintViolationException::class) {
             validate(test) {
-                validate(PhoneTest::number).isNorwegianPhoneNumber()
+                validate(PhoneTest::number).isNorwegianPhoneNumberOrBlank()
             }
         }
     }
@@ -80,7 +80,7 @@ class NorwegianPhoneNumberValidationTest {
     fun `+47(4|9)d{7} is valid`() {
         val test = PhoneTest("+4798765432")
         validate(test) {
-            validate(PhoneTest::number).isNorwegianPhoneNumber()
+            validate(PhoneTest::number).isNorwegianPhoneNumberOrBlank()
         }
     }
 
@@ -93,7 +93,7 @@ class NorwegianPhoneNumberValidationTest {
         val test = PhoneTest("+47987654321")
         assertFailsWith(ConstraintViolationException::class) {
             validate(test) {
-                validate(PhoneTest::number).isNorwegianPhoneNumber()
+                validate(PhoneTest::number).isNorwegianPhoneNumberOrBlank()
             }
         }
     }
@@ -106,7 +106,7 @@ class NorwegianPhoneNumberValidationTest {
         val test = PhoneTest("+479876543")
         assertFailsWith(ConstraintViolationException::class) {
             validate(test) {
-                validate(PhoneTest::number).isNorwegianPhoneNumber()
+                validate(PhoneTest::number).isNorwegianPhoneNumberOrBlank()
             }
         }
     }
@@ -119,7 +119,7 @@ class NorwegianPhoneNumberValidationTest {
         val test = PhoneTest("004712345678")
         assertFailsWith(ConstraintViolationException::class) {
             validate(test) {
-                validate(PhoneTest::number).isNorwegianPhoneNumber()
+                validate(PhoneTest::number).isNorwegianPhoneNumberOrBlank()
             }
         }
     }
@@ -132,7 +132,7 @@ class NorwegianPhoneNumberValidationTest {
         val test = PhoneTest("00471234567")
         assertFailsWith(ConstraintViolationException::class) {
             validate(test) {
-                validate(PhoneTest::number).isNorwegianPhoneNumber()
+                validate(PhoneTest::number).isNorwegianPhoneNumberOrBlank()
             }
         }
     }
@@ -145,7 +145,7 @@ class NorwegianPhoneNumberValidationTest {
         val test = PhoneTest("0047123456789")
         assertFailsWith(ConstraintViolationException::class) {
             validate(test) {
-                validate(PhoneTest::number).isNorwegianPhoneNumber()
+                validate(PhoneTest::number).isNorwegianPhoneNumberOrBlank()
             }
         }
     }
@@ -158,7 +158,7 @@ class NorwegianPhoneNumberValidationTest {
         val test = PhoneTest("98765432")
         assertFailsWith(ConstraintViolationException::class) {
             validate(test) {
-                validate(PhoneTest::number).isNorwegianPhoneNumber()
+                validate(PhoneTest::number).isNorwegianPhoneNumberOrBlank()
             }
         }
     }
@@ -171,7 +171,7 @@ class NorwegianPhoneNumberValidationTest {
         val test = PhoneTest("987654321")
         assertFailsWith(ConstraintViolationException::class) {
             validate(test) {
-                validate(PhoneTest::number).isNorwegianPhoneNumber()
+                validate(PhoneTest::number).isNorwegianPhoneNumberOrBlank()
             }
         }
     }
@@ -184,7 +184,7 @@ class NorwegianPhoneNumberValidationTest {
         val test = PhoneTest("9876543")
         assertFailsWith(ConstraintViolationException::class) {
             validate(test) {
-                validate(PhoneTest::number).isNorwegianPhoneNumber()
+                validate(PhoneTest::number).isNorwegianPhoneNumberOrBlank()
             }
         }
     }
@@ -197,7 +197,7 @@ class NorwegianPhoneNumberValidationTest {
         val test = PhoneTest("4798765432")
         assertFailsWith(ConstraintViolationException::class) {
             validate(test) {
-                validate(PhoneTest::number).isNorwegianPhoneNumber()
+                validate(PhoneTest::number).isNorwegianPhoneNumberOrBlank()
             }
         }
     }
