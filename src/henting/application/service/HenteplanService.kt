@@ -139,12 +139,16 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
     override fun update(dto: HenteplanUpdateDto): Either<ServiceError, Henteplan> {
         return transaction {
             val today = LocalDateTime.now()
+            val avlystHenting: MutableList<PlanlagtHentingWithParents> = mutableListOf()
             findOne(dto.id)
                 .fold(
                     { Either.left(ServiceError(it.message))},
                     { henteplan ->
                         planlagtHentingService.find(PlanlagtHentingFindDto(henteplanId = dto.id, after = today)).map {
-                            it.map { planlagtHentingService.delete(PlanlagtHentingDeleteDto(id = it.id)) }
+                            it.map {
+                                planlagtHentingService.delete(PlanlagtHentingDeleteDto(id = it.id))
+                                if (it.avlyst != null) avlystHenting.add(it)
+                            }
                         }
                             .fold({it.left()},
                                 {
@@ -176,7 +180,13 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
                                             ), henteplan.id, henteplan
                                         ).fold(
                                             { Either.left(ServiceError(it.message)) },
-                                            {
+                                            { it.planlagteHentinger?.map { planlagtHenting ->
+                                                avlystHenting.map { avlystHenting ->
+                                                    if (avlystHenting.startTidspunkt.isEqual(planlagtHenting.startTidspunkt) && avlystHenting.sluttTidspunkt.isEqual(planlagtHenting.sluttTidspunkt) ) {
+                                                        planlagtHentingService.update(PlanlagtHentingUpdateDto(id = planlagtHenting.id, avlyst = avlystHenting.avlyst, aarsak = avlystHenting.aarsak))
+                                                    }
+                                                }
+                                            }
                                                 appendKategorier(
                                                     HenteplanSaveDto(
                                                         avtaleId = henteplan.avtaleId,

@@ -25,6 +25,7 @@ class PlanlagtHentingRepository: RepositoryBase<PlanlagtHentingWithParents, Plan
             it[merknad] = params.merknad
             it[henteplanId] = params.henteplanId
             it[avlyst] = null
+            it[aarsak] = null
         }
     }
 
@@ -34,6 +35,7 @@ class PlanlagtHentingRepository: RepositoryBase<PlanlagtHentingWithParents, Plan
             params.sluttTidspunkt?.let { row[sluttTidspunkt] = it }
             params.merknad?.let { row[merknad] = it }
             params.avlyst?.let { row[avlyst] = it }
+            params.aarsak?.let { row[aarsak] = it }
         }
     }
 
@@ -93,6 +95,7 @@ class PlanlagtHentingRepository: RepositoryBase<PlanlagtHentingWithParents, Plan
             row[table.merknad],
             row[table.henteplanId],
             row[table.avlyst],
+            row[table.aarsak],
             row[AvtaleTable.id].value,
             aktorId,
             aktorNavn,
