@@ -34,7 +34,7 @@ data class KontaktSaveDto(
             validate(KontaktSaveDto::navn).isNotBlank()
             if (telefon?.isNotBlank() == true) validate(KontaktSaveDto::telefon).isNorwegianPhoneNumber()
             if (epost?.isNotBlank() == true) validate(KontaktSaveDto::epost).isEmail()
-        }.copy(telefon = telefon?.trim(), epost = epost?.trim())
+        }.copy(telefon = telefon?.trim(), epost = epost?.trim(), rolle = rolle?.trim())
     }
 
 }

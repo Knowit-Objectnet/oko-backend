@@ -25,7 +25,7 @@ data class KontaktUpdateDto(
             validate(KontaktUpdateDto::navn).isNotBlank()
             if (telefon?.isNotBlank() == true) validate(KontaktUpdateDto::telefon).isNorwegianPhoneNumber()
             if (epost?.isNotBlank() == true) validate(KontaktUpdateDto::epost).isEmail()
-        }.copy(telefon = telefon?.trim(), epost = epost?.trim())
+        }.copy(telefon = telefon?.trim(), epost = epost?.trim(), rolle = rolle?.trim())
     }
 
 }

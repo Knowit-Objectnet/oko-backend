@@ -23,7 +23,7 @@ class KontaktRepository : RepositoryBase<Kontakt, KontaktCreateParams, KontaktUp
             it[navn] = params.navn
             it[telefon] = params.telefon?.ifBlank { null }
             it[epost] = params.epost?.ifBlank { null }
-            it[rolle] = params.rolle
+            it[rolle] = params.rolle?.ifBlank { null }
         }
     }
 
@@ -53,7 +53,7 @@ class KontaktRepository : RepositoryBase<Kontakt, KontaktCreateParams, KontaktUp
             params.navn?.let { row[navn] = it }
             params.telefon?.let { row[telefon] = it.ifBlank { null } }
             params.epost?.let { row[epost] = it.ifBlank { null } }
-            params.rolle?.let { row[rolle] = it }
+            params.rolle?.let { row[rolle] = it.ifBlank { null } }
         }
     }
 }
