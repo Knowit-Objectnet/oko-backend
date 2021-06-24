@@ -32,8 +32,8 @@ data class KontaktSaveDto(
                 aktorService.findOne(it) is Either.Right
             }
             validate(KontaktSaveDto::navn).isNotBlank()
-            if (telefon != null && telefon.trim().isNotEmpty()) validate(KontaktSaveDto::telefon).isNorwegianPhoneNumber()
-            if (epost != null && epost.trim().isNotEmpty()) validate(KontaktSaveDto::epost).isEmail()
+            if (telefon?.isNotBlank() == true) validate(KontaktSaveDto::telefon).isNorwegianPhoneNumber()
+            if (epost?.isNotBlank() == true) validate(KontaktSaveDto::epost).isEmail()
         }.copy(telefon = telefon?.trim(), epost = epost?.trim())
     }
 
