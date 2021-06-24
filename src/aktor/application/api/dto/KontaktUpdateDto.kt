@@ -23,9 +23,9 @@ data class KontaktUpdateDto(
     override fun validOrError() = runCatchingValidation {
         validate(this) {
             validate(KontaktUpdateDto::navn).isNotBlank()
-            validate(KontaktUpdateDto::telefon).isNorwegianPhoneNumber()
-            validate(KontaktUpdateDto::epost).isEmail()
-        }
+            if (telefon != null && telefon.trim().isNotEmpty()) validate(KontaktUpdateDto::telefon).isNorwegianPhoneNumber()
+            if (epost != null && epost.trim().isNotEmpty()) validate(KontaktUpdateDto::epost).isEmail()
+        }.copy(telefon = telefon?.trim(), epost = epost?.trim())
     }
 
 }
