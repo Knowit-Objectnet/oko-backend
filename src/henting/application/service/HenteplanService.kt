@@ -170,7 +170,7 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
                                                 stasjonId = henteplan.stasjonId,
                                                 startTidspunkt = starttime,
                                                 sluttTidspunkt = dto.sluttTidspunkt ?: henteplan.sluttTidspunkt,
-                                                ukedag = dto.ukeDag ?: henteplan.ukedag,
+                                                ukedag = dto.ukedag ?: henteplan.ukedag,
                                                 merknad = dto.merknad ?: henteplan.merknad,
                                                 frekvens = dto.frekvens ?: henteplan.frekvens
                                             ), henteplan.id, henteplan
@@ -183,7 +183,7 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
                                                         stasjonId = henteplan.stasjonId,
                                                         startTidspunkt = starttime,
                                                         sluttTidspunkt = dto.sluttTidspunkt ?: henteplan.sluttTidspunkt,
-                                                        ukedag = dto.ukeDag ?: henteplan.ukedag,
+                                                        ukedag = dto.ukedag ?: henteplan.ukedag,
                                                         merknad = dto.merknad ?: henteplan.merknad,
                                                         frekvens = dto.frekvens ?: henteplan.frekvens,
                                                         kategorier = dto.kategorier ?: henteplan.kategorier?.map {

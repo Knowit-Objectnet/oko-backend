@@ -12,6 +12,6 @@ abstract class HenteplanUpdateParams: UpdateParams {
     abstract val frekvens: HenteplanFrekvens?
     abstract val startTidspunkt: LocalDateTime?
     abstract val sluttTidspunkt: LocalDateTime?
-    abstract val ukeDag: DayOfWeek?
+    abstract val ukedag: DayOfWeek?
     abstract val merknad: String?
 }
