@@ -1,6 +1,8 @@
 package ombruk.backend.henting.application.api.dto
 
+
 import arrow.core.extensions.either.monad.flatMap
+import arrow.core.extensions.either.monadError.ensure
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.locations.*
@@ -8,10 +10,15 @@ import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import ombruk.backend.henting.application.service.IEkstraHentingService
+import ombruk.backend.kategori.application.api.dto.EkstraHentingKategoriFindDto
+import ombruk.backend.kategori.application.api.dto.EkstraHentingKategoriSaveDto
+import ombruk.backend.kategori.application.service.IEkstraHentingKategoriService
 import ombruk.backend.shared.api.Authorization
 import ombruk.backend.shared.api.Roles
 import ombruk.backend.shared.api.generateResponse
 import ombruk.backend.shared.api.receiveCatching
+import ombruk.backend.shared.error.AuthorizationError
+
 
 @KtorExperimentalLocationsAPI
 fun Routing.ekstraHentinger(ekstraHentingService: IEkstraHentingService) {
@@ -34,10 +41,16 @@ fun Routing.ekstraHentinger(ekstraHentingService: IEkstraHentingService) {
 
         authenticate {
             post {
-                Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
-                    .flatMap { receiveCatching { call.receive<EkstraHentingSaveDto>() } }
-                    .flatMap { it.validOrError() }
-                    .flatMap { ekstraHentingService.save(it) }
+                Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.ReuseStation), call)
+                    .flatMap { (role, groupId) ->
+                        receiveCatching { call.receive<EkstraHentingSaveDto>() }
+                        .flatMap { it.validOrError() }
+                            .ensure(
+                                { AuthorizationError.AccessViolationError("Du har ikke tilgang til denne hentingen")},
+                                { role == Roles.RegEmployee || groupId == it.stasjonId }
+                            )
+                        .flatMap { ekstraHentingService.save(it) }
+                    }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }
@@ -45,19 +58,42 @@ fun Routing.ekstraHentinger(ekstraHentingService: IEkstraHentingService) {
 
         authenticate {
             delete<EkstraHentingDeleteDto> { form ->
-                Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
-                    .flatMap { form.validOrError() }
-                    .flatMap { ekstraHentingService.archiveOne(form.id) }
+                Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.ReuseStation), call)
+                    .flatMap { (role, groupId) ->
+                        form.validOrError()
+                            .flatMap { ekstraHentingService.findOne(it.id) }
+                            .ensure(
+                                { AuthorizationError.AccessViolationError("Du har ikke tilgang til denne hentingen")},
+                                {
+                                    if (role == Roles.RegEmployee) true
+                                    else it.stasjonId == groupId
+                                }
+                            )
+                        .flatMap { ekstraHentingService.archiveOne(form.id) }
+                    }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }
         }
 
         authenticate {
-            patch<EkstraHentingUpdateDto> { form ->
-                Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
-                    .flatMap { form.validOrError() }
-                    .flatMap { ekstraHentingService.update(form) }
+            patch {
+                Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.ReuseStation), call)
+                    .flatMap { (role, groupId) ->
+                        receiveCatching { call.receive<EkstraHentingUpdateDto>() }
+                            .flatMap { it.validOrError() }
+                            .flatMap { dto ->
+                                ekstraHentingService.findOne(dto.id)
+                                .ensure(
+                                    { AuthorizationError.AccessViolationError("Du har ikke tilgang til denne hentingen") },
+                                    {
+                                        if (role == Roles.RegEmployee) true
+                                        else it.stasjonId == groupId
+                                    }
+                                )
+                                .flatMap { ekstraHentingService.update(dto) }
+                            }
+                    }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }

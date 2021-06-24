@@ -28,14 +28,14 @@ fun Routing.request(requestService: IRequestService) {
 
         authenticate {
             post {
-                receiveCatching { call.receive<RequestPostForm>() }.flatMap { form ->
-                    Authorization.authorizeRole(listOf(Roles.Partner), call)
-                        .flatMap { Authorization.authorizeRequestId(it, form.partnerId) }
-                        .flatMap { form.validOrError() }
-                        .flatMap { requestService.saveRequest(it) }
-                }
-                    .run { generateResponse(this) }
-                    .also { (code, response) -> call.respond(code, response) }
+//                receiveCatching { call.receive<RequestPostForm>() }.flatMap { form ->
+//                    Authorization.authorizeRole(listOf(Roles.Partner), call)
+//                        .flatMap { Authorization.authorizeRequestId(it, form.partnerId) }
+//                        .flatMap { form.validOrError() }
+//                        .flatMap { requestService.saveRequest(it) }
+//                }
+//                    .run { generateResponse(this) }
+//                    .also { (code, response) -> call.respond(code, response) }
             }
         }
 
@@ -48,12 +48,12 @@ fun Routing.request(requestService: IRequestService) {
 
         authenticate {
             delete<RequestDeleteForm> { form ->
-                Authorization.authorizeRole(listOf(Roles.Partner), call)
-                    .flatMap { Authorization.authorizeRequestId(it, form.partnerId) }
-                    .flatMap { form.validOrError() }
-                    .flatMap { requestService.deleteRequest(form) }
-                    .run { generateResponse(this) }
-                    .also { (code, response) -> call.respond(code, response) }
+//                Authorization.authorizeRole(listOf(Roles.Partner), call)
+//                    .flatMap { Authorization.authorizeRequestId(it, form.partnerId) }
+//                    .flatMap { form.validOrError() }
+//                    .flatMap { requestService.deleteRequest(form) }
+//                    .run { generateResponse(this) }
+//                    .also { (code, response) -> call.respond(code, response) }
             }
         }
     }

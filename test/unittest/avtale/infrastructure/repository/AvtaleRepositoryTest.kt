@@ -4,6 +4,7 @@ import arrow.core.Either
 import ombruk.backend.avtale.application.api.dto.AvtaleFindDto
 import ombruk.backend.avtale.domain.entity.Avtale
 import ombruk.backend.avtale.domain.params.AvtaleCreateParams
+import ombruk.backend.avtale.domain.params.AvtaleUpdateParams
 import ombruk.backend.avtale.infrastructure.repository.AvtaleRepository
 import ombruk.backend.avtale.model.AvtaleType
 import ombruk.backend.henting.domain.params.HenteplanCreateParams
@@ -77,6 +78,20 @@ class AvtaleRepositoryTest {
     @Test
     fun update() {
         //TODO: Implement
+        val find = transaction { avtaleRepository.findOne(avtale.id) }
+        require(find is Either.Right<Avtale>)
+        assert(find.b == avtale)
+
+        val updateParams = object: AvtaleUpdateParams() {
+            override val id: UUID = avtale.id
+            override val startDato: LocalDate = LocalDate.now().plusDays(2)
+            override val sluttDato: LocalDate = LocalDate.now().plusDays(10)
+            override val type: AvtaleType? = null
+        }
+        val update = transaction { avtaleRepository.update(updateParams) }
+        require(update is Either.Right<Avtale>)
+        assert(update.b.id == find.b.id)
+        assert(update.b != find.b)
     }
 
     @Test

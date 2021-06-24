@@ -2,8 +2,9 @@ package ombruk.backend.aktor.application.api.dto
 
 import kotlinx.serialization.Serializable
 import ombruk.backend.aktor.domain.model.KontaktUpdateParams
-import ombruk.backend.aktor.domain.model.PartnerUpdateParams
 import ombruk.backend.shared.form.IForm
+import ombruk.backend.shared.utils.validation.isNorwegianPhoneNumberOrBlank
+import ombruk.backend.shared.utils.validation.isEmailOrBlank
 import ombruk.backend.shared.utils.validation.runCatchingValidation
 import org.valiktor.functions.isNotBlank
 import org.valiktor.validate
@@ -21,8 +22,9 @@ data class KontaktUpdateDto(
     override fun validOrError() = runCatchingValidation {
         validate(this) {
             validate(KontaktUpdateDto::navn).isNotBlank()
-            //FIXME: Validate UUID?
-        }
+            validate(KontaktUpdateDto::telefon).isNorwegianPhoneNumberOrBlank()
+            validate(KontaktUpdateDto::epost).isEmailOrBlank()
+        }.copy(telefon = telefon?.trim(), epost = epost?.trim(), rolle = rolle?.trim())
     }
 
 }

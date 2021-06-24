@@ -22,6 +22,8 @@ interface IUtlysningService {
 
     fun stasjonAccept(dtoPartner: UtlysningStasjonAcceptDto): Either<ServiceError, Utlysning>
 
+    fun findAccepted(ekstraHentingId: UUID): Either<ServiceError, Utlysning?>
+
     fun archive(params: UtlysningFindParams): Either<ServiceError, Unit>
 
     fun archiveOne(id: UUID): Either<ServiceError, Unit>

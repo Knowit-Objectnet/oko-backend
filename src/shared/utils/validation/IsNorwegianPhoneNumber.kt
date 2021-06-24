@@ -6,7 +6,7 @@ import org.valiktor.Validator
 
 object NorwegianPhoneNumber : Constraint
 
-fun <E> Validator<E>.Property<String?>.isNorwegianPhoneNumber() =
+fun <E> Validator<E>.Property<String?>.isNorwegianPhoneNumberOrBlank() =
     this.validate(NorwegianPhoneNumber) {
-        it == null || Regex("(0047|\\+47|47)?\\d{8}") matches it
+        it == null || it.isBlank() || Regex("^\\+47(4|9)\\d{7}$") matches it
     }

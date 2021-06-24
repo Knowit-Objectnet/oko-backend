@@ -4,6 +4,8 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.mockkClass
 import ombruk.backend.henting.application.service.EkstraHentingService
 import ombruk.backend.henting.infrastructure.repository.EkstraHentingRepository
+import ombruk.backend.kategori.application.service.EkstraHentingKategoriService
+import ombruk.backend.kategori.domain.entity.EkstraHentingKategori
 import ombruk.backend.utlysning.application.service.UtlysningService
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -22,12 +24,12 @@ internal class EkstraHentingServiceTest {
     private lateinit var ekstraHentingService: EkstraHentingService
     private var utlysningService = mockkClass(UtlysningService::class)
     private var ekstraHentingRepository = mockkClass(EkstraHentingRepository::class)
-
+    private var ekstraHentingKategoriService = mockkClass(EkstraHentingKategoriService::class)
 
     @BeforeEach
     fun setUp() {
         mockDatabase()
-        ekstraHentingService = EkstraHentingService(ekstraHentingRepository, utlysningService)
+        ekstraHentingService = EkstraHentingService(ekstraHentingRepository, utlysningService, ekstraHentingKategoriService)
     }
 
     @AfterEach

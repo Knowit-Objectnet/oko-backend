@@ -62,13 +62,13 @@ fun Routing.events(eventService: IEventService) {
 
         authenticate {
             delete<EventDeleteForm> { form ->
-                Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.ReuseStation, Roles.Partner), call)
-                    .map { if (it.first == Roles.Partner) form.partnerId = it.second; it }
-                    .flatMap { Authorization.authorizePartnerID(it) { eventService.getEvents(form.toGetForm()) } }
-                    .flatMap { form.validOrError() }
-                    .flatMap { eventService.deleteEvent(it) }
-                    .run { generateResponse(this) }
-                    .also { (code, response) -> call.respond(code, response) }
+//                Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.ReuseStation, Roles.Partner), call)
+//                    .map { if (it.first == Roles.Partner) form.partnerId = it.second; it }
+//                    .flatMap { Authorization.authorizePartnerID(it) { eventService.getEvents(form.toGetForm()) } }
+//                    .flatMap { form.validOrError() }
+//                    .flatMap { eventService.deleteEvent(it) }
+//                    .run { generateResponse(this) }
+//                    .also { (code, response) -> call.respond(code, response) }
             }
         }
     }

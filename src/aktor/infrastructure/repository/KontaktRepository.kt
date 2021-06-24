@@ -21,9 +21,9 @@ class KontaktRepository : RepositoryBase<Kontakt, KontaktCreateParams, KontaktUp
         return table.insertAndGetId {
             it[aktorId] = params.aktorId
             it[navn] = params.navn
-            it[telefon] = params.telefon
-            it[epost] = params.epost
-            it[rolle] = params.rolle
+            it[telefon] = params.telefon?.ifBlank { null }
+            it[epost] = params.epost?.ifBlank { null }
+            it[rolle] = params.rolle?.ifBlank { null }
         }
     }
 
@@ -51,9 +51,9 @@ class KontaktRepository : RepositoryBase<Kontakt, KontaktCreateParams, KontaktUp
     override fun updateQuery(params: KontaktUpdateParams): Int {
         return table.update({ table.id eq params.id }) { row ->
             params.navn?.let { row[navn] = it }
-            params.telefon?.let { row[telefon] = it }
-            params.epost?.let { row[epost] = it }
-            params.rolle?.let { row[rolle] = it }
+            params.telefon?.let { row[telefon] = it.ifBlank { null } }
+            params.epost?.let { row[epost] = it.ifBlank { null } }
+            params.rolle?.let { row[rolle] = it.ifBlank { null } }
         }
     }
 }

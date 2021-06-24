@@ -57,10 +57,11 @@ fun Routing.planlagteHentinger(planlagtHentingService: IPlanlagtHentingService) 
         }
 
         authenticate {
-            patch<PlanlagtHentingUpdateDto> { form ->
+            patch{
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
-                    .flatMap { form.validOrError() }
-                    .flatMap { planlagtHentingService.update(form) }
+                    .flatMap { receiveCatching { call.receive<PlanlagtHentingUpdateDto>() } }
+                    .flatMap { it.validOrError() }
+                    .flatMap { planlagtHentingService.update(it) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }

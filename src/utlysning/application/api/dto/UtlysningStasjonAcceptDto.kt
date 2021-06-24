@@ -11,7 +11,6 @@ import java.util.*
 
 @Serializable
 @KtorExperimentalLocationsAPI
-@Location("/stasjon-aksepter")
 data class UtlysningStasjonAcceptDto(
     @Serializable(with = UUIDSerializer::class) override val id: UUID,
     override val toAccept: Boolean

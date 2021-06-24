@@ -6,9 +6,12 @@ import ombruk.backend.shared.form.IForm
 import ombruk.backend.shared.utils.validation.runCatchingValidation
 import org.valiktor.functions.isNotBlank
 import org.valiktor.validate
+import shared.model.serializer.UUIDSerializer
+import java.util.*
 
 @Serializable
 data class PartnerSaveDto(
+    @Serializable( with = UUIDSerializer::class ) override val id: UUID? = null,
     override val navn: String,
     override val ideell: Boolean
 ) : IForm<PartnerSaveDto>, PartnerCreateParams() {

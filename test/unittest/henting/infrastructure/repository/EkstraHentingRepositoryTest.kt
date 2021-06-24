@@ -13,6 +13,7 @@ import ombruk.backend.henting.application.api.dto.EkstraHentingUpdateDto
 import ombruk.backend.henting.domain.entity.EkstraHenting
 import ombruk.backend.henting.domain.params.EkstraHentingCreateParams
 import ombruk.backend.henting.infrastructure.repository.EkstraHentingRepository
+import ombruk.backend.kategori.application.api.dto.EkstraHentingKategoriBatchSaveDto
 import ombruk.backend.shared.error.RepositoryError
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.AfterEach
@@ -43,12 +44,13 @@ internal class EkstraHentingRepositoryTest {
         partnerRepository = PartnerRepository()
 
         val stasjonParams = object : StasjonCreateParams() {
-            override val navn: String = "Grefsen"
+            override val navn: String = "TestStasjon"
             override val type: StasjonType = StasjonType.GJENBRUK
         }
 
         val partnerParams = object : PartnerCreateParams() {
-            override val navn: String = "Fretex"
+            override val id: UUID? = null
+            override val navn: String = "TestPartner"
             override val ideell: Boolean = true
         }
 
@@ -146,7 +148,8 @@ internal class EkstraHentingRepositoryTest {
         }
 
         transaction {
-            val update = ekstraHentingRepository.update(EkstraHentingUpdateDto(id=ekstraHenting1.id, merknad = updatedText))
+            val kategorier = listOf<EkstraHentingKategoriBatchSaveDto>(EkstraHentingKategoriBatchSaveDto(kategoriId = UUID.fromString("cc4912ef-e2ed-4460-9c50-39caffde79de"), mengde = 120f))
+            val update = ekstraHentingRepository.update(EkstraHentingUpdateDto(id=ekstraHenting1.id, merknad = updatedText, kategorier = kategorier))
             require(update is Either.Right)
             assertEquals(updatedText, update.b.merknad)
         }
@@ -208,7 +211,7 @@ internal class EkstraHentingRepositoryTest {
             println(findAll)
             require(findAll is Either.Right)
             assert(findAll.b.size == 2)
-            assert(findAll.b[0] == ekstraHenting1)
+            assert(findAll.b.contains(ekstraHenting1))
         }
 
         transaction {
@@ -260,7 +263,7 @@ internal class EkstraHentingRepositoryTest {
             println(findAllBetween)
             require(findAllBetween is Either.Right)
             assert(findAllBetween.b.size == 1)
-            assert(findAllBetween.b[0] == ekstraHenting1)
+            assert(findAllBetween.b.contains(ekstraHenting1))
         }
 
         transaction {
@@ -286,7 +289,7 @@ internal class EkstraHentingRepositoryTest {
             println(findAllBetween)
             require(findAllBetween is Either.Right)
             assert(findAllBetween.b.size == 1)
-            assert(findAllBetween.b[0] == ekstraHenting2)
+            assert(findAllBetween.b.contains(ekstraHenting2))
         }
 
         transaction {

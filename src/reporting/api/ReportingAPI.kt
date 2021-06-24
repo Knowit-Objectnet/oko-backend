@@ -39,16 +39,16 @@ fun Routing.report(reportService: IReportService) {
 
         authenticate {
             patch {
-                receiveCatching { call.receive<ReportUpdateForm>() }
-                    .flatMap { it.validOrError() }
-                    .flatMap { form ->
-                        Authorization.run {
-                            authorizeRole(listOf(Roles.Partner, Roles.RegEmployee, Roles.ReuseStation), call)
-                                .flatMap { authorizeReportPatchByPartnerId(it) { reportService.getReportById(form.id) } }
-                        }.flatMap { reportService.updateReport(form) }
-                    }
-                    .run { generateResponse(this) }
-                    .also { (code, response) -> call.respond(code, response) }
+//                receiveCatching { call.receive<ReportUpdateForm>() }
+//                    .flatMap { it.validOrError() }
+//                    .flatMap { form ->
+//                        Authorization.run {
+//                            authorizeRole(listOf(Roles.Partner, Roles.RegEmployee, Roles.ReuseStation), call)
+//                                .flatMap { authorizeReportPatchByPartnerId(it) { reportService.getReportById(form.id) } }
+//                        }.flatMap { reportService.updateReport(form) }
+//                    }
+//                    .run { generateResponse(this) }
+//                    .also { (code, response) -> call.respond(code, response) }
             }
         }
 
