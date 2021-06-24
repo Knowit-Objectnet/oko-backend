@@ -2,9 +2,7 @@ package ombruk.backend.aktor.application.api.dto
 
 import io.ktor.locations.*
 import ombruk.backend.aktor.domain.model.KontaktFindParams
-import ombruk.backend.aktor.domain.model.PartnerFindParams
 import ombruk.backend.shared.form.IForm
-import ombruk.backend.shared.utils.validation.isNorwegianPhoneNumber
 import ombruk.backend.shared.utils.validation.runCatchingValidation
 import org.valiktor.functions.isNotBlank
 import org.valiktor.validate
