@@ -66,10 +66,7 @@ class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepo
     }
 
     override fun update(dto: PlanlagtHentingUpdateDto): Either<ServiceError, PlanlagtHentingWithParents> {
-        return transaction {
-            if (dto.avlys != null && dto.avlys && dto.avlyst == null) planlagtHentingRepository.update(dto.copy(avlyst = LocalDateTime.now()))
-            else planlagtHentingRepository.update(dto)
-        }
+        return transaction { planlagtHentingRepository.update(dto) }
     }
 
     override fun batchSaveForHenteplan(dto: PlanlagtHentingBatchPostDto): Either<ServiceError, List<PlanlagtHentingWithParents>> {
@@ -104,4 +101,9 @@ class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepo
         }
     }
 
+    override fun updateAvlystDate(id: UUID, date: LocalDateTime, aarsak: String?): Either<ServiceError, PlanlagtHentingWithParents> {
+        return transaction {
+            planlagtHentingRepository.updateAvlystDate(id, date, aarsak)
+        }
+    }
 }

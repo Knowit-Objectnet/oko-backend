@@ -8,6 +8,7 @@ import ombruk.backend.henting.domain.entity.PlanlagtHentingWithParents
 import ombruk.backend.henting.domain.params.HenteplanFindParams
 import ombruk.backend.henting.domain.params.PlanlagtHentingFindParams
 import ombruk.backend.shared.error.ServiceError
+import java.time.LocalDateTime
 import java.util.*
 
 interface IPlanlagtHentingService {
@@ -27,4 +28,7 @@ interface IPlanlagtHentingService {
     fun archiveOne(id: UUID): Either<ServiceError, Unit>
 
     fun archive(params: PlanlagtHentingFindParams): Either<ServiceError, Unit>
+
+    fun updateAvlystDate(id: UUID, date: LocalDateTime, aarsak: String?): Either<ServiceError, PlanlagtHentingWithParents>
+
 }

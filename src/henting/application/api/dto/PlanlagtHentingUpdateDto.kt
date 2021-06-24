@@ -21,8 +21,7 @@ data class PlanlagtHentingUpdateDto(
     @Serializable(with = LocalDateTimeSerializer::class) override val startTidspunkt: LocalDateTime? = null,
     @Serializable(with = LocalDateTimeSerializer::class) override val sluttTidspunkt: LocalDateTime? = null,
     override val merknad: String? = null,
-    val avlys: Boolean? = null,
-    @Serializable(with = LocalDateTimeSerializer::class) override val avlyst: LocalDateTime? = null,
+    override val avlys: Boolean? = null,
     override val aarsak: String? = null
 ) : IForm<PlanlagtHentingUpdateDto>, PlanlagtHentingUpdateParams() {
     override fun validOrError(): Either<ValidationError, PlanlagtHentingUpdateDto> = runCatchingValidation {

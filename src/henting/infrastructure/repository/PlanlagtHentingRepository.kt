@@ -1,5 +1,7 @@
 package ombruk.backend.henting.infrastructure.repository
 
+import arrow.core.Either
+import arrow.core.left
 import ombruk.backend.aktor.infrastructure.table.PartnerTable
 import ombruk.backend.aktor.infrastructure.table.StasjonTable
 import ombruk.backend.avtale.infrastructure.table.AvtaleTable
@@ -11,9 +13,13 @@ import ombruk.backend.henting.domain.params.PlanlagtHentingUpdateParams
 import ombruk.backend.henting.domain.port.IPlanlagtHentingRepository
 import ombruk.backend.henting.infrastructure.table.HenteplanTable
 import ombruk.backend.henting.infrastructure.table.PlanlagtHentingTable
+import ombruk.backend.shared.error.RepositoryError
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import java.lang.Exception
+import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 class PlanlagtHentingRepository: RepositoryBase<PlanlagtHentingWithParents, PlanlagtHentingCreateParams, PlanlagtHentingUpdateParams, PlanlagtHentingFindParams>(),
@@ -34,8 +40,14 @@ class PlanlagtHentingRepository: RepositoryBase<PlanlagtHentingWithParents, Plan
             params.startTidspunkt?.let { row[startTidspunkt] = it }
             params.sluttTidspunkt?.let { row[sluttTidspunkt] = it }
             params.merknad?.let { row[merknad] = it }
-            params.avlyst?.let { row[avlyst] = it }
-            params.aarsak?.let { row[aarsak] = it }
+            params.avlys?.let {
+                if (it) row[avlyst] = LocalDateTime.now()
+                else {row[avlyst] = null; row[aarsak] = null}
+            }
+            params.aarsak?.let { value ->
+                if (params.avlys != null && !params.avlys!!)
+                else row[aarsak] = value
+            }
         }
     }
 
@@ -115,5 +127,24 @@ class PlanlagtHentingRepository: RepositoryBase<PlanlagtHentingWithParents, Plan
             .andIfNotNull(params.before){table.sluttTidspunkt.lessEq(params.before!!)}
             .andIfNotNull(params.avlyst){if(params.avlyst!!) {table.avlyst.isNotNull()} else {table.avlyst.isNull()} }
             .andIfNotNull(params.merknad){Op.FALSE} //Not implemented: Adding this so any calls including just merknad will not archive everything.
+    }
+
+    override fun updateAvlystDate(id: UUID, date: LocalDateTime, aarsakMelding: String?): Either<RepositoryError, PlanlagtHentingWithParents> {
+        fun u(id: UUID, date: LocalDateTime, aarsakMelding: String?): Int {
+            return table.update( {table.id eq id} ) { row ->
+                row[avlyst] = date
+                aarsakMelding?.let { row[aarsak] = it }
+            }
+        }
+        return runCatching {
+            u(id, date, aarsakMelding)
+        }
+            .onFailure { logger.error("Failed to update database; ${it.message}") }
+            .fold(
+                {
+                    findOne(id)
+                },
+                { RepositoryError.UpdateError(it.message).left() }
+            )
     }
 }

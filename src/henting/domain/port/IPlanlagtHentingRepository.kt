@@ -5,6 +5,7 @@ import ombruk.backend.henting.domain.entity.PlanlagtHenting
 import ombruk.backend.henting.domain.entity.PlanlagtHentingWithParents
 import ombruk.backend.henting.domain.params.*
 import ombruk.backend.shared.error.RepositoryError
+import java.time.LocalDateTime
 import java.util.*
 
 interface IPlanlagtHentingRepository {
@@ -15,4 +16,5 @@ interface IPlanlagtHentingRepository {
     fun find(params: PlanlagtHentingFindParams): Either<RepositoryError, List<PlanlagtHentingWithParents>>
     fun archive(params: PlanlagtHentingFindParams): Either<RepositoryError, List<PlanlagtHentingWithParents>>
     fun archiveOne(id: UUID): Either<RepositoryError, PlanlagtHentingWithParents>
+    fun updateAvlystDate(id: UUID, date: LocalDateTime, aarsakMelding: String?): Either<RepositoryError, PlanlagtHentingWithParents>
 }
