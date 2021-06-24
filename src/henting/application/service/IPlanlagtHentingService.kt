@@ -11,6 +11,7 @@ import ombruk.backend.shared.error.ServiceError
 import java.util.*
 
 interface IPlanlagtHentingService {
+
     fun save(dto: PlanlagtHentingSaveDto): Either<ServiceError, PlanlagtHentingWithParents>
 
     fun findOne(id: UUID): Either<ServiceError, PlanlagtHentingWithParents>
