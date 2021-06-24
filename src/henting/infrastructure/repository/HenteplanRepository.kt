@@ -35,7 +35,7 @@ class HenteplanRepository :
             params.merknad?.let { row[merknad] = it }
             params.sluttTidspunkt?.let { row[sluttTidspunkt] = it }
             params.startTidspunkt?.let { row[startTidspunkt] = it }
-            params.ukeDag?.let { row[ukedag] = it.value }
+            params.ukedag?.let { row[ukedag] = it.value }
         }
     }
 

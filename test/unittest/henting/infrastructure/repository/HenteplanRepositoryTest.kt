@@ -177,7 +177,7 @@ internal class HenteplanRepositoryTest {
         }
 
         transaction {
-            val update = henteplanRepository.update(HenteplanUpdateDto(henteplan.id, ukeDag = DayOfWeek.FRIDAY))
+            val update = henteplanRepository.update(HenteplanUpdateDto(henteplan.id, ukedag = DayOfWeek.FRIDAY))
             require(update is Either.Right)
             assert(update.b.ukedag == DayOfWeek.FRIDAY)
         }
