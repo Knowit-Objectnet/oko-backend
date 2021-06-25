@@ -72,7 +72,7 @@ fun Routing.planlagteHentinger(planlagtHentingService: IPlanlagtHentingService) 
                                         when (role) {
                                             Roles.RegEmployee -> true
                                             Roles.Partner -> groupId == it.aktorId
-                                            Roles.ReuseStation -> groupId == it.stasjonId
+                                            Roles.ReuseStation -> groupId == it.stasjonId || groupId == it.aktorId
                                         }
                                     }
                                 )
