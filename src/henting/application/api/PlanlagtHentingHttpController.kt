@@ -1,6 +1,7 @@
 package ombruk.backend.henting.application.api
 
 import arrow.core.extensions.either.monad.flatMap
+import arrow.core.extensions.either.monadError.ensure
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.locations.*
@@ -13,6 +14,7 @@ import ombruk.backend.shared.api.Authorization
 import ombruk.backend.shared.api.Roles
 import ombruk.backend.shared.api.generateResponse
 import ombruk.backend.shared.api.receiveCatching
+import ombruk.backend.shared.error.AuthorizationError
 
 @KtorExperimentalLocationsAPI
 fun Routing.planlagteHentinger(planlagtHentingService: IPlanlagtHentingService) {
@@ -58,10 +60,25 @@ fun Routing.planlagteHentinger(planlagtHentingService: IPlanlagtHentingService) 
 
         authenticate {
             patch{
-                Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
-                    .flatMap { receiveCatching { call.receive<PlanlagtHentingUpdateDto>() } }
-                    .flatMap { it.validOrError() }
-                    .flatMap { planlagtHentingService.update(it) }
+                Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.Partner, Roles.ReuseStation), call)
+                    .flatMap { (role, groupId) ->
+                        receiveCatching { call.receive<PlanlagtHentingUpdateDto>() }
+                            .flatMap { it.validOrError() }
+                            .flatMap { dto ->
+                                planlagtHentingService.findOne(dto.id)
+                                .ensure(
+                                    {AuthorizationError.AccessViolationError("Planlagt henting ikke tillatt å endre av denne gruppen")},
+                                    {
+                                        when (role) {
+                                            Roles.RegEmployee -> true
+                                            Roles.Partner -> groupId == it.aktorId
+                                            Roles.ReuseStation -> groupId == it.stasjonId || groupId == it.aktorId
+                                        }
+                                    }
+                                )
+                                    .flatMap { planlagtHentingService.update(dto) }
+                            }
+                    }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }
