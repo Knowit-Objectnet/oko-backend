@@ -19,9 +19,7 @@ fun <E> Validator<E>.Property<String?>.isUniqueNavn(id: UUID?, partnerService: I
         navn == null || run {
             val partnerList = partnerService.getPartnere(PartnerGetDto(navn = navn), false)
             val stasjonList = stasjonService.find(StasjonFindDto(navn = navn), false)
-            var result = partnerList.exists { it.isEmpty() } && stasjonList.exists { it.isEmpty() }
-            if (!result && id != null) result = (partnerService.getPartnerById(id, false).exists { it.navn == navn } || stasjonService.findOne(id, false).exists { it.navn == navn })
-            result
+            partnerList.exists { it.isEmpty() || it[0].id == id } && stasjonList.exists { it.isEmpty() || it[0].id == id }
         }
     }
 }
