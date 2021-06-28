@@ -3,7 +3,7 @@ package ombruk.backend.partner.form
 import kotlinx.serialization.Serializable
 import ombruk.backend.partner.database.PartnerRepository
 import ombruk.backend.shared.form.IForm
-import ombruk.backend.shared.utils.validation.isNorwegianPhoneNumber
+import ombruk.backend.shared.utils.validation.isNorwegianPhoneNumberOrBlank
 import ombruk.backend.shared.utils.validation.isUniqueInRepository
 import ombruk.backend.shared.utils.validation.runCatchingValidation
 import org.valiktor.functions.isEmail
@@ -20,7 +20,7 @@ data class PartnerPostForm(
     override fun validOrError() = runCatchingValidation {
         validate(this) {
             validate(PartnerPostForm::name).isNotBlank().isUniqueInRepository(PartnerRepository)
-            validate(PartnerPostForm::phone).isNorwegianPhoneNumber()
+            validate(PartnerPostForm::phone).isNorwegianPhoneNumberOrBlank()
             validate(PartnerPostForm::email).isEmail()
             validate(PartnerPostForm::description).isNotBlank()
         }

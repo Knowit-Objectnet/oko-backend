@@ -31,7 +31,7 @@ data class HenteplanUpdateDto(
     override val frekvens: HenteplanFrekvens? = null,
     @Serializable(with = LocalDateTimeSerializer::class) override val startTidspunkt: LocalDateTime? = null,
     @Serializable(with = LocalDateTimeSerializer::class) override val sluttTidspunkt: LocalDateTime? = null,
-    override val ukeDag: DayOfWeek? = null,
+    override val ukedag: DayOfWeek? = null,
     override val merknad: String? = null,
     var kategorier: List<HenteplanKategoriBatchSaveDto>? = null
 ) : IForm<HenteplanUpdateDto>, HenteplanUpdateParams(), KoinComponent {
@@ -48,7 +48,7 @@ data class HenteplanUpdateDto(
 
             if (frekvens != null) {
                 if (frekvens != HenteplanFrekvens.ENKELT) {
-                    validate(HenteplanUpdateDto::ukeDag).isNotNull()
+                    validate(HenteplanUpdateDto::ukedag).isNotNull()
                 }
             }
 
