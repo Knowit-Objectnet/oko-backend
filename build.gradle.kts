@@ -55,7 +55,7 @@ dependencies {
     implementation("io.insert-koin:koin-logger-slf4j:$koin_version")
 
 
-
+    implementation("com.amazonaws:aws-java-sdk-lambda:1.12.10")
 
 
     testImplementation("io.insert-koin:koin-test:$koin_version")

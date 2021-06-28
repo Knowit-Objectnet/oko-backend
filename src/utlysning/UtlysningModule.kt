@@ -8,5 +8,5 @@ import org.koin.dsl.module
 
 val utlysningModule = module(createdAtStart = true) {
     single<IUtlysningRepository> { UtlysningRepository() }
-    single<IUtlysningService> { UtlysningService(get()) }
+    single<IUtlysningService> { UtlysningService(get(), get(), get()) }
 }
