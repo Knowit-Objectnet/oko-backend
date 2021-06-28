@@ -65,16 +65,4 @@ fun <E, UUID> Validator<E>.Property<UUID?>.isExistingUUID(validator: ((UUID) -> 
     }
 }
 
-object UniqueNavn: Constraint
-
-fun <E> Validator<E>.Property<String?>.isUniqueNavn(partnerService: IPartnerService, stasjonService: IStasjonService): Validator<E>.Property<String?> {
-    return this.validate(UniqueNavn) { navn ->
-        navn == null || run {
-            val partnerList = partnerService.getPartnere(PartnerGetDto(navn = navn), false)
-            val stasjonList = stasjonService.find(StasjonFindDto(navn = navn), false)
-            partnerList.exists { it.isEmpty() } && stasjonList.exists { it.isEmpty() }
-        }
-    }
-}
-
 
