@@ -14,12 +14,15 @@ object UniqueNavn: Constraint
  * Takes a [String] and checks if they are unique in the database. If a function is passed, it will validate that
  * it returns true for the navn.
  */
-fun <E> Validator<E>.Property<String?>.isUniqueNavn(partnerService: IPartnerService, stasjonService: IStasjonService): Validator<E>.Property<String?> {
+fun <E> Validator<E>.Property<String?>.isUniqueNavn(id: UUID?, partnerService: IPartnerService, stasjonService: IStasjonService): Validator<E>.Property<String?> {
     return this.validate(UniqueNavn) { navn ->
         navn == null || run {
+            if (id != null) (partnerService.getPartnerById(id, false).exists { it.navn == navn } || stasjonService.findOne(id, false).exists { it.navn == navn })
+            else {
             val partnerList = partnerService.getPartnere(PartnerGetDto(navn = navn), false)
             val stasjonList = stasjonService.find(StasjonFindDto(navn = navn), false)
             partnerList.exists { it.isEmpty() } && stasjonList.exists { it.isEmpty() }
+            }
         }
     }
 }

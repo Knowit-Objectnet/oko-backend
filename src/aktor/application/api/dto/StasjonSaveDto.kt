@@ -23,7 +23,7 @@ data class StasjonSaveDto(
             validate(StasjonSaveDto::navn).isNotBlank()
             val partnerService: IPartnerService by inject()
             val stasjonService: IStasjonService by inject()
-            validate(StasjonSaveDto::navn).isUniqueNavn(partnerService, stasjonService)
+            validate(StasjonSaveDto::navn).isUniqueNavn(null, partnerService, stasjonService)
 
         }
     }

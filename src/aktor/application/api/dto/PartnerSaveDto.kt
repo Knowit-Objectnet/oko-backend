@@ -25,7 +25,7 @@ data class PartnerSaveDto(
             validate(PartnerSaveDto::navn).isNotBlank() //.isUniqueInRepository(PartnerRepository)
             val partnerService: IPartnerService by inject()
             val stasjonService: IStasjonService by inject()
-            validate(PartnerSaveDto::navn).isUniqueNavn(partnerService, stasjonService)
+            validate(PartnerSaveDto::navn).isUniqueNavn(null, partnerService, stasjonService)
         }
     }
 }

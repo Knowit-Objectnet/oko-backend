@@ -25,7 +25,7 @@ data class PartnerUpdateDto(
             validate(PartnerUpdateDto::navn).isNotBlank()
             val partnerService: IPartnerService by inject()
             val stasjonService: IStasjonService by inject()
-            validate(PartnerUpdateDto::navn).isUniqueNavn(partnerService, stasjonService)
+            validate(PartnerUpdateDto::navn).isUniqueNavn(id, partnerService, stasjonService)
         }
     }
 
