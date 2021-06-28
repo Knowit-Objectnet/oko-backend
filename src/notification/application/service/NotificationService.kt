@@ -35,8 +35,8 @@ class NotificationService constructor(
     private fun invoke(message: String, numbers: List<String>, addresses: List<String>): Either<ServiceError, Notification> = runCatching {
         val sms = snsService.sendMessage(message, numbers)
         val email = sesService.sendMessage(message, addresses)
-        if (sms.statusCode   != 200) throw Error("Invalid status for lambda invocation")
-        if (email.statusCode != 200) throw Error("Invalid status for lambda invocation")
+        if (sms.statusCode   != 200) throw Error("Invalid status for sms lambda invocation")
+        if (email.statusCode != 200) throw Error("Invalid status for email lambda invocation")
     }
     .onFailure { logger.error("Lambda failed; ${it.message}") }
     .fold(
