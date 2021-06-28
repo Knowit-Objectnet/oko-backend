@@ -24,7 +24,7 @@ data class StasjonSaveDto(
             val partnerService: IPartnerService by inject()
             val stasjonService: IStasjonService by inject()
             validate(StasjonSaveDto::navn).isUniqueNavn(partnerService, stasjonService)
-            //FIXME: Validate UUID?
+
         }
     }
 }

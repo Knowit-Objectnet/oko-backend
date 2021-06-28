@@ -55,7 +55,7 @@ class StasjonRepositoryTest {
     fun testInsert() {
 
         val params = object : StasjonCreateParams() {
-            override val navn: String = "TestStasjon"
+            override val navn: String = "Teststasjon"
             override val type: StasjonType = StasjonType.GJENBRUK
         }
 

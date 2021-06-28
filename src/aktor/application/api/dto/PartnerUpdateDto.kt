@@ -23,7 +23,6 @@ data class PartnerUpdateDto(
     override fun validOrError() = runCatchingValidation {
         validate(this) {
             validate(PartnerUpdateDto::navn).isNotBlank()
-            //FIXME: Validate UUID?
             val partnerService: IPartnerService by inject()
             val stasjonService: IStasjonService by inject()
             validate(PartnerUpdateDto::navn).isUniqueNavn(partnerService, stasjonService)
