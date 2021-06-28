@@ -59,8 +59,8 @@ internal class UtlysningServiceTest {
 
         val actualList = utlysningService.batchSave(dto)
         println(actualList)
-        /*require(actualList is Either.Right)
+        require(actualList is Either.Right)
         assert(actualList.b.size == 3)
-        assert(actualList.b.all { it == expected })*/
+        assert(actualList.b.all { it == expected })
     }
 }
