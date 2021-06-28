@@ -70,8 +70,7 @@ fun <E> Validator<E>.Property<String?>.isUniqueNavn(partnerService: IPartnerServ
         navn == null || run {
             val partnerList = partnerService.getPartnere(PartnerGetDto(navn = navn), false)
             val stasjonList = stasjonService.find(StasjonFindDto(navn = navn), false)
-            require(partnerList is Either.Right)
-            require(stasjonList is Either.Right)
+            require(partnerList is Either.Right); require(stasjonList is Either.Right)
             partnerList.b.isEmpty() && stasjonList.b.isEmpty()
         }
     }
