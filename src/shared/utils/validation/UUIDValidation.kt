@@ -1,5 +1,6 @@
 package ombruk.backend.shared.utils.validation
 
+import arrow.core.Either
 import ombruk.backend.aktor.application.api.dto.PartnerGetDto
 import ombruk.backend.aktor.application.api.dto.StasjonFindDto
 import ombruk.backend.aktor.application.service.IPartnerService
@@ -67,17 +68,11 @@ object UniqueNavn: Constraint
 fun <E> Validator<E>.Property<String?>.isUniqueNavn(partnerService: IPartnerService, stasjonService: IStasjonService): Validator<E>.Property<String?> {
     return this.validate(UniqueNavn) { navn ->
         navn == null || run {
-            val p = partnerService.getPartnere(PartnerGetDto(navn = navn), false)
-            val s = stasjonService.find(StasjonFindDto(navn = navn), false)
-            p.fold({
-                false
-            }, { partnerService ->
-                s.fold({
-                    false
-                }, { stasjonService ->
-                    stasjonService.isEmpty() && partnerService.isEmpty()
-                })
-            })
+            val partnerList = partnerService.getPartnere(PartnerGetDto(navn = navn), false)
+            val stasjonList = stasjonService.find(StasjonFindDto(navn = navn), false)
+            require(partnerList is Either.Right)
+            require(stasjonList is Either.Right)
+            partnerList.b.isEmpty() && stasjonList.b.isEmpty()
         }
     }
 }
