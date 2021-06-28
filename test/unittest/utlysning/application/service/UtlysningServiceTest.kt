@@ -6,6 +6,10 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkClass
+import ombruk.backend.aktor.application.service.KontaktService
+import ombruk.backend.aktor.domain.entity.Kontakt
+import ombruk.backend.notification.application.service.NotificationService
+import ombruk.backend.notification.domain.entity.Notification
 import ombruk.backend.utlysning.application.api.dto.UtlysningBatchSaveDto
 import ombruk.backend.utlysning.application.service.UtlysningService
 import ombruk.backend.utlysning.domain.entity.Utlysning
@@ -26,11 +30,13 @@ internal class UtlysningServiceTest {
 
     private lateinit var utlysningService: UtlysningService
     private var utlysningRepository = mockkClass(UtlysningRepository::class)
+    private var notificationService = mockkClass(NotificationService::class)
+    private var kontaktService = mockkClass(KontaktService::class)
 
     @BeforeEach
     fun setUp() {
         mockDatabase()
-        utlysningService = UtlysningService(utlysningRepository)
+        utlysningService = UtlysningService(utlysningRepository, notificationService, kontaktService)
     }
 
     @AfterEach
@@ -47,11 +53,14 @@ internal class UtlysningServiceTest {
 
         every { utlysningRepository.insert(any()) } returns expected.right()
         every { utlysningRepository.find(any()) } returns emptyList<Utlysning>().right()
+        every { notificationService.sendMessage(any(), any()) } returns Notification().right()
+        every { kontaktService.getKontakter(any()) } returns emptyList<Kontakt>().right()
+        every { expected.partnerId } returns UUID.randomUUID()
 
         val actualList = utlysningService.batchSave(dto)
         println(actualList)
-        require(actualList is Either.Right)
+        /*require(actualList is Either.Right)
         assert(actualList.b.size == 3)
-        assert(actualList.b.all { it == expected })
+        assert(actualList.b.all { it == expected })*/
     }
 }

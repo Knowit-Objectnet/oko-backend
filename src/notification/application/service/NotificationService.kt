@@ -11,7 +11,7 @@ class NotificationService constructor(
     private val snsService: SNSService,
     private val sesService: SESService
 ) : INotificationService {
-    val logger: Logger = LoggerFactory.getLogger("ombruk.backend.core.infrastructure.RepositoryBase")
+    val logger: Logger = LoggerFactory.getLogger("ombruk.backend.notification.application.service.NotificationService")
 
     override fun sendMessage(message: String, contacts: List<Kontakt>): Either<ServiceError, Notification> {
         val (numbers, addresses) = receivers(contacts)
@@ -35,7 +35,8 @@ class NotificationService constructor(
     private fun invoke(message: String, numbers: List<String>, addresses: List<String>): Either<ServiceError, Notification> = runCatching {
         val sms = snsService.sendMessage(message, numbers)
         val email = sesService.sendMessage(message, addresses)
-        sms.statusCode == 200 && email.statusCode == 200
+        if (sms.statusCode   != 200) throw Error("something")
+        if (email.statusCode != 200) throw Error("else")
     }
     .onFailure { logger.error("Lambda failed; ${it.message}") }
     .fold(

@@ -22,19 +22,7 @@ class UtlysningService(
     override fun save(dto: UtlysningSaveDto): Either<ServiceError, Utlysning> {
         return transaction {
             utlysningRepository.insert(dto)
-                .flatMap { utlysning ->
-                    kontaktService.getKontakter(KontaktGetDto(aktorId = utlysning.partnerId))
-                        .fold(
-                            { it.left() },
-                            { kontakter ->
-                                notificationService.sendMessage("Det er nye ombruksvarer tilgjengelig!", kontakter)
-                                    .fold(
-                                        { it.left() },
-                                        { utlysning.right() }
-                                    )
-                            }
-                        )
-                }
+                .flatMap { utlysning -> notify(utlysning) }
                 .fold({ rollback(); it.left() }, { it.right() })
         }
     }
@@ -74,17 +62,17 @@ class UtlysningService(
                     find is Either.Right && find.b.isEmpty()
                 }
                 .map {
-                utlysningRepository.insert(
-                    UtlysningSaveDto(
-                        partnerId = UUID.fromString(it),
-                        hentingId = dto.hentingId,
-                        partnerPameldt = dto.partnerPameldt,
-                        stasjonGodkjent = dto.stasjonGodkjent,
-                        partnerSkjult = dto.partnerSkjult,
-                        partnerVist = dto.partnerVist
+                    save(
+                        UtlysningSaveDto(
+                            partnerId = UUID.fromString(it),
+                            hentingId = dto.hentingId,
+                            partnerPameldt = dto.partnerPameldt,
+                            stasjonGodkjent = dto.stasjonGodkjent,
+                            partnerSkjult = dto.partnerSkjult,
+                            partnerVist = dto.partnerVist
+                        )
                     )
-                )
-            }
+                }
                 .sequence(Either.applicative())
                 .fix()
                 .map { it.fix() }
@@ -134,4 +122,16 @@ class UtlysningService(
                 .fold({rollback(); it.left()}, {it.right()})
         }
     }
+
+    private fun notify(utlysning: Utlysning) = kontaktService.getKontakter(KontaktGetDto(aktorId = utlysning.partnerId))
+        .fold(
+            { it.left() },
+            { kontakter ->
+                notificationService.sendMessage("Det er nye ombruksvarer tilgjengelig!", kontakter)
+                    .fold(
+                        { it.left() },
+                        { utlysning.right() }
+                    )
+            }
+        )
 }
