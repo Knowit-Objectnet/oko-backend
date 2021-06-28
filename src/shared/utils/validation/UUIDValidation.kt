@@ -1,12 +1,7 @@
 package ombruk.backend.shared.utils.validation
 
-import ombruk.backend.kategori.application.api.dto.EkstraHentingKategoriBatchSaveDto
-import ombruk.backend.kategori.application.api.dto.HenteplanKategoriBatchSaveDto
-import ombruk.backend.kategori.application.api.dto.IKategoriKoblingSaveDto
 import org.valiktor.Constraint
 import org.valiktor.Validator
-import org.valiktor.constraints.Valid
-import org.valiktor.functions.isValid
 import java.util.*
 
 object UUIDString : Constraint

@@ -55,7 +55,7 @@ class StasjonRepositoryTest {
     fun testInsert() {
 
         val params = object : StasjonCreateParams() {
-            override val navn: String = "Grefsen"
+            override val navn: String = "Teststasjon"
             override val type: StasjonType = StasjonType.GJENBRUK
         }
 
@@ -64,6 +64,10 @@ class StasjonRepositoryTest {
         require(insert is Either.Right)
         assert(insert.b.navn == params.navn)
         assert(insert.b.type == params.type)
+
+        val errorInsert = transaction { stasjonRepository.insert(params) }
+        println(errorInsert)
+        assert(errorInsert.isLeft())
 
     }
 }

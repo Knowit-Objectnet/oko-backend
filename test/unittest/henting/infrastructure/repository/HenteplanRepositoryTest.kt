@@ -62,7 +62,7 @@ internal class HenteplanRepositoryTest {
         }
 
         val stasjonParams = object : StasjonCreateParams() {
-            override val navn: String = "Grefsen"
+            override val navn: String = "Teststasjon"
             override val type: StasjonType = StasjonType.GJENBRUK
         }
 
