@@ -1,5 +1,9 @@
 package ombruk.backend.shared.utils.validation
 
+import ombruk.backend.aktor.application.api.dto.PartnerGetDto
+import ombruk.backend.aktor.application.api.dto.StasjonFindDto
+import ombruk.backend.aktor.application.service.IPartnerService
+import ombruk.backend.aktor.application.service.IStasjonService
 import ombruk.backend.kategori.application.api.dto.EkstraHentingKategoriBatchSaveDto
 import ombruk.backend.kategori.application.api.dto.HenteplanKategoriBatchSaveDto
 import ombruk.backend.kategori.application.api.dto.IKategoriKoblingSaveDto
@@ -54,6 +58,26 @@ fun <E, UUID> Validator<E>.Property<UUID?>.isExistingUUID(validator: ((UUID) -> 
         is UUIDHenteplan -> this.validate(UUIDHenteplan) { it == null || validator(it) }
         else -> { // Note the block
             this.validate(UUIDGenerelt) { it == null || validator(it) }
+        }
+    }
+}
+
+object UniqueNavn: Constraint
+
+fun <E> Validator<E>.Property<String?>.isUniqueNavn(partnerService: IPartnerService, stasjonService: IStasjonService): Validator<E>.Property<String?> {
+    return this.validate(UniqueNavn) { navn ->
+        navn == null || run {
+            val p = partnerService.getPartnere(PartnerGetDto(navn = navn), false)
+            val s = stasjonService.find(StasjonFindDto(navn = navn), false)
+            p.fold({
+                false
+            }, { partnerService ->
+                s.fold({
+                    false
+                }, { stasjonService ->
+                    stasjonService.isEmpty() && partnerService.isEmpty()
+                })
+            })
         }
     }
 }
