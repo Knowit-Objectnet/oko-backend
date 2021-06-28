@@ -1,6 +1,8 @@
 package ombruk.backend.shared.utils.validation
 
 import arrow.core.Either
+import arrow.core.extensions.either.foldable.isEmpty
+import arrow.core.right
 import ombruk.backend.aktor.application.api.dto.PartnerGetDto
 import ombruk.backend.aktor.application.api.dto.StasjonFindDto
 import ombruk.backend.aktor.application.service.IPartnerService
@@ -70,8 +72,7 @@ fun <E> Validator<E>.Property<String?>.isUniqueNavn(partnerService: IPartnerServ
         navn == null || run {
             val partnerList = partnerService.getPartnere(PartnerGetDto(navn = navn), false)
             val stasjonList = stasjonService.find(StasjonFindDto(navn = navn), false)
-            require(partnerList is Either.Right); require(stasjonList is Either.Right)
-            partnerList.b.isEmpty() && stasjonList.b.isEmpty()
+            partnerList.exists { it.isEmpty() } && stasjonList.exists { it.isEmpty() }
         }
     }
 }
