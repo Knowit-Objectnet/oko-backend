@@ -2,6 +2,7 @@ package ombruk.backend.vektregistrering.application.api.dto
 
 import arrow.core.Either
 import kotlinx.serialization.Serializable
+import ombruk.backend.henting.application.service.IHentingService
 import ombruk.backend.henting.domain.port.IHenteplanRepository
 import ombruk.backend.kategori.domain.params.HenteplanKategoriCreateParams
 import ombruk.backend.kategori.domain.port.IKategoriRepository
@@ -21,9 +22,16 @@ data class VektregistreringSaveDto(
     @Serializable(with = UUIDSerializer::class) override val hentingId: UUID,
     @Serializable(with = UUIDSerializer::class) override val kategoriId: UUID,
     override val vekt: Float
-) : IForm<VektregistreringSaveDto>, VektregistreringCreateParams() {
+) : IForm<VektregistreringSaveDto>, VektregistreringCreateParams(), KoinComponent {
     override fun validOrError(): Either<ValidationError, VektregistreringSaveDto> = runCatchingValidation {
         validate(this) {
+            val hentingService: IHentingService by inject()
+            val kategoriRepository: IKategoriRepository by inject()
+            val hentingExist: (UUID) -> Boolean = { transaction { hentingService.findOne(it) } is Either.Right }
+            val kategoriExist: (UUID) -> Boolean = { transaction { kategoriRepository.findOne(it) } is Either.Right }
+
+            validate(VektregistreringSaveDto::hentingId).isExistingUUID({ hentingExist(it) }, UUIDGenerelt)
+            validate(VektregistreringSaveDto::kategoriId).isExistingUUID({ kategoriExist(it) }, UUIDKategori)
         }
     }
 }
