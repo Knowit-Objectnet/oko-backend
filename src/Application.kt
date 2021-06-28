@@ -39,8 +39,11 @@ import ombruk.backend.shared.api.JwtMockConfig
 import ombruk.backend.shared.database.initDB
 import ombruk.backend.utlysning.application.api.utlysninger
 import ombruk.backend.utlysning.utlysningModule
+import ombruk.backend.vektregistrering.application.api.vektregistrering
+import ombruk.backend.vektregistrering.vektregistreringModule
 import org.koin.ktor.ext.Koin
 import org.koin.ktor.ext.get
+import org.koin.ktor.ext.modules
 import org.valiktor.ConstraintViolationException
 import org.valiktor.i18n.mapToMessage
 import java.net.URL
@@ -210,6 +213,7 @@ fun Application.module(testing: Boolean = false) {
         modules(hentingModule)
         modules(kategoriModule)
         modules(utlysningModule)
+        modules(vektregistreringModule)
     }
 
 
@@ -224,6 +228,7 @@ fun Application.module(testing: Boolean = false) {
         kategorier(get())
         utlysninger(get(), get())
         kontakter(get())
+        vektregistrering(get())
 //        events(EventService)
 //        partners(PartnerService)
 //        report(ReportService)
