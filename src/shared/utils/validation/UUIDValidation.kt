@@ -1,19 +1,7 @@
 package ombruk.backend.shared.utils.validation
 
-import arrow.core.Either
-import arrow.core.extensions.either.foldable.isEmpty
-import arrow.core.right
-import ombruk.backend.aktor.application.api.dto.PartnerGetDto
-import ombruk.backend.aktor.application.api.dto.StasjonFindDto
-import ombruk.backend.aktor.application.service.IPartnerService
-import ombruk.backend.aktor.application.service.IStasjonService
-import ombruk.backend.kategori.application.api.dto.EkstraHentingKategoriBatchSaveDto
-import ombruk.backend.kategori.application.api.dto.HenteplanKategoriBatchSaveDto
-import ombruk.backend.kategori.application.api.dto.IKategoriKoblingSaveDto
 import org.valiktor.Constraint
 import org.valiktor.Validator
-import org.valiktor.constraints.Valid
-import org.valiktor.functions.isValid
 import java.util.*
 
 object UUIDString : Constraint
