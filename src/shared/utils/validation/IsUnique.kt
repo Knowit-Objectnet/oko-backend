@@ -11,7 +11,7 @@ import java.util.*
 object UniqueNavn: Constraint
 
 /**
- * Takes a [String] and checks if they are unique [Navn]. If a function is passed, it will validate that
+ * Takes a [String] and checks if they are unique in the database. If a function is passed, it will validate that
  * it returns true for the navn.
  */
 fun <E> Validator<E>.Property<String?>.isUniqueNavn(partnerService: IPartnerService, stasjonService: IStasjonService): Validator<E>.Property<String?> {
