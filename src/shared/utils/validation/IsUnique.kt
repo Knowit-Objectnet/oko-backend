@@ -17,12 +17,11 @@ object UniqueNavn: Constraint
 fun <E> Validator<E>.Property<String?>.isUniqueNavn(id: UUID?, partnerService: IPartnerService, stasjonService: IStasjonService): Validator<E>.Property<String?> {
     return this.validate(UniqueNavn) { navn ->
         navn == null || run {
-            if (id != null) (partnerService.getPartnerById(id, false).exists { it.navn == navn } || stasjonService.findOne(id, false).exists { it.navn == navn })
-            else {
             val partnerList = partnerService.getPartnere(PartnerGetDto(navn = navn), false)
             val stasjonList = stasjonService.find(StasjonFindDto(navn = navn), false)
-            partnerList.exists { it.isEmpty() } && stasjonList.exists { it.isEmpty() }
-            }
+            var result = partnerList.exists { it.isEmpty() } && stasjonList.exists { it.isEmpty() }
+            if (!result && id != null) result = (partnerService.getPartnerById(id, false).exists { it.navn == navn } || stasjonService.findOne(id, false).exists { it.navn == navn })
+            result
         }
     }
 }
