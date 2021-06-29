@@ -22,8 +22,6 @@ import ombruk.backend.shared.api.Roles
 import ombruk.backend.shared.api.generateResponse
 import ombruk.backend.shared.api.receiveCatching
 import ombruk.backend.shared.error.AuthorizationError
-import ombruk.backend.utlysning.application.api.dto.UtlysningFindDto
-import ombruk.backend.utlysning.application.service.IUtlysningService
 import ombruk.backend.vektregistrering.application.api.dto.VektregistreringDeleteDto
 import ombruk.backend.vektregistrering.application.api.dto.VektregistreringFindDto
 import ombruk.backend.vektregistrering.application.api.dto.VektregistreringFindOneDto
@@ -31,7 +29,7 @@ import ombruk.backend.vektregistrering.application.api.dto.VektregistreringSaveD
 import ombruk.backend.vektregistrering.application.service.IVektregistreringService
 
 @KtorExperimentalLocationsAPI
-fun Routing.vektregistrering(vektregistreringService: IVektregistreringService, hentingService: IHentingService, utlysningService: IUtlysningService) {
+fun Routing.vektregistrering(vektregistreringService: IVektregistreringService, hentingService: IHentingService) {
 
     route("/vektregistrering") {
         get<VektregistreringFindOneDto> { form ->
@@ -63,12 +61,7 @@ fun Routing.vektregistrering(vektregistreringService: IVektregistreringService, 
                                                 Roles.RegEmployee -> true
                                                 Roles.Partner -> {
                                                     if (it is PlanlagtHentingWithParents) groupId == it.aktorId
-                                                    else {
-                                                        utlysningService.find(UtlysningFindDto(hentingId = dto.hentingId)).fold(
-                                                            {false},
-                                                            {it.map { groupId == it.partnerId }.any()}
-                                                        )
-                                                    }
+                                                    else groupId == (it as EkstraHenting).godkjentUtlysning?.partnerId
                                                 }
                                                 Roles.ReuseStation -> {
                                                     if (it is PlanlagtHentingWithParents) groupId == it.stasjonId || groupId == it.aktorId
