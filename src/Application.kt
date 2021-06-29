@@ -34,6 +34,7 @@ import ombruk.backend.henting.application.api.planlagteHentinger
 import ombruk.backend.henting.hentingModule
 import ombruk.backend.kategori.application.api.kategorier
 import ombruk.backend.kategori.kategoriModule
+import ombruk.backend.notification.notificationModule
 import ombruk.backend.shared.api.Authorization
 import ombruk.backend.shared.api.JwtMockConfig
 import ombruk.backend.shared.database.initDB
@@ -214,6 +215,7 @@ fun Application.module(testing: Boolean = false) {
         modules(kategoriModule)
         modules(utlysningModule)
         modules(vektregistreringModule)
+        modules(notificationModule)
     }
 
 
