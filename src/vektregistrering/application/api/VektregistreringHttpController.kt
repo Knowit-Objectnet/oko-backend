@@ -60,12 +60,24 @@ fun Routing.vektregistrering(vektregistreringService: IVektregistreringService, 
                                             when (role) {
                                                 Roles.RegEmployee -> true
                                                 Roles.Partner -> {
-                                                    if (it is PlanlagtHentingWithParents) groupId == it.aktorId
-                                                    else groupId == (it as EkstraHenting).godkjentUtlysning?.partnerId
+                                                    when (it) {
+                                                        is PlanlagtHentingWithParents -> groupId == it.aktorId
+
+                                                        //TODO: Klarhet for hva det skal sjekkes mot, kan "map" over alle som det er utlyst til
+                                                        is EkstraHenting -> groupId == it.godkjentUtlysning?.partnerId
+
+                                                        //TODO: Andre typer hentinger?
+                                                        else -> false
+                                                    }
                                                 }
                                                 Roles.ReuseStation -> {
-                                                    if (it is PlanlagtHentingWithParents) groupId == it.stasjonId || groupId == it.aktorId
-                                                    else groupId == (it as EkstraHenting).stasjonId
+                                                    when (it) {
+                                                        is PlanlagtHentingWithParents -> groupId == it.stasjonId || groupId == it.aktorId
+                                                        is EkstraHenting -> groupId == it.stasjonId
+
+                                                        //TODO: Andre typer hentinger?
+                                                        else -> false
+                                                    }
                                                 }
                                             }
                                         }
