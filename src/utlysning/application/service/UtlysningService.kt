@@ -1,11 +1,11 @@
 package ombruk.backend.utlysning.application.service
 
-import arrow.core.Either
+import arrow.core.*
 import arrow.core.extensions.either.applicative.applicative
 import arrow.core.extensions.list.traverse.sequence
-import arrow.core.fix
-import arrow.core.left
-import arrow.core.right
+import ombruk.backend.aktor.application.api.dto.KontaktGetDto
+import ombruk.backend.aktor.application.service.IKontaktService
+import ombruk.backend.notification.application.service.INotificationService
 import ombruk.backend.shared.error.ServiceError
 import ombruk.backend.utlysning.application.api.dto.*
 import ombruk.backend.utlysning.domain.entity.Utlysning
@@ -14,10 +14,15 @@ import ombruk.backend.utlysning.domain.port.IUtlysningRepository
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
-class UtlysningService(val utlysningRepository: IUtlysningRepository) : IUtlysningService {
+class UtlysningService(
+    val utlysningRepository: IUtlysningRepository,
+    val notificationService: INotificationService,
+    val kontaktService: IKontaktService
+) : IUtlysningService {
     override fun save(dto: UtlysningSaveDto): Either<ServiceError, Utlysning> {
         return transaction {
             utlysningRepository.insert(dto)
+                .flatMap { utlysning -> notify(utlysning) }
                 .fold({ rollback(); it.left() }, { it.right() })
         }
     }
@@ -57,17 +62,17 @@ class UtlysningService(val utlysningRepository: IUtlysningRepository) : IUtlysni
                     find is Either.Right && find.b.isEmpty()
                 }
                 .map {
-                utlysningRepository.insert(
-                    UtlysningSaveDto(
-                        partnerId = UUID.fromString(it),
-                        hentingId = dto.hentingId,
-                        partnerPameldt = dto.partnerPameldt,
-                        stasjonGodkjent = dto.stasjonGodkjent,
-                        partnerSkjult = dto.partnerSkjult,
-                        partnerVist = dto.partnerVist
+                    save(
+                        UtlysningSaveDto(
+                            partnerId = UUID.fromString(it),
+                            hentingId = dto.hentingId,
+                            partnerPameldt = dto.partnerPameldt,
+                            stasjonGodkjent = dto.stasjonGodkjent,
+                            partnerSkjult = dto.partnerSkjult,
+                            partnerVist = dto.partnerVist
+                        )
                     )
-                )
-            }
+                }
                 .sequence(Either.applicative())
                 .fix()
                 .map { it.fix() }
@@ -117,4 +122,16 @@ class UtlysningService(val utlysningRepository: IUtlysningRepository) : IUtlysni
                 .fold({rollback(); it.left()}, {it.right()})
         }
     }
+
+    private fun notify(utlysning: Utlysning) = kontaktService.getKontakter(KontaktGetDto(aktorId = utlysning.partnerId))
+        .fold(
+            { it.left() },
+            { kontakter ->
+                notificationService.sendMessage("Det er nye ombruksvarer tilgjengelig!", kontakter)
+                    .fold(
+                        { it.left() },
+                        { utlysning.right() }
+                    )
+            }
+        )
 }
