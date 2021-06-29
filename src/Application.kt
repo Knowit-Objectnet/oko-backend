@@ -228,7 +228,7 @@ fun Application.module(testing: Boolean = false) {
         kategorier(get())
         utlysninger(get(), get())
         kontakter(get())
-        vektregistrering(get())
+        vektregistrering(get(), get())
 //        events(EventService)
 //        partners(PartnerService)
 //        report(ReportService)
