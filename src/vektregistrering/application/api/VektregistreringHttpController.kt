@@ -55,7 +55,7 @@ fun Routing.vektregistrering(vektregistreringService: IVektregistreringService, 
                             .flatMap { dto ->
                                 hentingService.findOne(dto.hentingId)
                                     .ensure(
-                                        { AuthorizationError.AccessViolationError("Vektregistrering ikke tillatt å endre av denne gruppen")},
+                                        { AuthorizationError.AccessViolationError("Vektregistrering ikke tillatt av denne gruppen")},
                                         {
                                             when (role) {
                                                 Roles.RegEmployee -> true
