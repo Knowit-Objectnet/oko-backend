@@ -23,4 +23,5 @@ val hentingModule = module (createdAtStart = true){
     single<IEkstraHentingKategoriRepository> { EkstraHentingKategoriRepository() }
     single<IEkstraHentingKategoriService> { EkstraHentingKategoriService(get()) }
     single<IEkstraHentingService> {EkstraHentingService(get(), get(), get())}
+    single<IHentingService> {HentingService(get(), get())}
 }
