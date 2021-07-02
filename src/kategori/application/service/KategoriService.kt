@@ -4,10 +4,7 @@ import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
-import ombruk.backend.kategori.application.api.dto.HenteplanKategoriFindDto
-import ombruk.backend.kategori.application.api.dto.KategoriDeleteDto
-import ombruk.backend.kategori.application.api.dto.KategoriFindDto
-import ombruk.backend.kategori.application.api.dto.KategoriSaveDto
+import ombruk.backend.kategori.application.api.dto.*
 import ombruk.backend.kategori.domain.entity.Kategori
 import ombruk.backend.kategori.domain.port.IKategoriRepository
 import ombruk.backend.shared.error.ServiceError
@@ -58,6 +55,12 @@ class KategoriService(
                     henteplanKategoriService.archive(HenteplanKategoriFindDto(kategoriId = kategori.id))
                 }.flatMap { it }
                 .fold({rollback(); it.left()}, {it.right()})
+        }
+    }
+
+    override fun update(dto: KategoriUpdateDto): Either<ServiceError, Kategori> {
+        return transaction {
+            kategoriRepository.update(dto)
         }
     }
 }
