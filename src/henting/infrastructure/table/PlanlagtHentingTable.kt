@@ -10,4 +10,5 @@ object PlanlagtHentingTable: ArchivableUUIDTable("planlagt_henting") {
     val henteplanId = uuid("henteplan_id").references(HenteplanTable.id)
     val avlyst = datetime("avlyst").nullable()
     val aarsak = text("aarsak").nullable()
+    val avlystAv = uuid("avlyst_av").nullable()
 }

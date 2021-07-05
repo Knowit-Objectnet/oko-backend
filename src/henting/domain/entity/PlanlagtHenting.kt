@@ -3,6 +3,7 @@ package ombruk.backend.henting.domain.entity
 import kotlinx.serialization.Serializable
 import ombruk.backend.kategori.domain.entity.HenteplanKategori
 import ombruk.backend.shared.model.serializer.LocalDateTimeSerializer
+import org.jetbrains.exposed.dao.UUIDTable
 import shared.model.serializer.UUIDSerializer
 import java.time.LocalDateTime
 import java.util.*
@@ -15,6 +16,7 @@ data class PlanlagtHenting(
     override val merknad: String?,
     @Serializable(with = UUIDSerializer::class) val henteplanId: UUID,
     @Serializable(with = LocalDateTimeSerializer::class) val avlyst: LocalDateTime?,
+    @Serializable(with = UUIDSerializer::class) val avlystAv: UUID?,
     val aarsak: String?
 ) : Henting()
 
@@ -26,6 +28,7 @@ data class PlanlagtHentingWithParents(
     override val merknad: String?,
     @Serializable(with = UUIDSerializer::class) val henteplanId: UUID,
     @Serializable(with = LocalDateTimeSerializer::class) val avlyst: LocalDateTime?,
+    @Serializable(with = UUIDSerializer::class) val avlystAv: UUID?,
     val aarsak: String?,
     @Serializable(with = UUIDSerializer::class) val avtaleId: UUID,
     @Serializable(with = UUIDSerializer::class) val aktorId: UUID,

@@ -22,6 +22,7 @@ interface IPlanlagtHentingService {
     fun delete(dto: PlanlagtHentingDeleteDto): Either<ServiceError, Unit>
 
     fun update(dto: PlanlagtHentingUpdateDto): Either<ServiceError, PlanlagtHentingWithParents>
+    fun update(dto: PlanlagtHentingUpdateDto, avlystAv: UUID): Either<ServiceError, PlanlagtHentingWithParents>
 
     fun batchSaveForHenteplan(dto: PlanlagtHentingBatchPostDto): Either<ServiceError, List<PlanlagtHentingWithParents>>
 

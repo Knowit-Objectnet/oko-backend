@@ -35,14 +35,14 @@ class PlanlagtHentingRepository: RepositoryBase<PlanlagtHentingWithParents, Plan
         }
     }
 
-    override fun updateQuery(params: PlanlagtHentingUpdateParams): Int {
+    fun updateQuery(params: PlanlagtHentingUpdateParams, avlystId: UUID): Int {
         return table.update({table.id eq params.id}) { row ->
             params.startTidspunkt?.let { row[startTidspunkt] = it }
             params.sluttTidspunkt?.let { row[sluttTidspunkt] = it }
             params.merknad?.let { row[merknad] = it }
             params.avlys?.let {
-                if (it) row[avlyst] = LocalDateTime.now()
-                else {row[avlyst] = null; row[aarsak] = null}
+                if (it) {row[avlyst] = LocalDateTime.now(); row[avlystAv] = avlystId}
+                else {row[avlyst] = null; row[aarsak] = null; row[avlystAv] = null}
             }
             params.aarsak?.let { value ->
                 if (params.avlys != null && !params.avlys!!)
@@ -107,6 +107,7 @@ class PlanlagtHentingRepository: RepositoryBase<PlanlagtHentingWithParents, Plan
             row[table.merknad],
             row[table.henteplanId],
             row[table.avlyst],
+            row[table.avlystAv],
             row[table.aarsak],
             row[AvtaleTable.id].value,
             aktorId,
@@ -129,6 +130,22 @@ class PlanlagtHentingRepository: RepositoryBase<PlanlagtHentingWithParents, Plan
             .andIfNotNull(params.merknad){Op.FALSE} //Not implemented: Adding this so any calls including just merknad will not archive everything.
     }
 
+    override fun update(
+        params: PlanlagtHentingUpdateParams,
+        avlystId: UUID
+    ): Either<RepositoryError, PlanlagtHentingWithParents> {
+        return runCatching {
+            updateQuery(params, avlystId)
+        }
+            .onFailure { logger.error("Failed to update database; ${it.message}") }
+            .fold(
+                {
+                    findOne(params.id)
+                },
+                { RepositoryError.UpdateError(it.message).left() }
+            )
+    }
+
     override fun updateAvlystDate(id: UUID, date: LocalDateTime, aarsakMelding: String?): Either<RepositoryError, PlanlagtHentingWithParents> {
         fun u(id: UUID, date: LocalDateTime, aarsakMelding: String?): Int {
             return table.update( {table.id eq id} ) { row ->
@@ -146,5 +163,21 @@ class PlanlagtHentingRepository: RepositoryBase<PlanlagtHentingWithParents, Plan
                 },
                 { RepositoryError.UpdateError(it.message).left() }
             )
+    }
+
+    override fun updateQuery(params: PlanlagtHentingUpdateParams): Int {
+        return table.update({table.id eq params.id}) { row ->
+            params.startTidspunkt?.let { row[startTidspunkt] = it }
+            params.sluttTidspunkt?.let { row[sluttTidspunkt] = it }
+            params.merknad?.let { row[merknad] = it }
+            params.avlys?.let {
+                if (it) {row[avlyst] = LocalDateTime.now();}
+                else {row[avlyst] = null; row[aarsak] = null; row[avlystAv] = null}
+            }
+            params.aarsak?.let { value ->
+                if (params.avlys != null && !params.avlys!!)
+                else row[aarsak] = value
+            }
+        }
     }
 }

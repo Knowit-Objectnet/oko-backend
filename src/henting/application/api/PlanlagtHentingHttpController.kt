@@ -76,7 +76,7 @@ fun Routing.planlagteHentinger(planlagtHentingService: IPlanlagtHentingService) 
                                         }
                                     }
                                 )
-                                    .flatMap { planlagtHentingService.update(dto) }
+                                    .flatMap { dto.avlys?.run { planlagtHentingService.update(dto, groupId)} ?: planlagtHentingService.update(dto) }
                             }
                     }
                     .run { generateResponse(this) }
