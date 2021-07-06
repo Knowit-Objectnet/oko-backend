@@ -104,9 +104,9 @@ class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepo
         }
     }
 
-    override fun updateAvlystDate(id: UUID, date: LocalDateTime, aarsak: String?): Either<ServiceError, PlanlagtHentingWithParents> {
+    override fun updateAvlystDate(id: UUID, date: LocalDateTime, aarsak: String?, avlystAv: UUID): Either<ServiceError, PlanlagtHentingWithParents> {
         return transaction {
-            planlagtHentingRepository.updateAvlystDate(id, date, aarsak)
+            planlagtHentingRepository.updateAvlystDate(id, date, aarsak, avlystAv)
         }
     }
 }

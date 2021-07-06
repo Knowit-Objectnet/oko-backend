@@ -146,15 +146,16 @@ class PlanlagtHentingRepository: RepositoryBase<PlanlagtHentingWithParents, Plan
             )
     }
 
-    override fun updateAvlystDate(id: UUID, date: LocalDateTime, aarsakMelding: String?): Either<RepositoryError, PlanlagtHentingWithParents> {
-        fun u(id: UUID, date: LocalDateTime, aarsakMelding: String?): Int {
+    override fun updateAvlystDate(id: UUID, date: LocalDateTime, aarsakMelding: String?, avlystAvId: UUID): Either<RepositoryError, PlanlagtHentingWithParents> {
+        fun u(id: UUID, date: LocalDateTime, aarsakMelding: String?, avlystAvId: UUID): Int {
             return table.update( {table.id eq id} ) { row ->
                 row[avlyst] = date
                 aarsakMelding?.let { row[aarsak] = it }
+                row[avlystAv] = avlystAvId
             }
         }
         return runCatching {
-            u(id, date, aarsakMelding)
+            u(id, date, aarsakMelding, avlystAvId)
         }
             .onFailure { logger.error("Failed to update database; ${it.message}") }
             .fold(
