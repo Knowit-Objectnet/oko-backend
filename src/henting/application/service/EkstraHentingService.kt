@@ -3,20 +3,21 @@ package ombruk.backend.henting.application.service
 import arrow.core.*
 import arrow.core.extensions.either.applicative.applicative
 import arrow.core.extensions.list.traverse.sequence
-import henting.application.api.dto.HenteplanSaveDto
 import io.ktor.locations.*
 import ombruk.backend.henting.application.api.dto.EkstraHentingDeleteDto
 import ombruk.backend.henting.application.api.dto.EkstraHentingFindDto
 import ombruk.backend.henting.application.api.dto.EkstraHentingSaveDto
 import ombruk.backend.henting.application.api.dto.EkstraHentingUpdateDto
 import ombruk.backend.henting.domain.entity.EkstraHenting
-import ombruk.backend.henting.domain.entity.Henteplan
 import ombruk.backend.henting.domain.params.EkstraHentingFindParams
 import ombruk.backend.henting.domain.port.IEkstraHentingRepository
-import ombruk.backend.kategori.application.api.dto.*
-import ombruk.backend.kategori.application.service.EkstraHentingKategoriService
+import ombruk.backend.kategori.application.api.dto.EkstraHentingKategoriBatchSaveDto
+import ombruk.backend.kategori.application.api.dto.EkstraHentingKategoriDeleteDto
+import ombruk.backend.kategori.application.api.dto.EkstraHentingKategoriFindDto
+import ombruk.backend.kategori.application.api.dto.EkstraHentingKategoriSaveDto
 import ombruk.backend.kategori.application.service.IEkstraHentingKategoriService
 import ombruk.backend.shared.error.ServiceError
+import ombruk.backend.utlysning.application.api.dto.UtlysningBatchSaveDto
 import ombruk.backend.utlysning.application.api.dto.UtlysningFindDto
 import ombruk.backend.utlysning.application.service.IUtlysningService
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -50,12 +51,22 @@ class EkstraHentingService(
     override fun save(dto: EkstraHentingSaveDto): Either<ServiceError, EkstraHenting> {
         return transaction {
             ekstraHentingRepository.insert(dto)
-                .fold(
-                    {Either.Left(ServiceError(it.message))},
-                    {
-                        appendKategorier(dto, it.id, it)
+                .flatMap{ appendKategorier(dto, it.id, it) }
+                .flatMap { henting ->
+                    if (dto.partnere != null) {
+                        utlysningService.batchSave(
+                            UtlysningBatchSaveDto(
+                                hentingId = henting.id,
+                                partnerIds = dto.partnere!!
+                            )
+                        ).flatMap {
+                            henting.copy(utlysninger = it).right()
+                        }
                     }
-                )
+                    else {
+                        henting.right()
+                    }
+                }
                 .fold({ rollback(); it.left() }, { it.right() })
         }
     }
@@ -95,6 +106,18 @@ class EkstraHentingService(
                                 { ekstraHenting.right() },
                                 {ekstraHenting.copy(kategorier = it).right()}
                             )
+                    }.sequence(Either.applicative()).fix().map { it.fix() }
+                }
+        }
+    }
+
+    override fun findWithUtlysninger(dto: EkstraHentingFindDto): Either<ServiceError, List<EkstraHenting>> {
+        return transaction {
+            find(dto)
+                .flatMap { list ->
+                    list.map { ekstraHenting ->
+                        utlysningService.find(UtlysningFindDto(hentingId = ekstraHenting.id))
+                            .flatMap { ekstraHenting.copy(utlysninger = it).right() }
                     }.sequence(Either.applicative()).fix().map { it.fix() }
                 }
         }
