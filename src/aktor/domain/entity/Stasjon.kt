@@ -11,4 +11,4 @@ data class Stasjon (
     override var navn: String,
     override var kontaktPersoner: List<Kontakt>,
     val type: StasjonType
-): Aktor
+): IAktor
