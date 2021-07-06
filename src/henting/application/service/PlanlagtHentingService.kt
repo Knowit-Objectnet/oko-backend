@@ -68,6 +68,9 @@ class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepo
     override fun update(dto: PlanlagtHentingUpdateDto): Either<ServiceError, PlanlagtHentingWithParents> {
         return transaction { planlagtHentingRepository.update(dto) }
     }
+    override fun update(dto: PlanlagtHentingUpdateDto, avlystAv: UUID): Either<ServiceError, PlanlagtHentingWithParents> {
+        return transaction { planlagtHentingRepository.update(dto, avlystAv) }
+    }
 
     override fun batchSaveForHenteplan(dto: PlanlagtHentingBatchPostDto): Either<ServiceError, List<PlanlagtHentingWithParents>> {
         return transaction {
