@@ -18,5 +18,5 @@ data class EkstraHenting(
     val stasjonNavn: String,
     val godkjentUtlysning: Utlysning? = null,
     val kategorier: List<EkstraHentingKategori>?,
-    val utlysninger: List<Utlysning>? = null
+    val utlysninger: List<Utlysning> = emptyList()
 ) : Henting()

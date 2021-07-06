@@ -50,8 +50,8 @@ fun Routing.ekstraHentinger(ekstraHentingService: IEkstraHentingService) {
                                 .flatMap { ekstraHentingService.findWithUtlysninger(it) }
                                 .map {
                                     if (role == Roles.Partner) {
-                                    it.map { it.copy(utlysninger = it.utlysninger?.filter { it.partnerId == groupId }) }
-                                     .filter { it.utlysninger != null && it.utlysninger.size == 1 }
+                                    it.map { it.copy(utlysninger = it.utlysninger.filter { it.partnerId == groupId }) }
+                                     .filter { it.utlysninger.size == 1 }
                                     }
                                     else it
                                 }
