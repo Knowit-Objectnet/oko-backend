@@ -39,6 +39,29 @@ fun Routing.ekstraHentinger(ekstraHentingService: IEkstraHentingService) {
                 .also { (code, response) -> call.respond(code, response) }
         }
 
+        route("/med-utlysning") {
+            authenticate {
+
+                get<EkstraHentingFindDto> { form ->
+                    Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.ReuseStation, Roles.Partner), call)
+                        .flatMap { (role, groupId) ->
+                            form.validOrError()
+                                .map { if (role == Roles.ReuseStation) it.copy(stasjonId = groupId) else it}
+                                .flatMap { ekstraHentingService.findWithUtlysninger(it) }
+                                .map {
+                                    if (role == Roles.Partner) {
+                                    it.map { it.copy(utlysninger = it.utlysninger?.filter { it.partnerId == groupId }) }
+                                     .filter { it.utlysninger != null && it.utlysninger.size == 1 }
+                                    }
+                                    else it
+                                }
+                        }
+                        .run { generateResponse(this) }
+                        .also { (code, response) -> call.respond(code, response) }
+                }
+            }
+        }
+
         authenticate {
             post {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.ReuseStation), call)
