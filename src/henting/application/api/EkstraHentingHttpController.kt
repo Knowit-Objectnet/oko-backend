@@ -69,7 +69,7 @@ fun Routing.ekstraHentinger(ekstraHentingService: IEkstraHentingService) {
                         receiveCatching { call.receive<EkstraHentingSaveDto>() }
                         .flatMap { it.validOrError() }
                             .ensure(
-                                { AuthorizationError.AccessViolationError("Du har ikke tilgang til denne hentingen")},
+                                { AuthorizationError.AccessViolationError("Du har ikke tilgang til denne stasjonen")},
                                 { role == Roles.RegEmployee || groupId == it.stasjonId }
                             )
                         .flatMap { ekstraHentingService.save(it) }
