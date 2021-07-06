@@ -20,7 +20,6 @@ data class PlanlagtHentingUpdateDto(
     @Serializable(with = UUIDSerializer::class) override val id: UUID,
     @Serializable(with = LocalDateTimeSerializer::class) override val startTidspunkt: LocalDateTime? = null,
     @Serializable(with = LocalDateTimeSerializer::class) override val sluttTidspunkt: LocalDateTime? = null,
-    override val merknad: String? = null,
     override val avlys: Boolean? = null,
     override val aarsak: String? = null,
 ) : IForm<PlanlagtHentingUpdateDto>, PlanlagtHentingUpdateParams() {

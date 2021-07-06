@@ -8,5 +8,4 @@ abstract class HentingUpdateParams : UpdateParams{
     abstract override val id: UUID
     abstract val startTidspunkt: LocalDateTime?
     abstract val sluttTidspunkt: LocalDateTime?
-    abstract val merknad: String?
 }

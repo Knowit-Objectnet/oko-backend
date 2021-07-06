@@ -28,7 +28,7 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
         //Find all dates
         val dates = LocalDateTimeProgressionWithDayFrekvens(dto.startTidspunkt, dto.sluttTidspunkt, dto.ukedag, dto.frekvens)
             .map { it.toLocalDate() }
-        val postDto = PlanlagtHentingSaveDto(dto.startTidspunkt, dto.sluttTidspunkt, dto.merknad, henteplanId)
+        val postDto = PlanlagtHentingSaveDto(dto.startTidspunkt, dto.sluttTidspunkt, henteplanId)
         return planlagtHentingService.batchSaveForHenteplan(PlanlagtHentingBatchPostDto(postDto, dates))
     }
 
@@ -48,8 +48,7 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
                 henteplanKategoriService.save(
                     HenteplanKategoriSaveDto(
                         henteplanId = id,
-                        kategoriId = it.kategoriId,
-                        merknad = it.merknad
+                        kategoriId = it.kategoriId
                     )
                 )
             }
@@ -199,7 +198,6 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
                                                         kategorier = dto.kategorier ?: henteplan.kategorier?.map {
                                                             HenteplanKategoriBatchSaveDto(
                                                                 kategoriId = it.kategoriId,
-                                                                merknad = it.merknad
                                                             )
                                                         }
                                                     ), henteplan.id, henteplan

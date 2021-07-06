@@ -21,7 +21,7 @@ data class EkstraHentingFindDto(
     @Serializable(with = UUIDSerializer::class) override val id: UUID? = null,
     @Serializable(with = LocalDateTimeSerializer::class) override val before: LocalDateTime? = null,
     @Serializable(with = LocalDateTimeSerializer::class) override val after: LocalDateTime? = null,
-    override val merknad: String? = null,
+    val beskrivelse: String? = null,
     @Serializable(with = UUIDSerializer::class) override val stasjonId: UUID? = null,
 ) : IForm<EkstraHentingFindDto>, EkstraHentingFindParams() {
     override fun validOrError(): Either<ValidationError, EkstraHentingFindDto> = runCatchingValidation {

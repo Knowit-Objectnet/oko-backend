@@ -17,7 +17,6 @@ import java.util.*
 data class PlanlagtHentingSaveDto(
     @Serializable(with = LocalDateTimeSerializer::class) override val startTidspunkt: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class) override val sluttTidspunkt: LocalDateTime,
-    override val merknad: String? = null,
     @Serializable(with = UUIDSerializer::class) override val henteplanId: UUID
 ) : IForm<PlanlagtHentingSaveDto>, PlanlagtHentingCreateParams() {
     override fun validOrError(): Either<ValidationError, PlanlagtHentingSaveDto> = runCatchingValidation {

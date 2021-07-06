@@ -8,4 +8,4 @@ ALTER TABLE ekstra_henting
 DROP COLUMN merknad;
 
 ALTER TABLE ekstra_henting
-ADD COLUMN beskrivelse text;
+ADD COLUMN beskrivelse text NOT NULL;

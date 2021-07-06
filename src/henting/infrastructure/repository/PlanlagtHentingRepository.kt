@@ -28,7 +28,6 @@ class PlanlagtHentingRepository: RepositoryBase<PlanlagtHentingWithParents, Plan
         return PlanlagtHentingTable.insertAndGetId {
             it[startTidspunkt] = params.startTidspunkt
             it[sluttTidspunkt] = params.sluttTidspunkt
-            it[merknad] = params.merknad
             it[henteplanId] = params.henteplanId
             it[avlyst] = null
             it[aarsak] = null
@@ -39,7 +38,6 @@ class PlanlagtHentingRepository: RepositoryBase<PlanlagtHentingWithParents, Plan
         return table.update({table.id eq params.id}) { row ->
             params.startTidspunkt?.let { row[startTidspunkt] = it }
             params.sluttTidspunkt?.let { row[sluttTidspunkt] = it }
-            params.merknad?.let { row[merknad] = it }
             params.avlys?.let {
                 if (it) {row[avlyst] = LocalDateTime.now(); row[avlystAv] = avlystId}
                 else {row[avlyst] = null; row[aarsak] = null; row[avlystAv] = null}
@@ -65,7 +63,6 @@ class PlanlagtHentingRepository: RepositoryBase<PlanlagtHentingWithParents, Plan
         params.before?.let { query.andWhere { table.sluttTidspunkt.lessEq(it) } }
         params.henteplanId?.let { query.andWhere { table.henteplanId eq it } }
         params.avlyst?.let { query.andWhere { if(it) table.avlyst.isNotNull() else table.avlyst.isNull()} }
-        params.merknad?.let { query.andWhere { table.merknad.like("%${it}%")} }
         return Pair(query, listOf(stasjonAlias))
     }
 
@@ -104,7 +101,8 @@ class PlanlagtHentingRepository: RepositoryBase<PlanlagtHentingWithParents, Plan
             row[table.id].value,
             row[table.startTidspunkt],
             row[table.sluttTidspunkt],
-            row[table.merknad],
+            //FIXME: GET FROM HENTEPLAN
+            "",
             row[table.henteplanId],
             row[table.avlyst],
             row[table.avlystAv],
@@ -127,7 +125,7 @@ class PlanlagtHentingRepository: RepositoryBase<PlanlagtHentingWithParents, Plan
             .andIfNotNull(params.after){table.startTidspunkt.greaterEq(params.after!!)}
             .andIfNotNull(params.before){table.sluttTidspunkt.lessEq(params.before!!)}
             .andIfNotNull(params.avlyst){if(params.avlyst!!) {table.avlyst.isNotNull()} else {table.avlyst.isNull()} }
-            .andIfNotNull(params.merknad){Op.FALSE} //Not implemented: Adding this so any calls including just merknad will not archive everything.
+            //.andIfNotNull(params.merknad){Op.FALSE} //Not implemented: Adding this so any calls including just merknad will not archive everything.
     }
 
     override fun update(
@@ -170,7 +168,6 @@ class PlanlagtHentingRepository: RepositoryBase<PlanlagtHentingWithParents, Plan
         return table.update({table.id eq params.id}) { row ->
             params.startTidspunkt?.let { row[startTidspunkt] = it }
             params.sluttTidspunkt?.let { row[sluttTidspunkt] = it }
-            params.merknad?.let { row[merknad] = it }
             params.avlys?.let {
                 if (it) {row[avlyst] = LocalDateTime.now();}
                 else {row[avlyst] = null; row[aarsak] = null; row[avlystAv] = null}
