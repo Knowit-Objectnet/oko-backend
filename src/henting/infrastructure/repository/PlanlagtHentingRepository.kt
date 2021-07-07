@@ -125,7 +125,6 @@ class PlanlagtHentingRepository: RepositoryBase<PlanlagtHentingWithParents, Plan
             .andIfNotNull(params.after){table.startTidspunkt.greaterEq(params.after!!)}
             .andIfNotNull(params.before){table.sluttTidspunkt.lessEq(params.before!!)}
             .andIfNotNull(params.avlyst){if(params.avlyst!!) {table.avlyst.isNotNull()} else {table.avlyst.isNull()} }
-            //.andIfNotNull(params.merknad){Op.FALSE} //Not implemented: Adding this so any calls including just merknad will not archive everything.
     }
 
     override fun update(
