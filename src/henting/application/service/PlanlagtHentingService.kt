@@ -35,12 +35,17 @@ class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepo
                         it.let { planlagtHenting ->
                             henteplanKategoriService.find(HenteplanKategoriFindDto(henteplanId = planlagtHenting.henteplanId))
                                 .fold(
-                                    { planlagtHenting.right() },
+                                    { henteplanService.findOne(planlagtHenting.henteplanId).fold(
+                                        { planlagtHenting.right() },
+                                        { planlagtHenting.copy(merknad = it.merknad).right() } ) },
                                     {
-                                        planlagtHenting.copy(kategorier = it).right()
+                                        kategorier ->
+                                        henteplanService.findOne(planlagtHenting.henteplanId).fold(
+                                            { planlagtHenting.copy(kategorier = kategorier).right() },
+                                            { planlagtHenting.copy(merknad = it.merknad, kategorier = kategorier).right() } )
                                     }
                                 )
-                            henteplanService.findOne(planlagtHenting.henteplanId).flatMap { planlagtHenting.copy(merknad = it.merknad).right() }
+
                         }
                     }
                 )
@@ -56,10 +61,14 @@ class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepo
                         it.map { planlagtHenting ->
                             henteplanKategoriService.find(HenteplanKategoriFindDto(henteplanId = planlagtHenting.henteplanId))
                                 .fold(
-                                    { planlagtHenting.right() },
-                                    { planlagtHenting.copy(kategorier = it).right() }
+                                    { henteplanService.findOne(planlagtHenting.henteplanId).fold(
+                                        { planlagtHenting.right() },
+                                        { planlagtHenting.copy(merknad = it.merknad).right() } )  },
+                                    { kategorier ->
+                                        henteplanService.findOne(planlagtHenting.henteplanId).fold(
+                                            { planlagtHenting.copy(kategorier = kategorier).right() },
+                                            { planlagtHenting.copy(merknad = it.merknad, kategorier = kategorier).right() } ) }
                                 )
-                            henteplanService.findOne(planlagtHenting.henteplanId).flatMap { planlagtHenting.copy(merknad = it.merknad).right() }
                         }.sequence(Either.applicative()).fix().map { it.fix() }
                     }
                 )
