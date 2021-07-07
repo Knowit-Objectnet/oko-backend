@@ -51,7 +51,6 @@ internal class PlanlagtHentingServiceTest {
             PlanlagtHentingSaveDto(
                 LocalDateTime.of(2021,1,1,10,0),
                 LocalDateTime.of(2022,2,1,14,0),
-                null,
                 UUID.randomUUID()
             ),
             listOf(

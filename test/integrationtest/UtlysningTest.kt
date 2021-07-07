@@ -105,7 +105,7 @@ class UtlysningTest : KoinTest {
         val ekstraHentingSaveDto = EkstraHentingSaveDto(
             startTidspunkt = LocalDateTime.of(2021,6,3,10,0),
             sluttTidspunkt = LocalDateTime.of(2021,6,3,12,30),
-            merknad = null,
+            beskrivelse = "",
             stasjonId = stasjon1.id
         ).validateAndRequireRight()
 
