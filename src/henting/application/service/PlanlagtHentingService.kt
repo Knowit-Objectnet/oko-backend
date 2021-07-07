@@ -19,7 +19,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 @KtorExperimentalLocationsAPI
-class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepository, val henteplanKategoriService: IHenteplanKategoriService): IPlanlagtHentingService, KoinComponent {
+class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepository ): IPlanlagtHentingService, KoinComponent {
     private val henteplanService: IHenteplanService by inject()
 
     override fun save(dto: PlanlagtHentingSaveDto): Either<ServiceError, PlanlagtHentingWithParents> {
@@ -33,19 +33,11 @@ class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepo
                     { Either.Left(ServiceError(it.message)) },
                     {
                         it.let { planlagtHenting ->
-                            henteplanKategoriService.find(HenteplanKategoriFindDto(henteplanId = planlagtHenting.henteplanId))
+                            henteplanService.findOne(planlagtHenting.henteplanId)
                                 .fold(
-                                    { henteplanService.findOne(planlagtHenting.henteplanId).fold(
-                                        { planlagtHenting.right() },
-                                        { planlagtHenting.copy(merknad = it.merknad).right() } ) },
-                                    {
-                                        kategorier ->
-                                        henteplanService.findOne(planlagtHenting.henteplanId).fold(
-                                            { planlagtHenting.copy(kategorier = kategorier).right() },
-                                            { planlagtHenting.copy(merknad = it.merknad, kategorier = kategorier).right() } )
-                                    }
+                                    { planlagtHenting.right() },
+                                    { planlagtHenting.copy(merknad = it.merknad, kategorier = it.kategorier).right() }
                                 )
-
                         }
                     }
                 )
@@ -59,15 +51,10 @@ class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepo
                     { Either.Left(ServiceError(it.message)) },
                     {
                         it.map { planlagtHenting ->
-                            henteplanKategoriService.find(HenteplanKategoriFindDto(henteplanId = planlagtHenting.henteplanId))
+                            henteplanService.findOne(planlagtHenting.henteplanId)
                                 .fold(
-                                    { henteplanService.findOne(planlagtHenting.henteplanId).fold(
-                                        { planlagtHenting.right() },
-                                        { planlagtHenting.copy(merknad = it.merknad).right() } )  },
-                                    { kategorier ->
-                                        henteplanService.findOne(planlagtHenting.henteplanId).fold(
-                                            { planlagtHenting.copy(kategorier = kategorier).right() },
-                                            { planlagtHenting.copy(merknad = it.merknad, kategorier = kategorier).right() } ) }
+                                    { planlagtHenting.right() },
+                                    { planlagtHenting.copy(merknad = it.merknad, kategorier = it.kategorier).right() }
                                 )
                         }.sequence(Either.applicative()).fix().map { it.fix() }
                     }
