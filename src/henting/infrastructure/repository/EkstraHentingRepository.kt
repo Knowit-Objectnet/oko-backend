@@ -68,6 +68,7 @@ class EkstraHentingRepository :
             .andIfNotNull(params.stasjonId){table.stasjonId eq params.stasjonId!!}
             .andIfNotNull(params.before){table.sluttTidspunkt.lessEq(params.before!!)}
             .andIfNotNull(params.after){table.startTidspunkt.greaterEq(params.after!!)}
+            .andIfNotNull(params.beskrivelse){Op.FALSE} //Not implemented
     }
 
     override val table = EkstraHentingTable
