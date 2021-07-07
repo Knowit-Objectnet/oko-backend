@@ -18,5 +18,5 @@ interface IPlanlagtHentingRepository {
     fun find(params: PlanlagtHentingFindParams): Either<RepositoryError, List<PlanlagtHentingWithParents>>
     fun archive(params: PlanlagtHentingFindParams): Either<RepositoryError, List<PlanlagtHentingWithParents>>
     fun archiveOne(id: UUID): Either<RepositoryError, PlanlagtHentingWithParents>
-    fun updateAvlystDate(id: UUID, date: LocalDateTime, aarsakMelding: String?): Either<RepositoryError, PlanlagtHentingWithParents>
+    fun updateAvlystDate(id: UUID, date: LocalDateTime, aarsakMelding: String?, avlystAvId: UUID): Either<RepositoryError, PlanlagtHentingWithParents>
 }

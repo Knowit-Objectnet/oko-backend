@@ -87,7 +87,7 @@ internal class VektregistreringRepositoryTest {
             override val stasjonId: UUID = stasjon.id
             override val startTidspunkt: LocalDateTime = LocalDateTime.now()
             override val sluttTidspunkt: LocalDateTime = LocalDateTime.now().plusHours(2)
-            override val merknad: String = "ABCDEFG"
+            override val beskrivelse: String = "ABCDEFG"
         }
 
         transaction {

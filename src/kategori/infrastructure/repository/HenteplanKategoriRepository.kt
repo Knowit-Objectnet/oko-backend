@@ -20,7 +20,6 @@ class HenteplanKategoriRepository : RepositoryBase<HenteplanKategori, HenteplanK
         return table.insertAndGetId {
             it[henteplanId] = params.henteplanId
             it[kategoriId] = params.kategoriId
-            it[merknad] = params.merknad ?: ""
         }
     }
 
@@ -29,7 +28,6 @@ class HenteplanKategoriRepository : RepositoryBase<HenteplanKategori, HenteplanK
         params.id?.let { query.andWhere { table.id eq it } }
         params.henteplanId?.let { query.andWhere { table.henteplanId eq it } }
         params.kategoriId?.let { query.andWhere { table.kategoriId eq it } }
-        params.merknad?.let { query.andWhere { table.merknad eq it } }
         return Pair(query, null)
     }
 
@@ -39,7 +37,6 @@ class HenteplanKategoriRepository : RepositoryBase<HenteplanKategori, HenteplanK
             row[table.henteplanId],
             row[table.kategoriId],
             null,
-            row[table.merknad]
         )
     }
 

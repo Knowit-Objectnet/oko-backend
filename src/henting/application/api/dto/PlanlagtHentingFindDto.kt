@@ -24,7 +24,6 @@ data class PlanlagtHentingFindDto(
     @Serializable(with = UUIDSerializer::class) override val id: UUID? = null,
     @Serializable(with = LocalDateTimeSerializer::class) override val before: LocalDateTime? = null,
     @Serializable(with = LocalDateTimeSerializer::class) override val after: LocalDateTime? = null,
-    override val merknad: String? = null,
     @Serializable(with = UUIDSerializer::class) override val henteplanId: UUID? = null,
     override val avlyst: Boolean? = null,
     override val arkivert: Boolean = false

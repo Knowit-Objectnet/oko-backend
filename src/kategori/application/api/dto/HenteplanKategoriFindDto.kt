@@ -18,7 +18,6 @@ data class HenteplanKategoriFindDto(
     @Serializable(with = UUIDSerializer::class) override val id: UUID? = null,
     @Serializable(with = UUIDSerializer::class) override var henteplanId: UUID? = null,
     @Serializable(with = UUIDSerializer::class) override val kategoriId: UUID? = null,
-    override val merknad: String? = null
 ) : IForm<HenteplanKategoriFindDto>,
     HenteplanKategoriFindParams() {
     override fun validOrError(): Either<ValidationError, HenteplanKategoriFindDto> = runCatchingValidation {

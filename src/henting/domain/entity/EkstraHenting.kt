@@ -13,7 +13,7 @@ data class EkstraHenting(
     @Serializable(with = UUIDSerializer::class) override val id: UUID,
     @Serializable(with = LocalDateTimeSerializer::class) override val startTidspunkt: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class) override val sluttTidspunkt: LocalDateTime,
-    override val merknad: String?,
+    val beskrivelse: String,
     @Serializable(with = UUIDSerializer::class) val stasjonId: UUID,
     val stasjonNavn: String,
     val godkjentUtlysning: Utlysning? = null,

@@ -7,5 +7,4 @@ abstract class Henting {
     abstract val id: UUID
     abstract val startTidspunkt: LocalDateTime
     abstract val sluttTidspunkt: LocalDateTime
-    abstract val merknad: String?
 }

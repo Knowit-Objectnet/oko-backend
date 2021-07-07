@@ -1,26 +1,27 @@
 package ombruk.backend.henting.application.service
 
-import arrow.core.Either
+import arrow.core.*
 import arrow.core.extensions.either.applicative.applicative
 import arrow.core.extensions.list.traverse.sequence
-import arrow.core.fix
-import arrow.core.left
-import arrow.core.right
 import io.ktor.locations.*
 import ombruk.backend.henting.application.api.dto.*
-import ombruk.backend.henting.domain.entity.PlanlagtHenting
 import ombruk.backend.henting.domain.entity.PlanlagtHentingWithParents
 import ombruk.backend.henting.domain.params.PlanlagtHentingFindParams
 import ombruk.backend.henting.domain.port.IPlanlagtHentingRepository
 import ombruk.backend.kategori.application.api.dto.HenteplanKategoriFindDto
 import ombruk.backend.kategori.application.service.IHenteplanKategoriService
+import ombruk.backend.kategori.application.service.IKategoriService
 import ombruk.backend.shared.error.ServiceError
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import java.time.LocalDateTime
 import java.util.*
 
 @KtorExperimentalLocationsAPI
-class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepository, val henteplanKategoriService: IHenteplanKategoriService): IPlanlagtHentingService {
+class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepository ): IPlanlagtHentingService, KoinComponent {
+    private val henteplanService: IHenteplanService by inject()
+
     override fun save(dto: PlanlagtHentingSaveDto): Either<ServiceError, PlanlagtHentingWithParents> {
         return transaction { planlagtHentingRepository.insert(dto) }
     }
@@ -32,10 +33,10 @@ class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepo
                     { Either.Left(ServiceError(it.message)) },
                     {
                         it.let { planlagtHenting ->
-                            henteplanKategoriService.find(HenteplanKategoriFindDto(henteplanId = planlagtHenting.henteplanId))
+                            henteplanService.findOne(planlagtHenting.henteplanId)
                                 .fold(
                                     { planlagtHenting.right() },
-                                    { planlagtHenting.copy(kategorier = it).right() }
+                                    { planlagtHenting.copy(merknad = it.merknad, kategorier = it.kategorier).right() }
                                 )
                         }
                     }
@@ -50,10 +51,10 @@ class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepo
                     { Either.Left(ServiceError(it.message)) },
                     {
                         it.map { planlagtHenting ->
-                            henteplanKategoriService.find(HenteplanKategoriFindDto(henteplanId = planlagtHenting.henteplanId))
+                            henteplanService.findOne(planlagtHenting.henteplanId)
                                 .fold(
                                     { planlagtHenting.right() },
-                                    { planlagtHenting.copy(kategorier = it).right() }
+                                    { planlagtHenting.copy(merknad = it.merknad, kategorier = it.kategorier).right() }
                                 )
                         }.sequence(Either.applicative()).fix().map { it.fix() }
                     }
@@ -78,7 +79,6 @@ class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepo
                 planlagtHentingRepository.insert(
                     PlanlagtHentingSaveDto(
                         henteplanId = dto.saveDto.henteplanId,
-                        merknad = dto.saveDto.merknad,
                         startTidspunkt = LocalDateTime.of(it, dto.saveDto.startTidspunkt.toLocalTime()),
                         sluttTidspunkt = LocalDateTime.of(it, dto.saveDto.sluttTidspunkt.toLocalTime()),
                     ))
@@ -104,9 +104,9 @@ class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepo
         }
     }
 
-    override fun updateAvlystDate(id: UUID, date: LocalDateTime, aarsak: String?): Either<ServiceError, PlanlagtHentingWithParents> {
+    override fun updateAvlystDate(id: UUID, date: LocalDateTime, aarsak: String?, avlystAv: UUID): Either<ServiceError, PlanlagtHentingWithParents> {
         return transaction {
-            planlagtHentingRepository.updateAvlystDate(id, date, aarsak)
+            planlagtHentingRepository.updateAvlystDate(id, date, aarsak, avlystAv)
         }
     }
 }

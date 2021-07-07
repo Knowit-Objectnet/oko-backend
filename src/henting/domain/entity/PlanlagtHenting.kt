@@ -3,7 +3,6 @@ package ombruk.backend.henting.domain.entity
 import kotlinx.serialization.Serializable
 import ombruk.backend.kategori.domain.entity.HenteplanKategori
 import ombruk.backend.shared.model.serializer.LocalDateTimeSerializer
-import org.jetbrains.exposed.dao.UUIDTable
 import shared.model.serializer.UUIDSerializer
 import java.time.LocalDateTime
 import java.util.*
@@ -13,7 +12,7 @@ data class PlanlagtHenting(
     @Serializable(with = UUIDSerializer::class) override val id: UUID,
     @Serializable(with = LocalDateTimeSerializer::class) override val startTidspunkt: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class) override val sluttTidspunkt: LocalDateTime,
-    override val merknad: String?,
+    val merknad: String?,
     @Serializable(with = UUIDSerializer::class) val henteplanId: UUID,
     @Serializable(with = LocalDateTimeSerializer::class) val avlyst: LocalDateTime?,
     @Serializable(with = UUIDSerializer::class) val avlystAv: UUID?,
@@ -25,7 +24,7 @@ data class PlanlagtHentingWithParents(
     @Serializable(with = UUIDSerializer::class) override val id: UUID,
     @Serializable(with = LocalDateTimeSerializer::class) override val startTidspunkt: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class) override val sluttTidspunkt: LocalDateTime,
-    override val merknad: String?,
+    val merknad: String?,
     @Serializable(with = UUIDSerializer::class) val henteplanId: UUID,
     @Serializable(with = LocalDateTimeSerializer::class) val avlyst: LocalDateTime?,
     @Serializable(with = UUIDSerializer::class) val avlystAv: UUID?,
