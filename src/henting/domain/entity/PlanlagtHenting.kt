@@ -3,7 +3,6 @@ package ombruk.backend.henting.domain.entity
 import kotlinx.serialization.Serializable
 import ombruk.backend.kategori.domain.entity.HenteplanKategori
 import ombruk.backend.shared.model.serializer.LocalDateTimeSerializer
-import org.jetbrains.exposed.dao.UUIDTable
 import shared.model.serializer.UUIDSerializer
 import java.time.LocalDateTime
 import java.util.*
