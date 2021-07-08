@@ -19,4 +19,5 @@ interface IAarsakService {
     fun save(dto: AarsakSaveDto): Either<ServiceError, Aarsak>
     fun delete(id: UUID): Either<ServiceError, Aarsak>
     fun update(dto: AarsakUpdateDto): Either<ServiceError, Aarsak>
+    fun archiveOne(id: UUID): Either<ServiceError, Unit>
 }

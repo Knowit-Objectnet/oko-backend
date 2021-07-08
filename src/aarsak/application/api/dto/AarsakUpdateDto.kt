@@ -1,6 +1,7 @@
 package ombruk.backend.aarsak.application.api.dto
 
 import kotlinx.serialization.Serializable
+import ombruk.backend.aarsak.domain.enum.AarsakType
 import ombruk.backend.aarsak.domain.model.AarsakUpdateParams
 import ombruk.backend.aktor.application.service.IPartnerService
 import ombruk.backend.aktor.application.service.IStasjonService
@@ -20,6 +21,7 @@ import java.util.*
 data class AarsakUpdateDto(
     @Serializable(with = UUIDSerializer::class) override val id: UUID,
     override val beskrivelse: String? = null,
+    override val type: AarsakType?,
 ) : IForm<AarsakUpdateDto>, AarsakUpdateParams() {
     override fun validOrError() = runCatchingValidation {
         validate(this) {

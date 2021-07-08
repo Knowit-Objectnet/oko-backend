@@ -16,5 +16,5 @@ import org.koin.dsl.module
 
 val aarsakModule = module(createdAtStart = true) {
     single<IAarsakRepository> { AarsakRepository() }
-    single<IAarsakService> { AarsakService() }
+    single<IAarsakService> { AarsakService(get()) }
 }
