@@ -10,6 +10,7 @@ import io.ktor.routing.*
 import io.ktor.routing.delete
 import ombruk.backend.aarsak.application.api.dto.*
 import ombruk.backend.aarsak.application.service.IAarsakService
+import ombruk.backend.aarsak.domain.enum.AarsakType
 import ombruk.backend.aktor.application.api.dto.*
 import ombruk.backend.aktor.application.service.IAktorService
 import ombruk.backend.shared.api.Authorization
@@ -21,6 +22,7 @@ import ombruk.backend.shared.api.receiveCatching
 fun Routing.aarsak(aarsakService: IAarsakService) {
     route("/aarsak") {
         authenticate {
+            //TODO: LAGE STØTTE FOR HVILKEN SOM SKAL HA HVILKEN TYPE
             get<AarsakFindOneDto> { form ->
                 Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.Partner, Roles.ReuseStation), call)
                     .flatMap { (role, groupId) ->
@@ -33,6 +35,7 @@ fun Routing.aarsak(aarsakService: IAarsakService) {
         }
 
         authenticate {
+            //TODO: LAGE STØTTE FOR HVILKEN SOM SKAL HA HVILKEN TYPE
             get<AarsakFindDto> { form ->
                 Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.Partner, Roles.ReuseStation), call)
                     .flatMap { (role, groupId) ->
