@@ -4,4 +4,5 @@ import ombruk.backend.core.domain.model.FindParams
 
 abstract class KategoriFindParams : FindParams {
     abstract val navn: String?
+    abstract val vektkategori: Boolean?
 }

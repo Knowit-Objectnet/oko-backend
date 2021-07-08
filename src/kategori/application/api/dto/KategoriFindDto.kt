@@ -12,7 +12,8 @@ import java.util.*
 @Location("")
 data class KategoriFindDto(
     override val id: UUID? = null,
-    override val navn: String? = null
+    override val navn: String? = null,
+    override val vektkategori: Boolean?
 ) : IForm<KategoriFindDto>,
     KategoriFindParams() {
     override fun validOrError() = runCatchingValidation {
