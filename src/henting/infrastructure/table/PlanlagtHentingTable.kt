@@ -8,6 +8,6 @@ object PlanlagtHentingTable: ArchivableUUIDTable("planlagt_henting") {
     val sluttTidspunkt = datetime("slutt_tidspunkt")
     val henteplanId = uuid("henteplan_id").references(HenteplanTable.id)
     val avlyst = datetime("avlyst").nullable()
-    val aarsak = text("aarsak").nullable()
+    val aarsakId = uuid("aarsak").nullable()
     val avlystAv = uuid("avlyst_av").nullable()
 }

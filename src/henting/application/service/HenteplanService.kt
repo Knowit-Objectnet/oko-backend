@@ -182,7 +182,7 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
                                             { it.planlagteHentinger?.map { planlagtHenting ->
                                                 avlystHenting.map { avlystHenting ->
                                                     if (avlystHenting.startTidspunkt.toLocalDate().isEqual(planlagtHenting.startTidspunkt.toLocalDate()) && avlystHenting.sluttTidspunkt.toLocalDate().isEqual(planlagtHenting.sluttTidspunkt.toLocalDate()) ) {
-                                                        planlagtHentingService.updateAvlystDate(id = planlagtHenting.id, date = avlystHenting.avlyst!!, aarsak = avlystHenting.aarsak, avlystAv = avlystHenting.avlystAv!!)
+                                                        planlagtHentingService.updateAvlystDate(id = planlagtHenting.id, date = avlystHenting.avlyst!!, aarsakId = avlystHenting.aarsakId!!, avlystAv = avlystHenting.avlystAv!!)
                                                     }
                                                 }
                                             }
