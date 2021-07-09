@@ -20,9 +20,8 @@ class AarsakRepository : RepositoryBase<Aarsak, AarsakCreateParams, AarsakUpdate
 
     override fun insertQuery(params: AarsakCreateParams): EntityID<UUID> {
         return table.insertAndGetId {
-            params.id?.let { paramId -> it[id] = paramId }
             it[beskrivelse] = params.beskrivelse
-            it[type] = params.type.name
+            it[type] = params.type?.name ?: AarsakType.ALLE.name
         }
     }
 

@@ -15,9 +15,9 @@ import java.util.*
 @KtorExperimentalLocationsAPI
 @Location("")
 data class AarsakFindDto(
-    override val id: UUID?,
+    override val id: UUID? = null,
     override val beskrivelse: String? = null,
-    override val type: AarsakType?
+    override val type: AarsakType? = null
 ) : IForm<AarsakFindDto>,
     AarsakFindParams() {
     override fun validOrError() = runCatchingValidation {
