@@ -5,6 +5,6 @@ import java.time.LocalDateTime
 import java.util.*
 
 abstract class PlanlagtHentingUpdateParams : HentingUpdateParams(){
-    abstract val avlys: Boolean? //Should this instead be a separate avlys-all?
-    abstract val aarsak: String?
+    abstract val avlyst: Boolean? //Should this instead be a separate avlys-all?
+    abstract val aarsakId: UUID?
 }
