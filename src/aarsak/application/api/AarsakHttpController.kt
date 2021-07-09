@@ -33,8 +33,8 @@ fun Routing.aarsak(aarsakService: IAarsakService) {
                                 {AuthorizationError.AccessViolationError("Brukeren har ikke tilgang på denne årsaken")},
                                 { when (role) {
                                     Roles.RegEmployee -> true
-                                    Roles.Partner -> it.type == AarsakType.PARTNER
-                                    Roles.ReuseStation -> it.type == AarsakType.STASJON
+                                    Roles.Partner -> (it.type == AarsakType.PARTNER || it.type == AarsakType.ALLE)
+                                    Roles.ReuseStation -> (it.type == AarsakType.STASJON || it.type == AarsakType.ALLE)
                                 }}
                             )
                     }
