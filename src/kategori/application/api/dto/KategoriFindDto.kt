@@ -13,7 +13,7 @@ import java.util.*
 data class KategoriFindDto(
     override val id: UUID? = null,
     override val navn: String? = null,
-    override val vektkategori: Boolean?
+    override val vektkategori: Boolean? = null
 ) : IForm<KategoriFindDto>,
     KategoriFindParams() {
     override fun validOrError() = runCatchingValidation {
