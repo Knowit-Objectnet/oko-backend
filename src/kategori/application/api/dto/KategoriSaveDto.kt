@@ -10,7 +10,8 @@ import org.valiktor.validate
 
 @Serializable
 data class KategoriSaveDto(
-    override val navn: String
+    override val navn: String,
+    override val vektkategori: Boolean? = false
 ) : IForm<KategoriSaveDto>, KategoriCreateParams() {
     override fun validOrError(): Either<ValidationError, KategoriSaveDto> = runCatchingValidation {
         validate(this) {}

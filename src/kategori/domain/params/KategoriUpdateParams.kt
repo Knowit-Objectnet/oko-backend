@@ -6,4 +6,5 @@ import java.util.*
 abstract class KategoriUpdateParams : UpdateParams {
     abstract override val id: UUID
     abstract val navn: String?
+    abstract val vektkategori: Boolean?
 }
