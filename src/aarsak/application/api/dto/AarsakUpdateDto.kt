@@ -21,7 +21,7 @@ import java.util.*
 data class AarsakUpdateDto(
     @Serializable(with = UUIDSerializer::class) override val id: UUID,
     override val beskrivelse: String? = null,
-    override val type: AarsakType?,
+    override val type: AarsakType? = null,
 ) : IForm<AarsakUpdateDto>, AarsakUpdateParams() {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
