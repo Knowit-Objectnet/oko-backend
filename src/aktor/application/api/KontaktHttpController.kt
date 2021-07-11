@@ -102,6 +102,26 @@ fun Routing.kontakter(kontaktService: IKontaktService) {
         }
 
         authenticate {
+            post("/verifiser") {
+                Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.Partner, Roles.ReuseStation), call)
+                    .flatMap { (role, groupId) ->
+                        receiveCatching { call.receive<KontaktVerifiseringDto>() }
+                            .flatMap { it.validOrError() }
+                            .ensure(
+                                {AuthorizationError.AccessViolationError("Kontakt forsøkt verifisert for annen gruppe")},
+                                {
+                                    if (role == Roles.RegEmployee) true
+                                    else it.id == groupId
+                                }
+                            )
+                            .flatMap { kontaktService.verifiserKontakt(it) }
+                    }
+                    .run { generateResponse(this) }
+                    .also { (code, response) -> call.respond(code, response) }
+            }
+        }
+
+        authenticate {
             delete<KontaktDeleteDto> { form ->
                 Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.Partner, Roles.ReuseStation), call)
                     .flatMap { (role, groupId) ->

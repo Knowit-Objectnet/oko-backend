@@ -7,6 +7,8 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkClass
+import ombruk.backend.aktor.application.service.IVerifiseringService
+import ombruk.backend.aktor.application.service.VerifiseringService
 import ombruk.backend.aktor.domain.entity.Kontakt
 import ombruk.backend.notification.application.service.NotificationService
 import ombruk.backend.notification.application.service.SESService
@@ -31,10 +33,11 @@ internal class NotificationServiceTest {
     private lateinit var notificationService: NotificationService
     private var snsService = mockkClass(SNSService::class)
     private var sesService = mockkClass(SESService::class)
+    private var verifiseringService = mockkClass(VerifiseringService::class)
 
     @BeforeEach
     fun setUp() {
-        notificationService = NotificationService(snsService, sesService)
+        notificationService = NotificationService(snsService, sesService, verifiseringService)
     }
 
     @AfterEach

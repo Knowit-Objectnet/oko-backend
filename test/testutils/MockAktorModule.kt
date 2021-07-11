@@ -38,7 +38,7 @@ class MockAktorModule {
                 single<IAktorService> { AktorService(get(), get()) }
                 single<IStasjonService> { StasjonService(get(), get(), get(), get(), get(), get() ) }
                 single<IPartnerService> { PartnerService(get(), get(), get(), get(), get()) }
-                single<IKontaktService> { KontaktService(get()) }
+                single<IKontaktService> { KontaktService(get(), get()) }
             }
         }
 

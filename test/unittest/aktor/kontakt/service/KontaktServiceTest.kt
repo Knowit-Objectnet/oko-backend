@@ -13,6 +13,8 @@ import ombruk.backend.aktor.domain.entity.Kontakt
 import ombruk.backend.aktor.domain.entity.Stasjon
 import ombruk.backend.aktor.domain.port.IKontaktRepository
 import ombruk.backend.aktor.domain.port.IStasjonRepository
+import ombruk.backend.notification.application.service.INotificationService
+import ombruk.backend.notification.application.service.NotificationService
 import ombruk.backend.shared.api.KeycloakGroupIntegration
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -30,11 +32,12 @@ import testutils.unmockDatabase
 internal class PartnerServiceTest {
     private lateinit var kontaktService: KontaktService
     private var kontaktRepository = mockkClass(IKontaktRepository::class)
+    private var notificationService = mockkClass(NotificationService::class)
 
     //TODO Update mockdatabase to have "kontakt"
     @BeforeEach
     fun setup() {
-        kontaktService = KontaktService(kontaktRepository)
+        kontaktService = KontaktService(kontaktRepository, notificationService)
         mockDatabase()
     }
 
