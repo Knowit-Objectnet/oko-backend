@@ -70,7 +70,7 @@ internal class EkstraHentingRepositoryTest {
             override val stasjonId: UUID = stasjon.id
             override val startTidspunkt: LocalDateTime = LocalDateTime.now()
             override val sluttTidspunkt: LocalDateTime = LocalDateTime.now().plusHours(2)
-            override val merknad: String = "ABCDEFG"
+            override val beskrivelse: String = "ABCDEFG"
         }
 
         transaction {
@@ -85,7 +85,7 @@ internal class EkstraHentingRepositoryTest {
             override val stasjonId: UUID = stasjon.id
             override val startTidspunkt: LocalDateTime = LocalDateTime.now().plusHours(2)
             override val sluttTidspunkt: LocalDateTime = LocalDateTime.now().plusHours(4)
-            override val merknad: String = "EFGHIJK"
+            override val beskrivelse: String = "EFGHIJK"
         }
 
         transaction {
@@ -108,7 +108,7 @@ internal class EkstraHentingRepositoryTest {
         val wrongIdParams = object : EkstraHentingCreateParams() {
             override val startTidspunkt: LocalDateTime = LocalDateTime.now()
             override val sluttTidspunkt: LocalDateTime = LocalDateTime.now().plusHours(2)
-            override val merknad: String? = null
+            override val beskrivelse: String = ""
             override val stasjonId: UUID = UUID.randomUUID()
         }
 
@@ -122,7 +122,7 @@ internal class EkstraHentingRepositoryTest {
         val correctIdParams = object : EkstraHentingCreateParams() {
             override val startTidspunkt: LocalDateTime = LocalDateTime.now()
             override val sluttTidspunkt: LocalDateTime = LocalDateTime.now().plusHours(2)
-            override val merknad: String? = null
+            override val beskrivelse: String = ""
             override val stasjonId: UUID = stasjon.id
         }
 
@@ -144,20 +144,20 @@ internal class EkstraHentingRepositoryTest {
             val findHenting = ekstraHentingRepository.findOne(ekstraHenting1.id)
             require(findHenting is Either.Right)
             assert(findHenting.b == ekstraHenting1)
-            println(findHenting.b.merknad)
+            println(findHenting.b.beskrivelse)
         }
 
         transaction {
             val kategorier = listOf<EkstraHentingKategoriBatchSaveDto>(EkstraHentingKategoriBatchSaveDto(kategoriId = UUID.fromString("cc4912ef-e2ed-4460-9c50-39caffde79de"), mengde = 120f))
-            val update = ekstraHentingRepository.update(EkstraHentingUpdateDto(id=ekstraHenting1.id, merknad = updatedText, kategorier = kategorier))
+            val update = ekstraHentingRepository.update(EkstraHentingUpdateDto(id=ekstraHenting1.id, beskrivelse = updatedText, kategorier = kategorier))
             require(update is Either.Right)
-            assertEquals(updatedText, update.b.merknad)
+            assertEquals(updatedText, update.b.beskrivelse)
         }
 
         transaction {
             val findHenting = ekstraHentingRepository.findOne(ekstraHenting1.id)
             require(findHenting is Either.Right)
-            assert(findHenting.b.merknad == updatedText)
+            assert(findHenting.b.beskrivelse == updatedText)
         }
 
     }

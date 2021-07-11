@@ -142,7 +142,7 @@ class EkstraHentingService(
                                         EkstraHentingSaveDto(
                                             startTidspunkt = dto.startTidspunkt ?: ekstraHenting.startTidspunkt,
                                             sluttTidspunkt = dto.sluttTidspunkt ?: ekstraHenting.sluttTidspunkt,
-                                            merknad = dto.merknad ?: ekstraHenting.merknad,
+                                            beskrivelse = dto.beskrivelse ?: ekstraHenting.beskrivelse,
                                             stasjonId = ekstraHenting.stasjonId,
                                             kategorier = dto.kategorier ?: ekstraHenting.kategorier?.map {
                                                 EkstraHentingKategoriBatchSaveDto(

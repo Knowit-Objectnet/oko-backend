@@ -21,6 +21,8 @@ import io.ktor.routing.routing
 import io.ktor.serialization.json
 import io.ktor.util.DataConversionException
 import kotlinx.serialization.json.Json
+import ombruk.backend.aarsak.aarsakModule
+import ombruk.backend.aarsak.application.api.aarsak
 import ombruk.backend.aktor.aktorModule
 import ombruk.backend.aktor.application.api.aktor
 import ombruk.backend.aktor.application.api.kontakter
@@ -216,6 +218,7 @@ fun Application.module(testing: Boolean = false) {
         modules(utlysningModule)
         modules(vektregistreringModule)
         modules(notificationModule)
+        modules(aarsakModule)
     }
 
 
@@ -231,6 +234,7 @@ fun Application.module(testing: Boolean = false) {
         utlysninger(get(), get())
         kontakter(get())
         vektregistrering(get(), get())
+        aarsak(get())
 //        events(EventService)
 //        partners(PartnerService)
 //        report(ReportService)

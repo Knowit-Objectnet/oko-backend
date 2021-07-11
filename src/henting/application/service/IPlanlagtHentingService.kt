@@ -30,6 +30,6 @@ interface IPlanlagtHentingService {
 
     fun archive(params: PlanlagtHentingFindParams): Either<ServiceError, Unit>
 
-    fun updateAvlystDate(id: UUID, date: LocalDateTime, aarsak: String?): Either<ServiceError, PlanlagtHentingWithParents>
+    fun updateAvlystDate(id: UUID, date: LocalDateTime, aarsakId: UUID, avlystAv: UUID): Either<ServiceError, PlanlagtHentingWithParents>
 
 }

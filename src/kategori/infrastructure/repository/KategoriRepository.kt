@@ -16,8 +16,9 @@ import java.util.*
 
 class KategoriRepository : RepositoryBase<Kategori, KategoriCreateParams, KategoriUpdateParams, KategoriFindParams>(), IKategoriRepository {
     override fun insertQuery(params: KategoriCreateParams): EntityID<UUID> {
-        return table.insertAndGetId {
-            it[navn] = params.navn
+        return table.insertAndGetId { row ->
+            row[navn] = params.navn
+            row[vektkategori] = params.vektkategori ?: false
         }
     }
 
@@ -25,19 +26,22 @@ class KategoriRepository : RepositoryBase<Kategori, KategoriCreateParams, Katego
         val query = table.selectAll()
         params.id?.let { query.andWhere { table.id eq it } }
         params.navn?.let { query.andWhere { table.navn eq it } }
+        params.vektkategori?.let { query.andWhere { table.vektkategori eq it } }
         return Pair(query, null)
     }
 
     override fun toEntity(row: ResultRow, aliases: List<Alias<Table>>?): Kategori {
         return Kategori(
             row[table.id].value,
-            row[table.navn]
+            row[table.navn],
+            row[table.vektkategori]
         )
     }
 
     override fun updateQuery(params: KategoriUpdateParams): Int {
         return table.update({ table.id eq params.id }) { row ->
             params.navn?.let { row[KontaktTable.navn] = it }
+            params.vektkategori?.let { row[vektkategori] = it }
         }
     }
 

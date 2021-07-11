@@ -13,6 +13,8 @@ import ombruk.backend.aktor.domain.entity.Stasjon
 import ombruk.backend.aktor.domain.enum.AktorType
 import ombruk.backend.aktor.domain.port.IPartnerRepository
 import ombruk.backend.aktor.domain.port.IStasjonRepository
+import ombruk.backend.aktor.infrastructure.repository.PartnerRepository
+import ombruk.backend.aktor.infrastructure.repository.StasjonRepository
 import ombruk.backend.shared.error.RepositoryError
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -31,8 +33,8 @@ import testutils.unmockDatabase
 internal class AktorServiceTest {
     private lateinit var aktorService: AktorService
 
-    private var stasjonRepository = mockkClass(IStasjonRepository::class)
-    private var partnerRepository = mockkClass(IPartnerRepository::class)
+    private var stasjonRepository = mockkClass(StasjonRepository::class)
+    private var partnerRepository = mockkClass(PartnerRepository::class)
 
     @BeforeEach
     fun setup() {
@@ -50,12 +52,14 @@ internal class AktorServiceTest {
         val id = UUID.randomUUID()
 
         every { stasjonRepository.findOne(id) } returns expected.right()
+        every { expected.id } returns id
+        every { expected.navn } returns "StasjonNavn"
 
         val actual = aktorService.findOne(id)
         require(actual is Either.Right)
 
         assertNotNull(expected)
-        assertEquals(actual.b, AktorType.STASJON)
+        assertEquals(actual.b.aktorType, AktorType.STASJON)
     }
 
     @Test
@@ -64,11 +68,13 @@ internal class AktorServiceTest {
 
         every { stasjonRepository.findOne(id) } returns expectedStasjon.left()
         every { partnerRepository.findOne(id) } returns expected.right()
+        every { expected.id } returns id
+        every { expected.navn } returns "PartnerNavn"
 
         val actual = aktorService.findOne(id)
         require(actual is Either.Right)
 
         assertNotNull(expected)
-        assertEquals(actual.b, AktorType.PARTNER)
+        assertEquals(actual.b.aktorType, AktorType.PARTNER)
     }
 }

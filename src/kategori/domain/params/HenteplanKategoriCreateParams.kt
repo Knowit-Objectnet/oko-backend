@@ -4,5 +4,4 @@ import java.util.*
 
 abstract class HenteplanKategoriCreateParams: KobletKategoriCreateParams() {
     abstract val henteplanId: UUID
-    abstract val merknad: String?
 }

@@ -25,7 +25,7 @@ data class EkstraHentingUpdateDto(
     @Serializable(with = UUIDSerializer::class) override val id: UUID,
     @Serializable(with = LocalDateTimeSerializer::class) override val startTidspunkt: LocalDateTime? = null,
     @Serializable(with = LocalDateTimeSerializer::class) override val sluttTidspunkt: LocalDateTime? = null,
-    override val merknad: String? = null,
+    override val beskrivelse: String? = null,
     var kategorier: List<EkstraHentingKategoriBatchSaveDto>? = null
 ) : IForm<EkstraHentingUpdateDto>, EkstraHentingUpdateParams(), KoinComponent {
     override fun validOrError(): Either<ValidationError, EkstraHentingUpdateDto> = runCatchingValidation {

@@ -22,7 +22,7 @@ import java.util.*
 data class EkstraHentingSaveDto(
     @Serializable(with = LocalDateTimeSerializer::class) override val startTidspunkt: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class) override val sluttTidspunkt: LocalDateTime,
-    override val merknad: String? = null,
+    override val beskrivelse: String,
     @Serializable(with = UUIDSerializer::class) override val stasjonId: UUID,
     var kategorier: List<EkstraHentingKategoriBatchSaveDto>? = null,
     var partnere: List<String>? = null

@@ -7,5 +7,4 @@ import java.util.*
 abstract class HentingFindParams : FindParams{
     abstract val after: LocalDateTime? //Find any henting starting after this time
     abstract val before: LocalDateTime? //Find any henting ending before this time
-    abstract val merknad: String? //Does it make sense finding based on merknad? Current: Merknad contains the string
 }
