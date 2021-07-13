@@ -22,5 +22,5 @@ data class PlanlagtHenting(
     val aktorNavn: String,
     @Serializable(with = UUIDSerializer::class) val stasjonId: UUID,
     val stasjonNavn: String,
-    val kategorier: List<HenteplanKategori>?
+    val kategorier: List<HenteplanKategori>? = emptyList()
 ) : Henting()

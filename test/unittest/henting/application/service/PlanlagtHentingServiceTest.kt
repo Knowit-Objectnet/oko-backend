@@ -36,7 +36,7 @@ internal class PlanlagtHentingServiceTest {
     @BeforeEach
     fun setUp() {
         mockDatabase()
-        planlagtHentingService = PlanlagtHentingService(planlagtHentingRepository, henteplanKategoriService)
+        planlagtHentingService = PlanlagtHentingService(planlagtHentingRepository)
     }
 
     @AfterEach

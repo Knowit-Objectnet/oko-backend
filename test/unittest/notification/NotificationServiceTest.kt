@@ -10,6 +10,7 @@ import io.mockk.mockkClass
 import ombruk.backend.aktor.application.service.IVerifiseringService
 import ombruk.backend.aktor.application.service.VerifiseringService
 import ombruk.backend.aktor.domain.entity.Kontakt
+import ombruk.backend.aktor.domain.entity.Verifisering
 import ombruk.backend.notification.application.service.NotificationService
 import ombruk.backend.notification.application.service.SESService
 import ombruk.backend.notification.application.service.SNSService
@@ -57,6 +58,8 @@ internal class NotificationServiceTest {
                 epost = "test@knowit.no"
             )
         )
+
+        every { verifiseringService.getVerifiseringById(kontakter[0].id) } returns Verifisering(kontakter[0].id).right()
 
         val actual = notificationService.sendMessage("Test", kontakter)
         assert(actual is Either.Right<Notification>)

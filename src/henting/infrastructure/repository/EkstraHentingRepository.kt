@@ -53,7 +53,7 @@ class EkstraHentingRepository :
             row[table.stasjonId],
             row[StasjonTable.navn],
             null,
-            null
+            emptyList()
         )
     }
 

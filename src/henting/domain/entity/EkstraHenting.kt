@@ -17,6 +17,6 @@ data class EkstraHenting(
     @Serializable(with = UUIDSerializer::class) val stasjonId: UUID,
     val stasjonNavn: String,
     val godkjentUtlysning: Utlysning? = null,
-    val kategorier: List<EkstraHentingKategori>?,
+    val kategorier: List<EkstraHentingKategori> = emptyList(),
     val utlysninger: List<Utlysning> = emptyList()
 ) : Henting()
