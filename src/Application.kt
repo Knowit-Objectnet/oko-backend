@@ -31,6 +31,7 @@ import ombruk.backend.aktor.application.api.stasjoner
 import ombruk.backend.avtale.application.api.dto.avtaler
 import ombruk.backend.avtale.avtaleModule
 import ombruk.backend.henting.application.api.dto.ekstraHentinger
+import ombruk.backend.henting.application.api.dto.hentinger
 import ombruk.backend.henting.application.api.henteplaner
 import ombruk.backend.henting.application.api.planlagteHentinger
 import ombruk.backend.henting.hentingModule
@@ -230,6 +231,7 @@ fun Application.module(testing: Boolean = false) {
         henteplaner(get(), get())
         planlagteHentinger(get())
         ekstraHentinger(get())
+        hentinger(get())
         kategorier(get())
         utlysninger(get(), get())
         kontakter(get())

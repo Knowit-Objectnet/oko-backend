@@ -9,7 +9,7 @@ import io.mockk.mockkClass
 import ombruk.backend.henting.application.api.dto.PlanlagtHentingBatchPostDto
 import ombruk.backend.henting.application.api.dto.PlanlagtHentingSaveDto
 import ombruk.backend.henting.application.service.PlanlagtHentingService
-import ombruk.backend.henting.domain.entity.PlanlagtHentingWithParents
+import ombruk.backend.henting.domain.entity.PlanlagtHenting
 import ombruk.backend.henting.infrastructure.repository.PlanlagtHentingRepository
 import ombruk.backend.kategori.application.service.HenteplanKategoriService
 import org.junit.jupiter.api.AfterEach
@@ -45,7 +45,7 @@ internal class PlanlagtHentingServiceTest {
     }
 
     @Test
-    fun batchCreateForHenteplan(@MockK expected : PlanlagtHentingWithParents) {
+    fun batchCreateForHenteplan(@MockK expected : PlanlagtHenting) {
 
         val dto = PlanlagtHentingBatchPostDto(
             PlanlagtHentingSaveDto(

@@ -32,6 +32,9 @@ class VerifiseringService constructor(
         return transaction {
             verifiseringRepository.findOne(dto.id)
                 .flatMap { verifisering ->
+
+                    println(verifisering)
+
                     var verifiseringUpdate: VerifiseringUpdateDto = VerifiseringUpdateDto(verifisering.id)
 
                     if (!verifisering.telefonKode.isNullOrEmpty() && verifisering.telefonKode == dto.telefonKode) {

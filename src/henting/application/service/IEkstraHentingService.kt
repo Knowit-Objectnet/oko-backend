@@ -3,8 +3,6 @@ package ombruk.backend.henting.application.service
 import arrow.core.Either
 import ombruk.backend.henting.application.api.dto.*
 import ombruk.backend.henting.domain.entity.EkstraHenting
-import ombruk.backend.henting.domain.entity.PlanlagtHenting
-import ombruk.backend.henting.domain.entity.PlanlagtHentingWithParents
 import ombruk.backend.henting.domain.params.EkstraHentingFindParams
 import ombruk.backend.shared.error.ServiceError
 import java.util.*

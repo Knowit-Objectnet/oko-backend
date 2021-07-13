@@ -5,12 +5,9 @@ import arrow.core.extensions.either.applicative.applicative
 import arrow.core.extensions.list.traverse.sequence
 import io.ktor.locations.*
 import ombruk.backend.henting.application.api.dto.*
-import ombruk.backend.henting.domain.entity.PlanlagtHentingWithParents
+import ombruk.backend.henting.domain.entity.PlanlagtHenting
 import ombruk.backend.henting.domain.params.PlanlagtHentingFindParams
 import ombruk.backend.henting.domain.port.IPlanlagtHentingRepository
-import ombruk.backend.kategori.application.api.dto.HenteplanKategoriFindDto
-import ombruk.backend.kategori.application.service.IHenteplanKategoriService
-import ombruk.backend.kategori.application.service.IKategoriService
 import ombruk.backend.shared.error.ServiceError
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.KoinComponent
@@ -22,11 +19,11 @@ import java.util.*
 class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepository ): IPlanlagtHentingService, KoinComponent {
     private val henteplanService: IHenteplanService by inject()
 
-    override fun save(dto: PlanlagtHentingSaveDto): Either<ServiceError, PlanlagtHentingWithParents> {
+    override fun save(dto: PlanlagtHentingSaveDto): Either<ServiceError, PlanlagtHenting> {
         return transaction { planlagtHentingRepository.insert(dto) }
     }
 
-    override fun findOne(id: UUID): Either<ServiceError, PlanlagtHentingWithParents> {
+    override fun findOne(id: UUID): Either<ServiceError, PlanlagtHenting> {
         return transaction {
             planlagtHentingRepository.findOne(id)
                 .fold(
@@ -44,7 +41,7 @@ class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepo
         }
     }
 
-    override fun find(dto: PlanlagtHentingFindDto): Either<ServiceError, List<PlanlagtHentingWithParents>> {
+    override fun find(dto: PlanlagtHentingFindDto): Either<ServiceError, List<PlanlagtHenting>> {
         return transaction {
             planlagtHentingRepository.find(dto)
                 .fold(
@@ -66,14 +63,14 @@ class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepo
         return transaction { planlagtHentingRepository.delete(dto.id) }
     }
 
-    override fun update(dto: PlanlagtHentingUpdateDto): Either<ServiceError, PlanlagtHentingWithParents> {
+    override fun update(dto: PlanlagtHentingUpdateDto): Either<ServiceError, PlanlagtHenting> {
         return transaction { planlagtHentingRepository.update(dto) }
     }
-    override fun update(dto: PlanlagtHentingUpdateDto, avlystAv: UUID): Either<ServiceError, PlanlagtHentingWithParents> {
+    override fun update(dto: PlanlagtHentingUpdateDto, avlystAv: UUID): Either<ServiceError, PlanlagtHenting> {
         return transaction { planlagtHentingRepository.update(dto, avlystAv) }
     }
 
-    override fun batchSaveForHenteplan(dto: PlanlagtHentingBatchPostDto): Either<ServiceError, List<PlanlagtHentingWithParents>> {
+    override fun batchSaveForHenteplan(dto: PlanlagtHentingBatchPostDto): Either<ServiceError, List<PlanlagtHenting>> {
         return transaction {
             dto.dateList.map {
                 planlagtHentingRepository.insert(
@@ -104,7 +101,7 @@ class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepo
         }
     }
 
-    override fun updateAvlystDate(id: UUID, date: LocalDateTime, aarsakId: UUID, avlystAv: UUID): Either<ServiceError, PlanlagtHentingWithParents> {
+    override fun updateAvlystDate(id: UUID, date: LocalDateTime, aarsakId: UUID, avlystAv: UUID): Either<ServiceError, PlanlagtHenting> {
         return transaction {
             planlagtHentingRepository.updateAvlystDate(id, date, aarsakId, avlystAv)
         }
