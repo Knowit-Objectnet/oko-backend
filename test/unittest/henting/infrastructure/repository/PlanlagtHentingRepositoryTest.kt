@@ -10,10 +10,8 @@ import ombruk.backend.avtale.domain.params.AvtaleCreateParams
 import ombruk.backend.avtale.infrastructure.repository.AvtaleRepository
 import ombruk.backend.avtale.model.AvtaleType
 import ombruk.backend.henting.application.api.dto.PlanlagtHentingFindDto
-import ombruk.backend.henting.application.api.dto.PlanlagtHentingUpdateDto
 import ombruk.backend.henting.domain.entity.Henteplan
 import ombruk.backend.henting.domain.entity.PlanlagtHenting
-import ombruk.backend.henting.domain.entity.PlanlagtHentingWithParents
 import ombruk.backend.henting.domain.model.HenteplanFrekvens
 import ombruk.backend.henting.domain.params.HenteplanCreateParams
 import ombruk.backend.henting.domain.params.PlanlagtHentingCreateParams
@@ -32,7 +30,6 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
-import kotlin.test.assertEquals
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Testcontainers
@@ -46,8 +43,8 @@ internal class PlanlagtHentingRepositoryTest {
     private lateinit var avtale: Avtale
     private lateinit var stasjon: Stasjon
     private lateinit var henteplan: Henteplan
-    private lateinit var planlagtHenting1: PlanlagtHentingWithParents
-    private lateinit var planlagtHenting2: PlanlagtHentingWithParents
+    private lateinit var planlagtHenting1: PlanlagtHenting
+    private lateinit var planlagtHenting2: PlanlagtHenting
 
     @BeforeEach
     fun setUp() {

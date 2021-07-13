@@ -6,7 +6,7 @@ import ombruk.backend.aktor.infrastructure.table.PartnerTable
 import ombruk.backend.aktor.infrastructure.table.StasjonTable
 import ombruk.backend.avtale.infrastructure.table.AvtaleTable
 import ombruk.backend.core.infrastructure.RepositoryBase
-import ombruk.backend.henting.domain.entity.PlanlagtHentingWithParents
+import ombruk.backend.henting.domain.entity.PlanlagtHenting
 import ombruk.backend.henting.domain.params.PlanlagtHentingCreateParams
 import ombruk.backend.henting.domain.params.PlanlagtHentingFindParams
 import ombruk.backend.henting.domain.params.PlanlagtHentingUpdateParams
@@ -16,13 +16,11 @@ import ombruk.backend.henting.infrastructure.table.PlanlagtHentingTable
 import ombruk.backend.shared.error.RepositoryError
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import java.lang.Exception
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-class PlanlagtHentingRepository: RepositoryBase<PlanlagtHentingWithParents, PlanlagtHentingCreateParams, PlanlagtHentingUpdateParams, PlanlagtHentingFindParams>(),
+class PlanlagtHentingRepository: RepositoryBase<PlanlagtHenting, PlanlagtHentingCreateParams, PlanlagtHentingUpdateParams, PlanlagtHentingFindParams>(),
     IPlanlagtHentingRepository{
     override fun insertQuery(params: PlanlagtHentingCreateParams): EntityID<UUID> {
         return PlanlagtHentingTable.insertAndGetId {
@@ -66,7 +64,7 @@ class PlanlagtHentingRepository: RepositoryBase<PlanlagtHentingWithParents, Plan
         return Pair(query, listOf(stasjonAlias))
     }
 
-    override fun findOneMethod(id: UUID): List<PlanlagtHentingWithParents> {
+    override fun findOneMethod(id: UUID): List<PlanlagtHenting> {
         val stasjonAlias = StasjonTable
             .alias("stasjonAktorAlias")
         val joinedTable = table.innerJoin(HenteplanTable, {table.henteplanId}, {HenteplanTable.id})
@@ -77,7 +75,7 @@ class PlanlagtHentingRepository: RepositoryBase<PlanlagtHentingWithParents, Plan
         return joinedTable.select { table.id eq id }.mapNotNull { toEntity(it, listOf(stasjonAlias)) }
     }
 
-    override fun toEntity(row: ResultRow, aliases: List<Alias<Table>>?): PlanlagtHentingWithParents {
+    override fun toEntity(row: ResultRow, aliases: List<Alias<Table>>?): PlanlagtHenting {
 
         val stasjonAlias = aliases?.get(0)!!
 
@@ -97,7 +95,7 @@ class PlanlagtHentingRepository: RepositoryBase<PlanlagtHentingWithParents, Plan
             aktorNavn = row[stasjonAlias[StasjonTable.navn]]
         }
 
-        return PlanlagtHentingWithParents(
+        return PlanlagtHenting(
             row[table.id].value,
             row[table.startTidspunkt],
             row[table.sluttTidspunkt],
@@ -130,7 +128,7 @@ class PlanlagtHentingRepository: RepositoryBase<PlanlagtHentingWithParents, Plan
     override fun update(
         params: PlanlagtHentingUpdateParams,
         avlystId: UUID
-    ): Either<RepositoryError, PlanlagtHentingWithParents> {
+    ): Either<RepositoryError, PlanlagtHenting> {
         return runCatching {
             updateQuery(params, avlystId)
         }
@@ -143,7 +141,7 @@ class PlanlagtHentingRepository: RepositoryBase<PlanlagtHentingWithParents, Plan
             )
     }
 
-    override fun updateAvlystDate(id: UUID, date: LocalDateTime, aarsak_Id: UUID, avlystAvId: UUID): Either<RepositoryError, PlanlagtHentingWithParents> {
+    override fun updateAvlystDate(id: UUID, date: LocalDateTime, aarsak_Id: UUID, avlystAvId: UUID): Either<RepositoryError, PlanlagtHenting> {
         fun u(id: UUID, date: LocalDateTime, aarsak_Id: UUID, avlystAvId: UUID): Int {
             return table.update( {table.id eq id} ) { row ->
                 row[avlyst] = date

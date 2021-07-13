@@ -8,15 +8,10 @@ import io.ktor.locations.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import ombruk.backend.henting.application.api.dto.PlanlagtHentingUpdateDto
 import ombruk.backend.henting.application.service.IHentingService
 import ombruk.backend.henting.domain.entity.EkstraHenting
-import ombruk.backend.henting.domain.entity.PlanlagtHentingWithParents
-import ombruk.backend.kategori.application.api.dto.KategoriDeleteDto
-import ombruk.backend.kategori.application.api.dto.KategoriFindDto
-import ombruk.backend.kategori.application.api.dto.KategoriFindOneDto
-import ombruk.backend.kategori.application.api.dto.KategoriSaveDto
-import ombruk.backend.kategori.application.service.IKategoriService
+import ombruk.backend.henting.domain.entity.PlanlagtHenting
+import ombruk.backend.henting.domain.model.HentingType
 import ombruk.backend.shared.api.Authorization
 import ombruk.backend.shared.api.Roles
 import ombruk.backend.shared.api.generateResponse
@@ -60,23 +55,15 @@ fun Routing.vektregistrering(vektregistreringService: IVektregistreringService, 
                                             when (role) {
                                                 Roles.RegEmployee -> true
                                                 Roles.Partner -> {
-                                                    when (it) {
-                                                        is PlanlagtHentingWithParents -> groupId == it.aktorId
-
-                                                        //TODO: Klarhet for hva det skal sjekkes mot, kan "map" over alle som det er utlyst til
-                                                        is EkstraHenting -> groupId == it.godkjentUtlysning?.partnerId
-
-                                                        //TODO: Andre typer hentinger?
-                                                        else -> false
+                                                    when (it.type) {
+                                                        HentingType.PLANLAGT -> groupId == it.aktorId
+                                                        HentingType.EKSTRA -> groupId == it.aktorId
                                                     }
                                                 }
                                                 Roles.ReuseStation -> {
-                                                    when (it) {
-                                                        is PlanlagtHentingWithParents -> groupId == it.stasjonId || groupId == it.aktorId
-                                                        is EkstraHenting -> groupId == it.stasjonId
-
-                                                        //TODO: Andre typer hentinger?
-                                                        else -> false
+                                                    when (it.type) {
+                                                        HentingType.PLANLAGT -> groupId == it.stasjonId || groupId == it.aktorId
+                                                        HentingType.EKSTRA -> groupId == it.stasjonId
                                                     }
                                                 }
                                             }

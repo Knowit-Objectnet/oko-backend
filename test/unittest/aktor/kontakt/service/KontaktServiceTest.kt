@@ -9,6 +9,7 @@ import io.mockk.mockkClass
 import ombruk.backend.aktor.application.service.IKontaktService
 import ombruk.backend.aktor.application.service.KontaktService
 import ombruk.backend.aktor.application.service.StasjonService
+import ombruk.backend.aktor.application.service.VerifiseringService
 import ombruk.backend.aktor.domain.entity.Kontakt
 import ombruk.backend.aktor.domain.entity.Stasjon
 import ombruk.backend.aktor.domain.port.IKontaktRepository
@@ -33,11 +34,12 @@ internal class PartnerServiceTest {
     private lateinit var kontaktService: KontaktService
     private var kontaktRepository = mockkClass(IKontaktRepository::class)
     private var notificationService = mockkClass(NotificationService::class)
+    private var verifiseringService = mockkClass(VerifiseringService::class)
 
     //TODO Update mockdatabase to have "kontakt"
     @BeforeEach
     fun setup() {
-        kontaktService = KontaktService(kontaktRepository, notificationService)
+        kontaktService = KontaktService(kontaktRepository, notificationService, verifiseringService)
         mockDatabase()
     }
 

@@ -7,7 +7,7 @@ import henting.application.api.dto.HenteplanSaveDto
 import io.ktor.locations.*
 import ombruk.backend.henting.application.api.dto.*
 import ombruk.backend.henting.domain.entity.Henteplan
-import ombruk.backend.henting.domain.entity.PlanlagtHentingWithParents
+import ombruk.backend.henting.domain.entity.PlanlagtHenting
 import ombruk.backend.henting.domain.params.HenteplanFindParams
 import ombruk.backend.henting.domain.port.IHenteplanRepository
 import ombruk.backend.kategori.application.api.dto.HenteplanKategoriBatchSaveDto
@@ -24,7 +24,7 @@ import java.util.*
 @KtorExperimentalLocationsAPI
 class HenteplanService(val henteplanRepository: IHenteplanRepository, val planlagtHentingService: IPlanlagtHentingService, val henteplanKategoriService: IHenteplanKategoriService) : IHenteplanService {
 
-    fun createPlanlagtHentinger(dto: HenteplanSaveDto, henteplanId: UUID): Either<ServiceError, List<PlanlagtHentingWithParents>> {
+    fun createPlanlagtHentinger(dto: HenteplanSaveDto, henteplanId: UUID): Either<ServiceError, List<PlanlagtHenting>> {
         //Find all dates
         val dates = LocalDateTimeProgressionWithDayFrekvens(dto.startTidspunkt, dto.sluttTidspunkt, dto.ukedag, dto.frekvens)
             .map { it.toLocalDate() }
@@ -34,7 +34,7 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
 
     fun appendPlanlagtHentinger(dto: HenteplanSaveDto, id: UUID, henteplan: Henteplan): Either<ServiceError, Henteplan> =
         run {
-            val hentinger: Either<ServiceError, List<PlanlagtHentingWithParents>> = createPlanlagtHentinger(dto, id)
+            val hentinger: Either<ServiceError, List<PlanlagtHenting>> = createPlanlagtHentinger(dto, id)
             when (hentinger) {
                 is Either.Left -> hentinger
                 is Either.Right -> henteplan.copy(planlagteHentinger = hentinger.b).right()
@@ -138,7 +138,7 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
     override fun update(dto: HenteplanUpdateDto): Either<ServiceError, Henteplan> {
         return transaction {
             val today = LocalDateTime.now()
-            val avlystHenting: MutableList<PlanlagtHentingWithParents> = mutableListOf()
+            val avlystHenting: MutableList<PlanlagtHenting> = mutableListOf()
             findOne(dto.id)
                 .fold(
                     { Either.left(ServiceError(it.message))},

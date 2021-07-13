@@ -148,7 +148,7 @@ class AvtaleTest : KoinTest {
             LocalDateTime.of(2021,1,1,10,0),
             LocalDateTime.of(2021,2,1,14,0),
             DayOfWeek.FRIDAY,
-            null
+            ""
         ).validateAndRequireRight()
 
         val henteplanPostDto2 = HenteplanSaveDto(
@@ -158,7 +158,7 @@ class AvtaleTest : KoinTest {
             LocalDateTime.of(2021,1,1,10,0),
             LocalDateTime.of(2021,1,1,14,0),
             DayOfWeek.FRIDAY,
-            null
+            ""
         ).validateAndRequireRight()
 
         val henteplanCreate1 = henteplanService.save(henteplanPostDto1)
@@ -193,6 +193,9 @@ class AvtaleTest : KoinTest {
         ).validateAndRequireRight())
 
         require(findAll is Either.Right)
+
+        println(findAll.b)
+        println(henteplan1.planlagteHentinger)
 
         assert(findAll.b.containsAll(henteplan1.planlagteHentinger!!.subList(0,3)))
         assert(findAll.b.containsAll(henteplan2.planlagteHentinger!!))
