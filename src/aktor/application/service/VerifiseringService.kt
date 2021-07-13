@@ -33,7 +33,7 @@ class VerifiseringService constructor(
             verifiseringRepository.findOne(dto.id)
                 .flatMap { verifisering ->
 
-                    println(verifisering)
+
 
                     var verifiseringUpdate: VerifiseringUpdateDto = VerifiseringUpdateDto(verifisering.id)
 
