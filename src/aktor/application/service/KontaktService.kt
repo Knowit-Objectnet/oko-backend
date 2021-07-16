@@ -1,9 +1,8 @@
 package ombruk.backend.aktor.application.service
 
-import arrow.core.Either
-import arrow.core.flatMap
-import arrow.core.left
-import arrow.core.right
+import arrow.core.*
+import arrow.core.extensions.either.applicative.applicative
+import arrow.core.extensions.list.traverse.sequence
 import io.ktor.locations.*
 import io.ktor.util.*
 import ombruk.backend.aktor.application.api.dto.*
@@ -25,19 +24,38 @@ class KontaktService constructor(
     @KtorExperimentalAPI
     override fun save(dto: KontaktSaveDto): Either<ServiceError, Kontakt> {
         return transaction {
-            kontaktRepository.insert(dto).flatMap { kontakt ->
-                notificationService.sendVerification(kontakt).flatMap { kontakt.right() }
-            }
+            kontaktRepository.insert(dto)
+                .flatMap { kontakt ->
+                    notificationService.sendVerification(kontakt)
+                        .flatMap {
+                            verifiseringService.getVerifisertById(kontakt.id)
+                                .fold({kontakt.right()}, {kontakt.copy(verifisert = it).right()})
+                        }
+                }
         }
     }
 
     override fun getKontaktById(id: UUID): Either<ServiceError, Kontakt> {
-        return transaction { kontaktRepository.findOne(id) }
+        return transaction {
+            kontaktRepository.findOne(id)
+                .flatMap { kontakt ->
+                    verifiseringService.getVerifisertById(kontakt.id)
+                        .fold({kontakt.right()}, {kontakt.copy(verifisert = it).right()})
+                }
+        }
     }
 
     @KtorExperimentalLocationsAPI
     override fun getKontakter(dto: KontaktGetDto): Either<ServiceError, List<Kontakt>> {
-        return transaction { kontaktRepository.find(dto) }
+        return transaction {
+            kontaktRepository.find(dto)
+                .flatMap { kontakter ->
+                    kontakter.map { kontakt ->
+                        verifiseringService.getVerifisertById(kontakt.id)
+                            .fold({ kontakt.right() }, { kontakt.copy(verifisert = it).right() })
+                    }.sequence(Either.applicative()).fix().map { it.fix() }
+                }
+        }
     }
 
     @KtorExperimentalLocationsAPI
@@ -48,7 +66,7 @@ class KontaktService constructor(
     @KtorExperimentalAPI
     override fun deleteKontaktById(id: UUID): Either<ServiceError, Kontakt> {
         return transaction {
-            kontaktRepository.findOne(id).flatMap { kontakt ->
+            getKontaktById(id).flatMap { kontakt ->
                 kontaktRepository.delete(id)
                     .bimap({ rollback(); it }, { kontakt })
             }
@@ -59,7 +77,7 @@ class KontaktService constructor(
     override fun update(dto: KontaktUpdateDto): Either<ServiceError, Kontakt>  {
         return transaction {
             kontaktRepository.findOne(dto.id)
-                .flatMap { original ->
+                .flatMap<ServiceError, Kontakt, Kontakt> { original ->
                     kontaktRepository.update(dto)
                         .flatMap { updated ->
                             notificationService.sendVerificationUpdated(
@@ -67,9 +85,13 @@ class KontaktService constructor(
                                     telefon = if (original.telefon != updated.telefon) dto.telefon else null,
                                     epost = if (original.epost != updated.epost) dto.epost else null
                                 )
-                            ).bimap({ rollback(); it }, { updated })
+                            )
+                                .flatMap {
+                                    verifiseringService.getVerifisertById(updated.id)
+                                        .flatMap { updated.copy(verifisert = it).right() }
+                                }
                         }
-                }
+                }.fold({rollback(); it.left()}, {it.right()})
         }
     }
 }
