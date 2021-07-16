@@ -36,7 +36,6 @@ class HentingService(val planlagtHentingService: IPlanlagtHentingService, val ek
         }
     }
 
-    //TODO: Lag en løsning for å søke etter planalgt henting ut i fra aktør og stasjon? kanskje bruke Henteplaner som ikke er utgått?
     override fun find(dto: HentingFindDto): Either<ServiceError, List<HentingWrapper>> {
         return transaction {
             val hentinger: MutableList<HentingWrapper> = mutableListOf()
