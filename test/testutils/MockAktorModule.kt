@@ -7,7 +7,7 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.mockkClass
 import ombruk.backend.aktor.application.service.*
 import ombruk.backend.aktor.domain.entity.Verifisering
-import ombruk.backend.aktor.domain.entity.Verifisert
+import ombruk.backend.aktor.domain.entity.VerifiseringStatus
 import ombruk.backend.aktor.domain.port.IKontaktRepository
 import ombruk.backend.aktor.domain.port.IPartnerRepository
 import ombruk.backend.aktor.domain.port.IStasjonRepository
@@ -40,7 +40,7 @@ class MockAktorModule {
             every { keycloakGroupIntegration.createGroup(any(), any<UUID>()) } returns expected.right()
             every { keycloakGroupIntegration.deleteGroup(any()) } returns expected.right()
             every { keycloakGroupIntegration.updateGroup(any(), any()) } returns Unit.right()
-            every { verifiseringService.verifiser(any()) } returns Verifisert(UUID.randomUUID(), false, false).right()
+            every { verifiseringService.verifiser(any()) } returns VerifiseringStatus(UUID.randomUUID(), false, false).right()
             every { verifiseringService.save(any()) } returns Verifisering(UUID.randomUUID()).right()
             every { snsService.sendMessage(any(), any()) } returns SNS(200, "Success")
             every { snsService.sendVerification(any()) } returns SNS(200, "Success")

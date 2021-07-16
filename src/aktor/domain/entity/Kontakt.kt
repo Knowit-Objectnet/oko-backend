@@ -12,5 +12,5 @@ data class Kontakt (
     val telefon: String? = null,
     val epost: String? = null,
     val rolle: String? = null,
-    val verifisert: Verifisert? = null
+    val verifiseringStatus: VerifiseringStatus? = null
 )

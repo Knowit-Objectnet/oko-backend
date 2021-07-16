@@ -9,7 +9,7 @@ import ombruk.backend.aktor.domain.entity.Kontakt
 import ombruk.backend.notification.domain.entity.Notification
 import ombruk.backend.notification.domain.entity.SES
 import ombruk.backend.notification.domain.entity.SNS
-import ombruk.backend.notification.domain.entity.Verification
+import ombruk.backend.notification.domain.entity.VerificationMessage
 import ombruk.backend.shared.error.ServiceError
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -73,11 +73,11 @@ class NotificationService constructor(
     }
     .onFailure { logger.error("Lambda failed for sendVerificationUpdated; ${it.message}") }
     .fold(
-        { Verification("Success").right() },
+        { VerificationMessage("Success").right() },
         { ServiceError(message = "Lambda invocation failed").left() }
     )
 
-    override fun sendVerification(contact: Kontakt): Either<ServiceError, Verification> = runCatching {
+    override fun sendVerification(contact: Kontakt): Either<ServiceError, VerificationMessage> = runCatching {
         val sms = contact.telefon?.let { verifySMS(contact.id, it) }?.map { it.message }
         val email = contact.epost?.let { verifyEmail(contact.id, it) }?.map { it.message }
 
@@ -93,19 +93,19 @@ class NotificationService constructor(
     }
     .onFailure { logger.error("Lambda failed for sendVerification; ${it.message}") }
     .fold(
-        { Verification("Success").right() },
+        { VerificationMessage("Success").right() },
         { ServiceError(message = "Lambda invocation failed").left() }
     )
 
-    override fun resendVerification(contact: Kontakt): Either<ServiceError, Verification> = runCatching {
+    override fun resendVerification(contact: Kontakt): Either<ServiceError, VerificationMessage> = runCatching {
 
         val sms =
-            if (contact.telefon != null && !contact.verifisert!!.telefonVerifisert)
+            if (contact.telefon != null && !contact.verifiseringStatus!!.telefonVerifisert)
                 verifySMS(contact.id, contact.telefon).map { it.message }
             else null
 
         val email =
-            if (contact.epost != null && !contact.verifisert!!.epostVerifisert)
+            if (contact.epost != null && !contact.verifiseringStatus!!.epostVerifisert)
                 verifyEmail(contact.id, contact.epost).map { it.message }
             else null
 
@@ -120,7 +120,7 @@ class NotificationService constructor(
     }
         .onFailure { logger.error("Lambda failed for sendVerification; ${it.message}") }
         .fold(
-            { Verification("Success").right() },
+            { VerificationMessage("Success").right() },
             { ServiceError(message = "Lambda invocation failed").left() }
         )
 

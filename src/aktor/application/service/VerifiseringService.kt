@@ -8,7 +8,7 @@ import io.ktor.locations.*
 import io.ktor.util.*
 import ombruk.backend.aktor.application.api.dto.*
 import ombruk.backend.aktor.domain.entity.Verifisering
-import ombruk.backend.aktor.domain.entity.Verifisert
+import ombruk.backend.aktor.domain.entity.VerifiseringStatus
 import ombruk.backend.aktor.domain.port.IVerifiseringRepository
 import ombruk.backend.shared.error.ServiceError
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -29,12 +29,12 @@ class VerifiseringService constructor(
         return transaction { verifiseringRepository.findOne(id) }
     }
 
-    override fun getVerifisertById(id: UUID): Either<ServiceError, Verifisert> {
-        return getVerifiseringById(id).map { Verifisert(it.id, it.telefonVerifisert, it.epostVerifisert) }
+    override fun getVerifisertById(id: UUID): Either<ServiceError, VerifiseringStatus> {
+        return getVerifiseringById(id).map { VerifiseringStatus(it.id, it.telefonVerifisert, it.epostVerifisert) }
     }
 
     @KtorExperimentalLocationsAPI
-    override fun verifiser(dto: KontaktVerifiseringDto): Either<ServiceError, Verifisert> {
+    override fun verifiser(dto: KontaktVerifiseringDto): Either<ServiceError, VerifiseringStatus> {
         return transaction {
             verifiseringRepository.findOne(dto.id)
                 .flatMap { verifisering ->
@@ -53,7 +53,7 @@ class VerifiseringService constructor(
                     ).fold(
                         { rollback(); it.left() },
                         {
-                            Verifisert(
+                            VerifiseringStatus(
                                 id = it.id,
                                 telefonVerifisert = it.telefonVerifisert,
                                 epostVerifisert = it.epostVerifisert
