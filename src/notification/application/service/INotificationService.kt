@@ -11,4 +11,5 @@ interface INotificationService {
     fun sendMessage(message: String, contacts: List<Kontakt>): Either<ServiceError, Notification>
     fun sendVerification(contact:Kontakt): Either<ServiceError, Verification>
     fun sendVerificationUpdated(dto: KontaktUpdateDto): Either<ServiceError, Verification>
+    fun resendVerification(contact: Kontakt): Either<ServiceError, Verification>
 }

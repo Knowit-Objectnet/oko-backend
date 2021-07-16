@@ -97,6 +97,33 @@ class NotificationService constructor(
         { ServiceError(message = "Lambda invocation failed").left() }
     )
 
+    override fun resendVerification(contact: Kontakt): Either<ServiceError, Verification> = runCatching {
+
+        val sms =
+            if (contact.telefon != null && !contact.verifisert!!.telefonVerifisert)
+                verifySMS(contact.id, contact.telefon).map { it.message }
+            else null
+
+        val email =
+            if (contact.epost != null && !contact.verifisert!!.epostVerifisert)
+                verifyEmail(contact.id, contact.epost).map { it.message }
+            else null
+
+        verifiseringService.update(
+            VerifiseringUpdateDto(
+                id = contact.id,
+                telefonKode = sms?.let { it.getOrElse { null } },
+                epostKode = email?.let { it.getOrElse { null } },
+            )
+        )
+
+    }
+        .onFailure { logger.error("Lambda failed for sendVerification; ${it.message}") }
+        .fold(
+            { Verification("Success").right() },
+            { ServiceError(message = "Lambda invocation failed").left() }
+        )
+
     private fun verifySMS(id: UUID, number: String): Either<ServiceError, SNS> = runCatching {
         val sms = snsService.sendVerification(number)
         if (sms.statusCode != 200) throw Error("Invalid status for sms lambda invocation")

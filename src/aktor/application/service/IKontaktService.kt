@@ -12,6 +12,7 @@ import ombruk.backend.aktor.application.api.dto.KontaktUpdateDto
 import ombruk.backend.aktor.application.api.dto.KontaktVerifiseringDto
 import ombruk.backend.aktor.domain.entity.Kontakt
 import ombruk.backend.aktor.domain.entity.Verifisert
+import ombruk.backend.notification.domain.entity.Verification
 import java.util.*
 
 interface IKontaktService {
@@ -59,4 +60,6 @@ interface IKontaktService {
      * @return A [ServiceError] on failure and the updated [Kontakt] on success.
      */
     fun update(dto: KontaktUpdateDto): Either<ServiceError, Kontakt>
+
+    fun resendVerifikasjon(kontakt: Kontakt): Either<ServiceError, Verification>
 }

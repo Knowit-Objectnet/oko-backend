@@ -20,6 +20,7 @@ import ombruk.backend.shared.api.Roles
 import ombruk.backend.shared.api.generateResponse
 import ombruk.backend.shared.api.receiveCatching
 import ombruk.backend.shared.error.AuthorizationError
+import java.util.*
 
 @KtorExperimentalLocationsAPI
 fun Routing.kontakter(kontaktService: IKontaktService) {
@@ -115,6 +116,26 @@ fun Routing.kontakter(kontaktService: IKontaktService) {
                                 }
                             )
                             .flatMap { kontaktService.verifiserKontakt(it) }
+                    }
+                    .run { generateResponse(this) }
+                    .also { (code, response) -> call.respond(code, response) }
+            }
+        }
+
+        authenticate {
+            post("/verifisering-resend/{kontaktId}") {
+                Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.Partner, Roles.ReuseStation), call)
+                    .flatMap { (role, groupId) ->
+
+                        kontaktService.getKontaktById(UUID.fromString(call.parameters["kontaktId"]))
+                            .ensure(
+                                {AuthorizationError.AccessViolationError("Kontakt forsøkt verifisert for annen gruppe")},
+                                {
+                                    if (role == Roles.RegEmployee) true
+                                    else it.id == groupId
+                                }
+                            )
+                            .flatMap { kontaktService.resendVerifikasjon(it) }
                     }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }

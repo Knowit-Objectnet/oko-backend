@@ -10,6 +10,7 @@ import ombruk.backend.aktor.domain.entity.Kontakt
 import ombruk.backend.aktor.domain.entity.Verifisert
 import ombruk.backend.aktor.domain.port.IKontaktRepository
 import ombruk.backend.notification.application.service.INotificationService
+import ombruk.backend.notification.domain.entity.Verification
 import ombruk.backend.shared.error.ServiceError
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
@@ -61,6 +62,10 @@ class KontaktService constructor(
     @KtorExperimentalLocationsAPI
     override fun verifiserKontakt(dto: KontaktVerifiseringDto): Either<ServiceError, Verifisert> {
         return verifiseringService.verifiser(dto)
+    }
+
+    override fun resendVerifikasjon(kontakt: Kontakt): Either<ServiceError, Verification> {
+        return notificationService.resendVerification(kontakt)
     }
 
     @KtorExperimentalAPI
