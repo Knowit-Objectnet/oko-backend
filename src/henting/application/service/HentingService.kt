@@ -1,14 +1,20 @@
 package ombruk.backend.henting.application.service
 
-import arrow.core.Either
-import arrow.core.left
-import arrow.core.right
+import arrow.core.*
+import arrow.core.extensions.either.applicative.applicative
+import arrow.core.extensions.list.align.empty
+import arrow.core.extensions.list.traverse.sequence
 import io.ktor.locations.*
+import ombruk.backend.henting.application.api.dto.EkstraHentingFindDto
+import ombruk.backend.henting.application.api.dto.HentingFindDto
+import ombruk.backend.henting.application.api.dto.PlanlagtHentingFindDto
 import ombruk.backend.henting.domain.entity.EkstraHenting
 import ombruk.backend.henting.domain.entity.HentingWrapper
 import ombruk.backend.henting.domain.entity.PlanlagtHenting
 import ombruk.backend.henting.domain.model.HentingType
+import ombruk.backend.kategori.application.api.dto.EkstraHentingKategoriFindDto
 import ombruk.backend.shared.error.ServiceError
+import ombruk.backend.vektregistrering.application.api.dto.VektregistreringFindDto
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
@@ -26,6 +32,26 @@ class HentingService(val planlagtHentingService: IPlanlagtHentingService, val ek
                     },
                     { wrapperFromPlanlagt(it).right() }
                 )
+        }
+    }
+
+    //TODO: Lag en løsning for å søke etter planalgt henting ut i fra aktør og stasjon? kanskje bruke Henteplaner som ikke er utgått?
+    override fun find(dto: HentingFindDto): Either<ServiceError, List<HentingWrapper>> {
+        return transaction {
+            val hentinger: MutableList<HentingWrapper> = mutableListOf()
+            ekstraHentingService.find(
+                EkstraHentingFindDto(
+                    id = dto.id,
+                    stasjonId = dto.stasjonId,
+                    aktorId = dto.aktorId,
+                    before = dto.before,
+                    after = dto.after
+                )
+            ).map { it.map { hentinger.add(wrapperFromEkstra(it)) } }
+            planlagtHentingService.find(PlanlagtHentingFindDto(id = dto.id, before = dto.before, after = dto.after))
+                .map { it.map { hentinger.add(wrapperFromPlanlagt(it)) } }
+            if (hentinger.isEmpty()) ServiceError("Ingen hentinger med de parametrene").left()
+            else hentinger.right()
         }
     }
 }

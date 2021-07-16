@@ -2,8 +2,8 @@ package ombruk.backend.henting.domain.params
 
 import java.util.*
 
-abstract class EkstraHentingFindParams : HentingFindParams(){
+abstract class HentingWrapperFindParams : HentingFindParams() {
     abstract val stasjonId: UUID?
-    abstract val beskrivelse: String?
     abstract val aktorId: UUID?
+
 }

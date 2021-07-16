@@ -18,10 +18,10 @@ val hentingModule = module (createdAtStart = true){
     single<IHenteplanRepository> { HenteplanRepository() }
     single<IHenteplanService> { HenteplanService(get(), get(), get()) }
     single<IPlanlagtHentingRepository> { PlanlagtHentingRepository() }
-    single<IPlanlagtHentingService> {PlanlagtHentingService(get())}
+    single<IPlanlagtHentingService> {PlanlagtHentingService(get(), get())}
     single<IEkstraHentingRepository> { EkstraHentingRepository() }
     single<IEkstraHentingKategoriRepository> { EkstraHentingKategoriRepository() }
     single<IEkstraHentingKategoriService> { EkstraHentingKategoriService(get()) }
-    single<IEkstraHentingService> {EkstraHentingService(get(), get(), get())}
+    single<IEkstraHentingService> {EkstraHentingService(get(), get(), get(), get())}
     single<IHentingService> {HentingService(get(), get())}
 }

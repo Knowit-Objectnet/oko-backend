@@ -3,6 +3,7 @@ package ombruk.backend.henting.domain.entity
 import kotlinx.serialization.Serializable
 import ombruk.backend.kategori.domain.entity.HenteplanKategori
 import ombruk.backend.shared.model.serializer.LocalDateTimeSerializer
+import ombruk.backend.vektregistrering.domain.entity.Vektregistrering
 import shared.model.serializer.UUIDSerializer
 import java.time.LocalDateTime
 import java.util.*
@@ -22,5 +23,6 @@ data class PlanlagtHenting(
     val aktorNavn: String,
     @Serializable(with = UUIDSerializer::class) val stasjonId: UUID,
     val stasjonNavn: String,
-    val kategorier: List<HenteplanKategori>? = emptyList()
+    val kategorier: List<HenteplanKategori>? = emptyList(),
+    override val vektregistreringer: List<Vektregistrering>? = emptyList()
 ) : Henting()
