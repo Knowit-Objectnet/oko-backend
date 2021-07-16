@@ -63,7 +63,7 @@ class PlanlagtHentingRepository: RepositoryBase<PlanlagtHenting, PlanlagtHenting
         params.before?.let { query.andWhere { table.sluttTidspunkt.lessEq(it) } }
         params.henteplanId?.let { query.andWhere { table.henteplanId eq it } }
         params.avlyst?.let { query.andWhere { if(it) table.avlyst.isNotNull() else table.avlyst.isNull()} }
-        params.aktorId?.let { query.andWhere { PartnerTable.id eq it }.orWhere { StasjonTable.id eq it }}
+        params.aktorId?.let { query.andWhere { PartnerTable.id eq it }.orWhere { stasjonAlias[StasjonTable.id] eq it }}
         params.stasjonId?.let { query.andWhere { StasjonTable.id eq it }}
         return Pair(query, listOf(stasjonAlias))
     }
