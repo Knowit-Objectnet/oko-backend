@@ -25,15 +25,9 @@ class KontaktService constructor(
     @KtorExperimentalAPI
     override fun save(dto: KontaktSaveDto): Either<ServiceError, Kontakt> {
         return transaction {
-            kontaktRepository.insert(dto).fold(
-                { it.left() },
-                { kontakt ->
-                    notificationService.sendVerification(kontakt).fold(
-                        { it.left() },
-                        { kontakt.right() }
-                    )
-                }
-            )
+            kontaktRepository.insert(dto).flatMap { kontakt ->
+                notificationService.sendVerification(kontakt).flatMap { kontakt.right() }
+            }
         }
     }
 
