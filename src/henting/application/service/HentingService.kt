@@ -48,17 +48,19 @@ class HentingService(val planlagtHentingService: IPlanlagtHentingService, val ek
                     before = dto.before,
                     after = dto.after
                 )
-            ).map { it.map { hentinger.add(wrapperFromEkstra(it)) } }
-            planlagtHentingService.find(PlanlagtHentingFindDto(id = dto.id, before = dto.before, after = dto.after))
-                .map {
-                    val planlagteHentinger = mutableListOf<PlanlagtHenting>()
-                    planlagteHentinger.addAll(it)
-                    if (dto.aktorId != null) planlagteHentinger.retainAll { it.aktorId == dto.aktorId }
-                    if (dto.stasjonId != null) planlagteHentinger.retainAll { it.stasjonId == dto.stasjonId }
-                    planlagteHentinger.map { hentinger.add(wrapperFromPlanlagt(it)) }
-                }
-            if (hentinger.isEmpty()) ServiceError("Ingen hentinger med de parametrene").left()
-            else hentinger.right()
+            ).fold( {it.left()},
+                { it.map { hentinger.add(wrapperFromEkstra(it)) }
+                    planlagtHentingService.find(PlanlagtHentingFindDto(id = dto.id, before = dto.before, after = dto.after))
+                        .fold({it.left()}, {
+                            val planlagteHentinger = mutableListOf<PlanlagtHenting>()
+                            planlagteHentinger.addAll(it)
+                            if (dto.aktorId != null) planlagteHentinger.retainAll { it.aktorId == dto.aktorId }
+                            if (dto.stasjonId != null) planlagteHentinger.retainAll { it.stasjonId == dto.stasjonId }
+                            planlagteHentinger.map { hentinger.add(wrapperFromPlanlagt(it)) }
+
+                            hentinger.right()
+                        })
+                })
         }
     }
 }
