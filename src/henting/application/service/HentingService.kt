@@ -79,7 +79,7 @@ fun wrapperFromEkstra(henting: EkstraHenting): HentingWrapper {
         henting.id,
         henting.startTidspunkt,
         henting.sluttTidspunkt,
-        HentingType.PLANLAGT,
+        HentingType.EKSTRA,
         null,
         henting,
         henting.stasjonId,
