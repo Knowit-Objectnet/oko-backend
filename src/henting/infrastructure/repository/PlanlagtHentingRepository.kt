@@ -2,6 +2,7 @@ package ombruk.backend.henting.infrastructure.repository
 
 import arrow.core.Either
 import arrow.core.left
+import ombruk.backend.aktor.domain.entity.Stasjon
 import ombruk.backend.aktor.infrastructure.table.PartnerTable
 import ombruk.backend.aktor.infrastructure.table.StasjonTable
 import ombruk.backend.avtale.infrastructure.table.AvtaleTable
@@ -50,7 +51,8 @@ class PlanlagtHentingRepository: RepositoryBase<PlanlagtHenting, PlanlagtHenting
     override fun prepareQuery(params: PlanlagtHentingFindParams): Pair<Query, List<Alias<Table>>?> {
         val stasjonAlias = StasjonTable
             .alias("stasjonAktorAlias")
-        val joinedTable = table.innerJoin(HenteplanTable, {table.henteplanId}, {HenteplanTable.id})
+        val joinedTable = table
+            .innerJoin(HenteplanTable, {table.henteplanId}, {HenteplanTable.id})
             .innerJoin(AvtaleTable, {HenteplanTable.avtaleId}, {AvtaleTable.id})
             .innerJoin(StasjonTable, {HenteplanTable.stasjonId}, {StasjonTable.id})
             .leftJoin(PartnerTable, {AvtaleTable.aktorId}, {PartnerTable.id})
@@ -61,6 +63,8 @@ class PlanlagtHentingRepository: RepositoryBase<PlanlagtHenting, PlanlagtHenting
         params.before?.let { query.andWhere { table.sluttTidspunkt.lessEq(it) } }
         params.henteplanId?.let { query.andWhere { table.henteplanId eq it } }
         params.avlyst?.let { query.andWhere { if(it) table.avlyst.isNotNull() else table.avlyst.isNull()} }
+        params.aktorId?.let { query.andWhere { PartnerTable.id eq it }.orWhere { StasjonTable.id eq it }}
+        params.stasjonId?.let { query.andWhere { StasjonTable.id eq it }}
         return Pair(query, listOf(stasjonAlias))
     }
 

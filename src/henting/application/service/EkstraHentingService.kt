@@ -111,6 +111,9 @@ class EkstraHentingService(
                         .fix()
                         .map { it.fix() }
                 }
+                .flatMap { if (dto.aktorId == null) it.right()
+                            else it.filter { it.godkjentUtlysning != null && it.godkjentUtlysning.partnerId == dto.aktorId }.right()
+                }
                 .flatMap { list ->
                     list.map { ekstraHenting ->
                         ekstraHentingKategoriService.find(EkstraHentingKategoriFindDto(ekstraHentingId = ekstraHenting.id))

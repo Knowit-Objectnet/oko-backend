@@ -49,14 +49,14 @@ class HentingService(val planlagtHentingService: IPlanlagtHentingService, val ek
                 )
             ).fold( {it.left()},
                 { it.map { hentinger.add(wrapperFromEkstra(it)) }
-                    planlagtHentingService.find(PlanlagtHentingFindDto(id = dto.id, before = dto.before, after = dto.after))
+                    planlagtHentingService.find(PlanlagtHentingFindDto(
+                        id = dto.id,
+                        before = dto.before,
+                        after = dto.after,
+                        stasjonId = dto.stasjonId,
+                        aktorId = dto.aktorId))
                         .fold({it.left()}, {
-                            val planlagteHentinger = mutableListOf<PlanlagtHenting>()
-                            planlagteHentinger.addAll(it)
-                            if (dto.aktorId != null) planlagteHentinger.retainAll { it.aktorId == dto.aktorId }
-                            if (dto.stasjonId != null) planlagteHentinger.retainAll { it.stasjonId == dto.stasjonId }
-                            planlagteHentinger.map { hentinger.add(wrapperFromPlanlagt(it)) }
-
+                            it.map {hentinger.add(wrapperFromPlanlagt(it))}
                             hentinger.right()
                         })
                 })
