@@ -8,6 +8,7 @@ import ombruk.backend.aktor.application.service.VerifiseringService
 import ombruk.backend.aktor.domain.entity.Kontakt
 import ombruk.backend.aktor.domain.entity.Verifisering
 import ombruk.backend.notification.domain.entity.Notification
+import ombruk.backend.notification.domain.entity.SES
 import ombruk.backend.notification.domain.entity.SNS
 import ombruk.backend.notification.domain.entity.Verification
 import ombruk.backend.shared.error.ServiceError
@@ -38,8 +39,8 @@ class NotificationService constructor(
                 if (!it.telefon.isNullOrBlank()) numbers.add(it.telefon)
                 if (!it.epost.isNullOrBlank()) addresses.add(it.epost)
             }
-            if (!it.telefon.isNullOrBlank()) numbers.add(it.telefon)
-            if (!it.epost.isNullOrBlank()) addresses.add(it.epost)
+//            if (!it.telefon.isNullOrBlank()) numbers.add(it.telefon)
+//            if (!it.epost.isNullOrBlank()) addresses.add(it.epost)
         }
 
         // @TODO Validate input
@@ -60,14 +61,18 @@ class NotificationService constructor(
     )
 
     override fun sendVerification(contact: Kontakt): Either<ServiceError, Verification> = runCatching {
-        val sms = contact.telefon?.let { verifySMS(contact.id, it) }
-        val email = contact.epost?.let { verifyEmail(contact.id, it) }
-        sms?.fold(
-            {
-                email ?: it.left()
-            },
-            { it.right() }
-        )
+        val sms = contact.telefon?.let { verifySMS(contact.id, it) }?.map { it.message }
+        val email = contact.epost?.let { verifyEmail(contact.id, it) }?.map { it.message }
+
+        //TODO: Propagate errors from SNS and SES services? Right now it will still work even if one fails.
+
+        verifiseringService.save(
+            VerifiseringSaveDto(
+                id = contact.id,
+                telefonKode = sms?.let { it.getOrElse { null } },
+                epostKode = email?.let { it.getOrElse { null } }
+        ))
+
     }
     .onFailure { logger.error("Lambda failed for sendVerification; ${it.message}") }
     .fold(
@@ -75,45 +80,53 @@ class NotificationService constructor(
         { ServiceError(message = "Lambda invocation failed").left() }
     )
 
-    private fun verifySMS(id: UUID, number: String): Either<ServiceError, Verifisering> = runCatching {
+    private fun verifySMS(id: UUID, number: String): Either<ServiceError, SNS> = runCatching {
         val sms = snsService.sendVerification(number)
         if (sms.statusCode != 200) throw Error("Invalid status for sms lambda invocation")
         sms
     }
     .onFailure { logger.error("Lambda failed; ${it.message}") }
     .fold(
-        { sns ->
-            verifiseringService.save(
-                VerifiseringSaveDto(
-                    id,
-                    telefonKode = sns.message
-                )
-            ).fold(
-                { it.left() },
-                { it.right() }
-            )
-        },
-        { ServiceError(it.message.orEmpty()).left() }
+        {it.right()},
+        {ServiceError(it.message.orEmpty()).left()}
     )
+//    .fold(
+//        { sns ->
+//            verifiseringService.save(
+//                VerifiseringSaveDto(
+//                    id,
+//                    telefonKode = sns.message
+//                )
+//            ).fold(
+//                { it.left() },
+//                { it.right() }
+//            )
+//        },
+//        { ServiceError(it.message.orEmpty()).left() }
+//    )
 
-    private fun verifyEmail(id: UUID, address: String): Either<ServiceError, Verifisering> = runCatching {
+    private fun verifyEmail(id: UUID, address: String): Either<ServiceError, SES> = runCatching {
         val email = sesService.sendVerification(address)
         if (email.statusCode != 200) throw Error("Invalid status for email lambda invocation")
         email
     }
     .onFailure { logger.error("Lambda failed; ${it.message}") }
     .fold(
-        { ses ->
-            verifiseringService.save(
-                VerifiseringSaveDto(
-                    id,
-                    epostKode = ses.message
-                )
-            ).fold(
-                { it.left() },
-                { it.right() }
-            )
-        },
-        { ServiceError(it.message.orEmpty()).left() }
+        {it.right()},
+        {ServiceError(it.message.orEmpty()).left()}
     )
+//    .fold(
+//        { ses ->
+//            verifiseringService.save(
+//                VerifiseringSaveDto(
+//                    id,
+//                    epostKode = ses.message
+//                )
+//            ).fold(
+//                { it.left() },
+//                { it.right() }
+//            )
+//        },
+//        { ServiceError(it.message.orEmpty()).left() }
+//    )
 }

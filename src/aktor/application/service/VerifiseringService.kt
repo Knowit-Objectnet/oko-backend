@@ -20,7 +20,10 @@ class VerifiseringService constructor(
 
     @KtorExperimentalAPI
     override fun save(dto: VerifiseringSaveDto): Either<ServiceError, Verifisering> {
-        return transaction { verifiseringRepository.insert(dto) }
+        return transaction {
+            if(dto.telefonKode == null && dto.epostKode == null) Either.Left(ServiceError("Ingen koder generert"))
+            else verifiseringRepository.insert(dto)
+        }
     }
 
     override fun getVerifiseringById(id: UUID): Either<ServiceError, Verifisering> {
