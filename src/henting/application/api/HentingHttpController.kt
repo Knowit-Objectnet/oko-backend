@@ -22,5 +22,12 @@ fun Routing.hentinger(hentingService: IHentingService) {
                 .also { (code, response) -> call.respond(code, response) }
         }
 
+        get<HentingFindDto> { form ->
+            form.validOrError()
+                .flatMap { hentingService.find(form) }
+                .run { generateResponse(this) }
+                .also { (code, response) -> call.respond(code, response) }
+        }
+
     }
 }
