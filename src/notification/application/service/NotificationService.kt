@@ -107,20 +107,6 @@ class NotificationService constructor(
         {it.right()},
         {ServiceError(it.message.orEmpty()).left()}
     )
-//    .fold(
-//        { sns ->
-//            verifiseringService.save(
-//                VerifiseringSaveDto(
-//                    id,
-//                    telefonKode = sns.message
-//                )
-//            ).fold(
-//                { it.left() },
-//                { it.right() }
-//            )
-//        },
-//        { ServiceError(it.message.orEmpty()).left() }
-//    )
 
     private fun verifyEmail(id: UUID, address: String): Either<ServiceError, SES> = runCatching {
         val email = sesService.sendVerification(address)
@@ -132,18 +118,4 @@ class NotificationService constructor(
         {it.right()},
         {ServiceError(it.message.orEmpty()).left()}
     )
-//    .fold(
-//        { ses ->
-//            verifiseringService.save(
-//                VerifiseringSaveDto(
-//                    id,
-//                    epostKode = ses.message
-//                )
-//            ).fold(
-//                { it.left() },
-//                { it.right() }
-//            )
-//        },
-//        { ServiceError(it.message.orEmpty()).left() }
-//    )
 }
