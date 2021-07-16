@@ -20,7 +20,7 @@ import java.util.*
 @KtorExperimentalLocationsAPI
 @Serializable
 @Location("")
-data class PlanlagtHentingFindDto(
+data class PlanlagtHentingFindDt(
     @Serializable(with = UUIDSerializer::class) override val id: UUID? = null,
     @Serializable(with = LocalDateTimeSerializer::class) override val before: LocalDateTime? = null,
     @Serializable(with = LocalDateTimeSerializer::class) override val after: LocalDateTime? = null,
