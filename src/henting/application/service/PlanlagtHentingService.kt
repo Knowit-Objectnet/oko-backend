@@ -9,6 +9,8 @@ import ombruk.backend.henting.domain.entity.PlanlagtHenting
 import ombruk.backend.henting.domain.params.PlanlagtHentingFindParams
 import ombruk.backend.henting.domain.port.IPlanlagtHentingRepository
 import ombruk.backend.shared.error.ServiceError
+import ombruk.backend.vektregistrering.application.api.dto.VektregistreringFindDto
+import ombruk.backend.vektregistrering.application.service.IVektregistreringService
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -16,7 +18,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 @KtorExperimentalLocationsAPI
-class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepository ): IPlanlagtHentingService, KoinComponent {
+class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepository, val vektregistreringService: IVektregistreringService ): IPlanlagtHentingService, KoinComponent {
     private val henteplanService: IHenteplanService by inject()
 
     override fun save(dto: PlanlagtHentingSaveDto): Either<ServiceError, PlanlagtHenting> {
@@ -32,8 +34,16 @@ class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepo
                         it.let { planlagtHenting ->
                             henteplanService.findOne(planlagtHenting.henteplanId)
                                 .fold(
-                                    { planlagtHenting.right() },
-                                    { planlagtHenting.copy(merknad = it.merknad, kategorier = it.kategorier).right() }
+                                    {
+                                    vektregistreringService.find(VektregistreringFindDto(hentingId = planlagtHenting.id)).fold(
+                                        {planlagtHenting.right()},
+                                        {planlagtHenting.copy(vektregistreringer = it).right()}
+                                    )},
+                                    { henteplan ->
+                                        vektregistreringService.find(VektregistreringFindDto(hentingId = planlagtHenting.id)).fold(
+                                            {planlagtHenting.copy(merknad = henteplan.merknad, kategorier = henteplan.kategorier).right()},
+                                            {planlagtHenting.copy(merknad = henteplan.merknad, kategorier = henteplan.kategorier, vektregistreringer = it).right()})
+                                    }
                                 )
                         }
                     }
@@ -50,8 +60,15 @@ class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepo
                         it.map { planlagtHenting ->
                             henteplanService.findOne(planlagtHenting.henteplanId)
                                 .fold(
-                                    { planlagtHenting.right() },
-                                    { planlagtHenting.copy(merknad = it.merknad, kategorier = it.kategorier).right() }
+                                    {  vektregistreringService.find(VektregistreringFindDto(hentingId = planlagtHenting.id)).fold(
+                                        {planlagtHenting.right()},
+                                        {planlagtHenting.copy(vektregistreringer = it).right()}
+                                    ) },
+                                    { henteplan ->
+                                        vektregistreringService.find(VektregistreringFindDto(hentingId = planlagtHenting.id)).fold(
+                                            {planlagtHenting.copy(merknad = henteplan.merknad, kategorier = henteplan.kategorier).right()},
+                                            {planlagtHenting.copy(merknad = henteplan.merknad, kategorier = henteplan.kategorier, vektregistreringer = it).right()})
+                                    }
                                 )
                         }.sequence(Either.applicative()).fix().map { it.fix() }
                     }

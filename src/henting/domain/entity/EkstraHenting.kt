@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 import ombruk.backend.kategori.domain.entity.EkstraHentingKategori
 import ombruk.backend.shared.model.serializer.LocalDateTimeSerializer
 import ombruk.backend.utlysning.domain.entity.Utlysning
+import ombruk.backend.vektregistrering.domain.entity.Vektregistrering
 import shared.model.serializer.UUIDSerializer
 import java.time.LocalDateTime
 import java.util.*
@@ -18,5 +19,6 @@ data class EkstraHenting(
     val stasjonNavn: String,
     val godkjentUtlysning: Utlysning? = null,
     val kategorier: List<EkstraHentingKategori> = emptyList(),
-    val utlysninger: List<Utlysning> = emptyList()
+    val utlysninger: List<Utlysning> = emptyList(),
+    override val vektregistreringer: List<Vektregistrering>? = emptyList()
 ) : Henting()
