@@ -17,6 +17,7 @@ import ombruk.backend.shared.error.ServiceError
 import ombruk.backend.vektregistrering.application.api.dto.VektregistreringFindDto
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
+import kotlin.collections.ArrayList
 
 @KtorExperimentalLocationsAPI
 class HentingService(val planlagtHentingService: IPlanlagtHentingService, val ekstraHentingService: IEkstraHentingService): IHentingService {
@@ -50,9 +51,11 @@ class HentingService(val planlagtHentingService: IPlanlagtHentingService, val ek
             ).map { it.map { hentinger.add(wrapperFromEkstra(it)) } }
             planlagtHentingService.find(PlanlagtHentingFindDto(id = dto.id, before = dto.before, after = dto.after))
                 .map {
-                    if (dto.aktorId != null) it.filter { it.aktorId == dto.aktorId }
-                    if (dto.stasjonId != null) it.filter { it.stasjonId == dto.stasjonId }
-                    it.map { hentinger.add(wrapperFromPlanlagt(it)) }
+                    val planlagteHentinger = mutableListOf<PlanlagtHenting>()
+                    planlagteHentinger.addAll(it)
+                    if (dto.aktorId != null) planlagteHentinger.retainAll { it.aktorId == dto.aktorId }
+                    if (dto.stasjonId != null) planlagteHentinger.retainAll { it.stasjonId == dto.stasjonId }
+                    planlagteHentinger.map { hentinger.add(wrapperFromPlanlagt(it)) }
                 }
             if (hentinger.isEmpty()) ServiceError("Ingen hentinger med de parametrene").left()
             else hentinger.right()
