@@ -1,12 +1,11 @@
 package ombruk.backend.notification.application.service
 
 import arrow.core.*
-import kotlinx.coroutines.runBlocking
+import ombruk.backend.aktor.application.api.dto.KontaktUpdateDto
 import ombruk.backend.aktor.application.api.dto.VerifiseringSaveDto
+import ombruk.backend.aktor.application.api.dto.VerifiseringUpdateDto
 import ombruk.backend.aktor.application.service.IVerifiseringService
-import ombruk.backend.aktor.application.service.VerifiseringService
 import ombruk.backend.aktor.domain.entity.Kontakt
-import ombruk.backend.aktor.domain.entity.Verifisering
 import ombruk.backend.notification.domain.entity.Notification
 import ombruk.backend.notification.domain.entity.SES
 import ombruk.backend.notification.domain.entity.SNS
@@ -15,7 +14,6 @@ import ombruk.backend.shared.error.ServiceError
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.*
-import kotlin.collections.ArrayList
 
 class NotificationService constructor(
     private val snsService: SNSService,
@@ -55,6 +53,27 @@ class NotificationService constructor(
     .onFailure { logger.error("Lambda failed; ${it.message}") }
     .fold(
         { Notification(message = "Success").right() },
+        { ServiceError(message = "Lambda invocation failed").left() }
+    )
+
+    override fun sendVerificationUpdated(dto: KontaktUpdateDto) = runCatching {
+
+        val sms = dto.telefon?.let { verifySMS(dto.id, it) }?.map { it.message }
+        val email = dto.epost?.let { verifyEmail(dto.id, it) }?.map { it.message }
+
+        verifiseringService.update(
+            VerifiseringUpdateDto(
+                id = dto.id,
+                telefonKode = sms?.let { it.getOrElse { null } },
+                telefonVerifisert = sms?.let { false },
+                epostKode = email?.let { it.getOrElse { null } },
+                epostVerifisert = email?.let { false }
+            )
+        )
+    }
+    .onFailure { logger.error("Lambda failed for sendVerificationUpdated; ${it.message}") }
+    .fold(
+        { Verification("Success").right() },
         { ServiceError(message = "Lambda invocation failed").left() }
     )
 

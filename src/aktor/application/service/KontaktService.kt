@@ -57,6 +57,19 @@ class KontaktService constructor(
 
     @KtorExperimentalAPI
     override fun update(dto: KontaktUpdateDto): Either<ServiceError, Kontakt>  {
-        return transaction { kontaktRepository.update(dto) }
+        return transaction {
+            kontaktRepository.findOne(dto.id)
+                .flatMap { original ->
+                    kontaktRepository.update(dto)
+                        .flatMap { updated ->
+                            notificationService.sendVerificationUpdated(
+                                dto.copy(
+                                    telefon = if (original.telefon != updated.telefon) dto.telefon else null,
+                                    epost = if (original.epost != updated.epost) dto.epost else null
+                                )
+                            ).bimap({ rollback(); it }, { updated })
+                        }
+                }
+        }
     }
 }
