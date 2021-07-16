@@ -36,22 +36,13 @@ class VerifiseringService constructor(
             verifiseringRepository.findOne(dto.id)
                 .flatMap { verifisering ->
 
+                    var verifiseringUpdate = VerifiseringUpdateDto(verifisering.id)
 
-
-                    var verifiseringUpdate: VerifiseringUpdateDto = VerifiseringUpdateDto(verifisering.id)
-
-                    if (!verifisering.telefonKode.isNullOrEmpty() && verifisering.telefonKode == dto.telefonKode) {
-                        verifiseringUpdate = VerifiseringUpdateDto(
-                            id = verifisering.id,
-                            telefonKode = null,
-                            telefonVerifisert = true
-                        )
-                    } else if (!verifisering.epostKode.isNullOrEmpty() && verifisering.epostKode == dto.epostKode) {
-                        verifiseringUpdate = VerifiseringUpdateDto(
-                            id = verifisering.id,
-                            epostKode = null,
-                            epostVerifisert = true
-                        )
+                    if ((!verifisering.telefonKode.isNullOrEmpty()) && verifisering.telefonKode == dto.telefonKode) {
+                        verifiseringUpdate = verifiseringUpdate.copy(telefonVerifisert = true)
+                    }
+                    if ((!verifisering.epostKode.isNullOrEmpty()) && verifisering.epostKode == dto.epostKode) {
+                        verifiseringUpdate = verifiseringUpdate.copy(epostVerifisert = true)
                     }
 
                     update(
