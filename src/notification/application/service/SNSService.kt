@@ -14,7 +14,7 @@ class SNSService {
 
         val lambdaSNSService = LambdaInvokerFactory.builder()
             .lambdaClient(AWSLambdaClientBuilder.defaultClient())
-            .build(ISNSService::class.java)
+            .build(ISNSLambdaService::class.java)
 
         val failed: MutableList<SNS> = ArrayList()
         receivers.map {
@@ -34,7 +34,7 @@ class SNSService {
 
         val lambdaSNSService = LambdaInvokerFactory.builder()
             .lambdaClient(AWSLambdaClientBuilder.defaultClient())
-            .build(ISNSService::class.java)
+            .build(ISNSLambdaService::class.java)
 
         val request = SNSVerifyParams(receiver)
         val response = lambdaSNSService.sendVerification(request)
