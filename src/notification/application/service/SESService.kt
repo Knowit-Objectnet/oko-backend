@@ -30,7 +30,7 @@ class SESService {
             .build(ISESService::class.java)
 
         val request = SESVerifyParams(receiver)
-        return lambdaSESService.sendMessage(request)
+        return lambdaSESService.sendVerification(request)
     }
 
 }

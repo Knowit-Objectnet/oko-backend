@@ -11,5 +11,5 @@ interface ISESService {
     fun sendMessage(input: SESCreateParams): SES
 
     @LambdaFunction(functionName = "email-verification")
-    fun sendMessage(input: SESVerifyParams): SES
+    fun sendVerification(input: SESVerifyParams): SES
 }

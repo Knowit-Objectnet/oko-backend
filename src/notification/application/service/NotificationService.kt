@@ -36,11 +36,9 @@ class NotificationService constructor(
         receivers.map {
             val verified = verifiseringService.getVerifiseringById(it.id)
             if (verified.isRight()) {
-                if (!it.telefon.isNullOrBlank()) numbers.add(it.telefon)
-                if (!it.epost.isNullOrBlank()) addresses.add(it.epost)
+                if (verified.fold({false}, {it.telefonVerifisert}) && !it.telefon.isNullOrBlank()) numbers.add(it.telefon)
+                if (verified.fold({false}, {it.epostVerifisert}) && !it.epost.isNullOrBlank()) addresses.add(it.epost)
             }
-//            if (!it.telefon.isNullOrBlank()) numbers.add(it.telefon)
-//            if (!it.epost.isNullOrBlank()) addresses.add(it.epost)
         }
 
         // @TODO Validate input
