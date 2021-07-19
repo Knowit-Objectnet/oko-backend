@@ -29,7 +29,7 @@ class VerifiseringService constructor(
         return transaction { verifiseringRepository.findOne(id) }
     }
 
-    override fun getVerifisertById(id: UUID): Either<ServiceError, VerifiseringStatus> {
+    override fun getVerifiseringStatusById(id: UUID): Either<ServiceError, VerifiseringStatus> {
         return getVerifiseringById(id).map { VerifiseringStatus(it.id, it.telefonVerifisert, it.epostVerifisert) }
     }
 
@@ -75,6 +75,10 @@ class VerifiseringService constructor(
     }
 
     override fun update(dto: VerifiseringUpdateDto): Either<ServiceError, Verifisering>  {
-        return transaction { verifiseringRepository.update(dto) }
+        return transaction {
+            verifiseringRepository.update(
+                dto.copy()
+            )
+        }
     }
 }

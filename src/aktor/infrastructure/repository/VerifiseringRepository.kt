@@ -45,10 +45,20 @@ class VerifiseringRepository : RepositoryBase<Verifisering, VerifiseringCreatePa
 
     override fun updateQuery(params: VerifiseringUpdateParams): Int {
         return table.update({ table.id eq params.id }) { row ->
-            params.telefonKode?.let { row[table.telefonKode] = it }
-            params.telefonVerifisert?.let { row[table.telefonVerifisert] = it }
-            params.epostKode?.let { row[table.epostKode] = it }
-            params.epostVerifisert?.let { row[table.epostVerifisert] = it }
+            if (params.resetTelefon){
+                row[table.telefonKode] = null
+                row[table.telefonVerifisert] = false
+            } else {
+                params.telefonKode?.let { row[table.telefonKode] = it }
+                params.telefonVerifisert?.let { row[table.telefonVerifisert] = it }
+            }
+            if (params.resetEpost){
+                row[table.epostKode] = null
+                row[table.epostVerifisert] = false
+            } else {
+                params.epostKode?.let { row[table.epostKode] = it }
+                params.epostVerifisert?.let { row[table.epostVerifisert] = it }
+            }
         }
     }
 }

@@ -27,12 +27,10 @@ class KontaktService constructor(
         return transaction {
             kontaktRepository.insert(dto)
                 .flatMap { kontakt ->
-                    notificationService.sendVerification(kontakt)
-                        .flatMap {
-                            verifiseringService.getVerifisertById(kontakt.id)
-                                .fold({kontakt.right()}, {kontakt.copy(verifiseringStatus = it).right()})
-                        }
-                }
+                    verifiseringService.save(VerifiseringSaveDto(kontakt.id))
+                        .flatMap { verifiseringService.getVerifiseringStatusById(it.id) }
+                        .map { kontakt.copy(verifiseringStatus = it) }
+                }.fold({rollback(); it.left()}, {it.right()})
         }
     }
 
@@ -40,7 +38,7 @@ class KontaktService constructor(
         return transaction {
             kontaktRepository.findOne(id)
                 .flatMap { kontakt ->
-                    verifiseringService.getVerifisertById(kontakt.id)
+                    verifiseringService.getVerifiseringStatusById(kontakt.id)
                         .fold({kontakt.right()}, {kontakt.copy(verifiseringStatus = it).right()})
                 }
         }
@@ -52,7 +50,7 @@ class KontaktService constructor(
             kontaktRepository.find(dto)
                 .flatMap { kontakter ->
                     kontakter.map { kontakt ->
-                        verifiseringService.getVerifisertById(kontakt.id)
+                        verifiseringService.getVerifiseringStatusById(kontakt.id)
                             .fold({ kontakt.right() }, { kontakt.copy(verifiseringStatus = it).right() })
                     }.sequence(Either.applicative()).fix().map { it.fix() }
                 }
@@ -82,19 +80,17 @@ class KontaktService constructor(
     override fun update(dto: KontaktUpdateDto): Either<ServiceError, Kontakt>  {
         return transaction {
             kontaktRepository.findOne(dto.id)
-                .flatMap<ServiceError, Kontakt, Kontakt> { original ->
+                .flatMap { original ->
                     kontaktRepository.update(dto)
                         .flatMap { updated ->
-                            notificationService.sendVerificationUpdated(
-                                dto.copy(
-                                    telefon = if (original.telefon != updated.telefon) dto.telefon else null,
-                                    epost = if (original.epost != updated.epost) dto.epost else null
-                                )
-                            )
-                                .flatMap {
-                                    verifiseringService.getVerifisertById(updated.id)
-                                        .flatMap { updated.copy(verifiseringStatus = it).right() }
-                                }
+                            verifiseringService.update(
+                                VerifiseringUpdateDto(
+                                    id = updated.id,
+                                    resetTelefon = (original.telefon != updated.telefon),
+                                    resetEpost = (original.epost != updated.epost)
+                                ))
+                                .flatMap { verifiseringService.getVerifiseringStatusById(it.id) }
+                                .map { updated.copy(verifiseringStatus = it) }
                         }
                 }.fold({rollback(); it.left()}, {it.right()})
         }

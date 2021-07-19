@@ -109,14 +109,19 @@ class NotificationService constructor(
                 verifyEmail(contact.id, contact.epost).map { it.message }
             else null
 
-        verifiseringService.update(
-            VerifiseringUpdateDto(
-                id = contact.id,
-                telefonKode = sms?.let { it.getOrElse { null } },
-                epostKode = email?.let { it.getOrElse { null } },
+        if (sms?.isLeft() == true)
+            sms.left()
+        else if (email?.isLeft() == true)
+            email.left()
+        else {
+            verifiseringService.update(
+                VerifiseringUpdateDto(
+                    id = contact.id,
+                    telefonKode = sms?.let { it.getOrElse { null } },
+                    epostKode = email?.let { it.getOrElse { null } },
+                )
             )
-        )
-
+        }
     }
         .onFailure { logger.error("Lambda failed for sendVerification; ${it.message}") }
         .fold(

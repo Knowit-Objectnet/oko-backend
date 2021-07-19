@@ -22,5 +22,5 @@ interface IVerifiseringService {
     fun deleteVerifiseringById(id: UUID): Either<ServiceError, Verifisering>
 
     fun update(dto: VerifiseringUpdateDto): Either<ServiceError, Verifisering>
-    fun getVerifisertById(id: UUID): Either<ServiceError, VerifiseringStatus>
+    fun getVerifiseringStatusById(id: UUID): Either<ServiceError, VerifiseringStatus>
 }
