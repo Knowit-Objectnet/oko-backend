@@ -18,7 +18,9 @@ data class VerifiseringUpdateDto(
     override val telefonKode: String? = null,
     override val telefonVerifisert: Boolean? = null,
     override val epostKode: String? = null,
-    override val epostVerifisert: Boolean? = null
+    override val epostVerifisert: Boolean? = null,
+    override val resetTelefon: Boolean = false,
+    override val resetEpost: Boolean = false
 ) : IForm<VerifiseringUpdateDto>, VerifiseringUpdateParams() {
     override fun validOrError() = runCatchingValidation {
         validate(this) {}

@@ -14,7 +14,7 @@ class SESService {
 
         val lambdaSESService = LambdaInvokerFactory.builder()
             .lambdaClient(AWSLambdaClientBuilder.defaultClient())
-            .build(ISESService::class.java)
+            .build(ISESLambdaService::class.java)
 
         val request = SESCreateParams(message, addresses = receivers)
         return lambdaSESService.sendMessage(request)
@@ -27,10 +27,10 @@ class SESService {
 
         val lambdaSESService = LambdaInvokerFactory.builder()
             .lambdaClient(AWSLambdaClientBuilder.defaultClient())
-            .build(ISESService::class.java)
+            .build(ISESLambdaService::class.java)
 
         val request = SESVerifyParams(receiver)
-        return lambdaSESService.sendMessage(request)
+        return lambdaSESService.sendVerification(request)
     }
 
 }
