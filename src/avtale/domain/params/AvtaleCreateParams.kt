@@ -11,4 +11,5 @@ abstract class AvtaleCreateParams {
     abstract val startDato: LocalDate
     abstract val sluttDato: LocalDate
     abstract val henteplaner: List<HenteplanCreateParams>?
+    abstract val merknad: String?
 }

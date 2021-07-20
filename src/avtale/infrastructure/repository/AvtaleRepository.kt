@@ -19,6 +19,7 @@ class AvtaleRepository : RepositoryBase<Avtale, AvtaleCreateParams, AvtaleUpdate
             it[type] = params.type.name
             it[startDato] = params.startDato
             it[sluttDato] = params.sluttDato
+            it[merknad] = params.merknad
         }
     }
 
@@ -27,6 +28,7 @@ class AvtaleRepository : RepositoryBase<Avtale, AvtaleCreateParams, AvtaleUpdate
             params.type?.let { row[type] = it.name }
             params.startDato?.let { row[startDato] = it }
             params.sluttDato?.let { row[sluttDato] = it }
+            params.merknad?.let { row[merknad] = it }
         }
     }
 
@@ -37,6 +39,7 @@ class AvtaleRepository : RepositoryBase<Avtale, AvtaleCreateParams, AvtaleUpdate
         params.type?.let { query.andWhere { table.type eq it.name } }
         params.startDato?.let {query.andWhere { table.startDato eq it }}
         params.sluttDato?.let {query.andWhere { table.sluttDato eq it }}
+        params.merknad?.let {query.andWhere { table.merknad eq it}}
         return Pair(query, null)
     }
 
@@ -47,7 +50,8 @@ class AvtaleRepository : RepositoryBase<Avtale, AvtaleCreateParams, AvtaleUpdate
             AvtaleType.valueOf(row[table.type]),
             row[table.startDato],
             row[table.sluttDato],
-            emptyList()
+            emptyList(),
+            row[table.merknad]
         )
     }
 

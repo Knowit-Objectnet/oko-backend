@@ -42,6 +42,7 @@ class AvtaleRepositoryTest {
             override val startDato: LocalDate = LocalDate.now()
             override val sluttDato: LocalDate = LocalDate.now().plusDays(1)
             override val henteplaner: List<HenteplanCreateParams>? = emptyList()
+            override val merknad: String? = null
         }
 
         transaction {
@@ -65,6 +66,7 @@ class AvtaleRepositoryTest {
             override val startDato: LocalDate = LocalDate.now()
             override val sluttDato: LocalDate = LocalDate.now().plusDays(1)
             override val henteplaner: List<HenteplanCreateParams>? = emptyList()
+            override val merknad: String? = null
         }
 
         transaction {
@@ -87,6 +89,7 @@ class AvtaleRepositoryTest {
             override val startDato: LocalDate = LocalDate.now().plusDays(2)
             override val sluttDato: LocalDate = LocalDate.now().plusDays(10)
             override val type: AvtaleType? = null
+            override val merknad: String? = null
         }
         val update = transaction { avtaleRepository.update(updateParams) }
         require(update is Either.Right<Avtale>)

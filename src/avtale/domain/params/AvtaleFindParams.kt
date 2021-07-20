@@ -10,4 +10,5 @@ abstract class AvtaleFindParams: FindParams {
     abstract val type: AvtaleType?
     abstract val startDato: LocalDate?
     abstract val sluttDato: LocalDate?
+    abstract val merknad: String?
 }

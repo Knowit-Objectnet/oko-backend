@@ -10,4 +10,5 @@ object AvtaleTable : ArchivableUUIDTable("avtale"){
     val type = varchar("type", 255)
     val startDato = date("start_dato")
     val sluttDato = date("slutt_dato")
+    val merknad = varchar("merknad", 255).nullable()
 }

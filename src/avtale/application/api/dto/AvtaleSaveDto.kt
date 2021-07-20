@@ -27,8 +27,8 @@ data class AvtaleSaveDto(
     override val type: AvtaleType,
     @Serializable( with = LocalDateSerializer::class) override val startDato: LocalDate,
     @Serializable( with = LocalDateSerializer::class) override val sluttDato: LocalDate,
-    override val henteplaner: List<HenteplanSaveDto>? = null
-    ) : IForm<AvtaleSaveDto>, AvtaleCreateParams(), KoinComponent {
+    override val henteplaner: List<HenteplanSaveDto>? = null, override val merknad: String? = null,
+) : IForm<AvtaleSaveDto>, AvtaleCreateParams(), KoinComponent {
     override fun validOrError(): Either<ValidationError, AvtaleSaveDto> = runCatchingValidation {
         validate(this) {
             validate(AvtaleSaveDto::startDato).isLessThanOrEqualTo(sluttDato)
