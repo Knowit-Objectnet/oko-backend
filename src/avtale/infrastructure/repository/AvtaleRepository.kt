@@ -39,7 +39,6 @@ class AvtaleRepository : RepositoryBase<Avtale, AvtaleCreateParams, AvtaleUpdate
         params.type?.let { query.andWhere { table.type eq it.name } }
         params.startDato?.let {query.andWhere { table.startDato eq it }}
         params.sluttDato?.let {query.andWhere { table.sluttDato eq it }}
-        params.merknad?.let {query.andWhere { table.merknad eq it}}
         return Pair(query, null)
     }
 
