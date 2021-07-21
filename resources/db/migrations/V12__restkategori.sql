@@ -1,0 +1,1 @@
+INSERT INTO kategori (id, navn, vektkategori) VALUES ('0f3f3bdd-5733-45da-87ae-a9417596cb12', 'Andre ombruksvarer', true);
