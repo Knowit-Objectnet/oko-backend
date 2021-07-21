@@ -1,6 +1,9 @@
 package ombruk.backend.vektregistrering.application.service
 
 import arrow.core.Either
+import arrow.core.extensions.either.applicative.applicative
+import arrow.core.extensions.list.traverse.sequence
+import arrow.core.fix
 import arrow.core.left
 import arrow.core.right
 import ombruk.backend.kategori.application.api.dto.HenteplanKategoriFindDto
@@ -10,6 +13,11 @@ import ombruk.backend.kategori.application.api.dto.KategoriSaveDto
 import ombruk.backend.kategori.domain.entity.Kategori
 import ombruk.backend.kategori.domain.port.IKategoriRepository
 import ombruk.backend.shared.error.ServiceError
+import ombruk.backend.utlysning.application.api.dto.UtlysningBatchSaveDto
+import ombruk.backend.utlysning.application.api.dto.UtlysningFindDto
+import ombruk.backend.utlysning.application.api.dto.UtlysningSaveDto
+import ombruk.backend.utlysning.domain.entity.Utlysning
+import ombruk.backend.vektregistrering.application.api.dto.VektregistreringBatchSaveDto
 import ombruk.backend.vektregistrering.application.api.dto.VektregistreringDeleteDto
 import ombruk.backend.vektregistrering.application.api.dto.VektregistreringFindDto
 import ombruk.backend.vektregistrering.application.api.dto.VektregistreringSaveDto
@@ -25,6 +33,22 @@ class VektregistreringService(
         return transaction {
             vektregistreringRepository.insert(dto)
                 .fold({ rollback(); it.left() }, { it.right() })
+        }
+    }
+
+    override fun batchSave(dto: VektregistreringBatchSaveDto): Either<ServiceError, List<Vektregistrering>> {
+        return transaction {
+            dto.kategoriIds
+                .mapIndexed { index, kategoriId -> save(
+                    VektregistreringSaveDto(
+                    hentingId = dto.hentingId,
+                    kategoriId = UUID.fromString(kategoriId),
+                    vekt = dto.veiinger.get(index)))
+                }
+                .sequence(Either.applicative())
+                .fix()
+                .map { it.fix() }
+                .fold({rollback(); it.left()}, {it.right()})
         }
     }
 

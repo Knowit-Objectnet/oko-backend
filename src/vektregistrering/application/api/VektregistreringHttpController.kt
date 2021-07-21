@@ -17,10 +17,8 @@ import ombruk.backend.shared.api.Roles
 import ombruk.backend.shared.api.generateResponse
 import ombruk.backend.shared.api.receiveCatching
 import ombruk.backend.shared.error.AuthorizationError
-import ombruk.backend.vektregistrering.application.api.dto.VektregistreringDeleteDto
-import ombruk.backend.vektregistrering.application.api.dto.VektregistreringFindDto
-import ombruk.backend.vektregistrering.application.api.dto.VektregistreringFindOneDto
-import ombruk.backend.vektregistrering.application.api.dto.VektregistreringSaveDto
+import ombruk.backend.utlysning.application.api.dto.UtlysningBatchSaveDto
+import ombruk.backend.vektregistrering.application.api.dto.*
 import ombruk.backend.vektregistrering.application.service.IVektregistreringService
 
 @KtorExperimentalLocationsAPI
@@ -70,6 +68,42 @@ fun Routing.vektregistrering(vektregistreringService: IVektregistreringService, 
                                         }
                                     )
                                     .flatMap { vektregistreringService.save(dto) }
+                            }
+                    }
+                    .run { generateResponse(this) }
+                    .also { (code, response) -> call.respond(code, response) }
+            }
+        }
+
+        authenticate {
+            post("/batch") {
+                Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.ReuseStation, Roles.Partner), call)
+                    .flatMap { (role, groupId) ->
+                        receiveCatching { call.receive<VektregistreringBatchSaveDto>() }
+                            .flatMap { it.validOrError() }
+                            .flatMap { dto ->
+                                hentingService.findOne(dto.hentingId)
+                                    .ensure(
+                                        { AuthorizationError.AccessViolationError("Vektregistrering ikke tillatt av denne gruppen")},
+                                        {
+                                            when (role) {
+                                                Roles.RegEmployee -> true
+                                                Roles.Partner -> {
+                                                    when (it.type) {
+                                                        HentingType.PLANLAGT -> groupId == it.aktorId
+                                                        HentingType.EKSTRA -> groupId == it.aktorId
+                                                    }
+                                                }
+                                                Roles.ReuseStation -> {
+                                                    when (it.type) {
+                                                        HentingType.PLANLAGT -> groupId == it.stasjonId || groupId == it.aktorId
+                                                        HentingType.EKSTRA -> groupId == it.stasjonId
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    )
+                                    .flatMap { vektregistreringService.batchSave(dto) }
                             }
                     }
                     .run { generateResponse(this) }
