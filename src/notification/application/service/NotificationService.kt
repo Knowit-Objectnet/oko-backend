@@ -124,7 +124,6 @@ class NotificationService constructor(
             )
         }
     }
-        .also { println(it) }
         .onFailure { logger.error("Lambda failed for sendVerification; ${it.message}") }
         .fold(
             { VerificationMessage("Success").right() },
