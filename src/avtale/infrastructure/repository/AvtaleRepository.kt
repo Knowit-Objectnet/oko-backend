@@ -19,6 +19,7 @@ class AvtaleRepository : RepositoryBase<Avtale, AvtaleCreateParams, AvtaleUpdate
             it[type] = params.type.name
             it[startDato] = params.startDato
             it[sluttDato] = params.sluttDato
+            it[saksnummer] = params.saksnummer
         }
     }
 
@@ -27,6 +28,7 @@ class AvtaleRepository : RepositoryBase<Avtale, AvtaleCreateParams, AvtaleUpdate
             params.type?.let { row[type] = it.name }
             params.startDato?.let { row[startDato] = it }
             params.sluttDato?.let { row[sluttDato] = it }
+            params.saksnummer?.let { row[saksnummer] = it }
         }
     }
 
@@ -47,7 +49,8 @@ class AvtaleRepository : RepositoryBase<Avtale, AvtaleCreateParams, AvtaleUpdate
             AvtaleType.valueOf(row[table.type]),
             row[table.startDato],
             row[table.sluttDato],
-            emptyList()
+            emptyList(),
+            row[table.saksnummer]
         )
     }
 

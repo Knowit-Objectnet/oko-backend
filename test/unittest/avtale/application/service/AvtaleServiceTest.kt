@@ -38,7 +38,8 @@ internal class AvtaleServiceTest {
         AvtaleType.FAST,
         LocalDate.of(2021,1,1),
         LocalDate.of(2022,1,1),
-        emptyList()
+        emptyList(),
+        null
     )
 
     private val avtale2 = Avtale(
@@ -47,7 +48,8 @@ internal class AvtaleServiceTest {
         AvtaleType.ANNEN,
         LocalDate.of(2021,2,1),
         LocalDate.of(2022,2,1),
-        emptyList()
+        emptyList(),
+        null
     )
 
     @BeforeEach
