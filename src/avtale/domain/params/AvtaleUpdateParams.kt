@@ -12,6 +12,6 @@ abstract class AvtaleUpdateParams: UpdateParams{
     abstract val type: AvtaleType?
     abstract val startDato: LocalDate?
     abstract val sluttDato: LocalDate?
-    abstract val merknad: String?
+    abstract val saksnummer: String?
 //    abstract val henteplaner: List<HenteplanUpdateParams>
 }
