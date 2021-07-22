@@ -1,6 +1,7 @@
 package ombruk.backend.notification.application.service
 
 import arrow.core.*
+import arrow.core.extensions.either.foldable.fold
 import ombruk.backend.aktor.application.api.dto.KontaktUpdateDto
 import ombruk.backend.aktor.application.api.dto.VerifiseringSaveDto
 import ombruk.backend.aktor.application.api.dto.VerifiseringUpdateDto
@@ -110,9 +111,9 @@ class NotificationService constructor(
             else null
 
         if (sms?.isLeft() == true)
-            sms.left()
+            throw Error(sms.fold({it.message}, {"Sending to SMS failed of unknown reason"}))
         else if (email?.isLeft() == true)
-            email.left()
+            throw Error(email.fold({it.message}, {"Sending to Email failed of unknown reason"}))
         else {
             verifiseringService.update(
                 VerifiseringUpdateDto(
