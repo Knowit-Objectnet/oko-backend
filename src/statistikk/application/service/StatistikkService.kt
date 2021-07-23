@@ -67,7 +67,6 @@ class StatistikkService(val hentingService: IHentingService, val kategoriService
 
             }
         })
-        val statistikkList: List<Statistikk> = statistikkMap.values.toList()
-        statistikkList.right()
+        statistikkMap.values.toList().right()
     }
 }
