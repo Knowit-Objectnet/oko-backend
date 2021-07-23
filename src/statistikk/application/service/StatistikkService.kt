@@ -30,75 +30,41 @@ class StatistikkService(val hentingService: IHentingService, val kategoriService
         val statistikkMap = mutableMapOf<UUID, Statistikk>()
 
         hentinger.fold({it.left()}, {
-            it.map {
+            it.filter { it.aktorId != null }.map {
 
-                it.planlagtHenting?.let { henting ->
+                val aktorId = it.aktorId!!
+                val aktorNavn = it.aktorNavn!!
+                val stasjonNavn = it.stasjonNavn
+                var vektregistreringer = it.ekstraHenting?.vektregistreringer ?: it.planlagtHenting?.vektregistreringer ?: emptyList()
 
-                    var statistikkP = statistikkMap.get(henting.aktorId) ?: Statistikk(partnerNavn = henting.aktorNavn)
-                    var stasjon = statistikkP.stasjoner.find { stasjon -> stasjon.stasjonNavn == henting.stasjonNavn } ?: Stasjon(henting.stasjonNavn)
+                var statistikk = statistikkMap.get(aktorId) ?: Statistikk(partnerNavn = aktorNavn)
+                var stasjon = statistikk.stasjoner.find { stasjon -> stasjon.stasjonNavn == stasjonNavn} ?: Stasjon(stasjonNavn)
 
-                    var vektregistreringerP = henting.vektregistreringer
-                    if (dto.kategoriId != null && vektregistreringerP != null) vektregistreringerP = vektregistreringerP.filter { it.kategoriId == dto.kategoriId }
-                    vektregistreringerP?.map { registrerting ->
+                if (dto.kategoriId != null) vektregistreringer = vektregistreringer.filter { it.kategoriId == dto.kategoriId }
 
-                        val hentingKategori: ombruk.backend.kategori.domain.entity.Kategori
-                        val kategoriFinder = kategorier.map { it.find { it.id == registrerting.kategoriId } }
-                        require(kategoriFinder is Either.Right)
-                        hentingKategori = kategoriFinder.b!!
+                vektregistreringer.map { registrering ->
+                    val hentingKategori: ombruk.backend.kategori.domain.entity.Kategori
+                    val kategoriFinder = kategorier.map { it.find { it.id == registrering.kategoriId } }
+                    require(kategoriFinder is Either.Right)
+                    hentingKategori = kategoriFinder.b!!
 
-                        var kategori: Kategori = stasjon.kategorier.find { kategori ->  kategori.kategoriId == registrerting.kategoriId } ?: Kategori(kategoriId = hentingKategori.id, kategoriNavn = hentingKategori.navn)
-                        kategori = kategori.copy(vekt = kategori.vekt + registrerting.vekt)
+                    var kategori: Kategori = stasjon.kategorier.find { kategori ->  kategori.kategoriId == registrering.kategoriId } ?: Kategori(kategoriId = hentingKategori.id, kategoriNavn = hentingKategori.navn)
+                    kategori = kategori.copy(vekt = kategori.vekt + registrering.vekt)
 
-                        if (stasjon.kategorier.find { kategori ->  kategori.kategoriId == registrerting.kategoriId } != null) {
-                            val newKategorier = stasjon.kategorier.replace(kategori) {it.kategoriId == kategori.kategoriId}
-                            stasjon = stasjon.copy(kategorier = newKategorier)
-                        } else stasjon = stasjon.copy(kategorier = stasjon.kategorier + kategori)
-
-                    }
-
-                    if (statistikkP.stasjoner.find { it.stasjonNavn == stasjon.stasjonNavn } != null) {
-                        val newStasjoner =
-                            statistikkP.stasjoner.replace(stasjon) { it.stasjonNavn == stasjon.stasjonNavn }
-                        statistikkP = statistikkP.copy(stasjoner = newStasjoner)
-                    } else statistikkP = statistikkP.copy(stasjoner = statistikkP.stasjoner + stasjon)
-
-                    statistikkMap.put(henting.aktorId, statistikkP)
+                    if (stasjon.kategorier.find { kategori ->  kategori.kategoriId == registrering.kategoriId } != null) {
+                        val newKategorier = stasjon.kategorier.replace(kategori) {it.kategoriId == kategori.kategoriId}
+                        stasjon = stasjon.copy(kategorier = newKategorier)
+                    } else stasjon = stasjon.copy(kategorier = stasjon.kategorier + kategori)
                 }
 
-                it.ekstraHenting?.let { henting ->
+                if (statistikk.stasjoner.find { it.stasjonNavn == stasjon.stasjonNavn } != null) {
+                    val newStasjoner =
+                        statistikk.stasjoner.replace(stasjon) { it.stasjonNavn == stasjon.stasjonNavn }
+                    statistikk = statistikk.copy(stasjoner = newStasjoner)
+                } else statistikk = statistikk.copy(stasjoner = statistikk.stasjoner + stasjon)
 
-                    henting.godkjentUtlysning.let {
-                        val utlysning = it!!
+                statistikkMap.put(aktorId, statistikk)
 
-                        var statistikkE = statistikkMap.get(utlysning.partnerId) ?: Statistikk(partnerNavn = utlysning.partnerNavn)
-                        var stasjon = statistikkE.stasjoner.find { stasjon ->  stasjon.stasjonNavn == henting.stasjonNavn } ?: Stasjon(henting.stasjonNavn)
-
-                        var vektregistreringerE = henting.vektregistreringer
-                        if (dto.kategoriId != null && vektregistreringerE != null) vektregistreringerE = vektregistreringerE.filter { it.kategoriId == dto.kategoriId }
-                        vektregistreringerE?.map { registrerting ->
-
-                            val hentingKategori: ombruk.backend.kategori.domain.entity.Kategori
-                            val kategoriFinder = kategorier.map { it.find { it.id == registrerting.kategoriId } }
-                            require(kategoriFinder is Either.Right)
-                            hentingKategori = kategoriFinder.b!!
-
-                            var kategori: Kategori = stasjon.kategorier.find { kategori ->  kategori.kategoriId == registrerting.kategoriId } ?: Kategori(kategoriId = hentingKategori.id, kategoriNavn = hentingKategori.navn)
-
-                            if (stasjon.kategorier.find { kategori ->  kategori.kategoriId == registrerting.kategoriId } != null) {
-                                val newKategorier = stasjon.kategorier.replace(kategori) {it.kategoriId == kategori.kategoriId}
-                                stasjon = stasjon.copy(kategorier = newKategorier)
-                            } else stasjon = stasjon.copy(kategorier = stasjon.kategorier + kategori)
-                        }
-
-                        if (statistikkE.stasjoner.find { it.stasjonNavn == stasjon.stasjonNavn } != null) {
-                            val newStasjoner =
-                                statistikkE.stasjoner.replace(stasjon) { it.stasjonNavn == stasjon.stasjonNavn }
-                            statistikkE = statistikkE.copy(stasjoner = newStasjoner)
-                        } else statistikkE = statistikkE.copy(stasjoner = statistikkE.stasjoner + stasjon)
-
-                        statistikkMap.put(utlysning.partnerId, statistikkE)
-                    }
-                }
             }
         })
         val statistikkList: List<Statistikk> = statistikkMap.values.toList()
