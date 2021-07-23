@@ -5,5 +5,5 @@ import ombruk.backend.statistikk.application.service.StatistikkService
 import org.koin.dsl.module
 
 val statistikkModule = module(createdAtStart = true) {
-    single<IStatistikkService> { StatistikkService() }
+    single<IStatistikkService> { StatistikkService(get(), get()) }
 }

@@ -6,7 +6,7 @@ import java.util.*
 
 @Serializable
 data class Kategori(
-    @Serializable(with = UUIDSerializer::class) val kategoriId: UUID = UUID.randomUUID(),
-    val kategoriNavn: String = "KategoriNavn",
-    val vekt: Float = 666f,
+    @Serializable(with = UUIDSerializer::class) val kategoriId: UUID? = null,
+    val kategoriNavn: String = "",
+    val vekt: Float = 0f,
 )

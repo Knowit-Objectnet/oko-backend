@@ -22,39 +22,15 @@ import ombruk.backend.statistikk.application.service.IStatistikkService
 fun Routing.statistikk(statistikkService: IStatistikkService) {
 
     route("/statistikk") {
-        get<StatistikkFindDto> { form ->
-            form.validOrError()
-                .flatMap { statistikkService.find(form) }
-                .run { generateResponse(this) }
-                .also { (code, response) -> call.respond(code, response) }
-        }
-
-        //Teststruktur
-
-        route("/vekt") {
-            authenticate {
-                get {
-                    Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
-                        .flatMap { receiveCatching { call.receive<StatistikkFindDto>() } }
-                        .flatMap { it.validOrError() }
-                        .flatMap { statistikkService.find(it) }
-                        .run { generateResponse(this) }
-                        .also { (code, response) -> call.respond(code, response) }
-                }
+        authenticate {
+            get {
+                Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
+                    .flatMap { receiveCatching { call.receive<StatistikkFindDto>() } }
+                    .flatMap { it.validOrError() }
+                    .flatMap { statistikkService.find(it) }
+                    .run { generateResponse(this) }
+                    .also { (code, response) -> call.respond(code, response) }
             }
         }
-
-        route("/stasjon") {
-
-        }
-
-        route("/partner") {
-
-        }
-
-        route("/kategori") {
-
-        }
-
     }
 }
