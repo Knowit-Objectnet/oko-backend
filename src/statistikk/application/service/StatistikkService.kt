@@ -1,17 +1,17 @@
 package ombruk.backend.statistikk.application.service
 
 import arrow.core.Either
-import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
 import ombruk.backend.henting.application.api.dto.HentingFindDto
 import ombruk.backend.henting.application.service.IHentingService
 import ombruk.backend.kategori.application.api.dto.KategoriFindDto
 import ombruk.backend.kategori.application.service.IKategoriService
+import ombruk.backend.kategori.domain.entity.Kategori
 import ombruk.backend.shared.error.ServiceError
 import ombruk.backend.statistikk.application.api.dto.StatistikkFindDto
-import ombruk.backend.statistikk.domain.entity.Kategori
-import ombruk.backend.statistikk.domain.entity.Stasjon
+import ombruk.backend.statistikk.domain.entity.KategoriStatistikk
+import ombruk.backend.statistikk.domain.entity.StasjonStatistikk
 import ombruk.backend.statistikk.domain.entity.Statistikk
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
@@ -38,23 +38,23 @@ class StatistikkService(val hentingService: IHentingService, val kategoriService
                 var vektregistreringer = it.ekstraHenting?.vektregistreringer ?: it.planlagtHenting?.vektregistreringer ?: emptyList()
 
                 var statistikk = statistikkMap.get(aktorId) ?: Statistikk(partnerNavn = aktorNavn)
-                var stasjon = statistikk.stasjoner.find { stasjon -> stasjon.stasjonNavn == stasjonNavn} ?: Stasjon(stasjonNavn)
+                var stasjon = statistikk.stasjoner.find { stasjon -> stasjon.stasjonNavn == stasjonNavn} ?: StasjonStatistikk(stasjonNavn)
 
                 if (dto.kategoriId != null) vektregistreringer = vektregistreringer.filter { it.kategoriId == dto.kategoriId }
 
                 vektregistreringer.map { registrering ->
-                    val hentingKategori: ombruk.backend.kategori.domain.entity.Kategori
+                    val hentingKategori: Kategori
                     val kategoriFinder = kategorier.map { it.find { it.id == registrering.kategoriId } }
                     require(kategoriFinder is Either.Right)
                     hentingKategori = kategoriFinder.b!!
 
-                    var kategori: Kategori = stasjon.kategorier.find { kategori ->  kategori.kategoriId == registrering.kategoriId } ?: Kategori(kategoriId = hentingKategori.id, kategoriNavn = hentingKategori.navn)
-                    kategori = kategori.copy(vekt = kategori.vekt + registrering.vekt)
+                    var kategoriStatistikk: KategoriStatistikk = stasjon.kategorier.find { kategori ->  kategori.kategoriId == registrering.kategoriId } ?: KategoriStatistikk(kategoriId = hentingKategori.id, kategoriNavn = hentingKategori.navn)
+                    kategoriStatistikk = kategoriStatistikk.copy(vekt = kategoriStatistikk.vekt + registrering.vekt)
 
                     if (stasjon.kategorier.find { kategori ->  kategori.kategoriId == registrering.kategoriId } != null) {
-                        val newKategorier = stasjon.kategorier.replace(kategori) {it.kategoriId == kategori.kategoriId}
+                        val newKategorier = stasjon.kategorier.replace(kategoriStatistikk) {it.kategoriId == kategoriStatistikk.kategoriId}
                         stasjon = stasjon.copy(kategorier = newKategorier)
-                    } else stasjon = stasjon.copy(kategorier = stasjon.kategorier + kategori)
+                    } else stasjon = stasjon.copy(kategorier = stasjon.kategorier + kategoriStatistikk)
                 }
 
                 if (statistikk.stasjoner.find { it.stasjonNavn == stasjon.stasjonNavn } != null) {
