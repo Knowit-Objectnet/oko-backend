@@ -11,6 +11,8 @@ import ombruk.backend.notification.domain.entity.Notification
 import ombruk.backend.notification.domain.entity.SES
 import ombruk.backend.notification.domain.entity.SNS
 import ombruk.backend.notification.domain.entity.VerificationMessage
+import ombruk.backend.notification.domain.params.SESInputParams
+import ombruk.backend.notification.domain.params.SNSInputParams
 import ombruk.backend.shared.error.ServiceError
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -23,9 +25,9 @@ class NotificationService constructor(
 ) : INotificationService {
     val logger: Logger = LoggerFactory.getLogger("ombruk.backend.notification.application.service.NotificationService")
 
-    override fun sendMessage(message: String, contacts: List<Kontakt>): Either<ServiceError, Notification> {
+    override fun sendMessage(snsInputParams: SNSInputParams, sesInputParams: SESInputParams, contacts: List<Kontakt>): Either<ServiceError, Notification> {
         val (numbers, addresses) = receivers(contacts)
-        return invoke(message, numbers, addresses)
+        return invoke(snsInputParams, sesInputParams, numbers, addresses)
     }
 
     private fun receivers(receivers: List<Kontakt>): Pair<List<String>, List<String>> {
@@ -45,9 +47,9 @@ class NotificationService constructor(
         return Pair(numbers.toList(), addresses.toList())
     }
 
-    private fun invoke(message: String, numbers: List<String>, addresses: List<String>): Either<ServiceError, Notification> = runCatching {
-        val sms = snsService.sendMessage(message, numbers)
-        val email = sesService.sendMessage(message, addresses)
+    private fun invoke(snsInputParams: SNSInputParams, sesInputParams: SESInputParams, numbers: List<String>, addresses: List<String>): Either<ServiceError, Notification> = runCatching {
+        val sms = snsService.sendMessage(snsInputParams, numbers)
+        val email = sesService.sendMessage(sesInputParams, addresses)
         if (sms.statusCode   != 200) throw Error("Invalid status for sms lambda invocation")
         if (email.statusCode != 200) throw Error("Invalid status for email lambda invocation")
     }
