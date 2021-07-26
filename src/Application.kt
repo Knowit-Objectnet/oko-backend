@@ -41,6 +41,8 @@ import ombruk.backend.notification.notificationModule
 import ombruk.backend.shared.api.Authorization
 import ombruk.backend.shared.api.JwtMockConfig
 import ombruk.backend.shared.database.initDB
+import ombruk.backend.statistikk.application.api.statistikk
+import ombruk.backend.statistikk.statistikkModule
 import ombruk.backend.utlysning.application.api.utlysninger
 import ombruk.backend.utlysning.utlysningModule
 import ombruk.backend.vektregistrering.application.api.vektregistrering
@@ -220,6 +222,7 @@ fun Application.module(testing: Boolean = false) {
         modules(vektregistreringModule)
         modules(notificationModule)
         modules(aarsakModule)
+        modules(statistikkModule)
     }
 
 
@@ -237,6 +240,7 @@ fun Application.module(testing: Boolean = false) {
         kontakter(get())
         vektregistrering(get(), get())
         aarsak(get())
+        statistikk(get())
 //        events(EventService)
 //        partners(PartnerService)
 //        report(ReportService)
