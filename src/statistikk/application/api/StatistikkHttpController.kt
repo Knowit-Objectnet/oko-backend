@@ -2,6 +2,7 @@ package ombruk.backend.statistikk.application.api
 
 import arrow.core.extensions.either.monad.flatMap
 import arrow.core.extensions.either.monadError.ensure
+import arrow.core.flatMap
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.locations.*
@@ -9,6 +10,7 @@ import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import ombruk.backend.aktor.application.api.dto.KontaktSaveDto
+import ombruk.backend.henting.application.api.dto.HenteplanFindDto
 import ombruk.backend.kategori.application.api.dto.*
 import ombruk.backend.shared.api.Authorization
 import ombruk.backend.shared.api.Roles
@@ -23,11 +25,10 @@ fun Routing.statistikk(statistikkService: IStatistikkService) {
 
     route("/statistikk") {
         authenticate {
-            get {
+            get<StatistikkFindDto> { form ->
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
-                    .flatMap { receiveCatching { call.receive<StatistikkFindDto>() } }
-                    .flatMap { it.validOrError() }
-                    .flatMap { statistikkService.find(it) }
+                    form.validOrError()
+                        .flatMap { statistikkService.find(form) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }
