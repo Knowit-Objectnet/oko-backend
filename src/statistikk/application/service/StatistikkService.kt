@@ -3,6 +3,7 @@ package ombruk.backend.statistikk.application.service
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
+import ombruk.backend.aktor.domain.entity.Partner
 import ombruk.backend.aktor.infrastructure.table.PartnerTable
 import ombruk.backend.aktor.infrastructure.table.StasjonTable
 import ombruk.backend.avtale.infrastructure.table.AvtaleTable
@@ -20,6 +21,7 @@ import ombruk.backend.statistikk.application.api.dto.StatistikkFindDto
 import ombruk.backend.statistikk.domain.entity.KategoriStatistikk
 import ombruk.backend.statistikk.domain.entity.StasjonStatistikk
 import ombruk.backend.statistikk.domain.entity.Statistikk
+import ombruk.backend.utlysning.infrastructure.table.UtlysningTable
 import ombruk.backend.vektregistrering.infrastructure.table.VektregistreringTable
 import org.h2.table.Plan
 import org.jetbrains.exposed.sql.*
@@ -29,7 +31,7 @@ import java.util.*
 
 class StatistikkService(val hentingService: IHentingService, val kategoriService: IKategoriService) : IStatistikkService {
 
-    fun queryStatistikkAggregert(dto: StatistikkFindDto): Query {
+    fun queryStatistikkAggregert(dto: StatistikkFindDto): Pair<Query, Query> {
         val stasjonAlias = StasjonTable.alias("stasjonAktorAlias")
         val planlagtHenting = PlanlagtHentingTable
             .innerJoin(HenteplanTable, { henteplanId }, { id })
@@ -40,21 +42,32 @@ class StatistikkService(val hentingService: IHentingService, val kategoriService
             .innerJoin(VektregistreringTable, { PlanlagtHentingTable.id }, { hentingId })
             .innerJoin(KategoriTable, { VektregistreringTable.kategoriId }, { id })
 
-        val query = planlagtHenting.slice(PartnerTable.navn, StasjonTable.navn, KategoriTable.navn, KategoriTable.id, VektregistreringTable.vekt.sum()).selectAll()
+        val queryPlanlagtHenting = planlagtHenting.slice(PartnerTable.navn, StasjonTable.navn, KategoriTable.navn, KategoriTable.id, VektregistreringTable.vekt.sum()).selectAll()
 
-        dto.partnerId?.let{ query.andWhere { PartnerTable.id eq it } }
-        dto.stasjonId?.let { query.andWhere { StasjonTable.id eq it } }
-        dto.kategoriId?.let { query.andWhere { VektregistreringTable.kategoriId eq it } }
-        dto.after?.let { query.andWhere { PlanlagtHentingTable.startTidspunkt.greaterEq(it) } }
-        dto.before?.let { query.andWhere { PlanlagtHentingTable.sluttTidspunkt.lessEq(it) } }
+        val ekstraHenting = EkstraHentingTable
+            .innerJoin(UtlysningTable, { EkstraHentingTable.id }, { hentingId })
+            .innerJoin(StasjonTable, { EkstraHentingTable.stasjonId }, { id })
+            .leftJoin(PartnerTable, { UtlysningTable.partnerId }, { id })
+            .leftJoin(stasjonAlias, { UtlysningTable.partnerId }, { stasjonAlias[StasjonTable.id] })
+            .innerJoin(VektregistreringTable, { EkstraHentingTable.id }, { hentingId })
+            .innerJoin(KategoriTable, { VektregistreringTable.kategoriId }, { id })
 
-        query.groupBy(PartnerTable.navn, StasjonTable.navn, KategoriTable.navn, KategoriTable.id)
+        val queryEkstraHenting = ekstraHenting.slice(PartnerTable.navn, StasjonTable.navn, KategoriTable.navn, KategoriTable.id, VektregistreringTable.vekt.sum()).select(where = {UtlysningTable.partnerPameldt.isNotNull()})
 
-        return query
+        dto.partnerId?.let{ queryPlanlagtHenting.andWhere { PartnerTable.id eq it }; queryEkstraHenting.andWhere { PartnerTable.id eq it } }
+        dto.stasjonId?.let { queryPlanlagtHenting.andWhere { StasjonTable.id eq it }; queryEkstraHenting.andWhere { StasjonTable.id eq it } }
+        dto.kategoriId?.let { queryPlanlagtHenting.andWhere { VektregistreringTable.kategoriId eq it }; queryEkstraHenting.andWhere { VektregistreringTable.kategoriId eq it }  }
+        dto.after?.let { queryPlanlagtHenting.andWhere { PlanlagtHentingTable.startTidspunkt.greaterEq(it) }; queryEkstraHenting.andWhere { EkstraHentingTable.startTidspunkt.greaterEq(it) } }
+        dto.before?.let { queryPlanlagtHenting.andWhere { PlanlagtHentingTable.sluttTidspunkt.lessEq(it) }; queryEkstraHenting.andWhere { EkstraHentingTable.sluttTidspunkt.lessEq(it) } }
+
+        queryPlanlagtHenting.groupBy(PartnerTable.navn, StasjonTable.navn, KategoriTable.navn, KategoriTable.id)
+        queryEkstraHenting.groupBy(PartnerTable.navn, StasjonTable.navn, KategoriTable.navn, KategoriTable.id)
+
+        return Pair(queryPlanlagtHenting, queryEkstraHenting)
     }
 
     override fun find(dto: StatistikkFindDto): Either<ServiceError, List<Statistikk>> = transaction {
-        val query = queryStatistikkAggregert(dto)
+        val queries = queryStatistikkAggregert(dto)
 
         fun <T> List<T>.replace(newValue: T, block: (T) -> Boolean): List<T> {
             return map {
@@ -64,20 +77,32 @@ class StatistikkService(val hentingService: IHentingService, val kategoriService
 
         val statistikkMap = mutableMapOf<String, Statistikk>()
 
-        query.mapNotNull {
+        queries.first.mapNotNull {
             val row = it
             var statistikk = statistikkMap.get(row[PartnerTable.navn]) ?: Statistikk(partnerNavn = row[PartnerTable.navn])
             var stasjon = statistikk.stasjoner.find { it.stasjonNavn == row[StasjonTable.navn] } ?: StasjonStatistikk(stasjonNavn = row[StasjonTable.navn])
             stasjon = stasjon.copy(kategorier = stasjon.kategorier + KategoriStatistikk(kategoriId = row[KategoriTable.id].value, kategoriNavn = row[KategoriTable.navn], vekt = row[VektregistreringTable.vekt.sum()] ?: 0f))
 
-            if (statistikk.stasjoner.find { it.stasjonNavn == stasjon.stasjonNavn } != null) {
-                val newStasjoner =
-                    statistikk.stasjoner.replace(stasjon) { it.stasjonNavn == stasjon.stasjonNavn }
-                statistikk = statistikk.copy(stasjoner = newStasjoner)
-            } else statistikk = statistikk.copy(stasjoner = statistikk.stasjoner + stasjon)
+            if (statistikk.stasjoner.find { it.stasjonNavn == stasjon.stasjonNavn } != null) statistikk = statistikk.copy(stasjoner = statistikk.stasjoner.replace(stasjon) { it.stasjonNavn == stasjon.stasjonNavn })
+            else statistikk = statistikk.copy(stasjoner = statistikk.stasjoner + stasjon)
 
             statistikkMap.put(statistikk.partnerNavn, statistikk)
         }
-        statistikkMap.values.toList().right()
+
+        queries.second.mapNotNull {
+            val row = it
+            var statistikk = statistikkMap.get(row[PartnerTable.navn]) ?: Statistikk(partnerNavn = row[PartnerTable.navn])
+            var stasjon = statistikk.stasjoner.find { it.stasjonNavn == row[StasjonTable.navn] } ?: StasjonStatistikk(stasjonNavn = row[StasjonTable.navn])
+            var kategoriStatistikk = stasjon.kategorier.find { it.kategoriId == row[KategoriTable.id].value } ?: KategoriStatistikk(kategoriId = row[KategoriTable.id].value, kategoriNavn = row[KategoriTable.navn], vekt = row[VektregistreringTable.vekt.sum()] ?: 0f)
+            if (stasjon.kategorier.find { it.kategoriId == row[KategoriTable.id].value } != null) stasjon = stasjon.copy(kategorier = stasjon.kategorier.replace(kategoriStatistikk.copy(vekt = kategoriStatistikk.vekt + (row[VektregistreringTable.vekt.sum()] ?: 0f))) { it.kategoriId == kategoriStatistikk.kategoriId })
+            else stasjon = stasjon.copy(kategorier = stasjon.kategorier + KategoriStatistikk(kategoriId = row[KategoriTable.id].value, kategoriNavn = row[KategoriTable.navn], vekt = row[VektregistreringTable.vekt.sum()] ?: 0f))
+
+            if (statistikk.stasjoner.find { it.stasjonNavn == stasjon.stasjonNavn } != null) statistikk = statistikk.copy(stasjoner = statistikk.stasjoner.replace(stasjon) { it.stasjonNavn == stasjon.stasjonNavn })
+            else statistikk = statistikk.copy(stasjoner = statistikk.stasjoner + stasjon)
+
+            statistikkMap.put(statistikk.partnerNavn, statistikk)
+        }
+
+        (statistikkMap.values.toList().sortedBy { it.partnerNavn }).map { it.copy(stasjoner = it.stasjoner.sortedBy { it.stasjonNavn }) }.right()
     }
 }
