@@ -137,7 +137,7 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
 
     override fun update(dto: HenteplanUpdateDto): Either<ServiceError, Henteplan> {
         return transaction {
-            val today = LocalDateTime.now()
+            val today = LocalDateTime.now().plusDays(1)
             val avlystHenting: MutableList<PlanlagtHenting> = mutableListOf()
             findOne(dto.id)
                 .fold(
@@ -160,10 +160,6 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
                                             today.toLocalDate(),
                                             (dto.startTidspunkt ?: henteplan.startTidspunkt).toLocalTime()
                                         )
-
-                                        if (starttime.isBefore(today)) {
-                                            starttime = starttime.plusDays(1)
-                                        }
 
                                         if (dto.startTidspunkt != null && dto.startTidspunkt.isAfter(today)) {
                                             starttime = dto.startTidspunkt
