@@ -103,6 +103,6 @@ class StatistikkService(val hentingService: IHentingService, val kategoriService
             statistikkMap.put(statistikk.partnerNavn, statistikk)
         }
 
-        statistikkMap.values.toList().right()
+        (statistikkMap.values.toList().sortedBy { it.partnerNavn }).map { it.copy(stasjoner = it.stasjoner.sortedBy { it.stasjonNavn }) }.right()
     }
 }
