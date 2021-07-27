@@ -161,6 +161,10 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
                                             (dto.startTidspunkt ?: henteplan.startTidspunkt).toLocalTime()
                                         )
 
+                                        if (starttime.isBefore(today)) {
+                                            starttime = starttime.plusDays(1)
+                                        }
+
                                         if (dto.startTidspunkt != null && dto.startTidspunkt.isAfter(today)) {
                                             starttime = dto.startTidspunkt
                                         } else if (dto.startTidspunkt == null && henteplan.startTidspunkt.isAfter(today)) {
