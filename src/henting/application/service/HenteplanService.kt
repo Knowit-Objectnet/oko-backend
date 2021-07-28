@@ -137,7 +137,7 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
 
     override fun update(dto: HenteplanUpdateDto): Either<ServiceError, Henteplan> {
         return transaction {
-            val today = LocalDateTime.now()
+            val today = LocalDateTime.now().plusDays(1)
             val avlystHenting: MutableList<PlanlagtHenting> = mutableListOf()
             findOne(dto.id)
                 .fold(
