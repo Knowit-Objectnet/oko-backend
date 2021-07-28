@@ -3,8 +3,6 @@ package ombruk.backend.vektregistrering.application.api.dto
 import arrow.core.Either
 import kotlinx.serialization.Serializable
 import ombruk.backend.henting.application.service.IHentingService
-import ombruk.backend.henting.domain.port.IHenteplanRepository
-import ombruk.backend.kategori.domain.params.HenteplanKategoriCreateParams
 import ombruk.backend.kategori.domain.port.IKategoriRepository
 import ombruk.backend.shared.error.ValidationError
 import ombruk.backend.shared.form.IForm
@@ -32,6 +30,13 @@ data class VektregistreringSaveDto(
 
             validate(VektregistreringSaveDto::hentingId).isExistingUUID({ hentingExist(it) }, UUIDGenerelt)
             validate(VektregistreringSaveDto::kategoriId).isExistingUUID({ kategoriExist(it) }, UUIDKategori)
+
+            hentingService.findOne(hentingId).map { hentingWrapper ->
+                hentingWrapper.ekstraHenting?.let { ekstrahenting ->
+                    validate(VektregistreringSaveDto::hentingId).isValidEkstrahenting(ekstrahenting)
+                }
+            }
+
         }
     }
 }

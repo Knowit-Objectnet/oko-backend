@@ -1,7 +1,13 @@
 package ombruk.backend.shared.utils.validation
 
+import ombruk.backend.henting.application.service.HentingService
+import ombruk.backend.henting.application.service.IEkstraHentingService
+import ombruk.backend.henting.application.service.IHentingService
+import ombruk.backend.henting.domain.entity.EkstraHenting
+import ombruk.backend.henting.domain.entity.HentingWrapper
 import org.valiktor.Constraint
 import org.valiktor.Validator
+import java.time.LocalDateTime
 import java.util.*
 
 object UUIDString : Constraint
@@ -43,6 +49,7 @@ object UUIDKategori : Constraint
 object UUIDHenteplan: Constraint
 object UUIDGenerelt: Constraint
 
+
 fun <E, UUID> Validator<E>.Property<UUID?>.isExistingUUID(validator: ((UUID) -> Boolean), type: Constraint): Validator<E>.Property<UUID?> {
     return when (type) {
         is UUIDKategori -> this.validate(UUIDKategori) { it == null || validator(it) }
@@ -53,4 +60,8 @@ fun <E, UUID> Validator<E>.Property<UUID?>.isExistingUUID(validator: ((UUID) -> 
     }
 }
 
+object UUIDEkstrahenting: Constraint
+
+fun <E> Validator<E>.Property<UUID?>.isValidEkstrahenting(ekstrahenting: EkstraHenting) =
+    this.validate(UUIDEkstrahenting) {ekstrahenting.godkjentUtlysning != null}
 
