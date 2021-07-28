@@ -4,10 +4,11 @@ import com.amazonaws.services.lambda.AWSLambdaClientBuilder
 import com.amazonaws.services.lambda.invoke.LambdaInvokerFactory
 import ombruk.backend.notification.domain.entity.SES
 import ombruk.backend.notification.domain.params.SESCreateParams
+import ombruk.backend.notification.domain.params.SESInputParams
 import ombruk.backend.notification.domain.params.SESVerifyParams
 
 class SESService {
-    fun sendMessage(message: String, receivers: List<String>): SES {
+    fun sendMessage(inputParams: SESInputParams, receivers: List<String>): SES {
         if (receivers.isEmpty()) {
             return SES(message = "No receivers", statusCode = 200)
         }
@@ -16,7 +17,7 @@ class SESService {
             .lambdaClient(AWSLambdaClientBuilder.defaultClient())
             .build(ISESLambdaService::class.java)
 
-        val request = SESCreateParams(message, addresses = receivers)
+        val request = SESCreateParams(inputParams.subject, inputParams.previewMessage, inputParams.message, addresses = receivers)
         return lambdaSESService.sendMessage(request)
     }
 

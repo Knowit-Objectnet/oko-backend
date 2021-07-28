@@ -3,6 +3,7 @@ package ombruk.backend.shared.utils
 import ombruk.backend.henting.domain.model.HenteplanFrekvens
 import java.time.DayOfWeek
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 
 /**
@@ -78,3 +79,9 @@ class LocalDateTimeProgressionWithDayFrekvens(
  */
 operator fun LocalDateTime.rangeTo(other: LocalDateTime) =
     LocalDateTimeProgression(this, other)
+
+fun formatDateRange(start: LocalDateTime, end: LocalDateTime): String {
+    val dateformatter = DateTimeFormatter.ofPattern("dd.MM.yy")
+    val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+    return "${ start.format(dateformatter) } kl. ${start.format(timeFormatter)}-${end.format(timeFormatter)} "
+}
