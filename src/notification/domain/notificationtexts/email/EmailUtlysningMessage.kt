@@ -16,7 +16,7 @@ object EmailUtlysningMessage {
                 henting.startTidspunkt,
                 henting.sluttTidspunkt
             )
-        }. Vær kjapp! \n\nBeskrivelse for henting: ${henting.beskrivelse}. ${getKategoriString(henting.kategorier)} \n\nLink til henting og påmelding: oko.knowit.no/ekstrahenting" + Signature.signature
+        }. Vær kjapp! \n${getBeskrivelse(henting.beskrivelse)} ${getKategoriString(henting.kategorier)} \n\nLink til henting og påmelding: oko.knowit.no/ekstrahenting" + Signature.signature
     }
 
     fun getPreviewMessage(henting: EkstraHenting): String {
@@ -37,9 +37,14 @@ object EmailUtlysningMessage {
         val title = "\nKategorier: "
         var result = ""
         kategorier.map { it.kategori?.let { result = result + it.navn + ", "} }
-        if (result.length > 2) result = result.dropLast(2)
+        if (result.length > 2) return title + result.dropLast(2)
         else return null
-        return title + result
+    }
+
+    fun getBeskrivelse(beskrivelse: String): String? {
+        val title = "\nBeskrivelse for ekstrahenting: "
+        if (beskrivelse.length > 1) return title + beskrivelse
+        else return null
     }
 }
 
