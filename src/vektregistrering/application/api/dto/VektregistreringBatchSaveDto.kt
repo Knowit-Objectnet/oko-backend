@@ -2,20 +2,16 @@ package ombruk.backend.vektregistrering.application.api.dto
 
 import arrow.core.Either
 import kotlinx.serialization.Serializable
-import ombruk.backend.aktor.domain.port.IPartnerRepository
 import ombruk.backend.henting.application.service.IHentingService
 import ombruk.backend.kategori.domain.port.IKategoriRepository
 import ombruk.backend.shared.error.ValidationError
 import ombruk.backend.shared.form.IForm
-import ombruk.backend.shared.model.serializer.LocalDateTimeSerializer
 import ombruk.backend.shared.utils.validation.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import org.valiktor.functions.isValid
 import org.valiktor.validate
 import shared.model.serializer.UUIDSerializer
-import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
@@ -38,6 +34,10 @@ data class VektregistreringBatchSaveDto(
             hentingService.findOne(hentingId).map { hentingWrapper ->
                 hentingWrapper.ekstraHenting?.let { ekstrahenting ->
                     validate(VektregistreringBatchSaveDto::hentingId).isValidEkstrahenting(ekstrahenting)
+                }
+
+                hentingWrapper.planlagtHenting?.let { planlagtHenting ->
+                    validate(VektregistreringBatchSaveDto::hentingId).isNotAvlyst(planlagtHenting)
                 }
             }
 

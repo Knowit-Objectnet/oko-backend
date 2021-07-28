@@ -35,6 +35,10 @@ data class VektregistreringSaveDto(
                 hentingWrapper.ekstraHenting?.let { ekstrahenting ->
                     validate(VektregistreringSaveDto::hentingId).isValidEkstrahenting(ekstrahenting)
                 }
+
+                hentingWrapper.planlagtHenting?.let { planlagtHenting ->
+                    validate(VektregistreringSaveDto::hentingId).isNotAvlyst(planlagtHenting)
+                }
             }
 
         }

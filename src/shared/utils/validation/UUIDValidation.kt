@@ -60,8 +60,4 @@ fun <E, UUID> Validator<E>.Property<UUID?>.isExistingUUID(validator: ((UUID) -> 
     }
 }
 
-object UUIDEkstrahenting: Constraint
-
-fun <E> Validator<E>.Property<UUID?>.isValidEkstrahenting(ekstrahenting: EkstraHenting) =
-    this.validate(UUIDEkstrahenting) {ekstrahenting.godkjentUtlysning != null}
 
