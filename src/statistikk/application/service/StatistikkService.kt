@@ -42,7 +42,7 @@ class StatistikkService(val hentingService: IHentingService, val kategoriService
             .innerJoin(VektregistreringTable, { PlanlagtHentingTable.id }, { hentingId })
             .innerJoin(KategoriTable, { VektregistreringTable.kategoriId }, { id })
 
-        val queryPlanlagtHenting = planlagtHenting.slice(PartnerTable.navn, StasjonTable.navn, KategoriTable.navn, KategoriTable.id, VektregistreringTable.vekt.sum()).selectAll()
+        val queryPlanlagtHenting = planlagtHenting.slice(PartnerTable.navn, StasjonTable.navn, KategoriTable.navn, KategoriTable.id, VektregistreringTable.vekt.sum()).select(where = {PlanlagtHentingTable.avlyst.isNull()})
 
         val ekstraHenting = EkstraHentingTable
             .innerJoin(UtlysningTable, { EkstraHentingTable.id }, { hentingId })
