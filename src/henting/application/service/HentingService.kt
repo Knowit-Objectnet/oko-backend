@@ -21,12 +21,12 @@ import kotlin.collections.ArrayList
 
 @KtorExperimentalLocationsAPI
 class HentingService(val planlagtHentingService: IPlanlagtHentingService, val ekstraHentingService: IEkstraHentingService): IHentingService {
-    override fun findOne(id: UUID): Either<ServiceError, HentingWrapper> {
+    override fun findOne(id: UUID, aktorId: UUID?): Either<ServiceError, HentingWrapper> {
         return transaction {
             planlagtHentingService.findOne(id)
                 .fold(
                     {
-                        ekstraHentingService.findOne(id).fold(
+                        ekstraHentingService.findOneWithUtlysninger(id, aktorId).fold(
                             { ServiceError("Not found").left() },
                             { wrapperFromEkstra(it).right() }
                         )
@@ -36,17 +36,17 @@ class HentingService(val planlagtHentingService: IPlanlagtHentingService, val ek
         }
     }
 
-    override fun find(dto: HentingFindDto): Either<ServiceError, List<HentingWrapper>> {
+    override fun find(dto: HentingFindDto, aktorId: UUID?): Either<ServiceError, List<HentingWrapper>> {
         return transaction {
             val hentinger: MutableList<HentingWrapper> = mutableListOf()
-            ekstraHentingService.find(
+            ekstraHentingService.findWithUtlysninger(
                 EkstraHentingFindDto(
                     id = dto.id,
                     stasjonId = dto.stasjonId,
                     aktorId = dto.aktorId,
                     before = dto.before,
                     after = dto.after
-                )
+                ), aktorId
             ).fold( {it.left()},
                 { it.map { hentinger.add(wrapperFromEkstra(it)) }
                     planlagtHentingService.find(PlanlagtHentingFindDto(

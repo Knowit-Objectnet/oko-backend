@@ -9,6 +9,6 @@ import ombruk.backend.shared.error.ServiceError
 import java.util.*
 
 interface IHentingService {
-    fun findOne(id: UUID): Either<ServiceError, HentingWrapper>
-    fun find(dto: HentingFindDto): Either<ServiceError, List<HentingWrapper>>
+    fun findOne(id: UUID, aktorId: UUID? = null): Either<ServiceError, HentingWrapper>
+    fun find(dto: HentingFindDto, aktorId: UUID? = null): Either<ServiceError, List<HentingWrapper>>
 }
