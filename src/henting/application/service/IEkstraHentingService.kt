@@ -22,5 +22,6 @@ interface IEkstraHentingService {
     fun archive(params: EkstraHentingFindParams): Either<ServiceError, Unit>
 
     fun archiveOne(id: UUID): Either<ServiceError, Unit>
-    fun findWithUtlysninger(dto: EkstraHentingFindDto): Either<ServiceError, List<EkstraHenting>>
+    fun findWithUtlysninger(dto: EkstraHentingFindDto, aktorId: UUID? = null): Either<ServiceError, List<EkstraHenting>>
+    fun findOneWithUtlysninger(id: UUID, aktorId: UUID?): Either<ServiceError, EkstraHenting>
 }

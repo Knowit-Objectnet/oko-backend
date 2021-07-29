@@ -133,16 +133,26 @@ class EkstraHentingService(
         }
     }
 
-    override fun findWithUtlysninger(dto: EkstraHentingFindDto): Either<ServiceError, List<EkstraHenting>> {
+    override fun findWithUtlysninger(dto: EkstraHentingFindDto, aktorId: UUID?): Either<ServiceError, List<EkstraHenting>> {
         return transaction {
             find(dto)
                 .flatMap { list ->
                     list.map { ekstraHenting ->
                         utlysningService.find(UtlysningFindDto(hentingId = ekstraHenting.id))
-                            .flatMap { ekstraHenting.copy(utlysninger = it).right() }
+                            .flatMap { utlysninger -> ekstraHenting.copy(utlysninger = (aktorId?.let { utlysninger.filter { it.partnerId == aktorId } } ?: utlysninger)).right() }
                     }.sequence(Either.applicative()).fix().map { it.fix() }
                 }
         }
+    }
+
+    override fun findOneWithUtlysninger(id: UUID, aktorId: UUID?): Either<ServiceError, EkstraHenting> {
+           return transaction {
+               findOne(id)
+                   .flatMap {ekstrahenting ->
+                        utlysningService.find(UtlysningFindDto(hentingId = id))
+                            .flatMap { utlysninger ->  ekstrahenting.copy(utlysninger = (aktorId?.let { utlysninger.filter { it.partnerId == aktorId } } ?: utlysninger )).right()}
+                    }
+           }
     }
 
     override fun delete(dto: EkstraHentingDeleteDto): Either<ServiceError, Unit> {

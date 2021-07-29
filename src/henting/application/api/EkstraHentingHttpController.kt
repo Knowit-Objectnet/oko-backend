@@ -47,13 +47,9 @@ fun Routing.ekstraHentinger(ekstraHentingService: IEkstraHentingService) {
                         .flatMap { (role, groupId) ->
                             form.validOrError()
                                 .map { if (role == Roles.ReuseStation) it.copy(stasjonId = groupId) else it}
-                                .flatMap { ekstraHentingService.findWithUtlysninger(it) }
-                                .map {
-                                    if (role == Roles.Partner) {
-                                    it.map { it.copy(utlysninger = it.utlysninger.filter { it.partnerId == groupId }) }
-                                     .filter { it.utlysninger.size == 1 }
-                                    }
-                                    else it
+                                .flatMap {
+                                    if (role == Roles.Partner) ekstraHentingService.findWithUtlysninger(it, groupId)
+                                    else ekstraHentingService.findWithUtlysninger(it)
                                 }
                         }
                         .run { generateResponse(this) }
