@@ -30,7 +30,7 @@ class VektregistreringRepository : RepositoryBase<Vektregistrering, Vektregistre
     }
 
     override fun prepareQuery(params: VektregistreringFindParams): Pair<Query, List<Alias<Table>>?> {
-        val query = table.selectAll()
+        val query = table.innerJoin(KategoriTable, {table.kategoriId}, {id}).selectAll()
         params.id?.let { query.andWhere { table.id eq it } }
         params.hentingId?.let { query.andWhere { table.hentingId eq it } }
         params.kategoriId?.let { query.andWhere { table.kategoriId eq it } }
@@ -40,11 +40,17 @@ class VektregistreringRepository : RepositoryBase<Vektregistrering, Vektregistre
         return Pair(query, null)
     }
 
+    override fun findOneMethod(id: UUID): List<Vektregistrering> {
+        val joinedTable = table.innerJoin(KategoriTable, {table.kategoriId}, { KategoriTable.id })
+        return joinedTable.select { table.id eq id }.mapNotNull { toEntity(it) }
+    }
+
     override fun toEntity(row: ResultRow, aliases: List<Alias<Table>>?): Vektregistrering {
         return Vektregistrering(
             row[table.id].value,
             row[table.hentingId],
             row[table.kategoriId],
+            row[KategoriTable.navn],
             row[table.vekt],
             row[table.registreringsDato]
         )

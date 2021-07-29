@@ -11,6 +11,7 @@ data class Vektregistrering(
     @Serializable(with = UUIDSerializer::class) val id: UUID,
     @Serializable(with = UUIDSerializer::class) val hentingId: UUID,
     @Serializable(with = UUIDSerializer::class) val kategoriId: UUID,
+    val kategoriNavn: String = "",
     val vekt: Float,
     @Serializable(with = LocalDateTimeSerializer::class) val registreringsDato: LocalDateTime
 )
