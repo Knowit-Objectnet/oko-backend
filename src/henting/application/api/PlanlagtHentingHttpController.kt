@@ -2,6 +2,7 @@ package ombruk.backend.henting.application.api
 
 import arrow.core.extensions.either.monad.flatMap
 import arrow.core.extensions.either.monadError.ensure
+import arrow.core.flatMap
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.locations.*
@@ -21,18 +22,42 @@ fun Routing.planlagteHentinger(planlagtHentingService: IPlanlagtHentingService) 
 
     route("/planlagte-hentinger") {
 
-        get<PlanlagtHentingFindOneDto> { form ->
-            form.validOrError()
-                .flatMap { planlagtHentingService.findOne(form.id) }
-                .run { generateResponse(this) }
-                .also { (code, response) -> call.respond(code, response) }
+        authenticate {
+            get<PlanlagtHentingFindOneDto> { form ->
+                Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.Partner, Roles.ReuseStation), call)
+                    .flatMap { (role, groupId) ->
+                        form.validOrError()
+                            .flatMap { planlagtHentingService.findOne(form.id) }
+                            .ensure(
+                                { AuthorizationError.AccessViolationError("Hentingen er ikke tilgjengelig for deg")},
+                                { when (role) {
+                                    Roles.Partner -> it.aktorId == groupId
+                                    Roles.ReuseStation -> it.stasjonId == groupId
+                                    Roles.RegEmployee -> true
+                                    }
+                                }
+                            )
+                    }
+                    .run { generateResponse(this) }
+                    .also { (code, response) -> call.respond(code, response) }
+            }
         }
 
-        get<PlanlagtHentingFindDto> { form ->
-            form.validOrError()
-                .flatMap { planlagtHentingService.find(form) }
-                .run { generateResponse(this) }
-                .also { (code, response) -> call.respond(code, response) }
+        authenticate {
+            get<PlanlagtHentingFindDto> { form ->
+                Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.Partner, Roles.ReuseStation), call)
+                    .flatMap { (role, groupId) ->
+                        form.validOrError()
+                            .map { when (role) {
+                                Roles.Partner -> it.copy(aktorId = groupId)
+                                Roles.ReuseStation -> it.copy(stasjonId = groupId)
+                                Roles.RegEmployee -> it
+                            } }
+                            .flatMap { planlagtHentingService.find(it) }
+                    }
+                    .run { generateResponse(this) }
+                    .also { (code, response) -> call.respond(code, response) }
+            }
         }
 
         //TODO: Determine how to do PlanlagtHentingWithParents - use it as default?

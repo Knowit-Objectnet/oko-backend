@@ -138,9 +138,11 @@ class EkstraHentingService(
             find(dto)
                 .flatMap { list ->
                     list.map { ekstraHenting ->
-                        utlysningService.find(UtlysningFindDto(hentingId = ekstraHenting.id))
-                            .flatMap { utlysninger -> ekstraHenting.copy(utlysninger = (aktorId?.let { utlysninger.filter { it.partnerId == aktorId } } ?: utlysninger)).right() }
+                        utlysningService.find(UtlysningFindDto(hentingId = ekstraHenting.id, partnerId = aktorId))
+                            .flatMap { utlysninger -> ekstraHenting.copy(utlysninger = utlysninger).right() }
+
                     }.sequence(Either.applicative()).fix().map { it.fix() }
+                        .map { if (aktorId == null) it else it.filter { it.utlysninger.size == 1 } }
                 }
         }
     }

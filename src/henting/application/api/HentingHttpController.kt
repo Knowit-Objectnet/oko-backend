@@ -2,6 +2,7 @@ package ombruk.backend.henting.application.api.dto
 
 
 import arrow.core.extensions.either.monad.flatMap
+import arrow.core.extensions.either.monadError.ensure
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.locations.*
@@ -11,6 +12,7 @@ import ombruk.backend.henting.application.service.IHentingService
 import ombruk.backend.shared.api.Authorization
 import ombruk.backend.shared.api.Roles
 import ombruk.backend.shared.api.generateResponse
+import ombruk.backend.shared.error.AuthorizationError
 
 
 @KtorExperimentalLocationsAPI
@@ -27,6 +29,14 @@ fun Routing.hentinger(hentingService: IHentingService) {
                                 if (role == Roles.Partner) hentingService.findOne(form.id, groupId)
                                 else hentingService.findOne(form.id)
                             }
+                            .ensure(
+                                {AuthorizationError.AccessViolationError("Ekstrahenting ikke utlyst til deg")},
+                                {when (role) {
+                                    Roles.Partner -> it.aktorId == groupId || (it.ekstraHenting != null && it.ekstraHenting.utlysninger.size == 1)
+                                    Roles.ReuseStation -> it.stasjonId == groupId
+                                    Roles.RegEmployee -> true
+                                }}
+                            )
                     }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }

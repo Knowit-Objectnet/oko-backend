@@ -41,7 +41,6 @@ fun Routing.ekstraHentinger(ekstraHentingService: IEkstraHentingService) {
 
         route("/med-utlysning") {
             authenticate {
-
                 get<EkstraHentingFindDto> { form ->
                     Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.ReuseStation, Roles.Partner), call)
                         .flatMap { (role, groupId) ->

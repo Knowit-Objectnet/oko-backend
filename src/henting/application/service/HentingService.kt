@@ -54,7 +54,7 @@ class HentingService(val planlagtHentingService: IPlanlagtHentingService, val ek
                         before = dto.before,
                         after = dto.after,
                         stasjonId = dto.stasjonId,
-                        aktorId = dto.aktorId))
+                        aktorId = (dto.aktorId ?: aktorId)))
                         .fold({it.left()}, {
                             it.map {hentinger.add(wrapperFromPlanlagt(it))}
                             hentinger.right()
