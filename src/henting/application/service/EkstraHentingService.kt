@@ -141,7 +141,8 @@ class EkstraHentingService(
                         utlysningService.find(UtlysningFindDto(hentingId = ekstraHenting.id, partnerId = aktorId))
                             .flatMap { utlysninger -> ekstraHenting.copy(utlysninger = utlysninger).right() }
 
-                    }.sequence(Either.applicative()).fix().map { it.fix() }.map { if (aktorId == null) it else it.filter { it.utlysninger.size == 1 } }
+                    }.sequence(Either.applicative()).fix().map { it.fix() }
+                        .map { if (aktorId == null) it else it.filter { it.utlysninger.size == 1 } }
                 }
         }
     }
