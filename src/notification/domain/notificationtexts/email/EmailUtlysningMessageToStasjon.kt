@@ -13,7 +13,7 @@ import java.time.format.DateTimeFormatter
 
 object EmailUtlysningMessageToStasjon {
     fun getMessage(henting: EkstraHenting, utlysning: Utlysning): String {
-        return "${utlysning.partnerNavn} har meldt seg på ekstrahenting på din stasjon ${formatDateTime(henting.startTidspunkt)}.\n" +
+        return "${utlysning.partnerNavn} er meldt på ekstrahenting på din stasjon ${formatDateTime(henting.startTidspunkt)}.\n" +
                 "Dermed kan ingen andre partnere melde seg på denne ekstrahentingen.\n" +
                 "${getBeskrivelse(henting.beskrivelse)}" +
                 "${getKategoriString(henting.kategorier)}" +
@@ -24,10 +24,10 @@ object EmailUtlysningMessageToStasjon {
         return "${utlysning.partnerNavn} er meldt på ekstrahenting ${formatDateTime(henting.startTidspunkt)}."
     }
 
-    fun getSubject(): String = "Ny ekstrahenting!"
+    fun getSubject(utlysning: Utlysning): String = "${utlysning.partnerNavn} er meldt på ekstrahenting!"
 
     fun getInputParams(henting: EkstraHenting, utlysning: Utlysning): SESInputParams {
-        return SESInputParams(getSubject(), getPreviewMessage(henting, utlysning), getMessage(henting, utlysning))
+        return SESInputParams(getSubject(utlysning), getPreviewMessage(henting, utlysning), getMessage(henting, utlysning))
     }
 
     fun getKategoriString(kategorier: List<EkstraHentingKategori>): String? {
