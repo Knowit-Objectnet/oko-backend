@@ -9,7 +9,7 @@ import ombruk.backend.notification.domain.params.SNSInputParams
 import ombruk.backend.shared.utils.formatDateRange
 import java.time.format.DateTimeFormatter
 
-object EmailUtlysningMessage {
+object EmailUtlysningMessageToPartner {
     fun getMessage(henting: EkstraHenting): String {
         return "Du kan nå melde deg på ekstrahenting på ${henting.stasjonNavn} stasjon ${
             formatDateRange(
@@ -27,7 +27,7 @@ object EmailUtlysningMessage {
         }."
     }
 
-    fun getSubject(): String = "EkstraHenting!"
+    fun getSubject(): String = "Ny ekstrahenting!"
 
     fun getInputParams(henting: EkstraHenting): SESInputParams {
         return SESInputParams(getSubject(), getPreviewMessage(henting), getMessage(henting))
