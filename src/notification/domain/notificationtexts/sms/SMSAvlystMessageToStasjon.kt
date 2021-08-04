@@ -25,7 +25,7 @@ class SMSAvlystMessageToStasjon {
         }
 
         private fun getAvlystAvNavn(henting: PlanlagtHenting): String {
-            if (henting.avlystAv == null) return "Unknown"
+            if (henting.avlystAv == null) return "ErrorNavn"
             else {
                 if (henting.avlystAv == henting.stasjonId) return (henting.stasjonNavn + " stasjon")
                 else if (henting.avlystAv == henting.aktorId) return henting.aktorNavn

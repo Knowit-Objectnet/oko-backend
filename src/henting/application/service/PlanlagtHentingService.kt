@@ -94,7 +94,10 @@ class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepo
     override fun update(dto: PlanlagtHentingUpdateDto, avlystAv: UUID): Either<ServiceError, PlanlagtHenting> {
         return transaction {
             planlagtHentingRepository.update(dto, avlystAv).flatMap { planlagtHenting ->
-                notifyPartner(planlagtHenting).flatMap { notifyStasjon(planlagtHenting) }
+                if (planlagtHenting.aarsakId != null) {
+                    notifyPartner(planlagtHenting)
+                    notifyStasjon(planlagtHenting)
+                } else planlagtHenting.right()
             }
         }
     }
