@@ -151,12 +151,11 @@ class UtlysningService(
     private fun notifyStasjon(utlysning: Utlysning) =
             ekstraHentingService.findOne(utlysning.hentingId).flatMap { ekstraHenting ->
                 kontaktService.getKontakter(KontaktGetDto(aktorId = ekstraHenting.stasjonId)).flatMap {
-                        notificationService.sendMessage(
-                                SMSUtlysningMessageToStasjon.getInputParams(ekstraHenting, utlysning),
-                                EmailUtlysningMessageToStasjon.getInputParams(ekstraHenting, utlysning),
-                                it
-                        ).map {utlysning}
-                    }
+                    notificationService.sendMessage(
+                            SMSUtlysningMessageToStasjon.getInputParams(ekstraHenting, utlysning),
+                            EmailUtlysningMessageToStasjon.getInputParams(ekstraHenting, utlysning),
+                            it
+                    ).map {utlysning}
                 }
             }
 }
