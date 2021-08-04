@@ -18,7 +18,7 @@ object SMSUtlysningMessageToStasjon {
                 Signature.signature
     }
 
-    fun getSubject(): String = "EkstraHenting!"
+    fun getSubject(): String = "Partner påmeldt!"
 
     fun getInputParams(henting: EkstraHenting, utlysning: Utlysning): SNSInputParams {
         return SNSInputParams(getSubject(), getMessage(henting, utlysning))

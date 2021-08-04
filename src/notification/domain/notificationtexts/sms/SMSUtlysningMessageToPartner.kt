@@ -12,7 +12,7 @@ object SMSUtlysningMessageToPartner {
                 Signature.signature
     }
 
-    fun getSubject(): String = "EkstraHenting!"
+    fun getSubject(): String = "Ny ekstrahenting!"
 
     fun getInputParams(henting: EkstraHenting): SNSInputParams {
         return SNSInputParams(getSubject(), getMessage(henting))
