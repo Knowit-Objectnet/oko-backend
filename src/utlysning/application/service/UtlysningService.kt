@@ -32,7 +32,7 @@ class UtlysningService(
     override fun save(dto: UtlysningSaveDto): Either<ServiceError, Utlysning> {
         return transaction {
             utlysningRepository.insert(dto)
-                .flatMap { utlysning -> notifyPartner(utlysning) }
+                .flatMap { utlysning -> notifyPartner(utlysning = utlysning) }
                 .fold({ rollback(); it.left() }, { it.right() })
         }
     }
