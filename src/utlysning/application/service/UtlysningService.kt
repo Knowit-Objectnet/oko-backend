@@ -3,8 +3,10 @@ package ombruk.backend.utlysning.application.service
 import arrow.core.*
 import arrow.core.extensions.either.applicative.applicative
 import arrow.core.extensions.list.traverse.sequence
-import notificationtexts.email.EmailUtlysningMessage
-import notificationtexts.sms.SMSUtlysningMessage
+import notificationtexts.email.EmailUtlysningMessageToPartner
+import notificationtexts.email.EmailUtlysningMessageToStasjon
+import notificationtexts.sms.SMSUtlysningMessageToPartner
+import notificationtexts.sms.SMSUtlysningMessageToStasjon
 import ombruk.backend.aktor.application.api.dto.KontaktGetDto
 import ombruk.backend.aktor.application.service.IKontaktService
 import ombruk.backend.henting.application.service.IEkstraHentingService
@@ -30,7 +32,7 @@ class UtlysningService(
     override fun save(dto: UtlysningSaveDto): Either<ServiceError, Utlysning> {
         return transaction {
             utlysningRepository.insert(dto)
-                .flatMap { utlysning -> notify(utlysning) }
+                .flatMap { utlysning -> notify(utlysning, toPartner = true) }
                 .fold({ rollback(); it.left() }, { it.right() })
         }
     }
@@ -91,6 +93,10 @@ class UtlysningService(
     override fun partnerAccept(dtoPartner: UtlysningPartnerAcceptDto): Either<ServiceError, Utlysning> {
         return transaction {
             utlysningRepository.acceptPartner(dtoPartner)
+                .flatMap { utlysning ->
+                    ekstraHentingService.findOne(utlysning.hentingId)
+                        .flatMap { notify(utlysning = utlysning, toPartner = false) }
+                }
                 .fold({ rollback(); it.left() }, { it.right() })
         }
     }
@@ -131,16 +137,22 @@ class UtlysningService(
         }
     }
 
-    private fun notify(utlysning: Utlysning) =
-        kontaktService.getKontakter(KontaktGetDto(aktorId = utlysning.partnerId))
-            .flatMap { kontakter ->
-                    ekstraHentingService.findOne(utlysning.hentingId).flatMap {
+    private fun notify(utlysning: Utlysning, toPartner: Boolean) =
+            ekstraHentingService.findOne(utlysning.hentingId).flatMap { ekstraHenting ->
+                kontaktService.getKontakter(KontaktGetDto(aktorId = (if (toPartner) utlysning.partnerId else ekstraHenting.stasjonId))).flatMap {
+                    if (toPartner) {
                         notificationService.sendMessage(
-                            SMSUtlysningMessage.getInputParams(it),
-                            EmailUtlysningMessage.getInputParams(it),
-                            kontakter
-                        )
-                            .map { utlysning }
+                                SMSUtlysningMessageToPartner.getInputParams(ekstraHenting),
+                                EmailUtlysningMessageToPartner.getInputParams(ekstraHenting),
+                                it
+                        ).map {utlysning}
+                    } else {
+                        notificationService.sendMessage(
+                                SMSUtlysningMessageToStasjon.getInputParams(ekstraHenting, utlysning),
+                                EmailUtlysningMessageToStasjon.getInputParams(ekstraHenting, utlysning),
+                                it
+                        ).map {utlysning}
                     }
                 }
+            }
 }

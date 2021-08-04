@@ -5,7 +5,7 @@ import ombruk.backend.notification.domain.notificationtexts.Signature
 import ombruk.backend.notification.domain.params.SNSInputParams
 import ombruk.backend.shared.utils.formatDateRange
 
-object SMSUtlysningMessage {
+object SMSUtlysningMessageToPartner {
     fun getMessage(henting: EkstraHenting): String {
         return "Du kan nå melde deg på ekstrahenting på ${henting.stasjonNavn} stasjon ${formatDateRange(henting.startTidspunkt, henting.sluttTidspunkt)}." +
                 " Vær kjapp! \nLink til henting og påmelding: oko.knowit.no/ekstrahenting \n" +
