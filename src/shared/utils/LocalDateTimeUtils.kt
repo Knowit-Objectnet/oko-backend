@@ -83,5 +83,5 @@ operator fun LocalDateTime.rangeTo(other: LocalDateTime) =
 fun formatDateRange(start: LocalDateTime, end: LocalDateTime): String {
     val dateformatter = DateTimeFormatter.ofPattern("dd.MM.yy")
     val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
-    return "${ start.format(dateformatter) } kl. ${start.format(timeFormatter)}-${end.format(timeFormatter)} "
+    return "${ start.format(dateformatter) } kl. ${start.format(timeFormatter)}-${end.format(timeFormatter)}"
 }
