@@ -14,7 +14,7 @@ class SMSAvlystMessage {
         fun getMessage(henting: PlanlagtHenting, aarsak: Aarsak): String {
             return "Din henting hos ${henting.stasjonNavn} stasjon " +
                     "${formatDateRange(henting.startTidspunkt, henting.sluttTidspunkt)} " +
-                    "er avlyst grunnet ${aarsak.beskrivelse}" +
+                    "er avlyst grunnet ${aarsak.beskrivelse}." +
                     Signature.signature
         }
 

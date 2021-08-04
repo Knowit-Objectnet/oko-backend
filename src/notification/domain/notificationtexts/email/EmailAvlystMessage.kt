@@ -14,7 +14,7 @@ class EmailAvlystMessage {
         fun getMessage(henting: PlanlagtHenting, aarsak: Aarsak): String {
             return "Din henting hos ${henting.stasjonNavn} stasjon " +
                     "${formatDateRange(henting.startTidspunkt, henting.sluttTidspunkt)} " +
-                    "er avlyst grunnet ${aarsak.beskrivelse}" +
+                    "er avlyst grunnet ${aarsak.beskrivelse}." +
                     "\n\nBeklager ulempen, håper å se deg igjen snart!" + Signature.signature
         }
 

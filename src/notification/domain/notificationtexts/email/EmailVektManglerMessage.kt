@@ -12,7 +12,7 @@ object EmailVektManglerMessage {
     fun getMessage(hentinger: List<HentingWrapper>): String {
         return "Du har ikke registrert vekt på følgende hentinger:\n" +
                 listHentinger(hentinger) +
-                "\n\nVi ønsker at du registrerer vekt på alle hentingene slik at vi lettere kan føre statistikk." +
+                "\n\nVi minner om at det skal registreres vekt på alle hentinger, og at fristen for dette er den 5. påfølgende måned." +
                 Signature.signature
     }
 
@@ -30,7 +30,7 @@ object EmailVektManglerMessage {
         return hentinger.fold("") { acc, wrapper ->
             acc +
                 "\n\t${wrapper.stasjonNavn} stasjon - ${wrapper.startTidspunkt.format(DateTimeFormatter.ofPattern("dd.MM.yy"))}" +
-                " Lenke til registrering: oko.knowit.no/vekt/${wrapper.id}"
+                " <a href=\"{{oko.knowit.no/vekt/${wrapper.id}}}\">Trykk her for å registrere vekt</a>"
         }
     }
 }
