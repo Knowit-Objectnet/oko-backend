@@ -32,7 +32,7 @@ class UtlysningService(
     override fun save(dto: UtlysningSaveDto): Either<ServiceError, Utlysning> {
         return transaction {
             utlysningRepository.insert(dto)
-                .flatMap { utlysning -> notify(utlysning, toPartner = true) }
+                .flatMap { utlysning -> notifyPartner(utlysning) }
                 .fold({ rollback(); it.left() }, { it.right() })
         }
     }
@@ -95,7 +95,7 @@ class UtlysningService(
             utlysningRepository.acceptPartner(dtoPartner)
                 .flatMap { utlysning ->
                     ekstraHentingService.findOne(utlysning.hentingId)
-                        .flatMap { notify(utlysning = utlysning, toPartner = false) }
+                        .flatMap { notifyStasjon(utlysning = utlysning) }
                 }
                 .fold({ rollback(); it.left() }, { it.right() })
         }
@@ -137,16 +137,20 @@ class UtlysningService(
         }
     }
 
-    private fun notify(utlysning: Utlysning, toPartner: Boolean) =
+    private fun notifyPartner(utlysning: Utlysning) =
             ekstraHentingService.findOne(utlysning.hentingId).flatMap { ekstraHenting ->
-                kontaktService.getKontakter(KontaktGetDto(aktorId = (if (toPartner) utlysning.partnerId else ekstraHenting.stasjonId))).flatMap {
-                    if (toPartner) {
-                        notificationService.sendMessage(
-                                SMSUtlysningMessageToPartner.getInputParams(ekstraHenting),
-                                EmailUtlysningMessageToPartner.getInputParams(ekstraHenting),
-                                it
-                        ).map {utlysning}
-                    } else {
+                kontaktService.getKontakter(KontaktGetDto(aktorId = utlysning.partnerId)).flatMap {
+                    notificationService.sendMessage(
+                            SMSUtlysningMessageToPartner.getInputParams(ekstraHenting),
+                            EmailUtlysningMessageToPartner.getInputParams(ekstraHenting),
+                            it
+                    ).map {utlysning}
+                }
+            }
+
+    private fun notifyStasjon(utlysning: Utlysning) =
+            ekstraHentingService.findOne(utlysning.hentingId).flatMap { ekstraHenting ->
+                kontaktService.getKontakter(KontaktGetDto(aktorId = ekstraHenting.stasjonId)).flatMap {
                         notificationService.sendMessage(
                                 SMSUtlysningMessageToStasjon.getInputParams(ekstraHenting, utlysning),
                                 EmailUtlysningMessageToStasjon.getInputParams(ekstraHenting, utlysning),
