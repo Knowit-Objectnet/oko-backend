@@ -4,10 +4,18 @@ import arrow.core.*
 import arrow.core.extensions.either.applicative.applicative
 import arrow.core.extensions.list.traverse.sequence
 import io.ktor.locations.*
+import notificationtexts.email.EmailAvlystMessageToPartner
+import notificationtexts.email.EmailAvlystMessageToStasjon
+import notificationtexts.email.SMSAvlystMessageToPartner
+import notificationtexts.email.SMSAvlystMessageToStasjon
+import ombruk.backend.aarsak.application.service.IAarsakService
+import ombruk.backend.aktor.application.api.dto.KontaktGetDto
+import ombruk.backend.aktor.application.service.IKontaktService
 import ombruk.backend.henting.application.api.dto.*
 import ombruk.backend.henting.domain.entity.PlanlagtHenting
 import ombruk.backend.henting.domain.params.PlanlagtHentingFindParams
 import ombruk.backend.henting.domain.port.IPlanlagtHentingRepository
+import ombruk.backend.notification.application.service.INotificationService
 import ombruk.backend.shared.error.ServiceError
 import ombruk.backend.vektregistrering.application.api.dto.VektregistreringFindDto
 import ombruk.backend.vektregistrering.application.service.IVektregistreringService
@@ -18,7 +26,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 @KtorExperimentalLocationsAPI
-class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepository, val vektregistreringService: IVektregistreringService ): IPlanlagtHentingService, KoinComponent {
+class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepository, val vektregistreringService: IVektregistreringService, val notificationService: INotificationService, val aarsakService: IAarsakService, val kontaktService: IKontaktService): IPlanlagtHentingService, KoinComponent {
     private val henteplanService: IHenteplanService by inject()
 
     override fun save(dto: PlanlagtHentingSaveDto): Either<ServiceError, PlanlagtHenting> {
@@ -84,7 +92,11 @@ class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepo
         return transaction { planlagtHentingRepository.update(dto) }
     }
     override fun update(dto: PlanlagtHentingUpdateDto, avlystAv: UUID): Either<ServiceError, PlanlagtHenting> {
-        return transaction { planlagtHentingRepository.update(dto, avlystAv) }
+        return transaction {
+            planlagtHentingRepository.update(dto, avlystAv).flatMap { planlagtHenting ->
+                notifyPartner(planlagtHenting).flatMap { notifyStasjon(planlagtHenting) }
+            }
+        }
     }
 
     override fun batchSaveForHenteplan(dto: PlanlagtHentingBatchPostDto): Either<ServiceError, List<PlanlagtHenting>> {
@@ -123,4 +135,27 @@ class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepo
             planlagtHentingRepository.updateAvlystDate(id, date, aarsakId, avlystAv)
         }
     }
+
+    private fun notifyPartner(henting: PlanlagtHenting) =
+            kontaktService.getKontakter(KontaktGetDto(aktorId = henting.aktorId)).flatMap { kontakter ->
+                aarsakService.findOne(henting.aarsakId!!).flatMap {
+                    notificationService.sendMessage(
+                            SMSAvlystMessageToPartner.getInputParams(henting, it),
+                            EmailAvlystMessageToPartner.getInputParams(henting, it),
+                            kontakter
+                    ).map {henting}
+                }
+            }
+
+    private fun notifyStasjon(henting: PlanlagtHenting) =
+            kontaktService.getKontakter(KontaktGetDto(aktorId = henting.stasjonId)).flatMap { kontakter ->
+                aarsakService.findOne(henting.aarsakId!!).flatMap {
+                    notificationService.sendMessage(
+                            SMSAvlystMessageToStasjon.getInputParams(henting, it),
+                            EmailAvlystMessageToStasjon.getInputParams(henting, it),
+                            kontakter
+                    ).map {henting}
+                }
+            }
+
 }

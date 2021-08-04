@@ -9,12 +9,12 @@ import ombruk.backend.notification.domain.params.SNSInputParams
 import ombruk.backend.shared.utils.formatDateRange
 import java.time.format.DateTimeFormatter
 
-class SMSAvlystMessage {
+class SMSAvlystMessageToStasjon {
     companion object {
         fun getMessage(henting: PlanlagtHenting, aarsak: Aarsak): String {
-            return "Din henting hos ${henting.stasjonNavn} stasjon " +
+            return "${getAvlystAvNavn(henting)} har avlyst henting " +
                     "${formatDateRange(henting.startTidspunkt, henting.sluttTidspunkt)} " +
-                    "er avlyst grunnet ${aarsak.beskrivelse}." +
+                    "grunnet ${aarsak.beskrivelse}." +
                     Signature.signature
         }
 
@@ -22,6 +22,15 @@ class SMSAvlystMessage {
 
         fun getInputParams(henting: PlanlagtHenting, aarsak: Aarsak): SNSInputParams {
             return SNSInputParams(getSubject(), getMessage(henting, aarsak))
+        }
+
+        private fun getAvlystAvNavn(henting: PlanlagtHenting): String {
+            if (henting.avlystAv == null) return "Unknown"
+            else {
+                if (henting.avlystAv == henting.stasjonId) return (henting.stasjonNavn + " stasjon")
+                else if (henting.avlystAv == henting.aktorId) return henting.aktorNavn
+                else return "Administrator"
+            }
         }
     }
 }
