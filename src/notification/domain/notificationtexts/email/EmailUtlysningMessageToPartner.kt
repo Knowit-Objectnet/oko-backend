@@ -27,7 +27,7 @@ object EmailUtlysningMessageToPartner {
         }."
     }
 
-    fun getSubject(): String = "EkstraHenting!"
+    fun getSubject(): String = "Ny ekstrahenting!"
 
     fun getInputParams(henting: EkstraHenting): SESInputParams {
         return SESInputParams(getSubject(), getPreviewMessage(henting), getMessage(henting))
