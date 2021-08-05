@@ -12,22 +12,29 @@ import java.time.format.DateTimeFormatter
 class EmailAvlystMessage {
     companion object {
         fun getMessage(henting: PlanlagtHenting, aarsak: Aarsak): String {
-            return "Din henting hos ${henting.stasjonNavn} stasjon " +
+            return "${getAvlystAvNavn(henting)} har avlyst henting " +
                     "${formatDateRange(henting.startTidspunkt, henting.sluttTidspunkt)} " +
-                    "er avlyst grunnet ${aarsak.beskrivelse}." +
-                    "\n\nBeklager ulempen, håper å se deg igjen snart!" + Signature.signature
+                    "grunnet ${aarsak.beskrivelse}." + Signature.signature
         }
 
         fun getPreviewMessage(henting: PlanlagtHenting, aarsak: Aarsak): String {
-            return "Din henting hos ${henting.stasjonNavn} stasjon " +
-                    "${henting.startTidspunkt.format(DateTimeFormatter.ofPattern("dd.MM.yy"))} " +
-                    "er avlyst!"
+            return "${getAvlystAvNavn(henting)} har avlyst henting " +
+                    "${formatDateRange(henting.startTidspunkt, henting.sluttTidspunkt)} " +
+                    "grunnet ${aarsak.beskrivelse}."
         }
 
-        fun getSubject(): String = "Avlyst henting!"
+        fun getSubject(henting: PlanlagtHenting): String = "${getAvlystAvNavn(henting)} har avlyst henting " +
+                "${formatDateRange(henting.startTidspunkt, henting.sluttTidspunkt)}"
 
         fun getInputParams(henting: PlanlagtHenting, aarsak: Aarsak): SESInputParams {
-            return SESInputParams(getSubject(), getPreviewMessage(henting, aarsak), getMessage(henting, aarsak))
+            return SESInputParams(getSubject(henting), getPreviewMessage(henting, aarsak), getMessage(henting, aarsak))
+        }
+
+        private fun getAvlystAvNavn(henting: PlanlagtHenting): String {
+            if (henting.avlystAv == null) return "Noen"
+            if (henting.avlystAv == henting.stasjonId) return (henting.stasjonNavn + " stasjon")
+            else if (henting.avlystAv == henting.aktorId) return henting.aktorNavn
+            return "Administrator"
         }
     }
 }
