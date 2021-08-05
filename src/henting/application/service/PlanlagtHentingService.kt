@@ -35,54 +35,54 @@ class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepo
     override fun findOne(id: UUID): Either<ServiceError, PlanlagtHenting> {
         return transaction {
             planlagtHentingRepository.findOne(id)
-                    .fold(
-                            { Either.Left(ServiceError(it.message)) },
-                            {
-                                it.let { planlagtHenting ->
-                                    henteplanService.findOne(planlagtHenting.henteplanId)
-                                            .fold(
-                                                    {
-                                                        vektregistreringService.find(VektregistreringFindDto(hentingId = planlagtHenting.id)).fold(
-                                                                { planlagtHenting.right() },
-                                                                { planlagtHenting.copy(vektregistreringer = it).right() }
-                                                        )
-                                                    },
-                                                    { henteplan ->
-                                                        vektregistreringService.find(VektregistreringFindDto(hentingId = planlagtHenting.id)).fold(
-                                                                { planlagtHenting.copy(merknad = henteplan.merknad, kategorier = henteplan.kategorier).right() },
-                                                                { planlagtHenting.copy(merknad = henteplan.merknad, kategorier = henteplan.kategorier, vektregistreringer = it).right() })
-                                                    }
-                                            )
-                                }
+                .fold(
+                        { Either.Left(ServiceError(it.message)) },
+                        {
+                            it.let { planlagtHenting ->
+                                henteplanService.findOne(planlagtHenting.henteplanId)
+                                        .fold(
+                                                {
+                                                    vektregistreringService.find(VektregistreringFindDto(hentingId = planlagtHenting.id)).fold(
+                                                            { planlagtHenting.right() },
+                                                            { planlagtHenting.copy(vektregistreringer = it).right() }
+                                                    )
+                                                },
+                                                { henteplan ->
+                                                    vektregistreringService.find(VektregistreringFindDto(hentingId = planlagtHenting.id)).fold(
+                                                            { planlagtHenting.copy(merknad = henteplan.merknad, kategorier = henteplan.kategorier).right() },
+                                                            { planlagtHenting.copy(merknad = henteplan.merknad, kategorier = henteplan.kategorier, vektregistreringer = it).right() })
+                                                }
+                                        )
                             }
-                    )
+                        }
+                )
         }
     }
 
     override fun find(dto: PlanlagtHentingFindDto): Either<ServiceError, List<PlanlagtHenting>> {
         return transaction {
             planlagtHentingRepository.find(dto)
-                    .fold(
-                            { Either.Left(ServiceError(it.message)) },
-                            {
-                                it.map { planlagtHenting ->
-                                    henteplanService.findOne(planlagtHenting.henteplanId)
-                                            .fold(
-                                                    {
-                                                        vektregistreringService.find(VektregistreringFindDto(hentingId = planlagtHenting.id)).fold(
-                                                                { planlagtHenting.right() },
-                                                                { planlagtHenting.copy(vektregistreringer = it).right() }
-                                                        )
-                                                    },
-                                                    { henteplan ->
-                                                        vektregistreringService.find(VektregistreringFindDto(hentingId = planlagtHenting.id)).fold(
-                                                                { planlagtHenting.copy(merknad = henteplan.merknad, kategorier = henteplan.kategorier).right() },
-                                                                { planlagtHenting.copy(merknad = henteplan.merknad, kategorier = henteplan.kategorier, vektregistreringer = it).right() })
-                                                    }
-                                            )
-                                }.sequence(Either.applicative()).fix().map { it.fix() }
-                            }
-                    )
+                .fold(
+                        { Either.Left(ServiceError(it.message)) },
+                        {
+                            it.map { planlagtHenting ->
+                                henteplanService.findOne(planlagtHenting.henteplanId)
+                                        .fold(
+                                                {
+                                                    vektregistreringService.find(VektregistreringFindDto(hentingId = planlagtHenting.id)).fold(
+                                                            { planlagtHenting.right() },
+                                                            { planlagtHenting.copy(vektregistreringer = it).right() }
+                                                    )
+                                                },
+                                                { henteplan ->
+                                                    vektregistreringService.find(VektregistreringFindDto(hentingId = planlagtHenting.id)).fold(
+                                                            { planlagtHenting.copy(merknad = henteplan.merknad, kategorier = henteplan.kategorier).right() },
+                                                            { planlagtHenting.copy(merknad = henteplan.merknad, kategorier = henteplan.kategorier, vektregistreringer = it).right() })
+                                                }
+                                        )
+                            }.sequence(Either.applicative()).fix().map { it.fix() }
+                        }
+                )
         }
     }
 
@@ -107,30 +107,30 @@ class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepo
         return transaction {
             dto.dateList.map {
                 planlagtHentingRepository.insert(
-                        PlanlagtHentingSaveDto(
-                                henteplanId = dto.saveDto.henteplanId,
-                                startTidspunkt = LocalDateTime.of(it, dto.saveDto.startTidspunkt.toLocalTime()),
-                                sluttTidspunkt = LocalDateTime.of(it, dto.saveDto.sluttTidspunkt.toLocalTime()),
-                        ))
+                    PlanlagtHentingSaveDto(
+                            henteplanId = dto.saveDto.henteplanId,
+                            startTidspunkt = LocalDateTime.of(it, dto.saveDto.startTidspunkt.toLocalTime()),
+                            sluttTidspunkt = LocalDateTime.of(it, dto.saveDto.sluttTidspunkt.toLocalTime()),
+                    ))
             }
-                    .sequence(Either.applicative())
-                    .fix()
-                    .map { it.fix() }
-                    .fold({ rollback(); it.left() }, { it.right() })
+                .sequence(Either.applicative())
+                .fix()
+                .map { it.fix() }
+                .fold({ rollback(); it.left() }, { it.right() })
         }
     }
 
     override fun archiveOne(id: UUID): Either<ServiceError, Unit> {
         return transaction {
             planlagtHentingRepository.archiveOne(id)
-                    .fold({ rollback(); it.left() }, { Either.right(Unit) })
+                .fold({ rollback(); it.left() }, { Either.right(Unit) })
         }
     }
 
     override fun archive(params: PlanlagtHentingFindParams): Either<ServiceError, Unit> {
         return transaction {
             planlagtHentingRepository.archive(params)
-                    .fold({ rollback(); it.left() }, { Either.right(Unit) })
+                .fold({ rollback(); it.left() }, { Either.right(Unit) })
         }
     }
 
