@@ -5,8 +5,8 @@ import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
 import ombruk.backend.kategori.application.api.dto.*
+import ombruk.backend.kategori.domain.constants.ANDRE_OMBRUKSVARER_UUID_STRING
 import ombruk.backend.kategori.domain.entity.Kategori
-import ombruk.backend.kategori.domain.model.ANDRE_OMBRUKSVARER_UUID_STRING
 import ombruk.backend.kategori.domain.port.IKategoriRepository
 import ombruk.backend.shared.error.ServiceError
 import org.jetbrains.exposed.sql.transactions.transaction
