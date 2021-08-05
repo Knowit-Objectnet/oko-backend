@@ -60,7 +60,8 @@ class KategoriService(
 
     override fun update(dto: KategoriUpdateDto): Either<ServiceError, Kategori> {
         return transaction {
-            kategoriRepository.update(dto)
+            if (dto.id == UUID.fromString("0f3f3bdd-5733-45da-87ae-a9417596cb12")) ServiceError("Illegal category to update").left()
+            else kategoriRepository.update(dto)
         }
     }
 }

@@ -15,7 +15,7 @@ import java.util.*
 data class KategoriUpdateDto(
     @Serializable(with = UUIDSerializer::class) override val id: UUID,
     override val navn: String? = null,
-    override val vektkategori: Boolean?
+    override val vektkategori: Boolean? = null
 ) : IForm<KategoriUpdateDto>, KategoriUpdateParams(){
     override fun validOrError() = runCatchingValidation {
         validate(this) {
