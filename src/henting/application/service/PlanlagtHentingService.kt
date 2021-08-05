@@ -63,25 +63,25 @@ class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepo
         return transaction {
             planlagtHentingRepository.find(dto)
                 .fold(
-                        { Either.Left(ServiceError(it.message)) },
-                        {
-                            it.map { planlagtHenting ->
-                                henteplanService.findOne(planlagtHenting.henteplanId)
-                                        .fold(
-                                                {
-                                                    vektregistreringService.find(VektregistreringFindDto(hentingId = planlagtHenting.id)).fold(
-                                                            { planlagtHenting.right() },
-                                                            { planlagtHenting.copy(vektregistreringer = it).right() }
-                                                    )
-                                                },
-                                                { henteplan ->
-                                                    vektregistreringService.find(VektregistreringFindDto(hentingId = planlagtHenting.id)).fold(
-                                                            { planlagtHenting.copy(merknad = henteplan.merknad, kategorier = henteplan.kategorier).right() },
-                                                            { planlagtHenting.copy(merknad = henteplan.merknad, kategorier = henteplan.kategorier, vektregistreringer = it).right() })
-                                                }
-                                        )
-                            }.sequence(Either.applicative()).fix().map { it.fix() }
-                        }
+                    { Either.Left(ServiceError(it.message)) },
+                    {
+                        it.map { planlagtHenting ->
+                            henteplanService.findOne(planlagtHenting.henteplanId)
+                                    .fold(
+                                            {
+                                                vektregistreringService.find(VektregistreringFindDto(hentingId = planlagtHenting.id)).fold(
+                                                        { planlagtHenting.right() },
+                                                        { planlagtHenting.copy(vektregistreringer = it).right() }
+                                                )
+                                            },
+                                            { henteplan ->
+                                                vektregistreringService.find(VektregistreringFindDto(hentingId = planlagtHenting.id)).fold(
+                                                        { planlagtHenting.copy(merknad = henteplan.merknad, kategorier = henteplan.kategorier).right() },
+                                                        { planlagtHenting.copy(merknad = henteplan.merknad, kategorier = henteplan.kategorier, vektregistreringer = it).right() })
+                                            }
+                                    )
+                        }.sequence(Either.applicative()).fix().map { it.fix() }
+                    }
                 )
         }
     }
@@ -108,9 +108,9 @@ class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepo
             dto.dateList.map {
                 planlagtHentingRepository.insert(
                     PlanlagtHentingSaveDto(
-                            henteplanId = dto.saveDto.henteplanId,
-                            startTidspunkt = LocalDateTime.of(it, dto.saveDto.startTidspunkt.toLocalTime()),
-                            sluttTidspunkt = LocalDateTime.of(it, dto.saveDto.sluttTidspunkt.toLocalTime()),
+                        henteplanId = dto.saveDto.henteplanId,
+                        startTidspunkt = LocalDateTime.of(it, dto.saveDto.startTidspunkt.toLocalTime()),
+                        sluttTidspunkt = LocalDateTime.of(it, dto.saveDto.sluttTidspunkt.toLocalTime()),
                     ))
             }
                 .sequence(Either.applicative())
