@@ -72,8 +72,9 @@ class KontaktService constructor(
     override fun deleteKontaktById(id: UUID): Either<ServiceError, Kontakt> {
         return transaction {
             getKontaktById(id).flatMap { kontakt ->
+                notify(kontakt = kontakt)
                 kontaktRepository.delete(id)
-                    .bimap({ rollback(); it }, { notify(kontakt = kontakt) })
+                    .bimap({ rollback(); it }, { kontakt })
             }
         }
     }

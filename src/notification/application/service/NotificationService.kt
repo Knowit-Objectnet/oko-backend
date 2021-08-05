@@ -35,16 +35,11 @@ class NotificationService constructor(
         val addresses: MutableList<String> = ArrayList()
 
         receivers.map {
-            if (it.verifiseringStatus != null) {
-                val verified = it.verifiseringStatus
-                if (verified.telefonVerifisert && !it.telefon.isNullOrBlank()) numbers.add(it.telefon)
-                if (verified.epostVerifisert && !it.epost.isNullOrBlank()) addresses.add(it.epost)
-            } else {
-                val verified = verifiseringService.getVerifiseringById(it.id)
-                if (verified.isRight()) {
-                    if (verified.fold({false}, {it.telefonVerifisert}) && !it.telefon.isNullOrBlank()) numbers.add(it.telefon)
-                    if (verified.fold({false}, {it.epostVerifisert}) && !it.epost.isNullOrBlank()) addresses.add(it.epost)
-                }
+            val verified = verifiseringService.getVerifiseringById(it.id)
+            if (verified.isRight()) {
+                if (verified.fold({false}, {it.telefonVerifisert}) && !it.telefon.isNullOrBlank()) numbers.add(it.telefon)
+                if (verified.fold({false}, {it.epostVerifisert}) && !it.epost.isNullOrBlank()) addresses.add(it.epost)
+
             }
         }
 
