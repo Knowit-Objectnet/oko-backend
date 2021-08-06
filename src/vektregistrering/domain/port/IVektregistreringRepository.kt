@@ -8,6 +8,7 @@ import ombruk.backend.shared.error.RepositoryError
 import ombruk.backend.vektregistrering.domain.entity.Vektregistrering
 import ombruk.backend.vektregistrering.domain.params.VektregistreringCreateParams
 import ombruk.backend.vektregistrering.domain.params.VektregistreringFindParams
+import ombruk.backend.vektregistrering.domain.params.VektregistreringUpdateParams
 import java.util.*
 
 interface IVektregistreringRepository {
@@ -15,4 +16,5 @@ interface IVektregistreringRepository {
     fun delete(id: UUID): Either<RepositoryError, Unit>
     fun findOne(id: UUID): Either<RepositoryError, Vektregistrering>
     fun find(params: VektregistreringFindParams): Either<RepositoryError, List<Vektregistrering>>
+    fun update(params: VektregistreringUpdateParams): Either<RepositoryError, Vektregistrering>
 }
