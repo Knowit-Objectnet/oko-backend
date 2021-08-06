@@ -10,6 +10,7 @@ import ombruk.backend.shared.utils.validation.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import org.valiktor.functions.isValid
 import org.valiktor.validate
 import shared.model.serializer.UUIDSerializer
 import java.util.*
@@ -41,7 +42,9 @@ data class VektregistreringBatchSaveDto(
                 }
             }
 
-            //TODO: Create a method to check every "veiinger" has a value above 0
+            //TODO: Bedre tilbakemelding gjennom apiet
+            validate(VektregistreringBatchSaveDto::veiinger).isValid { !it.any { it < 0 } }
+            validate(VektregistreringBatchSaveDto::veiinger).isValid { it.count() == kategoriIds.size }
         }
     }
 }

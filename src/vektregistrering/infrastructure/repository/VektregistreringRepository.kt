@@ -1,14 +1,17 @@
 package ombruk.backend.vektregistrering.infrastructure.repository
 
+import arrow.core.Either
 import ombruk.backend.core.infrastructure.RepositoryBase
 import ombruk.backend.kategori.domain.entity.Kategori
 import ombruk.backend.kategori.domain.params.KategoriCreateParams
 import ombruk.backend.kategori.domain.params.KategoriFindParams
 import ombruk.backend.kategori.domain.port.IKategoriRepository
 import ombruk.backend.kategori.infrastructure.table.KategoriTable
+import ombruk.backend.shared.error.RepositoryError
 import ombruk.backend.vektregistrering.domain.entity.Vektregistrering
 import ombruk.backend.vektregistrering.domain.params.VektregistreringCreateParams
 import ombruk.backend.vektregistrering.domain.params.VektregistreringFindParams
+import ombruk.backend.vektregistrering.domain.params.VektregistreringUpdateParams
 import ombruk.backend.vektregistrering.domain.port.IVektregistreringRepository
 import ombruk.backend.vektregistrering.infrastructure.table.VektregistreringTable
 import org.jetbrains.exposed.dao.id.EntityID
@@ -19,7 +22,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-class VektregistreringRepository : RepositoryBase<Vektregistrering, VektregistreringCreateParams, Nothing, VektregistreringFindParams>(), IVektregistreringRepository {
+class VektregistreringRepository : RepositoryBase<Vektregistrering, VektregistreringCreateParams, VektregistreringUpdateParams, VektregistreringFindParams>(), IVektregistreringRepository {
     override fun insertQuery(params: VektregistreringCreateParams): EntityID<UUID> {
         return table.insertAndGetId {
             it[hentingId] = params.hentingId
@@ -56,9 +59,14 @@ class VektregistreringRepository : RepositoryBase<Vektregistrering, Vektregistre
         )
     }
 
-    override fun updateQuery(params: Nothing): Int {
-        TODO("Not yet implemented")
-    }
-
     override val table = VektregistreringTable
+
+    override fun updateQuery(params: VektregistreringUpdateParams): Int {
+        return table.update({table.id eq params.id}) { row ->
+            params.vekt?.let {
+                row[vekt] = it
+                row[registreringsDato] = LocalDateTime.now()
+            }
+        }
+    }
 }
