@@ -3,7 +3,6 @@ package ombruk.backend.vektregistrering.application.api.dto
 import arrow.core.Either
 import kotlinx.serialization.Serializable
 import ombruk.backend.henting.application.service.IHentingService
-import ombruk.backend.kategori.domain.port.IKategoriRepository
 import ombruk.backend.shared.error.ValidationError
 import ombruk.backend.shared.form.IForm
 import ombruk.backend.shared.utils.validation.*
@@ -27,9 +26,8 @@ data class VektregistreringBatchUpdateDto(
             val hentingExist: (UUID) -> Boolean = { transaction { hentingService.findOne(it) } is Either.Right }
             validate(VektregistreringBatchUpdateDto::hentingId).isExistingUUID({ hentingExist(it) }, UUIDGenerelt)
 
-            //TODO: Bedre tilbakemelding gjennom apiet
-            validate(VektregistreringBatchUpdateDto::veiinger).isValid { !it.any { it < 0 } }
-            validate(VektregistreringBatchUpdateDto::veiinger).isValid { it.count() == vektregistreringIds.size }
+            validate(VektregistreringBatchUpdateDto::veiinger).isPositiveOrZeroList()
+            validate(VektregistreringBatchUpdateDto::veiinger).equalSizeOfIDList(vektregistreringIds)
         }
     }
 }

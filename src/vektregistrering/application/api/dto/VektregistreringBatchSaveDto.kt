@@ -42,9 +42,8 @@ data class VektregistreringBatchSaveDto(
                 }
             }
 
-            //TODO: Bedre tilbakemelding gjennom apiet
-            validate(VektregistreringBatchSaveDto::veiinger).isValid { !it.any { it < 0 } }
-            validate(VektregistreringBatchSaveDto::veiinger).isValid { it.count() == kategoriIds.size }
+            validate(VektregistreringBatchSaveDto::veiinger).isPositiveOrZeroList()
+            validate(VektregistreringBatchSaveDto::veiinger).equalSizeOfIDList(kategoriIds)
         }
     }
 }
