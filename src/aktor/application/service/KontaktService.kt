@@ -5,6 +5,8 @@ import arrow.core.extensions.either.applicative.applicative
 import arrow.core.extensions.list.traverse.sequence
 import io.ktor.locations.*
 import io.ktor.util.*
+import notificationtexts.email.EmailDeletedKontaktMessage
+import notificationtexts.sms.SMSDeletedKontaktMessage
 import ombruk.backend.aktor.application.api.dto.*
 import ombruk.backend.aktor.domain.entity.Kontakt
 import ombruk.backend.aktor.domain.entity.VerifiseringStatus
@@ -70,6 +72,7 @@ class KontaktService constructor(
     override fun deleteKontaktById(id: UUID): Either<ServiceError, Kontakt> {
         return transaction {
             getKontaktById(id).flatMap { kontakt ->
+                notify(kontakt = kontakt)
                 kontaktRepository.delete(id)
                     .bimap({ rollback(); it }, { kontakt })
             }
@@ -94,5 +97,14 @@ class KontaktService constructor(
                         }
                 }.fold({rollback(); it.left()}, {it.right()})
         }
+    }
+
+    private fun notify(kontakt: Kontakt): Kontakt {
+        notificationService.sendMessage(
+            SMSDeletedKontaktMessage.getInputParams(),
+            EmailDeletedKontaktMessage.getInputParams(),
+            listOf(kontakt)
+        )
+        return kontakt
     }
 }

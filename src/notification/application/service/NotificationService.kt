@@ -39,6 +39,7 @@ class NotificationService constructor(
             if (verified.isRight()) {
                 if (verified.fold({false}, {it.telefonVerifisert}) && !it.telefon.isNullOrBlank()) numbers.add(it.telefon)
                 if (verified.fold({false}, {it.epostVerifisert}) && !it.epost.isNullOrBlank()) addresses.add(it.epost)
+
             }
         }
 
