@@ -39,20 +39,10 @@ class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepo
                         { Either.Left(ServiceError(it.message)) },
                         {
                             it.let { planlagtHenting ->
-                                henteplanService.findOne(planlagtHenting.henteplanId)
-                                        .fold(
-                                                {
-                                                    vektregistreringService.find(VektregistreringFindDto(hentingId = planlagtHenting.id)).fold(
-                                                            { planlagtHenting.right() },
-                                                            { planlagtHenting.copy(vektregistreringer = it).right() }
-                                                    )
-                                                },
-                                                { henteplan ->
-                                                    vektregistreringService.find(VektregistreringFindDto(hentingId = planlagtHenting.id)).fold(
-                                                            { planlagtHenting.copy(merknad = henteplan.merknad, kategorier = henteplan.kategorier).right() },
-                                                            { planlagtHenting.copy(merknad = henteplan.merknad, kategorier = henteplan.kategorier, vektregistreringer = it).right() })
-                                                }
-                                        )
+                                vektregistreringService.find(VektregistreringFindDto(hentingId = planlagtHenting.id)).fold(
+                                        { planlagtHenting.right() },
+                                        { planlagtHenting.copy(vektregistreringer = it).right() }
+                                )
                             }
                         }
                 )
@@ -66,20 +56,10 @@ class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepo
                     { Either.Left(ServiceError(it.message)) },
                     {
                         it.map { planlagtHenting ->
-                            henteplanService.findOne(planlagtHenting.henteplanId)
-                                    .fold(
-                                            {
-                                                vektregistreringService.find(VektregistreringFindDto(hentingId = planlagtHenting.id)).fold(
-                                                        { planlagtHenting.right() },
-                                                        { planlagtHenting.copy(vektregistreringer = it).right() }
-                                                )
-                                            },
-                                            { henteplan ->
-                                                vektregistreringService.find(VektregistreringFindDto(hentingId = planlagtHenting.id)).fold(
-                                                        { planlagtHenting.copy(merknad = henteplan.merknad, kategorier = henteplan.kategorier).right() },
-                                                        { planlagtHenting.copy(merknad = henteplan.merknad, kategorier = henteplan.kategorier, vektregistreringer = it).right() })
-                                            }
-                                    )
+                            vektregistreringService.find(VektregistreringFindDto(hentingId = planlagtHenting.id)).fold(
+                                    { planlagtHenting.right() },
+                                    { planlagtHenting.copy(vektregistreringer = it).right() }
+                            )
                         }.sequence(Either.applicative()).fix().map { it.fix() }
                     }
                 )
