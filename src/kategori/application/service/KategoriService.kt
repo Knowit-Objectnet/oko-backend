@@ -5,6 +5,7 @@ import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
 import ombruk.backend.kategori.application.api.dto.*
+import ombruk.backend.kategori.domain.constants.ANDRE_OMBRUKSVARER_UUID_STRING
 import ombruk.backend.kategori.domain.entity.Kategori
 import ombruk.backend.kategori.domain.port.IKategoriRepository
 import ombruk.backend.shared.error.ServiceError
@@ -60,7 +61,8 @@ class KategoriService(
 
     override fun update(dto: KategoriUpdateDto): Either<ServiceError, Kategori> {
         return transaction {
-            kategoriRepository.update(dto)
+            if (dto.id == UUID.fromString(ANDRE_OMBRUKSVARER_UUID_STRING)) ServiceError("Illegal category to update").left()
+            else kategoriRepository.update(dto)
         }
     }
 }
