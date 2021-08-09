@@ -1,4 +1,4 @@
-package ombruk.backend.partner.model
+package ombruk.backend.shared.api
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
