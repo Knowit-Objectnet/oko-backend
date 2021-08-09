@@ -17,6 +17,8 @@ import ombruk.backend.notification.application.service.SNSService
 import ombruk.backend.notification.domain.entity.Notification
 import ombruk.backend.notification.domain.entity.SES
 import ombruk.backend.notification.domain.entity.SNS
+import ombruk.backend.notification.domain.params.SESInputParams
+import ombruk.backend.notification.domain.params.SNSInputParams
 import ombruk.backend.shared.error.ServiceError
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -61,7 +63,10 @@ internal class NotificationServiceTest {
 
         every { verifiseringService.getVerifiseringById(kontakter[0].id) } returns Verifisering(kontakter[0].id).right()
 
-        val actual = notificationService.sendMessage("Test", kontakter)
+        val snsinputparams: SNSInputParams = SNSInputParams("SMSTestSubject", "SMSTestMessage")
+        val sesinputparams: SESInputParams = SESInputParams("MailTestSubject", "MailTestPreview", "MailTestMessage")
+
+        val actual = notificationService.sendMessage(snsinputparams, sesinputparams, kontakter)
         assert(actual is Either.Right<Notification>)
     }
 
@@ -70,7 +75,10 @@ internal class NotificationServiceTest {
         every { snsService.sendMessage(any(), any()) } returns SNS(statusCode = 500)
         every { sesService.sendMessage(any(), any()) } returns SES(statusCode = 500)
 
-        val actual = notificationService.sendMessage("Test", emptyList())
+        val snsinputparams: SNSInputParams = SNSInputParams("SMSTestSubject", "SMSTestMessage")
+        val sesinputparams: SESInputParams = SESInputParams("MailTestSubject", "MailTestPreview", "MailTestMessage")
+
+        val actual = notificationService.sendMessage(snsinputparams, sesinputparams, emptyList())
         assert(actual is Either.Left<ServiceError>)
     }
 }

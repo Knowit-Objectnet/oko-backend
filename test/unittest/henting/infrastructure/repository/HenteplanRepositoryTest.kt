@@ -53,6 +53,7 @@ internal class HenteplanRepositoryTest {
             override val startDato: LocalDate = LocalDate.now()
             override val sluttDato: LocalDate = LocalDate.now().plusDays(1)
             override val henteplaner: List<HenteplanCreateParams>? = emptyList()
+            override val saksnummer: String? = ""
         }
 
         transaction {

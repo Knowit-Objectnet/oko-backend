@@ -4,6 +4,8 @@ import io.mockk.*
 import io.mockk.junit5.MockKExtension
 import ombruk.backend.notification.application.service.SNSService
 import ombruk.backend.notification.domain.entity.SNS
+import ombruk.backend.notification.domain.params.SESInputParams
+import ombruk.backend.notification.domain.params.SNSInputParams
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -34,7 +36,8 @@ internal class SNSServiceTest {
             "40404040"
         )
 
-        val actual = snsService.sendMessage("Test", kontakter)
+        val snsinputparams: SNSInputParams = SNSInputParams("SMSTestSubject", "SMSTestMessage")
+        val actual = snsService.sendMessage(snsinputparams, kontakter)
         assertEquals(200, actual.statusCode)
         assertEquals("test", actual.message)
     }
