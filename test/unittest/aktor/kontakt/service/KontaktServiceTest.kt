@@ -12,6 +12,7 @@ import ombruk.backend.aktor.application.service.StasjonService
 import ombruk.backend.aktor.application.service.VerifiseringService
 import ombruk.backend.aktor.domain.entity.Kontakt
 import ombruk.backend.aktor.domain.entity.Stasjon
+import ombruk.backend.aktor.domain.entity.VerifiseringStatus
 import ombruk.backend.aktor.domain.port.IKontaktRepository
 import ombruk.backend.aktor.domain.port.IStasjonRepository
 import ombruk.backend.notification.application.service.INotificationService
@@ -53,6 +54,9 @@ internal class PartnerServiceTest {
         val id = UUID.randomUUID()
 
         every { kontaktRepository.findOne(id) } returns expected.right()
+        every { expected.id } returns id
+        every { verifiseringService.getVerifiseringStatusById(any()) } returns VerifiseringStatus(UUID.randomUUID()).right()
+        every { expected.copy(any(), any(), any(), any(), any(), any(), any()) } returns expected
 
         val actual = kontaktService.getKontaktById(id)
         require(actual is Either.Right)
