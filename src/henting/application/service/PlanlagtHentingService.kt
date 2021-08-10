@@ -36,25 +36,25 @@ class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepo
         return transaction {
             planlagtHentingRepository.findOne(id)
                 .fold(
-                        { Either.Left(ServiceError(it.message)) },
-                        {
-                            it.let { planlagtHenting ->
-                                henteplanService.findOne(planlagtHenting.henteplanId)
-                                        .fold(
-                                                {
-                                                    vektregistreringService.find(VektregistreringFindDto(hentingId = planlagtHenting.id)).fold(
-                                                            { planlagtHenting.right() },
-                                                            { planlagtHenting.copy(vektregistreringer = it).right() }
-                                                    )
-                                                },
-                                                { henteplan ->
-                                                    vektregistreringService.find(VektregistreringFindDto(hentingId = planlagtHenting.id)).fold(
-                                                            { planlagtHenting.copy(merknad = henteplan.merknad, kategorier = henteplan.kategorier).right() },
-                                                            { planlagtHenting.copy(merknad = henteplan.merknad, kategorier = henteplan.kategorier, vektregistreringer = it).right() })
-                                                }
+                    { Either.Left(ServiceError(it.message)) },
+                    {
+                        it.let { planlagtHenting ->
+                            henteplanService.findOne(planlagtHenting.henteplanId)
+                                .fold(
+                                    {
+                                        vektregistreringService.find(VektregistreringFindDto(hentingId = planlagtHenting.id)).fold(
+                                            { planlagtHenting.right() },
+                                            { planlagtHenting.copy(vektregistreringer = it).right() }
                                         )
-                            }
+                                    },
+                                    { henteplan ->
+                                        vektregistreringService.find(VektregistreringFindDto(hentingId = planlagtHenting.id)).fold(
+                                            { planlagtHenting.copy(kategorier = henteplan.kategorier).right() },
+                                            { planlagtHenting.copy(kategorier = henteplan.kategorier, vektregistreringer = it).right() })
+                                    }
+                                )
                         }
+                    }
                 )
         }
     }
@@ -67,19 +67,19 @@ class PlanlagtHentingService(val planlagtHentingRepository: IPlanlagtHentingRepo
                     {
                         it.map { planlagtHenting ->
                             henteplanService.findOne(planlagtHenting.henteplanId)
-                                    .fold(
-                                            {
-                                                vektregistreringService.find(VektregistreringFindDto(hentingId = planlagtHenting.id)).fold(
-                                                        { planlagtHenting.right() },
-                                                        { planlagtHenting.copy(vektregistreringer = it).right() }
-                                                )
-                                            },
-                                            { henteplan ->
-                                                vektregistreringService.find(VektregistreringFindDto(hentingId = planlagtHenting.id)).fold(
-                                                        { planlagtHenting.copy(merknad = henteplan.merknad, kategorier = henteplan.kategorier).right() },
-                                                        { planlagtHenting.copy(merknad = henteplan.merknad, kategorier = henteplan.kategorier, vektregistreringer = it).right() })
-                                            }
-                                    )
+                                .fold(
+                                    {
+                                        vektregistreringService.find(VektregistreringFindDto(hentingId = planlagtHenting.id)).fold(
+                                            { planlagtHenting.right() },
+                                            { planlagtHenting.copy(vektregistreringer = it).right() }
+                                        )
+                                    },
+                                    { henteplan ->
+                                        vektregistreringService.find(VektregistreringFindDto(hentingId = planlagtHenting.id)).fold(
+                                            { planlagtHenting.copy(kategorier = henteplan.kategorier).right() },
+                                            { planlagtHenting.copy(kategorier = henteplan.kategorier, vektregistreringer = it).right() })
+                                    }
+                                )
                         }.sequence(Either.applicative()).fix().map { it.fix() }
                     }
                 )

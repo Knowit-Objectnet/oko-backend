@@ -15,8 +15,6 @@ import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
-import ombruk.backend.partner.model.KeycloakPartner
-import ombruk.backend.partner.model.TokenResponse
 import ombruk.backend.shared.error.KeycloakIntegrationError
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

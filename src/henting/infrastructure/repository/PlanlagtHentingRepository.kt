@@ -104,7 +104,7 @@ class PlanlagtHentingRepository: RepositoryBase<PlanlagtHenting, PlanlagtHenting
             row[table.startTidspunkt],
             row[table.sluttTidspunkt],
             //FIXME: GET FROM HENTEPLAN
-            "",
+            row[HenteplanTable.merknad],
             row[table.henteplanId],
             row[table.avlyst],
             row[table.avlystAv],
