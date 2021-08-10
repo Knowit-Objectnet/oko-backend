@@ -1,6 +1,7 @@
 package ombruk.backend.aktor.application.service
 
 import arrow.core.Either
+import arrow.core.extensions.either.monadError.ensure
 import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
@@ -50,7 +51,15 @@ class VerifiseringService constructor(
 
                     update(
                         verifiseringUpdate
-                    ).fold(
+                    )
+                    .ensure(
+                        { ServiceError("Verifisering feilet") },
+                        {
+                            !dto.telefonKode.isNullOrEmpty() && it.telefonVerifisert ||
+                                    !dto.epostKode.isNullOrEmpty() && it.epostVerifisert
+                        }
+                        )
+                    .fold(
                         { rollback(); it.left() },
                         {
                             VerifiseringStatus(
