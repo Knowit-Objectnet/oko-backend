@@ -38,6 +38,7 @@ import testutils.mockDatabase
 import testutils.unmockDatabase
 import java.time.LocalDateTime
 import java.util.*
+import kotlin.math.exp
 
 @ExtendWith(MockKExtension::class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -76,13 +77,16 @@ internal class UtlysningServiceTest: KoinTest {
             partnerIds = listOf(UUID.randomUUID().toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString())
         )
 
+        val testHentingId = UUID.randomUUID()
+        val testPartnerId = UUID.randomUUID()
+
         every { utlysningRepository.insert(any()) } returns expected.right()
         every { utlysningRepository.find(any()) } returns emptyList<Utlysning>().right()
         every { notificationService.sendMessage(any(), any(), emptyList<Kontakt>()) } returns Notification().right()
         every { kontaktService.getKontakter(any()) } returns emptyList<Kontakt>().right()
-        every { expected.partnerId } returns UUID.randomUUID()
-        every { expected.hentingId } returns dto.hentingId
-        every { ekstrahentingService.findOne(any()) } returns EkstraHenting(UUID.randomUUID(), LocalDateTime.now(), LocalDateTime.now(),"", UUID.randomUUID(), "").right()
+        every { expected.partnerId } returns testHentingId
+        every { expected.hentingId } returns testPartnerId
+        every { ekstrahentingService.findOne(any()) } returns EkstraHenting(UUID.randomUUID(), LocalDateTime.now(), LocalDateTime.now(),"", UUID.randomUUID(), "", utlysninger = listOf(expected)).right()
 
         val actualList = utlysningService.batchSave(dto)
         println(actualList)
