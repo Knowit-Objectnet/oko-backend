@@ -9,6 +9,9 @@ import io.mockk.mockkClass
 import ombruk.backend.aarsak.aarsakModule
 import ombruk.backend.aktor.application.service.KontaktService
 import ombruk.backend.aktor.domain.entity.Kontakt
+import ombruk.backend.aktor.domain.entity.Partner
+import ombruk.backend.aktor.domain.port.IPartnerRepository
+import ombruk.backend.aktor.infrastructure.repository.PartnerRepository
 import ombruk.backend.avtale.avtaleModule
 import ombruk.backend.henting.application.service.EkstraHentingService
 import ombruk.backend.henting.application.service.IEkstraHentingService
@@ -29,6 +32,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.koin.core.context.loadKoinModules
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
+import org.koin.dsl.module
 import org.koin.test.KoinTest
 import org.koin.test.get
 import org.testcontainers.junit.jupiter.Testcontainers
@@ -60,6 +64,7 @@ internal class UtlysningServiceTest: KoinTest {
 
         startKoin {  }
         loadKoinModules(listOf(hentingModule, MockAktorModule.get(), utlysningModule, avtaleModule, kategoriModule, vektregistreringModule, aarsakModule))
+        loadKoinModules(module { single(override = true) { ekstrahentingService } })
         utlysningService = UtlysningService(utlysningRepository, notificationService, kontaktService)
     }
 
