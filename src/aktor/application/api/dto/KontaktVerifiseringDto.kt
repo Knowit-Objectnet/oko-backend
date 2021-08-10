@@ -6,6 +6,7 @@ import ombruk.backend.aktor.domain.model.KontaktVerifiserParams
 import ombruk.backend.shared.form.IForm
 import ombruk.backend.shared.utils.validation.isValidVerificationCode
 import ombruk.backend.shared.utils.validation.runCatchingValidation
+import org.valiktor.functions.isNotNull
 import org.valiktor.validate
 import shared.model.serializer.UUIDSerializer
 import java.util.*
@@ -19,8 +20,17 @@ data class KontaktVerifiseringDto(
 ) : IForm<KontaktVerifiseringDto>, KontaktVerifiserParams() {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
-            validate(KontaktVerifiseringDto::telefonKode).isValidVerificationCode()
-            validate(KontaktVerifiseringDto::epostKode).isValidVerificationCode()
+            if (epostKode == null) {
+                validate(KontaktVerifiseringDto::telefonKode).isNotNull()
+            } else {
+                validate(KontaktVerifiseringDto::telefonKode).isValidVerificationCode()
+            }
+
+            if (telefonKode == null) {
+                validate(KontaktVerifiseringDto::epostKode).isNotNull()
+            } else {
+                validate(KontaktVerifiseringDto::epostKode).isValidVerificationCode()
+            }
         }
     }
 }
