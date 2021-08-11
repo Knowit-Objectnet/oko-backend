@@ -1,6 +1,7 @@
 # Prosjekt Ombruk Backend
 
-[![](https://img.shields.io/badge/Kotlin-a?style=flat&logo=Kotlin&label=Code&color=0095D5&logoColor=ffffff)](https://kotlinlang.org/) [![](https://img.shields.io/badge/Intellij%20IDEA-a?style=flat&logo=intellijidea&label=IDE&color=000000&logoColor=ffffff)](https://www.jetbrains.com/idea/) [![](https://img.shields.io/badge/Gradle-a?style=flat&logo=gradle&label=Build%20tool&color=02303A&logoColor=ffffff)](https://gradle.org/) [![](https://img.shields.io/badge/PostgreSQL-a?style=flat&logo=postgresql&label=Database&color=4169E1&logoColor=ffffff)](https://gradle.org/) [![](https://img.shields.io/badge/Docker-a?style=flat&logo=docker&label=Tool&color=2496ED&logoColor=ffffff)](https://gradle.org/)
+[![](https://img.shields.io/badge/Kotlin-a?style=flat&logo=Kotlin&label=Code&color=0095D5&logoColor=ffffff)](https://kotlinlang.org/) [![](https://img.shields.io/badge/Intellij%20IDEA-a?style=flat&logo=intellijidea&label=IDE&color=000000&logoColor=ffffff)](https://www.jetbrains.com/idea/) [![](https://img.shields.io/badge/Gradle-a?style=flat&logo=gradle&label=Build%20tool&color=02303A&logoColor=ffffff)](https://gradle.org/)  
+[![](https://img.shields.io/badge/PostgreSQL-a?style=flat&logo=postgresql&label=Database&color=4169E1&logoColor=ffffff)](https://gradle.org/) [![](https://img.shields.io/badge/Docker-a?style=flat&logo=docker&label=Tool&color=2496ED&logoColor=ffffff)](https://gradle.org/)
 
 ## Table of Contents
 - [Intro](#intro)
@@ -28,9 +29,9 @@ This is the backend of the reuse station project, belonging to [Renovasjon og Gj
 It's entirely written in [Kotlin](https://kotlinlang.org/) with [Exposed](https://github.com/JetBrains/Exposed) as its ORM and [Ktor](https://ktor.io/) as its web framework.
 The code is mostly written in a functional style with the help of [Arrow library](https://arrow-kt.io/).
 
-Although Kotlin is Java-friendly, it's highly recommended to read up on Kotlin's documentation at [kotlinlang.org](https://kotlinlang.org/docs/home.html)
+Although Kotlin is Java-friendly, it's highly recommended reading up on Kotlin's documentation at [kotlinlang.org](https://kotlinlang.org/docs/home.html)
 
-Most of the developers that contributed to the project used [Intellij IDEA](https://www.jetbrains.com/idea/). We would recommended it as it has excellent Kotling tooling. The next section has a list of some of the libraries you may need to look at for documentation. Note: the 4 first listed are the ones you will see most around the code base.
+Most of the developers that contributed to the project used [Intellij IDEA](https://www.jetbrains.com/idea/). We would recommend it as it has excellent Kotlin tooling. The next section has a list of some libraries you may need to look at for documentation. Note: the 4 first listed are the ones you will see most around the code base.
 
 ### Libraries:
 - [Ktor](https://ktor.io/)
@@ -47,7 +48,7 @@ Most of the developers that contributed to the project used [Intellij IDEA](http
 To compile and run this project, you would need a Java Development Kit. We have been using [JDK 8](https://www.oracle.com/java/technologies/javase-downloads.html). As mentioned earlier, we highly recommend using [Intellij IDEA](https://www.jetbrains.com/idea/) as most of the plugins and libraries needed will be prompted and installed. If you want to run without it, you will need to install [Gradle](https://gradle.org/).
 
 ### Download project
-This section will guide you to clone this repository. To follow this part of the guide, we expect you to have [Git](https://git-scm.com/) installed. Type the folowing lines in the *Terminal* (for ***unix*** users), or *Command Prompt* (for ***windows*** users):
+This section will guide you to clone this repository. To follow this part of the guide, we expect you to have [Git](https://git-scm.com/) installed. Type the following lines in the *Terminal* (for ***unix*** users), or *Command Prompt* (for ***windows*** users):
 
 ```sh
 cd /to-your-desired-directory
@@ -77,7 +78,7 @@ You can install dependencies and run the application with:
 ```sh
 gradle run
 ```
-If you recieve some errors, you may need to set some of the [Environment Variables](#environment-variables) that are noted in the next section.
+If you received some errors, you may need to set some of the [Environment Variables](#environment-variables) that are noted in the next section.
 
 ### Environment variables
 You may need to set two environment variables in order for the application to function as intended:
@@ -98,9 +99,9 @@ To communicate with the API we recommend you use some kind of API Client. E.g. [
 
 ### Table of endpoints
 Entry when local: `localhost:#PORTNUMBER#` or `0.0.0.0:#PORTNUMBER#`
-where `#PORTNUMBER#` is set to `8080` by default in `application.conf`.
+where `#PORTNUMBER#` is set to `8080` by default in [application.conf](#applicationconf).
 
-Most but not all of the endpoints have a `get`, `post`, `patch` and `delete` method. Look up the corresponding HTTP Controller file for more details of the *nested endpoints* and *authentication*.
+Most but not all the endpoints have a `get`, `post`, `patch` and `delete` method. Look up the corresponding HTTP Controller file for more details of the *nested endpoints* and *authentication*.
 
 | **Endpoint** | **Description** | **More details at** |
 |---|---|---|
@@ -123,7 +124,7 @@ Most but not all of the endpoints have a `get`, `post`, `patch` and `delete` met
 ### Resources
 The resource folder contains files that are needed one place or another in the application. The file, _messages_en.properties_, is used for creating custom messages for the validation library the application uses, [Valiktor](https://github.com/valiktor/valiktor).
 #### Application.conf
-The `application.conf` file can be considered the entry point of the application, and contains important application values. The _.conf_ file usually defines each variable twice, where the first occurence is a default value and the second being one that can override the origin value by being passed in through environment variables.
+The `application.conf` file can be considered the entry point of the application, and contains important application values. The _.conf_ file usually defines each variable twice, where the first occurrence is a default value and the second being one that can override the origin value by being passed in through environment variables.
 
 #### Table of variables in application.conf
 | **Block**  | **Name**  | **Description** |
@@ -141,7 +142,7 @@ The `application.conf` file can be considered the entry point of the application
 | oko | debug | Whether the application should run in debug mode or not. Should be false when deploying |
 
 #### OpenAPI
-**NOTE: This is outdated.**
+**NOTE: This is outdated.**  
 The OpenAPI folder describes the available API calls within the application. Each path has its own folder. These folders
 contain descriptions of the different endpoints belonging to a path. The schema folder contains component schemas that
 "belongs" to that path.
@@ -165,8 +166,8 @@ Each folder has the following structure:
 | **Name** | **Description** |
 |---|---|
 | dto | Serializable data classes that are created for a specific REST operation on a specific endpoint. Contains validation logic. |
-| services | Business logic that does not belong in api. Comunicates with the repository. |
-| entity | An object that represent an entity of the endpoint. Serializabale data class. |
+| services | Business logic that does not belong in api. Communicates with the repository. |
+| entity | An object that represent an entity of the endpoint. Serializable data class. |
 | model | Representations of objects "belonging" to a specific endpoint. |
 | infrastructure | Data access layer. Contains ORM logic and code representations of database tables. |
 
@@ -189,9 +190,9 @@ Two things to look out for is to ensure that access rights are set correctly and
 
 We are doing unit tests with JUnit5, Ktors test server, and MockK. All the tests can be found in the test directory.
 All services have their own corresponding package. When writing new test you should try to make a as comprehensible as possible.
-We have tried to follow AAA(Assemble, Act, Aanalyze), which means that the test should have three distinct parts. One for setup,
+We have tried to follow AAA(Assemble, Act, Analyze), which means that the test should have three distinct parts. One for setup,
 one for executing the feature you are testing, and one for checking that the results are what you expected.
-The variables name ***expected*** and ***actual*** are use throghout our tests to make understanding other tests easier.
+The variables name ***expected*** and ***actual*** are use throughout our tests to make understanding other tests easier.
 
 ### Integration tests
 
