@@ -14,6 +14,7 @@
     - [Environment variables](#environment-variables)
 - [Usage](#usage)
     - [Table of endpoints](#table-of-endpoints)
+- [How to code](#how-to-code)
 - [File Structure](#file-structure)
     - [Resources](#resources)
     - [Src](#src)
@@ -131,6 +132,16 @@ Look up the corresponding HTTP Controller file for more details of the *nested e
 | /statistikk | Weight statistics | src/statistikk/application/api/StatistikkHttpController.kt|
 | /utlysninger | Announcements/Events | src/utlysning/application/api/UtlysningHttpController.kt |
 | /vektregistrering | Weight registrations | src/vektregistrering/application/api/VektregistreringHttpController.kt |
+
+## How to code
+The reason to program in a functional style is first and foremost to have better control on the flow of exceptions. 
+We use object called _Either_ from the [Arrow-library](https://arrow-kt.io/). 
+They are relatively easy object, but can be confusing at the beginning. 
+_Either_ objects return one of two states, a _Right_ or a _Left_. _Right_ is usually a success, and the return value, 
+while _Left_ is usually an exception.
+
+The documentation for the [Arrow-library](https://arrow-kt.io/) is not particularly easy to understand, 
+but you should still take a look at the methods used in the code. The same methods are most of the time used. 
 
 ## File Structure
 ### Resources
