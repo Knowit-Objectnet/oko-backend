@@ -4,6 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Statistikk(
-    val partnerNavn: String = "test",
-    val stasjoner: List<StasjonStatistikk> = emptyList()
+    val maaned: String,
+    val partnere: List<PartnerStatistikk> = emptyList()
 )
