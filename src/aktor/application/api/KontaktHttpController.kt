@@ -112,7 +112,9 @@ fun Routing.kontakter(kontaktService: IKontaktService) {
                                 {AuthorizationError.AccessViolationError("Kontakt forsøkt verifisert for annen gruppe")},
                                 {
                                     if (role == Roles.RegEmployee) true
-                                    else it.id == groupId
+                                    else kontaktService.getKontaktById(it.id)
+                                        .map { it.aktorId }
+                                        .fold({false}, {it == groupId})
                                 }
                             )
                             .flatMap { kontaktService.verifiserKontakt(it) }
@@ -132,7 +134,7 @@ fun Routing.kontakter(kontaktService: IKontaktService) {
                                 {AuthorizationError.AccessViolationError("Kontakt forsøkt verifisert for annen gruppe")},
                                 {
                                     if (role == Roles.RegEmployee) true
-                                    else it.id == groupId
+                                    else it.aktorId == groupId
                                 }
                             )
                             .flatMap { kontaktService.resendVerifikasjon(it) }
