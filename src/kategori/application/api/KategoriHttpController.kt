@@ -7,10 +7,7 @@ import io.ktor.locations.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import ombruk.backend.kategori.application.api.dto.KategoriDeleteDto
-import ombruk.backend.kategori.application.api.dto.KategoriFindDto
-import ombruk.backend.kategori.application.api.dto.KategoriFindOneDto
-import ombruk.backend.kategori.application.api.dto.KategoriSaveDto
+import ombruk.backend.kategori.application.api.dto.*
 import ombruk.backend.kategori.application.service.IKategoriService
 import ombruk.backend.shared.api.Authorization
 import ombruk.backend.shared.api.Roles
@@ -51,6 +48,16 @@ fun Routing.kategorier(kategoriService: IKategoriService) {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
                     .flatMap { form.validOrError() }
                     .flatMap { kategoriService.archiveOne(form.id) }
+                    .run { generateResponse(this) }
+                    .also { (code, response) -> call.respond(code, response) }
+            }
+        }
+        authenticate {
+            patch {
+                Authorization.authorizeRole(listOf(Roles.RegEmployee), call)
+                    .flatMap { receiveCatching { call.receive<KategoriUpdateDto>() } }
+                    .flatMap { it.validOrError() }
+                    .flatMap { kategoriService.update(it) }
                     .run { generateResponse(this) }
                     .also { (code, response) -> call.respond(code, response) }
             }

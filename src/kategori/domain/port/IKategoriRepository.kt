@@ -4,6 +4,7 @@ import arrow.core.Either
 import ombruk.backend.kategori.domain.entity.Kategori
 import ombruk.backend.kategori.domain.params.KategoriCreateParams
 import ombruk.backend.kategori.domain.params.KategoriFindParams
+import ombruk.backend.kategori.domain.params.KategoriUpdateParams
 import ombruk.backend.shared.error.RepositoryError
 import java.util.*
 
@@ -14,4 +15,5 @@ interface IKategoriRepository {
     fun find(params: KategoriFindParams): Either<RepositoryError, List<Kategori>>
     fun archive(params: KategoriFindParams): Either<RepositoryError, List<Kategori>>
     fun archiveOne(id: UUID): Either<RepositoryError, Kategori>
+    fun update(params: KategoriUpdateParams): Either<RepositoryError, Kategori>
 }

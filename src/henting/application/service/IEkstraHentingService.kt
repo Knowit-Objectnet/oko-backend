@@ -3,8 +3,6 @@ package ombruk.backend.henting.application.service
 import arrow.core.Either
 import ombruk.backend.henting.application.api.dto.*
 import ombruk.backend.henting.domain.entity.EkstraHenting
-import ombruk.backend.henting.domain.entity.PlanlagtHenting
-import ombruk.backend.henting.domain.entity.PlanlagtHentingWithParents
 import ombruk.backend.henting.domain.params.EkstraHentingFindParams
 import ombruk.backend.shared.error.ServiceError
 import java.util.*
@@ -24,4 +22,6 @@ interface IEkstraHentingService {
     fun archive(params: EkstraHentingFindParams): Either<ServiceError, Unit>
 
     fun archiveOne(id: UUID): Either<ServiceError, Unit>
+    fun findWithUtlysninger(dto: EkstraHentingFindDto, aktorId: UUID? = null): Either<ServiceError, List<EkstraHenting>>
+    fun findOneWithUtlysninger(id: UUID, aktorId: UUID?): Either<ServiceError, EkstraHenting>
 }

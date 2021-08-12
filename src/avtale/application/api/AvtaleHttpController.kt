@@ -31,7 +31,7 @@ fun Routing.avtaler(avtaleService: IAvtaleService) {
                             .flatMap { avtaleService.findOne(form.id) }
                             .ensure(
                                 { AuthorizationError.AccessViolationError("Avtalen tilhører ikke deg")},
-                                {if (role != Roles.RegEmployee) it.aktorId == groupId else true}
+                                {if (role == Roles.Partner) it.aktorId == groupId else true}
                             )
                     }
                     .run { generateResponse(this) }
@@ -44,7 +44,7 @@ fun Routing.avtaler(avtaleService: IAvtaleService) {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.Partner, Roles.ReuseStation), call)
                     .flatMap { (role, groupId) ->
                         form.validOrError()
-                            .map { if(role == Roles.RegEmployee) it else it.copy(aktorId = groupId) }
+                            .map { if(role == Roles.Partner) it.copy(aktorId = groupId) else it }
                             .flatMap { avtaleService.find(it) }
                     }
                     .run { generateResponse(this) }

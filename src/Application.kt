@@ -21,6 +21,8 @@ import io.ktor.routing.routing
 import io.ktor.serialization.json
 import io.ktor.util.DataConversionException
 import kotlinx.serialization.json.Json
+import ombruk.backend.aarsak.aarsakModule
+import ombruk.backend.aarsak.application.api.aarsak
 import ombruk.backend.aktor.aktorModule
 import ombruk.backend.aktor.application.api.aktor
 import ombruk.backend.aktor.application.api.kontakter
@@ -29,18 +31,25 @@ import ombruk.backend.aktor.application.api.stasjoner
 import ombruk.backend.avtale.application.api.dto.avtaler
 import ombruk.backend.avtale.avtaleModule
 import ombruk.backend.henting.application.api.dto.ekstraHentinger
+import ombruk.backend.henting.application.api.dto.hentinger
 import ombruk.backend.henting.application.api.henteplaner
 import ombruk.backend.henting.application.api.planlagteHentinger
 import ombruk.backend.henting.hentingModule
 import ombruk.backend.kategori.application.api.kategorier
 import ombruk.backend.kategori.kategoriModule
+import ombruk.backend.notification.notificationModule
 import ombruk.backend.shared.api.Authorization
 import ombruk.backend.shared.api.JwtMockConfig
 import ombruk.backend.shared.database.initDB
+import ombruk.backend.statistikk.application.api.statistikk
+import ombruk.backend.statistikk.statistikkModule
 import ombruk.backend.utlysning.application.api.utlysninger
 import ombruk.backend.utlysning.utlysningModule
+import ombruk.backend.vektregistrering.application.api.vektregistrering
+import ombruk.backend.vektregistrering.vektregistreringModule
 import org.koin.ktor.ext.Koin
 import org.koin.ktor.ext.get
+import org.koin.ktor.ext.modules
 import org.valiktor.ConstraintViolationException
 import org.valiktor.i18n.mapToMessage
 import java.net.URL
@@ -210,6 +219,10 @@ fun Application.module(testing: Boolean = false) {
         modules(hentingModule)
         modules(kategoriModule)
         modules(utlysningModule)
+        modules(vektregistreringModule)
+        modules(notificationModule)
+        modules(aarsakModule)
+        modules(statistikkModule)
     }
 
 
@@ -221,9 +234,13 @@ fun Application.module(testing: Boolean = false) {
         henteplaner(get(), get())
         planlagteHentinger(get())
         ekstraHentinger(get())
+        hentinger(get())
         kategorier(get())
         utlysninger(get(), get())
         kontakter(get())
+        vektregistrering(get(), get())
+        aarsak(get())
+        statistikk(get())
 //        events(EventService)
 //        partners(PartnerService)
 //        report(ReportService)

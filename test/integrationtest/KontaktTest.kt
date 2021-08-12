@@ -1,16 +1,18 @@
 import arrow.core.Either
+import arrow.core.right
 import io.ktor.util.*
+import io.mockk.every
 import io.mockk.junit5.MockKExtension
+import ombruk.backend.aarsak.aarsakModule
 import ombruk.backend.aktor.application.api.dto.*
 import ombruk.backend.aktor.application.service.*
-import ombruk.backend.aktor.domain.entity.Kontakt
-import ombruk.backend.aktor.domain.entity.Partner
-import ombruk.backend.aktor.domain.entity.Stasjon
+import ombruk.backend.aktor.domain.entity.*
 import ombruk.backend.aktor.domain.enum.StasjonType
 import ombruk.backend.avtale.avtaleModule
 import ombruk.backend.henting.hentingModule
 import ombruk.backend.kategori.kategoriModule
 import ombruk.backend.utlysning.utlysningModule
+import ombruk.backend.vektregistrering.vektregistreringModule
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.koin.core.context.loadKoinModules
@@ -36,15 +38,17 @@ class KontaktTest : KoinTest {
     private lateinit var kontaktService: IKontaktService
     private lateinit var partnerService: IPartnerService
     private lateinit var stasjonService: IStasjonService
+    private lateinit var verifiseringService: IVerifiseringService
 
     @BeforeAll
     fun setup() {
         testContainer.start()
         startKoin {  }
-        loadKoinModules(listOf(MockAktorModule.get(), avtaleModule, hentingModule, utlysningModule, kategoriModule))
+        loadKoinModules(listOf(MockAktorModule.get(), avtaleModule, hentingModule, utlysningModule, kategoriModule, vektregistreringModule, aarsakModule))
         kontaktService = get()
         partnerService = get()
         stasjonService = get()
+        verifiseringService = get()
     }
 
     @AfterAll
@@ -113,6 +117,8 @@ class KontaktTest : KoinTest {
         val saveDto2 = KontaktSaveDto(aktorId = partner1.id, navn = "Partner Kontakt2", epost = "example.email@mail.com").validateAndRequireRight()
         val saveDto3 = KontaktSaveDto(aktorId = stasjon1.id, navn = "Stasjon Kontakt", telefon = "+4798765432").validateAndRequireRight()
 
+        every { verifiseringService.getVerifiseringStatusById(any()) } returns VerifiseringStatus(id = UUID.randomUUID()).right()
+
         val save1 = kontaktService.save(saveDto1)
         require(save1 is Either.Right)
         partnerKontakt1 = save1.b
@@ -140,6 +146,9 @@ class KontaktTest : KoinTest {
     @Order(5)
     fun updateKontakt() {
         val updateDto = KontaktUpdateDto(partnerKontakt1.id, telefon = "+4797654321", epost = "example@example.com").validateAndRequireRight()
+
+        every { verifiseringService.update(any()) } returns Verifisering(UUID.randomUUID()).right()
+
         val update = kontaktService.update(updateDto)
         require(update is Either.Right)
         assertEquals("+4797654321", update.b.telefon)
@@ -149,6 +158,8 @@ class KontaktTest : KoinTest {
     @Test
     @Order(5)
     fun deleteKontakt() {
+        every { verifiseringService.getVerifiseringById(any()) } returns Verifisering(UUID.randomUUID()).right()
+
         val delete = kontaktService.deleteKontaktById(partnerKontakt2.id)
         assert(delete is Either.Right)
 
@@ -162,6 +173,8 @@ class KontaktTest : KoinTest {
     @Test
     @Order(5)
     fun archivePartner() {
+        every { verifiseringService.getVerifiseringById(any()) } returns Verifisering(UUID.randomUUID()).right()
+
         val archive = partnerService.archiveOne(partner1.id)
         assert(archive is Either.Right)
 

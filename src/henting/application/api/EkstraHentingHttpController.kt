@@ -39,6 +39,24 @@ fun Routing.ekstraHentinger(ekstraHentingService: IEkstraHentingService) {
                 .also { (code, response) -> call.respond(code, response) }
         }
 
+        route("/med-utlysning") {
+            authenticate {
+                get<EkstraHentingFindDto> { form ->
+                    Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.ReuseStation, Roles.Partner), call)
+                        .flatMap { (role, groupId) ->
+                            form.validOrError()
+                                .map { if (role == Roles.ReuseStation) it.copy(stasjonId = groupId) else it}
+                                .flatMap {
+                                    if (role == Roles.Partner) ekstraHentingService.findWithUtlysninger(it, groupId)
+                                    else ekstraHentingService.findWithUtlysninger(it)
+                                }
+                        }
+                        .run { generateResponse(this) }
+                        .also { (code, response) -> call.respond(code, response) }
+                }
+            }
+        }
+
         authenticate {
             post {
                 Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.ReuseStation), call)
@@ -46,7 +64,7 @@ fun Routing.ekstraHentinger(ekstraHentingService: IEkstraHentingService) {
                         receiveCatching { call.receive<EkstraHentingSaveDto>() }
                         .flatMap { it.validOrError() }
                             .ensure(
-                                { AuthorizationError.AccessViolationError("Du har ikke tilgang til denne hentingen")},
+                                { AuthorizationError.AccessViolationError("Du har ikke tilgang til denne stasjonen")},
                                 { role == Roles.RegEmployee || groupId == it.stasjonId }
                             )
                         .flatMap { ekstraHentingService.save(it) }

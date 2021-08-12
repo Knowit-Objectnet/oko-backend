@@ -3,22 +3,25 @@ package ombruk.backend.henting.application.service
 import arrow.core.*
 import arrow.core.extensions.either.applicative.applicative
 import arrow.core.extensions.list.traverse.sequence
-import henting.application.api.dto.HenteplanSaveDto
 import io.ktor.locations.*
 import ombruk.backend.henting.application.api.dto.EkstraHentingDeleteDto
 import ombruk.backend.henting.application.api.dto.EkstraHentingFindDto
 import ombruk.backend.henting.application.api.dto.EkstraHentingSaveDto
 import ombruk.backend.henting.application.api.dto.EkstraHentingUpdateDto
 import ombruk.backend.henting.domain.entity.EkstraHenting
-import ombruk.backend.henting.domain.entity.Henteplan
 import ombruk.backend.henting.domain.params.EkstraHentingFindParams
 import ombruk.backend.henting.domain.port.IEkstraHentingRepository
-import ombruk.backend.kategori.application.api.dto.*
-import ombruk.backend.kategori.application.service.EkstraHentingKategoriService
+import ombruk.backend.kategori.application.api.dto.EkstraHentingKategoriBatchSaveDto
+import ombruk.backend.kategori.application.api.dto.EkstraHentingKategoriDeleteDto
+import ombruk.backend.kategori.application.api.dto.EkstraHentingKategoriFindDto
+import ombruk.backend.kategori.application.api.dto.EkstraHentingKategoriSaveDto
 import ombruk.backend.kategori.application.service.IEkstraHentingKategoriService
 import ombruk.backend.shared.error.ServiceError
+import ombruk.backend.utlysning.application.api.dto.UtlysningBatchSaveDto
 import ombruk.backend.utlysning.application.api.dto.UtlysningFindDto
 import ombruk.backend.utlysning.application.service.IUtlysningService
+import ombruk.backend.vektregistrering.application.api.dto.VektregistreringFindDto
+import ombruk.backend.vektregistrering.application.service.IVektregistreringService
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
@@ -26,8 +29,9 @@ import java.util.*
 class EkstraHentingService(
     val ekstraHentingRepository: IEkstraHentingRepository,
     val utlysningService: IUtlysningService,
-    val ekstraHentingKategoriService: IEkstraHentingKategoriService
-    ): IEkstraHentingService {
+    val ekstraHentingKategoriService: IEkstraHentingKategoriService,
+    val vektregistreringService: IVektregistreringService
+): IEkstraHentingService {
 
     fun appendKategorier(dto: EkstraHentingSaveDto, id: UUID, ekstraHenting: EkstraHenting): Either<ServiceError, EkstraHenting>
             = run {
@@ -50,12 +54,22 @@ class EkstraHentingService(
     override fun save(dto: EkstraHentingSaveDto): Either<ServiceError, EkstraHenting> {
         return transaction {
             ekstraHentingRepository.insert(dto)
-                .fold(
-                    {Either.Left(ServiceError(it.message))},
-                    {
-                        appendKategorier(dto, it.id, it)
+                .flatMap{ appendKategorier(dto, it.id, it) }
+                .flatMap { henting ->
+                    if (dto.partnere != null) {
+                        utlysningService.batchSave(
+                            UtlysningBatchSaveDto(
+                                hentingId = henting.id,
+                                partnerIds = dto.partnere!!
+                            )
+                        ).flatMap {
+                            henting.copy(utlysninger = it).right()
+                        }
                     }
-                )
+                    else {
+                        henting.right()
+                    }
+                }
                 .fold({ rollback(); it.left() }, { it.right() })
         }
     }
@@ -69,8 +83,17 @@ class EkstraHentingService(
                 }
                 .flatMap { ekstraHenting ->
                     ekstraHentingKategoriService.find(EkstraHentingKategoriFindDto(ekstraHentingId = id))
-                        .fold({ ekstraHenting.right() },
-                            { ekstraHenting.copy(kategorier = it).right() }
+                        .fold({
+                            vektregistreringService.find(VektregistreringFindDto(hentingId = ekstraHenting.id)).fold(
+                            {ekstraHenting.right()},
+                            {ekstraHenting.copy(vektregistreringer = it).right()}
+                        )},
+                            { kategorier ->
+                                vektregistreringService.find(VektregistreringFindDto(hentingId = ekstraHenting.id)).fold(
+                                    {ekstraHenting.copy(kategorier = kategorier).right()},
+                                    {ekstraHenting.copy(vektregistreringer = it, kategorier = kategorier).right()}
+                                )
+                            }
                         )
                 }
         }
@@ -88,16 +111,50 @@ class EkstraHentingService(
                         .fix()
                         .map { it.fix() }
                 }
+                .flatMap { if (dto.aktorId == null) it.right()
+                            else it.filter { it.godkjentUtlysning != null && it.godkjentUtlysning.partnerId == dto.aktorId }.right()
+                }
                 .flatMap { list ->
                     list.map { ekstraHenting ->
                         ekstraHentingKategoriService.find(EkstraHentingKategoriFindDto(ekstraHentingId = ekstraHenting.id))
                             .fold(
-                                { ekstraHenting.right() },
-                                {ekstraHenting.copy(kategorier = it).right()}
+                                { vektregistreringService.find(VektregistreringFindDto(hentingId = ekstraHenting.id)).fold(
+                                    {ekstraHenting.right()},
+                                    {ekstraHenting.copy(vektregistreringer = it).right()}
+                                )},
+                                {kategorier ->
+                                    vektregistreringService.find(VektregistreringFindDto(hentingId = ekstraHenting.id)).fold(
+                                        {ekstraHenting.copy(kategorier = kategorier).right()},
+                                        {ekstraHenting.copy(vektregistreringer = it, kategorier = kategorier).right()}
+                                    )}
                             )
                     }.sequence(Either.applicative()).fix().map { it.fix() }
                 }
         }
+    }
+
+    override fun findWithUtlysninger(dto: EkstraHentingFindDto, aktorId: UUID?): Either<ServiceError, List<EkstraHenting>> {
+        return transaction {
+            find(dto)
+                .flatMap { list ->
+                    list.map { ekstraHenting ->
+                        utlysningService.find(UtlysningFindDto(hentingId = ekstraHenting.id, partnerId = aktorId))
+                            .flatMap { utlysninger -> ekstraHenting.copy(utlysninger = utlysninger).right() }
+
+                    }.sequence(Either.applicative()).fix().map { it.fix() }
+                        .map { if (aktorId == null) it else it.filter { it.utlysninger.size == 1 } }
+                }
+        }
+    }
+
+    override fun findOneWithUtlysninger(id: UUID, aktorId: UUID?): Either<ServiceError, EkstraHenting> {
+           return transaction {
+               findOne(id)
+                   .flatMap {ekstrahenting ->
+                        utlysningService.find(UtlysningFindDto(hentingId = id))
+                            .flatMap { utlysninger ->  ekstrahenting.copy(utlysninger = (aktorId?.let { utlysninger.filter { it.partnerId == aktorId } } ?: utlysninger )).right()}
+                    }
+           }
     }
 
     override fun delete(dto: EkstraHentingDeleteDto): Either<ServiceError, Unit> {
@@ -119,7 +176,7 @@ class EkstraHentingService(
                                         EkstraHentingSaveDto(
                                             startTidspunkt = dto.startTidspunkt ?: ekstraHenting.startTidspunkt,
                                             sluttTidspunkt = dto.sluttTidspunkt ?: ekstraHenting.sluttTidspunkt,
-                                            merknad = dto.merknad ?: ekstraHenting.merknad,
+                                            beskrivelse = dto.beskrivelse ?: ekstraHenting.beskrivelse,
                                             stasjonId = ekstraHenting.stasjonId,
                                             kategorier = dto.kategorier ?: ekstraHenting.kategorier?.map {
                                                 EkstraHentingKategoriBatchSaveDto(

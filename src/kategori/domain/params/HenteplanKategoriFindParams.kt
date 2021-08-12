@@ -7,5 +7,4 @@ abstract class HenteplanKategoriFindParams : FindParams {
     //abstract override val id: UUID?
     abstract val henteplanId: UUID?
     abstract val kategoriId: UUID?
-    abstract val merknad: String?
 }

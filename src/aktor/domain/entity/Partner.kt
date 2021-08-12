@@ -10,4 +10,4 @@ data class Partner(
     override var navn: String,
     override var kontaktPersoner: List<Kontakt>,
     var ideell: Boolean
-): Aktor
+): IAktor

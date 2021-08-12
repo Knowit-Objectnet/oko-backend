@@ -36,6 +36,7 @@ data class AvtaleUpdateDto(
     override val type: AvtaleType? = null,
     @Serializable( with = LocalDateSerializer::class) override val startDato: LocalDate? = null,
     @Serializable( with = LocalDateSerializer::class) override val sluttDato: LocalDate? = null,
+    override val saksnummer: String? = null,
     ) : IForm<AvtaleUpdateDto>, AvtaleUpdateParams(), KoinComponent {
     override fun validOrError(): Either<ValidationError, AvtaleUpdateDto> = runCatchingValidation {
         validate(this) {

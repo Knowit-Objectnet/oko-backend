@@ -3,6 +3,7 @@ import avtale.application.api.dto.AvtaleSaveDto
 import henting.application.api.dto.HenteplanSaveDto
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import ombruk.backend.aarsak.aarsakModule
 import ombruk.backend.aktor.application.api.dto.PartnerSaveDto
 import ombruk.backend.aktor.application.api.dto.StasjonSaveDto
 import ombruk.backend.aktor.application.service.IPartnerService
@@ -23,6 +24,7 @@ import ombruk.backend.henting.domain.model.HenteplanFrekvens
 import ombruk.backend.henting.hentingModule
 import ombruk.backend.kategori.kategoriModule
 import ombruk.backend.utlysning.utlysningModule
+import ombruk.backend.vektregistrering.vektregistreringModule
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.koin.core.context.loadKoinModules
@@ -57,7 +59,7 @@ class AvtaleTest : KoinTest {
     fun setup() {
         testContainer.start()
         startKoin {}
-        loadKoinModules(listOf(avtaleModule, MockAktorModule.get(), hentingModule, utlysningModule, kategoriModule))
+        loadKoinModules(listOf(avtaleModule, MockAktorModule.get(), hentingModule, utlysningModule, kategoriModule, vektregistreringModule, aarsakModule))
         avtaleService = get()
         stasjonService = get()
         partnerService = get()
@@ -148,7 +150,7 @@ class AvtaleTest : KoinTest {
             LocalDateTime.of(2021,1,1,10,0),
             LocalDateTime.of(2021,2,1,14,0),
             DayOfWeek.FRIDAY,
-            null
+            ""
         ).validateAndRequireRight()
 
         val henteplanPostDto2 = HenteplanSaveDto(
@@ -158,7 +160,7 @@ class AvtaleTest : KoinTest {
             LocalDateTime.of(2021,1,1,10,0),
             LocalDateTime.of(2021,1,1,14,0),
             DayOfWeek.FRIDAY,
-            null
+            ""
         ).validateAndRequireRight()
 
         val henteplanCreate1 = henteplanService.save(henteplanPostDto1)
@@ -193,6 +195,9 @@ class AvtaleTest : KoinTest {
         ).validateAndRequireRight())
 
         require(findAll is Either.Right)
+
+        println(findAll.b)
+        println(henteplan1.planlagteHentinger)
 
         assert(findAll.b.containsAll(henteplan1.planlagteHentinger!!.subList(0,3)))
         assert(findAll.b.containsAll(henteplan2.planlagteHentinger!!))

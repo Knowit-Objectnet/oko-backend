@@ -22,7 +22,7 @@ data class AvtaleFindDto(
     override val type: AvtaleType? = null,
     @Serializable(with = UUIDSerializer::class) override val id: UUID? = null,
     @Serializable( with = LocalDateSerializer::class) override val startDato: LocalDate? = null,
-    @Serializable( with = LocalDateSerializer::class) override val sluttDato: LocalDate? = null
+    @Serializable( with = LocalDateSerializer::class) override val sluttDato: LocalDate? = null,
 ) : IForm<AvtaleFindDto>, AvtaleFindParams() {
     override fun validOrError(): Either<ValidationError, AvtaleFindDto> = runCatchingValidation {
         validate(this) {

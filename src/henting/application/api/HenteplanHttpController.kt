@@ -73,7 +73,7 @@ fun Routing.henteplaner(henteplanService: IHenteplanService, avtaleService: IAvt
                                             when (role) {
                                                 Roles.RegEmployee -> true
                                                 Roles.Partner -> groupId == it.aktorId
-                                                Roles.ReuseStation -> groupId == it.aktorId
+                                                Roles.ReuseStation -> groupId == it.aktorId || it.henteplaner.any { it.stasjonId == groupId }
                                             }
                                         }
                                         .fold({false}, {it})

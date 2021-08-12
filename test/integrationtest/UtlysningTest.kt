@@ -1,5 +1,6 @@
 import arrow.core.Either
 import io.mockk.junit5.MockKExtension
+import ombruk.backend.aarsak.aarsakModule
 import ombruk.backend.aktor.application.api.dto.PartnerSaveDto
 import ombruk.backend.aktor.application.api.dto.StasjonSaveDto
 import ombruk.backend.aktor.application.service.IPartnerService
@@ -20,6 +21,8 @@ import ombruk.backend.utlysning.application.api.dto.UtlysningPartnerAcceptDto
 import ombruk.backend.utlysning.application.service.IUtlysningService
 import ombruk.backend.utlysning.domain.entity.Utlysning
 import ombruk.backend.utlysning.utlysningModule
+import ombruk.backend.vektregistrering.application.service.IVektregistreringService
+import ombruk.backend.vektregistrering.vektregistreringModule
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.extension.ExtendWith
@@ -55,7 +58,7 @@ class UtlysningTest : KoinTest {
     fun setup() {
         testContainer.start()
         startKoin {  }
-        loadKoinModules(listOf(hentingModule, MockAktorModule.get(), utlysningModule, avtaleModule, kategoriModule))
+        loadKoinModules(listOf(hentingModule, MockAktorModule.get(), utlysningModule, avtaleModule, kategoriModule, vektregistreringModule, aarsakModule))
         stasjonService = get()
         partnerService = get()
         ekstraHentingService = get()
@@ -105,7 +108,7 @@ class UtlysningTest : KoinTest {
         val ekstraHentingSaveDto = EkstraHentingSaveDto(
             startTidspunkt = LocalDateTime.of(2021,6,3,10,0),
             sluttTidspunkt = LocalDateTime.of(2021,6,3,12,30),
-            merknad = null,
+            beskrivelse = "",
             stasjonId = stasjon1.id
         ).validateAndRequireRight()
 

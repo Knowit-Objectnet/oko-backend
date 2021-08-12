@@ -1,14 +1,17 @@
 package ombruk.backend.aktor.application.service
 
-import ombruk.backend.aktor.domain.entity.Partner
 import ombruk.backend.shared.error.ServiceError
 
 
 import arrow.core.Either
+import io.ktor.locations.*
 import ombruk.backend.aktor.application.api.dto.KontaktGetDto
 import ombruk.backend.aktor.application.api.dto.KontaktSaveDto
 import ombruk.backend.aktor.application.api.dto.KontaktUpdateDto
+import ombruk.backend.aktor.application.api.dto.KontaktVerifiseringDto
 import ombruk.backend.aktor.domain.entity.Kontakt
+import ombruk.backend.aktor.domain.entity.VerifiseringStatus
+import ombruk.backend.notification.domain.entity.VerificationMessage
 import java.util.*
 
 interface IKontaktService {
@@ -38,6 +41,8 @@ interface IKontaktService {
      */
     fun getKontakter(dto: KontaktGetDto = KontaktGetDto()): Either<ServiceError, List<Kontakt>>
 
+    @KtorExperimentalLocationsAPI
+    fun verifiserKontakt(dto: KontaktVerifiseringDto): Either<ServiceError, VerifiseringStatus>
 
     /**
      * Deletes the Kontakt with the provided ID. If the ID does not exist, a [ServiceError] is returned.
@@ -54,4 +59,6 @@ interface IKontaktService {
      * @return A [ServiceError] on failure and the updated [Kontakt] on success.
      */
     fun update(dto: KontaktUpdateDto): Either<ServiceError, Kontakt>
+
+    fun resendVerifikasjon(kontakt: Kontakt): Either<ServiceError, VerificationMessage>
 }

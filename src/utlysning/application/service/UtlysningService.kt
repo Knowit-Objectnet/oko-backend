@@ -1,23 +1,38 @@
 package ombruk.backend.utlysning.application.service
 
-import arrow.core.Either
+import arrow.core.*
 import arrow.core.extensions.either.applicative.applicative
 import arrow.core.extensions.list.traverse.sequence
-import arrow.core.fix
-import arrow.core.left
-import arrow.core.right
+import notificationtexts.email.EmailUtlysningMessageToPartner
+import notificationtexts.email.EmailUtlysningMessageToStasjon
+import notificationtexts.sms.SMSUtlysningMessageToPartner
+import notificationtexts.sms.SMSUtlysningMessageToStasjon
+import ombruk.backend.aktor.application.api.dto.KontaktGetDto
+import ombruk.backend.aktor.application.service.IKontaktService
+import ombruk.backend.henting.application.service.IEkstraHentingService
+import ombruk.backend.notification.application.service.INotificationService
 import ombruk.backend.shared.error.ServiceError
 import ombruk.backend.utlysning.application.api.dto.*
 import ombruk.backend.utlysning.domain.entity.Utlysning
 import ombruk.backend.utlysning.domain.params.UtlysningFindParams
 import ombruk.backend.utlysning.domain.port.IUtlysningRepository
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import java.util.*
 
-class UtlysningService(val utlysningRepository: IUtlysningRepository) : IUtlysningService {
+class UtlysningService(
+    val utlysningRepository: IUtlysningRepository,
+    val notificationService: INotificationService,
+    val kontaktService: IKontaktService
+) : IUtlysningService, KoinComponent {
+
+    val ekstraHentingService: IEkstraHentingService by inject()
+
     override fun save(dto: UtlysningSaveDto): Either<ServiceError, Utlysning> {
         return transaction {
             utlysningRepository.insert(dto)
+                .flatMap { utlysning -> notifyPartner(utlysning = utlysning) }
                 .fold({ rollback(); it.left() }, { it.right() })
         }
     }
@@ -57,17 +72,17 @@ class UtlysningService(val utlysningRepository: IUtlysningRepository) : IUtlysni
                     find is Either.Right && find.b.isEmpty()
                 }
                 .map {
-                utlysningRepository.insert(
-                    UtlysningSaveDto(
-                        partnerId = UUID.fromString(it),
-                        hentingId = dto.hentingId,
-                        partnerPameldt = dto.partnerPameldt,
-                        stasjonGodkjent = dto.stasjonGodkjent,
-                        partnerSkjult = dto.partnerSkjult,
-                        partnerVist = dto.partnerVist
+                    save(
+                        UtlysningSaveDto(
+                            partnerId = UUID.fromString(it),
+                            hentingId = dto.hentingId,
+                            partnerPameldt = dto.partnerPameldt,
+                            stasjonGodkjent = dto.stasjonGodkjent,
+                            partnerSkjult = dto.partnerSkjult,
+                            partnerVist = dto.partnerVist
+                        )
                     )
-                )
-            }
+                }
                 .sequence(Either.applicative())
                 .fix()
                 .map { it.fix() }
@@ -78,6 +93,10 @@ class UtlysningService(val utlysningRepository: IUtlysningRepository) : IUtlysni
     override fun partnerAccept(dtoPartner: UtlysningPartnerAcceptDto): Either<ServiceError, Utlysning> {
         return transaction {
             utlysningRepository.acceptPartner(dtoPartner)
+                .flatMap { utlysning ->
+                    ekstraHentingService.findOne(utlysning.hentingId)
+                        .flatMap { notifyStasjon(utlysning = utlysning) }
+                }
                 .fold({ rollback(); it.left() }, { it.right() })
         }
     }
@@ -117,4 +136,26 @@ class UtlysningService(val utlysningRepository: IUtlysningRepository) : IUtlysni
                 .fold({rollback(); it.left()}, {it.right()})
         }
     }
+
+    private fun notifyPartner(utlysning: Utlysning) =
+            ekstraHentingService.findOne(utlysning.hentingId).flatMap { ekstraHenting ->
+                kontaktService.getKontakter(KontaktGetDto(aktorId = utlysning.partnerId)).flatMap {
+                    notificationService.sendMessage(
+                            SMSUtlysningMessageToPartner.getInputParams(ekstraHenting),
+                            EmailUtlysningMessageToPartner.getInputParams(ekstraHenting),
+                            it
+                    ).map {utlysning}
+                }
+            }
+
+    private fun notifyStasjon(utlysning: Utlysning) =
+            ekstraHentingService.findOne(utlysning.hentingId).flatMap { ekstraHenting ->
+                kontaktService.getKontakter(KontaktGetDto(aktorId = ekstraHenting.stasjonId)).flatMap {
+                    notificationService.sendMessage(
+                            SMSUtlysningMessageToStasjon.getInputParams(ekstraHenting, utlysning),
+                            EmailUtlysningMessageToStasjon.getInputParams(ekstraHenting, utlysning),
+                            it
+                    ).map {utlysning}
+                }
+            }
 }

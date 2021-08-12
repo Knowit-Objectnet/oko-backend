@@ -7,7 +7,7 @@ import henting.application.api.dto.HenteplanSaveDto
 import io.ktor.locations.*
 import ombruk.backend.henting.application.api.dto.*
 import ombruk.backend.henting.domain.entity.Henteplan
-import ombruk.backend.henting.domain.entity.PlanlagtHentingWithParents
+import ombruk.backend.henting.domain.entity.PlanlagtHenting
 import ombruk.backend.henting.domain.params.HenteplanFindParams
 import ombruk.backend.henting.domain.port.IHenteplanRepository
 import ombruk.backend.kategori.application.api.dto.HenteplanKategoriBatchSaveDto
@@ -24,17 +24,17 @@ import java.util.*
 @KtorExperimentalLocationsAPI
 class HenteplanService(val henteplanRepository: IHenteplanRepository, val planlagtHentingService: IPlanlagtHentingService, val henteplanKategoriService: IHenteplanKategoriService) : IHenteplanService {
 
-    fun createPlanlagtHentinger(dto: HenteplanSaveDto, henteplanId: UUID): Either<ServiceError, List<PlanlagtHentingWithParents>> {
+    fun createPlanlagtHentinger(dto: HenteplanSaveDto, henteplanId: UUID): Either<ServiceError, List<PlanlagtHenting>> {
         //Find all dates
         val dates = LocalDateTimeProgressionWithDayFrekvens(dto.startTidspunkt, dto.sluttTidspunkt, dto.ukedag, dto.frekvens)
             .map { it.toLocalDate() }
-        val postDto = PlanlagtHentingSaveDto(dto.startTidspunkt, dto.sluttTidspunkt, null, henteplanId)
+        val postDto = PlanlagtHentingSaveDto(dto.startTidspunkt, dto.sluttTidspunkt, henteplanId)
         return planlagtHentingService.batchSaveForHenteplan(PlanlagtHentingBatchPostDto(postDto, dates))
     }
 
     fun appendPlanlagtHentinger(dto: HenteplanSaveDto, id: UUID, henteplan: Henteplan): Either<ServiceError, Henteplan> =
         run {
-            val hentinger: Either<ServiceError, List<PlanlagtHentingWithParents>> = createPlanlagtHentinger(dto, id)
+            val hentinger: Either<ServiceError, List<PlanlagtHenting>> = createPlanlagtHentinger(dto, id)
             when (hentinger) {
                 is Either.Left -> hentinger
                 is Either.Right -> henteplan.copy(planlagteHentinger = hentinger.b).right()
@@ -48,8 +48,7 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
                 henteplanKategoriService.save(
                     HenteplanKategoriSaveDto(
                         henteplanId = id,
-                        kategoriId = it.kategoriId,
-                        merknad = it.merknad
+                        kategoriId = it.kategoriId
                     )
                 )
             }
@@ -138,13 +137,17 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
 
     override fun update(dto: HenteplanUpdateDto): Either<ServiceError, Henteplan> {
         return transaction {
-            val today = LocalDateTime.now()
+            val today = LocalDateTime.now().plusDays(1)
+            val avlystHenting: MutableList<PlanlagtHenting> = mutableListOf()
             findOne(dto.id)
                 .fold(
                     { Either.left(ServiceError(it.message))},
                     { henteplan ->
                         planlagtHentingService.find(PlanlagtHentingFindDto(henteplanId = dto.id, after = today)).map {
-                            it.map { planlagtHentingService.delete(PlanlagtHentingDeleteDto(id = it.id)) }
+                            it.map {
+                                planlagtHentingService.delete(PlanlagtHentingDeleteDto(id = it.id))
+                                if (it.avlyst != null) avlystHenting.add(it)
+                            }
                         }
                             .fold({it.left()},
                                 {
@@ -176,7 +179,13 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
                                             ), henteplan.id, henteplan
                                         ).fold(
                                             { Either.left(ServiceError(it.message)) },
-                                            {
+                                            { it.planlagteHentinger?.map { planlagtHenting ->
+                                                avlystHenting.map { avlystHenting ->
+                                                    if (avlystHenting.startTidspunkt.toLocalDate().isEqual(planlagtHenting.startTidspunkt.toLocalDate()) && avlystHenting.sluttTidspunkt.toLocalDate().isEqual(planlagtHenting.sluttTidspunkt.toLocalDate()) ) {
+                                                        planlagtHentingService.updateAvlystDate(id = planlagtHenting.id, date = avlystHenting.avlyst!!, aarsakId = avlystHenting.aarsakId!!, avlystAv = avlystHenting.avlystAv!!)
+                                                    }
+                                                }
+                                            }
                                                 appendKategorier(
                                                     HenteplanSaveDto(
                                                         avtaleId = henteplan.avtaleId,
@@ -189,7 +198,6 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
                                                         kategorier = dto.kategorier ?: henteplan.kategorier?.map {
                                                             HenteplanKategoriBatchSaveDto(
                                                                 kategoriId = it.kategoriId,
-                                                                merknad = it.merknad
                                                             )
                                                         }
                                                     ), henteplan.id, henteplan

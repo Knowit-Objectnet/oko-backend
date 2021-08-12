@@ -6,12 +6,16 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkClass
+import ombruk.backend.aarsak.application.service.AarsakService
+import ombruk.backend.aktor.application.service.KontaktService
 import ombruk.backend.henting.application.api.dto.PlanlagtHentingBatchPostDto
 import ombruk.backend.henting.application.api.dto.PlanlagtHentingSaveDto
 import ombruk.backend.henting.application.service.PlanlagtHentingService
-import ombruk.backend.henting.domain.entity.PlanlagtHentingWithParents
+import ombruk.backend.henting.domain.entity.PlanlagtHenting
 import ombruk.backend.henting.infrastructure.repository.PlanlagtHentingRepository
 import ombruk.backend.kategori.application.service.HenteplanKategoriService
+import ombruk.backend.notification.application.service.NotificationService
+import ombruk.backend.vektregistrering.application.service.VektregistreringService
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -32,11 +36,15 @@ internal class PlanlagtHentingServiceTest {
     private lateinit var planlagtHentingService: PlanlagtHentingService
     private var henteplanKategoriService = mockkClass(HenteplanKategoriService::class)
     private var planlagtHentingRepository = mockkClass(PlanlagtHentingRepository::class)
+    private var vektregistreringService = mockkClass(VektregistreringService::class)
+    private var notificationService = mockkClass(NotificationService::class)
+    private var aarsakService = mockkClass(AarsakService::class)
+    private var kontaktService = mockkClass(KontaktService::class)
 
     @BeforeEach
     fun setUp() {
         mockDatabase()
-        planlagtHentingService = PlanlagtHentingService(planlagtHentingRepository, henteplanKategoriService)
+        planlagtHentingService = PlanlagtHentingService(planlagtHentingRepository, vektregistreringService, notificationService, aarsakService, kontaktService)
     }
 
     @AfterEach
@@ -45,13 +53,12 @@ internal class PlanlagtHentingServiceTest {
     }
 
     @Test
-    fun batchCreateForHenteplan(@MockK expected : PlanlagtHentingWithParents) {
+    fun batchCreateForHenteplan(@MockK expected : PlanlagtHenting) {
 
         val dto = PlanlagtHentingBatchPostDto(
             PlanlagtHentingSaveDto(
                 LocalDateTime.of(2021,1,1,10,0),
                 LocalDateTime.of(2022,2,1,14,0),
-                null,
                 UUID.randomUUID()
             ),
             listOf(

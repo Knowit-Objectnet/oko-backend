@@ -7,6 +7,7 @@ import ombruk.backend.henting.infrastructure.repository.EkstraHentingRepository
 import ombruk.backend.kategori.application.service.EkstraHentingKategoriService
 import ombruk.backend.kategori.domain.entity.EkstraHentingKategori
 import ombruk.backend.utlysning.application.service.UtlysningService
+import ombruk.backend.vektregistrering.application.service.VektregistreringService
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -25,11 +26,12 @@ internal class EkstraHentingServiceTest {
     private var utlysningService = mockkClass(UtlysningService::class)
     private var ekstraHentingRepository = mockkClass(EkstraHentingRepository::class)
     private var ekstraHentingKategoriService = mockkClass(EkstraHentingKategoriService::class)
+    private var vektregistreringService = mockkClass(VektregistreringService::class)
 
     @BeforeEach
     fun setUp() {
         mockDatabase()
-        ekstraHentingService = EkstraHentingService(ekstraHentingRepository, utlysningService, ekstraHentingKategoriService)
+        ekstraHentingService = EkstraHentingService(ekstraHentingRepository, utlysningService, ekstraHentingKategoriService, vektregistreringService)
     }
 
     @AfterEach

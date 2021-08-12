@@ -19,7 +19,6 @@ import java.util.*
 data class HenteplanKategoriSaveDto(
     @Serializable(with = UUIDSerializer::class) override val henteplanId: UUID,
     @Serializable(with = UUIDSerializer::class) override val kategoriId: UUID,
-    override val merknad: String? = null
 ) : IForm<HenteplanKategoriSaveDto>, HenteplanKategoriCreateParams(), KoinComponent {
     override fun validOrError(): Either<ValidationError, HenteplanKategoriSaveDto> = runCatchingValidation {
         validate(this) {

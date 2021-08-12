@@ -20,8 +20,8 @@ data class PlanlagtHentingUpdateDto(
     @Serializable(with = UUIDSerializer::class) override val id: UUID,
     @Serializable(with = LocalDateTimeSerializer::class) override val startTidspunkt: LocalDateTime? = null,
     @Serializable(with = LocalDateTimeSerializer::class) override val sluttTidspunkt: LocalDateTime? = null,
-    override val merknad: String? = null,
-    @Serializable(with = LocalDateTimeSerializer::class) override val avlyst: LocalDateTime? = null
+    override val avlyst: Boolean? = null,
+    @Serializable(with = UUIDSerializer::class) override val aarsakId: UUID? = null,
 ) : IForm<PlanlagtHentingUpdateDto>, PlanlagtHentingUpdateParams() {
     override fun validOrError(): Either<ValidationError, PlanlagtHentingUpdateDto> = runCatchingValidation {
         validate(this) {

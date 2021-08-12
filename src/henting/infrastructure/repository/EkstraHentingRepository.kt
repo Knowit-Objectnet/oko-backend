@@ -21,7 +21,7 @@ class EkstraHentingRepository :
         return EkstraHentingTable.insertAndGetId {
             it[table.startTidspunkt] = params.startTidspunkt
             it[table.sluttTidspunkt] = params.sluttTidspunkt
-            it[table.merknad] = params.merknad
+            it[table.beskrivelse] = params.beskrivelse
             it[table.stasjonId] = params.stasjonId
         }
     }
@@ -30,7 +30,7 @@ class EkstraHentingRepository :
         return table.update ( {table.id eq params.id} ) { row ->
             params.startTidspunkt?.let { row[table.startTidspunkt] = it }
             params.sluttTidspunkt?.let { row[table.sluttTidspunkt] = it }
-            params.merknad?.let { row[table.merknad] = it }
+            params.beskrivelse?.let { row[table.beskrivelse] = it }
         }
     }
 
@@ -49,11 +49,11 @@ class EkstraHentingRepository :
             row[table.id].value,
             row[table.startTidspunkt],
             row[table.sluttTidspunkt],
-            row[table.merknad],
+            row[table.beskrivelse],
             row[table.stasjonId],
             row[StasjonTable.navn],
             null,
-            null
+            emptyList()
         )
     }
 
@@ -68,7 +68,7 @@ class EkstraHentingRepository :
             .andIfNotNull(params.stasjonId){table.stasjonId eq params.stasjonId!!}
             .andIfNotNull(params.before){table.sluttTidspunkt.lessEq(params.before!!)}
             .andIfNotNull(params.after){table.startTidspunkt.greaterEq(params.after!!)}
-            .andIfNotNull(params.merknad){Op.FALSE} //Not implemented
+            .andIfNotNull(params.beskrivelse){Op.FALSE} //Not implemented
     }
 
     override val table = EkstraHentingTable

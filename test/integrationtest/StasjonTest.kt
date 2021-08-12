@@ -1,6 +1,7 @@
 import arrow.core.Either
 import io.ktor.util.*
 import io.mockk.junit5.MockKExtension
+import ombruk.backend.aarsak.aarsakModule
 import ombruk.backend.aktor.application.api.dto.StasjonFindDto
 import ombruk.backend.aktor.application.api.dto.StasjonSaveDto
 import ombruk.backend.aktor.application.api.dto.StasjonUpdateDto
@@ -11,6 +12,7 @@ import ombruk.backend.avtale.avtaleModule
 import ombruk.backend.henting.hentingModule
 import ombruk.backend.kategori.kategoriModule
 import ombruk.backend.utlysning.utlysningModule
+import ombruk.backend.vektregistrering.vektregistreringModule
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.koin.core.context.loadKoinModules
@@ -40,7 +42,7 @@ class StasjonTest : KoinTest{
     fun setup() {
         testContainer.start()
         startKoin {  }
-        loadKoinModules(listOf(MockAktorModule.get(), avtaleModule, hentingModule, utlysningModule, kategoriModule))
+        loadKoinModules(listOf(MockAktorModule.get(), avtaleModule, hentingModule, utlysningModule, kategoriModule, vektregistreringModule, aarsakModule))
         stasjonService = get()
     }
 

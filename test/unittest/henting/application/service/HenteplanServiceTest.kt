@@ -11,7 +11,7 @@ import ombruk.backend.henting.application.api.dto.HenteplanFindDto
 import ombruk.backend.henting.application.service.HenteplanService
 import ombruk.backend.henting.application.service.PlanlagtHentingService
 import ombruk.backend.henting.domain.entity.Henteplan
-import ombruk.backend.henting.domain.entity.PlanlagtHentingWithParents
+import ombruk.backend.henting.domain.entity.PlanlagtHenting
 import ombruk.backend.henting.domain.model.HenteplanFrekvens
 import ombruk.backend.henting.infrastructure.repository.HenteplanRepository
 import ombruk.backend.kategori.application.service.HenteplanKategoriService
@@ -75,7 +75,7 @@ internal class HenteplanServiceTest {
     }
 
     @Test
-    fun createPlanlagtHentinger(@MockK expected : List<PlanlagtHentingWithParents>) {
+    fun createPlanlagtHentinger(@MockK expected : List<PlanlagtHenting>) {
 
         every { planlagtHentingService.batchSaveForHenteplan(any()) } returns expected.right()
         val actual = henteplanService.createPlanlagtHentinger(henteplanPostDto, henteplan.id)
@@ -84,7 +84,7 @@ internal class HenteplanServiceTest {
     }
 
     @Test
-    fun appendPlanlagtHentinger(@MockK expectedList : List<PlanlagtHentingWithParents>) {
+    fun appendPlanlagtHentinger(@MockK expectedList : List<PlanlagtHenting>) {
 
         every { planlagtHentingService.batchSaveForHenteplan(any()) } returns expectedList.right()
 
@@ -96,7 +96,7 @@ internal class HenteplanServiceTest {
     }
 
     @Test
-    fun create(@MockK expectedList : List<PlanlagtHentingWithParents>) {
+    fun create(@MockK expectedList : List<PlanlagtHenting>) {
         every { henteplanRepository.insert(any()) } returns henteplan.right()
         every { planlagtHentingService.batchSaveForHenteplan(any()) } returns expectedList.right()
 
@@ -109,7 +109,7 @@ internal class HenteplanServiceTest {
     }
 
     @Test
-    fun batchCreate(@MockK expectedList : List<PlanlagtHentingWithParents>) {
+    fun batchCreate(@MockK expectedList : List<PlanlagtHenting>) {
         every { henteplanRepository.insert(any()) } returns henteplan.right()
         every { planlagtHentingService.batchSaveForHenteplan(any()) } returns expectedList.right()
 

@@ -7,5 +7,6 @@ import java.util.*
 @Serializable
 data class Kategori(
     @Serializable(with = UUIDSerializer::class) val id: UUID,
-    val navn: String
+    val navn: String,
+    val vektkategori: Boolean
 )
