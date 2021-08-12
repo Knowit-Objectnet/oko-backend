@@ -16,7 +16,7 @@ object EmailUtlysningMessageToPartner {
                 henting.startTidspunkt,
                 henting.sluttTidspunkt
             )
-        }. Vær kjapp! \n${getBeskrivelse(henting.beskrivelse)} ${getKategoriString(henting.kategorier)} \n\nLink til henting og påmelding: oko.knowit.no/ekstrahenting" + Signature.signature
+        }. Kun den første til å melde seg på får muligheten. Vær kjapp! \n${getBeskrivelse(henting.beskrivelse)} ${getKategoriString(henting.kategorier)} \n\nLink til henting og påmelding: oko.knowit.no/ekstrahenting" + Signature.signature
     }
 
     fun getPreviewMessage(henting: EkstraHenting): String {
