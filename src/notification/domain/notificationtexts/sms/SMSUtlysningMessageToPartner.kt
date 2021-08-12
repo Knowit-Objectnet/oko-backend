@@ -8,7 +8,7 @@ import ombruk.backend.shared.utils.formatDateRange
 object SMSUtlysningMessageToPartner {
     fun getMessage(henting: EkstraHenting): String {
         return "Du kan nå melde deg på ekstrahenting på ${henting.stasjonNavn} stasjon ${formatDateRange(henting.startTidspunkt, henting.sluttTidspunkt)}." +
-                " Vær kjapp! \nLink til henting og påmelding: oko.knowit.no/ekstrahenting \n" +
+                " Førstemann til mølla, vær kjapp! \nLink til henting og påmelding: oko.knowit.no/ekstrahenting \n" +
                 Signature.signature
     }
 
