@@ -1,6 +1,5 @@
 package ombruk.backend.shared.utils.validation
 
-import ombruk.backend.calendar.database.StationRepository
 import org.valiktor.Constraint
 import org.valiktor.Validator
 import java.time.DayOfWeek
@@ -16,11 +15,6 @@ fun <E> Validator<E>.Property<Map<DayOfWeek, List<LocalTime>>?>.isValid() =
         it == null || it.all { it.key.value in 1..5 && it.value.size == 2 && it.value[0] < it.value[1] }
     }
 
-fun <E> Validator<E>.Property<LocalDateTime?>.isWithinOpeningHoursOf(stationId: Int) =
-    this.validate(TimeIsWithinOpeningHours(stationId)) { dateTime ->
-        dateTime == null ||
-                StationRepository.getStationById(stationId).exists { station -> dateTime.isWithin(station.hours!!) }
-    }
 
 fun LocalDateTime.isWithin(openHours: Map<DayOfWeek, List<LocalTime>>): Boolean =
     openHours.any { map ->

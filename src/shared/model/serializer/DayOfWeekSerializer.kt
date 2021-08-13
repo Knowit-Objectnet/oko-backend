@@ -1,18 +1,19 @@
 package ombruk.backend.shared.model.serializer
 
 import kotlinx.serialization.*
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import java.time.DayOfWeek
 
 object DayOfWeekSerializer : KSerializer<DayOfWeek> {
-    override val descriptor: SerialDescriptor = PrimitiveDescriptor("DayOfWeek", PrimitiveKind.STRING)
-    val json = Json(JsonConfiguration.Stable)
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("DayOfWeek", PrimitiveKind.STRING)
 
-    override fun serialize(encoder: Encoder, obj: DayOfWeek) =
-        encoder.encodeString(obj.name)
+    override fun serialize(encoder: Encoder, value: DayOfWeek) =
+        encoder.encodeString(value.name)
 
-    @ImplicitReflectionSerializer
     override fun deserialize(decoder: Decoder): DayOfWeek =
         DayOfWeek.valueOf(decoder.decodeString())
 
