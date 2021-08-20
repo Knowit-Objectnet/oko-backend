@@ -45,6 +45,7 @@ abstract class RepositoryBase<Entity : Any, EntityParams, EntityUpdateParams: Up
         return runCatching {
             updateQuery(params)
         }
+            .map { if (it > 0) runCatching { table.update({table.id eq params.id}){ it[oppdatert] = LocalDateTime.now()} } }
             .onFailure { logger.error("Failed to update database; ${it.message}") }
             .fold(
                 {
@@ -127,7 +128,7 @@ abstract class RepositoryBase<Entity : Any, EntityParams, EntityUpdateParams: Up
                 //Return right if more than 1 partner has been updated. Else, return an Error
                 {
                     if (it > 0) {
-                        logger.info("$it entities archived");
+                        logger.info("$it entities archived")
                         find(params, true)
                     }
                     else emptyList<Entity>().right()
