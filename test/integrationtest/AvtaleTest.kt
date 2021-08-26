@@ -99,8 +99,8 @@ class AvtaleTest : KoinTest {
         val avtaleCreateDto = AvtaleSaveDto(
             partner.id,
             AvtaleType.FAST,
-            LocalDate.of(2021,1,1),
-            LocalDate.of(2022,1,1),
+            LocalDate.of(2027,1,1),
+            LocalDate.of(2028,1,1),
             emptyList()
         ).validateAndRequireRight()
 
@@ -118,8 +118,8 @@ class AvtaleTest : KoinTest {
         val avtaleCreateDto = AvtaleSaveDto(
             UUID.randomUUID(),
             AvtaleType.FAST,
-            LocalDate.of(2021,1,1),
-            LocalDate.of(2022,1,1),
+            LocalDate.of(2027,1,1),
+            LocalDate.of(2028,1,1),
             emptyList()
         ).validOrError()
 
@@ -147,8 +147,8 @@ class AvtaleTest : KoinTest {
             avtale.id,
             stasjon.id,
             HenteplanFrekvens.UKENTLIG,
-            LocalDateTime.of(2021,1,1,10,0),
-            LocalDateTime.of(2021,2,1,14,0),
+            LocalDateTime.of(2027,1,1,10,0),
+            LocalDateTime.of(2027,2,1,14,0),
             DayOfWeek.FRIDAY,
             ""
         ).validateAndRequireRight()
@@ -157,8 +157,8 @@ class AvtaleTest : KoinTest {
             avtale.id,
             stasjon.id,
             HenteplanFrekvens.ENKELT,
-            LocalDateTime.of(2021,1,1,10,0),
-            LocalDateTime.of(2021,1,1,14,0),
+            LocalDateTime.of(2027,1,1,10,0),
+            LocalDateTime.of(2027,1,1,14,0),
             DayOfWeek.FRIDAY,
             ""
         ).validateAndRequireRight()
