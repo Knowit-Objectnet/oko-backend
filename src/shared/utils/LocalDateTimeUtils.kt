@@ -91,3 +91,8 @@ fun formatDateTime(dateTime: LocalDateTime): String {
     val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
     return "${ dateTime.format(dateformatter) } kl ${dateTime.format(timeFormatter)}"
 }
+
+fun LocalDateTime.todayIfBefore(): LocalDateTime {
+    if (this.isBefore(LocalDateTime.now())) return LocalDateTime.now()
+    else return this
+}
