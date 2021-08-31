@@ -13,7 +13,8 @@ import java.util.*
 data class PartnerGetDto(
     override val navn: String? = null,
     override val ideell: Boolean? = null,
-    override val id: UUID? = null
+    override val id: UUID? = null,
+    val includeAvtaler: Boolean = false
 ) : IForm<PartnerGetDto>, PartnerFindParams() {
     override fun validOrError() = runCatchingValidation {
         validate(this) {
