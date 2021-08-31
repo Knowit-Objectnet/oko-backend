@@ -7,6 +7,7 @@ import ombruk.backend.shared.error.ServiceError
 
 
 import arrow.core.Either
+import io.ktor.locations.*
 import ombruk.backend.aktor.application.api.dto.PartnerUpdateDto
 import java.util.*
 

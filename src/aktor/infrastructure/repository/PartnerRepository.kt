@@ -48,6 +48,7 @@ class PartnerRepository : RepositoryBase<Partner, PartnerCreateParams, PartnerUp
             row[table.id].value,
             row[table.navn],
             emptyList(),
+            emptyList(),
             row[table.ideell]
         )
     }

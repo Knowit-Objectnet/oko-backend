@@ -52,7 +52,25 @@ class PartnerService constructor(
     }
 
     @KtorExperimentalLocationsAPI
+    fun getPartnereWithAvtaler(dto: PartnerGetDto, includeKontakt: Boolean): Either<ServiceError, List<Partner>> {
+        return transaction {
+            partnerRepository.find(dto)
+                .flatMap {
+                    it.map { partner ->
+                        avtaleService.find(AvtaleFindDto(aktorId = partner.id))
+                            .flatMap { avtaler ->
+                                if (includeKontakt) kontaktService.getKontakter(KontaktGetDto(aktorId = partner.id))
+                                    .flatMap { kontakter -> partner.copy(kontaktPersoner = kontakter, avtaler = avtaler).right() }
+                                else partner.copy(avtaler = avtaler).right()
+                            }
+                    }.sequence(Either.applicative()).fix().map { it.fix() }
+                }
+        }
+    }
+
+    @KtorExperimentalLocationsAPI
     override fun getPartnere(dto: PartnerGetDto, includeKontakt: Boolean): Either<ServiceError, List<Partner>> {
+        if (dto.includeAvtaler) return getPartnereWithAvtaler(dto, includeKontakt)
         return transaction {
             partnerRepository.find(dto)
                 .flatMap {
