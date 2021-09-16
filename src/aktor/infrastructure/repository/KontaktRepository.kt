@@ -29,6 +29,7 @@ class KontaktRepository : RepositoryBase<Kontakt, KontaktCreateParams, KontaktUp
 
     override fun prepareQuery(params: KontaktFindParams): Pair<Query, List<Alias<Table>>?> {
         val query = table.selectAll()
+        params.id?.let { query.andWhere { table.id eq it }}
         params.aktorId?.let { query.andWhere { table.aktorId eq it }}
         params.navn?.let { query.andWhere { table.navn eq it } }
         params.telefon?.let { query.andWhere { table.telefon eq it } }

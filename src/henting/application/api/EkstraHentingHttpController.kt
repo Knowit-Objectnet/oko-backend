@@ -25,35 +25,34 @@ fun Routing.ekstraHentinger(ekstraHentingService: IEkstraHentingService) {
 
     route("/ekstra-hentinger") {
 
-        get<EkstraHentingFindOneDto> { form ->
-            form.validOrError()
-                .flatMap { ekstraHentingService.findOne(form.id) }
-                .run { generateResponse(this) }
-                .also { (code, response) -> call.respond(code, response) }
-        }
 
-        get<EkstraHentingFindDto> { form ->
-            form.validOrError()
-                .flatMap { ekstraHentingService.find(form) }
-                .run { generateResponse(this) }
-                .also { (code, response) -> call.respond(code, response) }
-        }
+        authenticate {
+            get<EkstraHentingFindDto> { form ->
+                Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.ReuseStation, Roles.Partner), call)
+                    .flatMap { (role, groupId) ->
+                        form.validOrError()
+                            .map { if (role == Roles.ReuseStation) it.copy(stasjonId = groupId) else it}
+                            .flatMap {
+                                if (role == Roles.Partner) ekstraHentingService.findWithUtlysninger(it, groupId)
+                                else ekstraHentingService.findWithUtlysninger(it)
+                            }
+                    }
+                    .run { generateResponse(this) }
+                    .also { (code, response) -> call.respond(code, response) }
+            }
 
-        route("/med-utlysning") {
-            authenticate {
-                get<EkstraHentingFindDto> { form ->
-                    Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.ReuseStation, Roles.Partner), call)
-                        .flatMap { (role, groupId) ->
-                            form.validOrError()
-                                .map { if (role == Roles.ReuseStation) it.copy(stasjonId = groupId) else it}
-                                .flatMap {
-                                    if (role == Roles.Partner) ekstraHentingService.findWithUtlysninger(it, groupId)
-                                    else ekstraHentingService.findWithUtlysninger(it)
-                                }
-                        }
-                        .run { generateResponse(this) }
-                        .also { (code, response) -> call.respond(code, response) }
-                }
+            get<EkstraHentingFindOneDto> { form ->
+                Authorization.authorizeRole(listOf(Roles.RegEmployee, Roles.ReuseStation, Roles.Partner), call)
+                    .flatMap { (role, groupId) ->
+                        form.validOrError()
+                            .map { if (role == Roles.ReuseStation) it.copy(stasjonId = groupId) else it}
+                            .flatMap {
+                                if (role == Roles.Partner) ekstraHentingService.findOneWithUtlysninger(form.id, groupId)
+                                else ekstraHentingService.findOneWithUtlysninger(form.id)
+                            }
+                    }
+                    .run { generateResponse(this) }
+                    .also { (code, response) -> call.respond(code, response) }
             }
         }
 
