@@ -38,9 +38,10 @@ class VektregistreringService(
             dto.kategoriIds
                 .mapIndexed { index, kategoriId -> save(
                     VektregistreringSaveDto(
-                    hentingId = dto.hentingId,
-                    kategoriId = UUID.fromString(kategoriId),
-                    vekt = dto.veiinger.get(index)))
+                        hentingId = dto.hentingId,
+                        kategoriId = UUID.fromString(kategoriId),
+                        vekt = dto.veiinger.get(index),
+                        vektRegistreringAv = dto.vektRegistreringAv))
                 }
                 .sequence(Either.applicative())
                 .fix()

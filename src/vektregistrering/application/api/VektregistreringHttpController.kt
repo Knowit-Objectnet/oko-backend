@@ -112,7 +112,7 @@ fun Routing.vektregistrering(vektregistreringService: IVektregistreringService, 
                                             }
                                         }
                                     )
-                                    .flatMap { vektregistreringService.batchSave(dto) }
+                                    .flatMap { vektregistreringService.batchSave(dto.copy(vektRegistreringAv = groupId)) }
                             }
                     }
                     .run { generateResponse(this) }
