@@ -113,5 +113,3 @@ create TABLE utlysning (
     FOREIGN KEY (partner_id) references partner,
     FOREIGN KEY (henting_id) references ekstra_henting
 );
-
-INSERT INTO partner (id, navn, ideell) VALUES ('9787dcf5-9ca4-4441-a0f1-ed6a62502545', 'Fretex', true);

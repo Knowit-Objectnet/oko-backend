@@ -1,11 +1,7 @@
 package ombruk.backend.vektregistrering.infrastructure.repository
 
 import arrow.core.Either
-import arrow.core.left
 import ombruk.backend.core.infrastructure.RepositoryBase
-import ombruk.backend.henting.domain.entity.PlanlagtHenting
-import ombruk.backend.henting.domain.params.PlanlagtHentingUpdateParams
-import ombruk.backend.henting.infrastructure.table.PlanlagtHentingTable
 import ombruk.backend.kategori.domain.entity.Kategori
 import ombruk.backend.kategori.domain.params.KategoriCreateParams
 import ombruk.backend.kategori.domain.params.KategoriFindParams
@@ -68,7 +64,7 @@ class VektregistreringRepository : RepositoryBase<Vektregistrering, Vektregistre
 
     override val table = VektregistreringTable
 
-     override fun updateQuery(params: VektregistreringUpdateParams): Int {
+    override fun updateQuery(params: VektregistreringUpdateParams): Int {
         return table.update({table.id eq params.id}) { row ->
             params.vekt?.let {
                 row[vekt] = it;

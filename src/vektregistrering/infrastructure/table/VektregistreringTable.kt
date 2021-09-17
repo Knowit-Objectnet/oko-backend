@@ -3,7 +3,6 @@ package ombruk.backend.vektregistrering.infrastructure.table
 import ombruk.backend.henting.infrastructure.table.EkstraHentingTable
 import ombruk.backend.henting.infrastructure.table.HenteplanTable
 import ombruk.backend.henting.infrastructure.table.PlanlagtHentingTable
-import ombruk.backend.henting.infrastructure.table.PlanlagtHentingTable.nullable
 import ombruk.backend.kategori.infrastructure.table.KategoriTable
 import ombruk.backend.shared.database.ArchivableUUIDTable
 import org.jetbrains.exposed.dao.id.UUIDTable

@@ -3,8 +3,6 @@ package ombruk.backend.vektregistrering.application.service
 import arrow.core.*
 import arrow.core.extensions.either.applicative.applicative
 import arrow.core.extensions.list.traverse.sequence
-import ombruk.backend.henting.application.api.dto.PlanlagtHentingUpdateDto
-import ombruk.backend.henting.domain.entity.PlanlagtHenting
 import ombruk.backend.kategori.application.api.dto.HenteplanKategoriFindDto
 import ombruk.backend.kategori.application.api.dto.KategoriDeleteDto
 import ombruk.backend.kategori.application.api.dto.KategoriFindDto
@@ -41,7 +39,8 @@ class VektregistreringService(
                         hentingId = dto.hentingId,
                         kategoriId = UUID.fromString(kategoriId),
                         vekt = dto.veiinger.get(index),
-                        vektRegistreringAv = dto.vektRegistreringAv))
+                        vektRegistreringAv = dto.vektRegistreringAv)
+                )
                 }
                 .sequence(Either.applicative())
                 .fix()
