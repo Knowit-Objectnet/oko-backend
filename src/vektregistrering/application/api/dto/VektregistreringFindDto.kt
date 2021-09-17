@@ -24,6 +24,7 @@ data class VektregistreringFindDto(
     override val vekt: Float? = null,
     @Serializable(with = LocalDateTimeSerializer::class) override val before: LocalDateTime? = null,
     @Serializable(with = LocalDateTimeSerializer::class) override val after: LocalDateTime? = null,
+    @Serializable(with = UUIDSerializer::class) override val vektRegistreringAv: UUID? = null,
     ) : IForm<VektregistreringFindDto>,
     VektregistreringFindParams() {
     override fun validOrError(): Either<ValidationError, VektregistreringFindDto> = runCatchingValidation {

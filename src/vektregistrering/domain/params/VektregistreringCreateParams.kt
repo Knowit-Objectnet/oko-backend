@@ -6,4 +6,5 @@ abstract class VektregistreringCreateParams {
     abstract val hentingId: UUID
     abstract val kategoriId: UUID
     abstract val vekt: Float
+    abstract val vektRegistreringAv: UUID?
 }

@@ -10,4 +10,5 @@ abstract class VektregistreringFindParams : FindParams {
     abstract val vekt: Float?
     abstract val before: LocalDateTime?
     abstract val after: LocalDateTime?
+    abstract val vektRegistreringAv: UUID?
 }

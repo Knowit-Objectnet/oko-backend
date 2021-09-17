@@ -1,6 +1,7 @@
 package ombruk.backend.vektregistrering.domain.port
 
 import arrow.core.Either
+import ombruk.backend.henting.domain.entity.PlanlagtHenting
 import ombruk.backend.kategori.domain.entity.Kategori
 import ombruk.backend.kategori.domain.params.KategoriCreateParams
 import ombruk.backend.kategori.domain.params.KategoriFindParams
@@ -9,6 +10,7 @@ import ombruk.backend.vektregistrering.domain.entity.Vektregistrering
 import ombruk.backend.vektregistrering.domain.params.VektregistreringCreateParams
 import ombruk.backend.vektregistrering.domain.params.VektregistreringFindParams
 import ombruk.backend.vektregistrering.domain.params.VektregistreringUpdateParams
+import java.time.LocalDateTime
 import java.util.*
 
 interface IVektregistreringRepository {

@@ -18,6 +18,7 @@ import java.util.*
 @Serializable
 data class VektregistreringBatchSaveDto(
     @Serializable(with = UUIDSerializer::class) val hentingId: UUID,
+    @Serializable(with = UUIDSerializer::class) val vektRegistreringAv: UUID? = null,
     val kategoriIds: List<String>,//Serializer library does not allow for serializing list of UUID
     val veiinger: List<Float>
 ) : IForm<VektregistreringBatchSaveDto>, KoinComponent {

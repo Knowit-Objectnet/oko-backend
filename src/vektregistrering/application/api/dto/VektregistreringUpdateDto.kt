@@ -21,7 +21,8 @@ import java.util.*
 data class VektregistreringUpdateDto(
     @Serializable(with = UUIDSerializer::class) override val id: UUID,
     @Serializable(with = UUIDSerializer::class) val hentingId: UUID,
-    override val vekt: Float? = null
+    override val vekt: Float? = null,
+    @Serializable(with = UUIDSerializer::class) override val vektRegistreringAv: UUID? = null
 ) : IForm<VektregistreringUpdateDto>, VektregistreringUpdateParams(), KoinComponent {
     override fun validOrError(): Either<ValidationError, VektregistreringUpdateDto> = runCatchingValidation {
         validate(this) {

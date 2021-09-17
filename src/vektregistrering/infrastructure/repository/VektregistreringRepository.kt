@@ -1,7 +1,11 @@
 package ombruk.backend.vektregistrering.infrastructure.repository
 
 import arrow.core.Either
+import arrow.core.left
 import ombruk.backend.core.infrastructure.RepositoryBase
+import ombruk.backend.henting.domain.entity.PlanlagtHenting
+import ombruk.backend.henting.domain.params.PlanlagtHentingUpdateParams
+import ombruk.backend.henting.infrastructure.table.PlanlagtHentingTable
 import ombruk.backend.kategori.domain.entity.Kategori
 import ombruk.backend.kategori.domain.params.KategoriCreateParams
 import ombruk.backend.kategori.domain.params.KategoriFindParams
@@ -29,6 +33,7 @@ class VektregistreringRepository : RepositoryBase<Vektregistrering, Vektregistre
             it[kategoriId] = params.kategoriId
             it[vekt] = params.vekt
             it[registreringsDato] = LocalDateTime.now()
+            params.vektRegistreringAv?.let { vektAv -> it[vektRegistreringAv] = vektAv }
         }
     }
 
@@ -40,6 +45,7 @@ class VektregistreringRepository : RepositoryBase<Vektregistrering, Vektregistre
         params.vekt?.let { query.andWhere { table.vekt eq it } }
         params.after?.let { query.andWhere { table.registreringsDato.greaterEq(it) } }
         params.before?.let { query.andWhere { table.registreringsDato.lessEq(it) } }
+        params.vektRegistreringAv?.let { query.andWhere { table.vektRegistreringAv eq it } }
         return Pair(query, null)
     }
 
@@ -55,18 +61,20 @@ class VektregistreringRepository : RepositoryBase<Vektregistrering, Vektregistre
             row[table.kategoriId],
             row[KategoriTable.navn],
             row[table.vekt],
-            row[table.registreringsDato]
+            row[table.registreringsDato],
+            row[table.vektRegistreringAv]
         )
     }
 
     override val table = VektregistreringTable
 
-    override fun updateQuery(params: VektregistreringUpdateParams): Int {
+     override fun updateQuery(params: VektregistreringUpdateParams): Int {
         return table.update({table.id eq params.id}) { row ->
             params.vekt?.let {
-                row[vekt] = it
-                row[registreringsDato] = LocalDateTime.now()
+                row[vekt] = it;
             }
+            params.vektRegistreringAv?.let { row[vektRegistreringAv] = params.vektRegistreringAv!! }
+            row[registreringsDato] = LocalDateTime.now()
         }
     }
 }

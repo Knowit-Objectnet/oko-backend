@@ -188,7 +188,7 @@ fun Routing.vektregistrering(vektregistreringService: IVektregistreringService, 
                                                 }
                                             )
                                         }
-                                }.sequence(Either.applicative()).fix().map { it.fix() }.fold({it.left()},{ vektregistreringService.batchUpdate(dto) })
+                                }.sequence(Either.applicative()).fix().map { it.fix() }.fold({it.left()},{ vektregistreringService.batchUpdate(dto.copy(vektRegistreringAv = groupId)) })
                             }
                     }
                     .run { generateResponse(this) }
