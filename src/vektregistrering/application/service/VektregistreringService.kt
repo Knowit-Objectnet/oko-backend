@@ -1,11 +1,8 @@
 package ombruk.backend.vektregistrering.application.service
 
-import arrow.core.Either
+import arrow.core.*
 import arrow.core.extensions.either.applicative.applicative
 import arrow.core.extensions.list.traverse.sequence
-import arrow.core.fix
-import arrow.core.left
-import arrow.core.right
 import ombruk.backend.kategori.application.api.dto.HenteplanKategoriFindDto
 import ombruk.backend.kategori.application.api.dto.KategoriDeleteDto
 import ombruk.backend.kategori.application.api.dto.KategoriFindDto
@@ -21,6 +18,7 @@ import ombruk.backend.vektregistrering.application.api.dto.*
 import ombruk.backend.vektregistrering.domain.entity.Vektregistrering
 import ombruk.backend.vektregistrering.domain.port.IVektregistreringRepository
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.time.LocalDateTime
 import java.util.*
 
 class VektregistreringService(
@@ -38,9 +36,11 @@ class VektregistreringService(
             dto.kategoriIds
                 .mapIndexed { index, kategoriId -> save(
                     VektregistreringSaveDto(
-                    hentingId = dto.hentingId,
-                    kategoriId = UUID.fromString(kategoriId),
-                    vekt = dto.veiinger.get(index)))
+                        hentingId = dto.hentingId,
+                        kategoriId = UUID.fromString(kategoriId),
+                        vekt = dto.veiinger.get(index),
+                        vektRegistreringAv = dto.vektRegistreringAv)
+                )
                 }
                 .sequence(Either.applicative())
                 .fix()
@@ -85,7 +85,8 @@ class VektregistreringService(
                     VektregistreringUpdateDto(
                         id = UUID.fromString(veiingId),
                         hentingId = dto.hentingId,
-                        vekt = dto.veiinger.get(index))
+                        vekt = dto.veiinger.get(index),
+                        vektRegistreringAv = dto.vektRegistreringAv)
                 )
                 }
                 .sequence(Either.applicative())
