@@ -13,4 +13,5 @@ object VektregistreringTable : ArchivableUUIDTable("vektregistrering"){
     val kategoriId = uuid("kategori_id").references(KategoriTable.id)
     val vekt = float("vekt")
     val registreringsDato = datetime("registrerings_dato")
+    val vektRegistreringAv = uuid("vekt_registrering_av")
 }

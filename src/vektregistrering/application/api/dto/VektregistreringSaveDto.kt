@@ -19,7 +19,8 @@ import java.util.*
 data class VektregistreringSaveDto(
     @Serializable(with = UUIDSerializer::class) override val hentingId: UUID,
     @Serializable(with = UUIDSerializer::class) override val kategoriId: UUID,
-    override val vekt: Float
+    override val vekt: Float,
+    @Serializable(with = UUIDSerializer::class) override val vektRegistreringAv: UUID? = null
 ) : IForm<VektregistreringSaveDto>, VektregistreringCreateParams(), KoinComponent {
     override fun validOrError(): Either<ValidationError, VektregistreringSaveDto> = runCatchingValidation {
         validate(this) {
