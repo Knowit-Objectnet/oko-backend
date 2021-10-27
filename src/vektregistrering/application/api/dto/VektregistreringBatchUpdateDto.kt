@@ -18,7 +18,8 @@ import java.util.*
 data class VektregistreringBatchUpdateDto(
     @Serializable(with = UUIDSerializer::class) val hentingId: UUID,
     val vektregistreringIds: List<String> = emptyList(),//Serializer library does not allow for serializing list of UUID
-    val veiinger: List<Float> = emptyList()
+    val veiinger: List<Float> = emptyList(),
+    @Serializable(with = UUIDSerializer::class) val vektRegistreringAv: UUID? = null
 ) : IForm<VektregistreringBatchUpdateDto>, KoinComponent {
     override fun validOrError(): Either<ValidationError, VektregistreringBatchUpdateDto> = runCatchingValidation {
         validate(this) {

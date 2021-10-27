@@ -5,4 +5,5 @@ import java.util.*
 
 abstract class VektregistreringUpdateParams: UpdateParams {
     abstract val vekt: Float?
+    abstract val vektRegistreringAv: UUID?
 }
