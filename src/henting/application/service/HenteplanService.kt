@@ -27,7 +27,7 @@ class HenteplanService(val henteplanRepository: IHenteplanRepository, val planla
 
     fun createPlanlagtHentinger(dto: HenteplanSaveDto, henteplanId: UUID): Either<ServiceError, List<PlanlagtHenting>> {
         //Find all dates
-        val dates = LocalDateTimeProgressionWithDayFrekvens(dto.startTidspunkt.todayIfBefore(), dto.sluttTidspunkt, dto.ukedag, dto.frekvens)
+        val dates = LocalDateTimeProgressionWithDayFrekvens(dto.startTidspunkt, dto.sluttTidspunkt, dto.ukedag, dto.frekvens)
             .map { it.toLocalDate() }
         val postDto = PlanlagtHentingSaveDto(dto.startTidspunkt, dto.sluttTidspunkt, henteplanId)
         return planlagtHentingService.batchSaveForHenteplan(PlanlagtHentingBatchPostDto(postDto, dates))
